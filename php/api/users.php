@@ -1,0 +1,202 @@
+<?php
+
+class Users {
+	public $vk_id = null;
+	public $id = null;
+	public $info = [];
+	protected $is_first_start = false;
+
+
+	function __construct( int $vk_user_id ) {
+		$this->vk_id = $vk_user_id;
+		$this->_get();
+
+
+		if ( empty( $this->info ) ) {
+			$this->is_first_start = true;
+			$this->_register();
+
+			$this->_get();
+		}
+
+		$this->id = $this->info['id'];
+
+		if ( $this->info['banned'] ) {
+			throw new Exception( ERRORS[5] . $this->info['ban_reason'], 5 );
+		}
+	}
+
+	public function getMy() {
+		$info = $this->info;
+		$info['is_first_start'] = $this->is_first_start;
+
+		$notifications = new Notifications( $this );
+		$info['notifications_count'] = $notifications->getCount();
+
+		return $this->_formatType( $info );
+	}
+
+	public function getById( int $id ) {
+		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,
+						users.bad_answers, users.total_answers, users.avatar_id, users.money
+						avatars.name as avatar_name, users.flash, users.verified, users.nickname, users.banned, users.ban_reason
+				FROM users
+				LEFT JOIN avatars
+				ON users.avatar_id = avatars.id
+				WHERE users.id = $id;";
+		$res = db_get( $sql );
+
+		if ( empty( $res ) ) {
+			throw new Exception( ERRORS[404], 404 );
+		}
+
+		return $this->_formatType( $res[0] );
+	}
+
+	public function getByIds( string $ids, $order = '' ) {
+		$a_ids = explode( ',', $ids );
+		$ids = [];
+
+		foreach ( $a_ids as $i => $id ) {
+			if ( !is_numeric( $id ) ) continue;
+			if ( $i >= MAX_ITEMS_COUNT ) break;
+
+			$ids[] = (int) $id;
+		}
+
+		if ( count( $ids ) == 0 ) return [];
+		$s_ids = implode( ',', $ids );
+		$result = [];
+
+		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,
+						users.bad_answers, users.total_answers, users.money, users.avatar_id,
+						avatars.name as avatar_name, users.flash, users.verified, users.nickname, users.banned, users.ban_reason
+				FROM users
+				LEFT JOIN avatars
+				ON users.avatar_id = avatars.id
+				WHERE users.id IN ( $s_ids ) $order";
+		$res = db_get( $sql );
+
+		foreach ( $res as $item ) {
+			$result[] = $this->_formatType( $item );
+		} 
+
+		return $result;
+	}
+
+	public function getTop() {
+		$count = MAX_ITEMS_COUNT;
+
+		$sql = "SELECT id FROM users ORDER BY rating DESC LIMIT 0, $count";
+		$ids = db_get( $sql );
+
+		$a_ids = [];
+
+		foreach ( $ids as $id ) {
+			$a_ids[] = $id['id'];
+		}
+
+		$s_ids = implode( ',', $a_ids );
+
+		return $this->getByIds( $s_ids, 'ORDER BY rating DESC' );
+	}
+
+	public static function getIdByVKId( int $vk_id ) {
+		$sql = "SELECT id FROM users WHERE vk_user_id = $vk_id";
+		$res = db_get( $sql )[0];
+
+		return $res['id'];
+	}
+
+	private function _get() {
+		$time = time();
+		$user_id = $this->vk_id;
+
+		$sql = "UPDATE users SET last_activity = $time WHERE vk_user_id = $user_id;
+				SELECT users.id, users.last_activity, users.registered, users.good_answers,
+						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.banned, users.noti,
+						avatars.name as avatar_name, users.special, users.banned, users.ban_reason, users.flash, users.verified, users.nickname
+				FROM users
+				LEFT JOIN avatars
+				ON users.avatar_id = avatars.id
+				WHERE users.vk_user_id = $user_id;";
+		$res = db_mget( $sql )[0][0];
+
+		if ( !$res['special'] ) {
+			unset( $res['special'] );
+		}
+
+		$this->info = $res ?? [];
+	}
+
+	private function _register() {
+		$time = time();
+		// $sql = "SELECT COUNT( id ) as count FROM avatars";
+		// $res = db_get( $sql );
+		// $avatars_count = $res[0]['count'];
+
+		$avatars_count = 12;
+
+		$data = [
+			'vk_user_id' => $this->vk_id,
+			'registered' => $time,
+			'last_activity' => $time,
+			'nickname' => '',
+			'avatar_id' => rand( 1, $avatars_count )
+		];
+
+		return db_add( $data, 'users' );
+	}
+
+	private function _formatType( array $data ) {
+		if ( empty( $data ) ) {
+			throw new Exception( ERRORS[404], 404 );
+		}
+
+		$is_online = time() < $data['last_activity'] + ONLINE_TIME;
+
+		if ( !$data['id'] ) {
+			return [];
+		}
+
+		if( $data['banned'] !== 1 ) {
+			$res = [
+				'id' => (int) $data['id'],
+				'online' => [
+					'is_online' => (bool) $is_online,
+					'last_seen' => (int) $data['last_activity']
+				],
+				'avatar' => [
+					'id' => (int) $data['avatar_id'],
+					'url' => AVATAR_PATH . '/' . $data['avatar_name']
+				],
+				'good_answers' => (int) $data['good_answers'],
+				'bad_answers' => (int) $data['bad_answers'],
+				'total_answers' => (int) $data['total_answers'],
+				'registered' => (int) $data['registered'],
+				'flash' => (bool) $data['flash'],
+				'verified' => (bool) $data['verified'],
+			];	
+		}
+
+		if ( isset( $data['noti'] ) ) {
+			$res['noti'] = (bool) $data['noti'];
+ 		}
+
+		if ( isset( $data['is_first_start'] ) ) {
+			$res['is_first_start'] = (bool) $data['is_first_start'];
+		}
+		
+		if ( !empty( $data['nickname'] ) ) $res['nickname'] = $data['nickname'];
+
+		if ( isset( $data['special'] ) ) {
+			$res['special'] = (bool) $data['special'];
+		}
+
+		if ( isset( $data['notifications_count'] ) ) {
+			$res['notifications_count'] = (int) $data['notifications_count'];
+		}
+
+		return $res;
+	}
+}
