@@ -26,7 +26,7 @@ const Profile = props => (
         <div>
             <div className="profile">
                 <div className="image_profile">
-                    <img className="image_profile" src={"https://api.xelene.me" + props.this.state.profile['avatar']['url']}/>
+                    <img className="image_profile" src={props.this.state.profile['avatar']['url']}/>
                 </div>
                 <div className="profiles">
                     <div className="name_profile">  

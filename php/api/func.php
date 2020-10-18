@@ -17,9 +17,9 @@ function check_params( $params ) {
 		$required = $param['required'];
 		$type = $param['type'];
 
-		if ( $required && !isset( $_GET[$name] ) && !isset( $_POST[$name] ) ) {
+		if ( $required && !isset( $_REQUEST[$name] ) ) {
 			throw new Exception( ERRORS[1], 1 );
-		} else if ( !isset( $_GET[$name] ) && !isset( $_POST[$name] ) ) {
+		} else if ( !isset( $_REQUEST[$name]) ) {
 			continue;
 		}
 
@@ -27,13 +27,13 @@ function check_params( $params ) {
 
 		switch( $type ) {
 			case 'int':
-				if ( !is_numeric( $_GET[$name] ) && !is_numeric( $_POST[$name] ) ) $ok_type = false;
+				if ( !is_numeric( $_REQUEST[$name] )) $ok_type = false;
 				break;
 			case 'float':
-				if ( !is_float( $_GET[$name] ) && !is_float( $_POST[$name] ) ) $ok_type = false;
+				if ( !is_float( $_REQUEST[$name] ) ) $ok_type = false;
 				break;
 			case 'string':
-				if ( !is_string( $_GET[$name] ) && !is_string( $_POST[$name] ) ) $ok_type = false;
+				if ( !is_string( $_REQUEST[$name] ) ) $ok_type = false;
 		}
 
 		if ( !$ok_type ) {

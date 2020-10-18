@@ -1,7 +1,7 @@
 <?php
 
 class VKApi {
-	protected const V = 5.95;
+	protected const V = 5.124;
 	protected const ENDPOINT = 'https://api.vk.com/method';
 	protected const LANG = 'ru';
 

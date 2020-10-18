@@ -834,7 +834,7 @@ class App extends React.Component {
     sendNewTiket() {
       this.setState({popout: <ScreenSpinner/>})
       var global = this;
-      if(this.state.text_new_tiket.length >= 5 || this.state.title_new_tiket.length >= 5) {
+      if(this.state.text_new_tiket.length > 5 || this.state.title_new_tiket.length > 5) {
         var url = this.state.api_url + 'method=ticket.add&' + window.location.search.replace('?', '');
         var method = 'POST';
         var async = true;
@@ -848,6 +848,7 @@ class App extends React.Component {
         xhr.onreadystatechange = function() {//Вызывает функцию при смене состояния.
           if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
             if(xhr.responseText) {
+              console.log(xhr.responseText);
               let text = (JSON.parse(xhr.responseText));
               global.goTiket(text.response.ticket_id)
               global.setState({history: ['questions']})

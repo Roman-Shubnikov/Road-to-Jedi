@@ -7,7 +7,7 @@ ini_set('display_startup_errors', 1);
 
 header( 'Access-Control-Allow-Origin: *' );
 
-require 'api/config.php';
+require 'api/api/config.php';
 require 'api/db.php';
 require 'api/func.php';
 require 'vkapi.php';
@@ -270,13 +270,13 @@ switch ( $method ) {
 		ok( $tickets->getRandom() );
 
 	case 'tickets.getMy':
-		$offset = (int) $_GET['offset'] ?? 0;
+		$offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
 		$count = $_GET['count'] ?? ITEMS_PER_PAGE;
 
 		ok( $tickets->getMy( $offset, $count ) );
 
 	case 'tickets.get':
-		$offset = (int) $_GET['offset'] ?? 0;
+		$offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
 		$count = $_GET['count'] ?? ITEMS_PER_PAGE;
 		$unanswered = (bool) $_GET['unanswered'] ?? false;
 
@@ -284,7 +284,7 @@ switch ( $method ) {
 
 	case 'ticket.getMessages':
 		$id = (int) $_GET['ticket_id'];
-		$offset = (int) $_GET['offset'] ?? 0;
+		$offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
 		$count = $_GET['count'] ?? ITEMS_PER_PAGE;
 
 		ok( $tickets->getMessages( $id, $offset, $count ) );

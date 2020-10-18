@@ -35,7 +35,7 @@ import Icon16Done from '@vkontakte/icons/dist/16/done';
                     </div>
                   }
                   size="l"
-                  before={<Avatar src={"https://api.xelene.me" + result['avatar']['url']} size={56}/>}
+                  before={<Avatar src={result['avatar']['url']} size={56}/>}
                 >
                   <div className="top_moderator_name">
                   {isFinite(result['nickname']) ? `Агент Поддержки #${result['nickname']}` : result['nickname'] ? result['nickname'] : `Агент Поддержки #${result['id']}`}

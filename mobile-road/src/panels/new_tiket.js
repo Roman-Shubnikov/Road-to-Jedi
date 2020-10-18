@@ -30,13 +30,22 @@ import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
                 Новый вопрос
                 </PanelHeader>
                 <FormLayout>
-                    <FormLayoutGroup top={props.state.title_new_tiket === null ? "Суть проблемы (0/30)" : "Суть проблемы (" + props.state.title_new_tiket.length + "/80)"}>
+                    <FormLayoutGroup top={props.state.title_new_tiket === null ? "Суть проблемы (0/30). Не менее 5 символов" : "Суть проблемы (" + props.state.title_new_tiket.length + "/80). Не менее 5 символов"}>
                         <Input maxLength="80" type="text" name="title_new_tiket" value={props.state.title_new_tiket} onChange={(e) => props.onChange(e)}/>
                     </FormLayoutGroup>
-                    <Textarea maxLength="2020" name="text_new_tiket" top={props.state.text_new_tiket === null ? "Подробнее о проблеме (0/2020)" : "Подробнее о проблеме (" + props.state.text_new_tiket.length + "/2020)"} onChange={(e) => props.onChange(e)}>
+                    <Textarea maxLength="2020" name="text_new_tiket" top={props.state.text_new_tiket === null ? "Подробнее о проблеме (0/2020). Не менее 5 символов" : "Подробнее о проблеме (" + props.state.text_new_tiket.length + "/2020). Не менее 5 символов"} onChange={(e) => props.onChange(e)}>
                         <Input maxLength="2020" type="text"  name="text_new_tiket" onChange={(e) => props.onChange(e)}/>
                     </Textarea>
-                    <Button size="xl" level="secondary" stretched onClick={() => props.sendNewTiket()}>Отправить</Button>
+                    <Button 
+                    size="xl" 
+                    level="secondary" 
+                    stretched 
+                    disabled={!Boolean(props.state.text_new_tiket.length > 5) || !Boolean(props.state.title_new_tiket.length > 5)}
+                    onClick={
+                        () => {
+                            props.sendNewTiket();
+                        }
+                    }>Отправить</Button>
                 </FormLayout>
             </Panel>
             )

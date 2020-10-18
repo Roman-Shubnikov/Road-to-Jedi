@@ -13,7 +13,7 @@ function db_get( string $sql, int $rowset = 0 ) {
 	$response = [];
 	$result = $mysqli->query( $sql );
 
-	if ( $result->num_rows > 0 ) {
+	if (!empty($result) && $result->num_rows > 0) {
 		while ( $res = $result->fetch_array( MYSQLI_ASSOC ) ) {
 			$response[] = $res;
 		}

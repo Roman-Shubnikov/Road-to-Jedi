@@ -1,5 +1,4 @@
 <?php
-
 class Tickets {
 	protected $user = null;
 
@@ -23,7 +22,6 @@ class Tickets {
 		}
 
 		$res['author'] = $user;
-
 		return $this->_formatType( $res );
 	}
 
@@ -156,7 +154,6 @@ class Tickets {
 
 		$res = db_add( $data, 'tickets' );
 		$id = $mysqli->insert_id;
-
 		if ( !$res ) {
 			throw new Exception( ERRORS[0], 0 );
 		}
@@ -169,7 +166,6 @@ class Tickets {
 	public function sendMessage( int $ticket_id, string $text ) {
 		$ticket = $this->getById( $ticket_id, false );
 		$text = trim( $text );
-
 		if ( !$ticket['id'] ) {
 			throw new Exception( ERROR[404], 404 );
 		}
@@ -222,19 +218,19 @@ class Tickets {
 
 
 		// Сомнительная фича, непонятно зачем. Однажды может сломаться. Хардкод да и только
-		if ( !$this->user->info['special'] && !$is_author ) {
-			$data = [
-				'peer_id' => 2000000004,
-				'random_id' => time(),
-				'message' => "Поступил новый ответ на вопрос!\nСкорей беги проверять.\nhttps://vk.com/app7409818#ticket_id={$ticket_id}\n\nТвой Витёк...",
-				'access_token' =>'f8373822789d677c55a24c195cb74bd4b97ee014e00adc7a3c8a1985d31c5527c281cd2936dc2ff76a31b',
-				'v' => 5.103
-			];
+		// if ( !$this->user->info['special'] && !$is_author ) {
+		// 	$data = [
+		// 		'peer_id' => 2000000004,
+		// 		'random_id' => time(),
+		// 		'message' => "Поступил новый ответ на вопрос!\nСкорей беги проверять.\nhttps://vk.com/app7409818#ticket_id={$ticket_id}\n\nТвой Витёк...",
+		// 		'access_token' =>'f8373822789d677c55a24c195cb74bd4b97ee014e00adc7a3c8a1985d31c5527c281cd2936dc2ff76a31b',
+		// 		'v' => 5.103
+		// 	];
 
-			$query = http_build_query( $data );
-			$url = "https://api.vk.com/method/messages.send?{$query}";
-			file_get_contents( $url );
-		}
+		// 	$query = http_build_query( $data );
+		// 	$url = "https://api.vk.com/method/messages.send?{$query}";
+		// 	file_get_contents( $url );
+		// }
 
 
 		return [
