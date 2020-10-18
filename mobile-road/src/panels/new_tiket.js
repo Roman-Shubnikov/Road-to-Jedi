@@ -34,7 +34,7 @@ import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
                         <Input maxLength="80" type="text" name="title_new_tiket" value={props.state.title_new_tiket} onChange={(e) => props.onChange(e)}/>
                     </FormLayoutGroup>
                     <Textarea maxLength="2020" name="text_new_tiket" top={props.state.text_new_tiket === null ? "Подробнее о проблеме (0/2020). Не менее 5 символов" : "Подробнее о проблеме (" + props.state.text_new_tiket.length + "/2020). Не менее 5 символов"} onChange={(e) => props.onChange(e)}>
-                        <Input maxLength="2020" type="text"  name="text_new_tiket" onChange={(e) => props.onChange(e)}/>
+                        <Input value={props.state.text_new_tiket} maxLength="2020" type="text"  name="text_new_tiket" onChange={(e) => props.onChange(e)}/>
                     </Textarea>
                     <Button 
                     size="xl" 

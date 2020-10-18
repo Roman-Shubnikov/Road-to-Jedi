@@ -230,7 +230,7 @@ class App extends React.Component {
           history: [...this.state.history, "money"],
           popout: null
         })
-      }, 1500)
+      }, 100)
     }
 
     openMoneyTransfer(avatar, text, comment) {
@@ -591,8 +591,8 @@ class App extends React.Component {
       fetch(this.state.api_url + "method=ticket.getById&ticket_id=" + id + "&" + window.location.search.replace('?', ''))
         .then(res => res.json())
         .then(data => {
-          if(data.response) {
-            this.setState({tiket_info: data.response})
+          if(data.result) {
+            this.setState({tiket_info: data.response.info})
             fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + id + "&" + window.location.search.replace('?', ''))
         .then(res => res.json())
         .then(data => {

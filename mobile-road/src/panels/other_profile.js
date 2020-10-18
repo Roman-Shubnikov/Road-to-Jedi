@@ -93,7 +93,7 @@ function fix_time(time) {
                   </div>
                 }
                   size="l"
-                  before={<Avatar src={"https://api.xelene.me" + props.state.other_profile['avatar']['url']} size={70}/>}
+                  before={<Avatar src={props.state.other_profile['avatar']['url']} size={70}/>}
                 >
                   <div className="title_profile">
                   {isFinite(props.state.other_profile['nickname']) ? `Агент Поддержки #${props.state.other_profile['nickname']}` : props.state.other_profile['nickname'] ? props.state.other_profile['nickname'] : `Агент Поддержки #${props.state.other_profile['id']}`}

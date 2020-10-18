@@ -45,7 +45,7 @@ import Icon24Add from '@vkontakte/icons/dist/24/add';
                         {result['title']}
 
                         </Cell>
-                        <Separator style={{width: "85%"}}></Separator>
+                        <Separator style={{width: "90%"}}></Separator>
                         </div>
                     )
                 })}

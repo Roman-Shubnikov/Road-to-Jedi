@@ -655,7 +655,7 @@ class Tickets {
 			'text' => $data['text'],
 			'author' => $data['user'],
 			'mark' => (int) $data['mark'],
-			'approved' => (bool) $data['approved']
+			'approved' => isset($data['approved']) ? (bool) $data['approved'] : null
 		];
 
 		if ( !empty( $data['comment'] ) && $data['comment_author_id'] !== 0 ) {
