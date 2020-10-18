@@ -62,6 +62,9 @@ function qr(agent_id, sheme) {
 const blueBackground = {
   backgroundColor: 'var(--accent)'
 };
+const redBackground = {
+  backgroundColor: 'var(--destructive)'
+};
 
 
 class App extends React.Component {
@@ -290,7 +293,7 @@ class App extends React.Component {
 
     ChangeId() {
       this.setState({popout: <ScreenSpinner/>})
-      fetch(this.state.api_url_second + "method=change.id&id=" + this.state.changed_id + "&" + window.location.search.replace('?', ''))
+      fetch(this.state.api_url + "method=shop.changeId&id=" + this.state.changed_id + "&" + window.location.search.replace('?', ''))
       .then(res => res.json())
       .then(data => {
         console.log(data)
@@ -382,33 +385,45 @@ class App extends React.Component {
 
     changeAvatar(last_selected) {
         console.log(last_selected)
-        fetch(this.state.api_url_second + "method=change_avatar&avatar_id=" + last_selected + "&" + window.location.search.replace('?', ''))
+        fetch(this.state.api_url + "method=shop.changeAvatar&avatar_id=" + last_selected + "&" + window.location.search.replace('?', ''))
         .then(data => data.json())
         .then(data => {
           console.log(data)
             if(data.error_code !== 2 && data.error_code !== 1) {
-                this.setState({snackbar: 
-                  <Snackbar
+              if(data.result){
+                  this.setState({snackbar: 
+                    <Snackbar
+                      layout="vertical"
+                      onClose={() => this.setState({ snackbar: null })}
+                      before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                    >
+                      Аватар успешно сменен
+                    </Snackbar>
+                  })
+              fetch(this.state.api_url + "method=account.get&" + window.location.search.replace('?', ''))
+                .then(res => res.json())
+                .then(data => {
+                if(data.response) {
+                  console.log(data.response)
+                    this.setState({profile: data.response})
+                  }})
+                .catch(err => {
+                  this.showErrorAlert()
+
+                })
+                  if(this.state.snackbar !== null) {
+                    window.history.back()
+                  }
+                } else {
+                  if(data.error.code === 1002){
+                    <Snackbar
                     layout="vertical"
                     onClose={() => this.setState({ snackbar: null })}
                     before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
                   >
                     Аватар успешно сменен
                   </Snackbar>
-                })
-            fetch(this.state.api_url + "method=account.get&" + window.location.search.replace('?', ''))
-              .then(res => res.json())
-              .then(data => {
-              if(data.response) {
-                console.log(data.response)
-                  this.setState({profile: data.response})
-                }})
-              .catch(err => {
-                this.showErrorAlert()
-
-              })
-                if(this.state.snackbar !== null) {
-                  window.history.back()
+                  }
                 }
             } else {
               console.log(data)

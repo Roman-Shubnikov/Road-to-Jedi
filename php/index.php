@@ -31,7 +31,11 @@ $control = flood_control();
 if ( !$control ) {
 	throw new Exception( ERRORS[3], 3 );
 }
+function getBalance() {
+    $user_id = $_GET['vk_user_id'];
 
+    return db_get("SELECT money FROM users WHERE vk_user_id = $user_id")[0]['money'];
+}
 
 $method = $_GET['method'];
 
@@ -235,6 +239,22 @@ $params = [
 			'required' => true
 		]
 	],
+	'transfers.send' => [
+		'send_to' => [
+			'type' => 'int',
+			'required' => true
+		],
+		'summa' => [
+			'type' => 'int',
+			'required' => true
+		]
+	],
+	'shop.changeAvatar' => [
+		'avatar_id' => [
+			'type' => 'int',
+			'required' => true
+		]
+	],
 
 	'notifications.get' => [],
 	'notifications.markAsViewed' => [],
@@ -379,5 +399,98 @@ switch ( $method ) {
 
 	case 'notifications.getCount':
 		ok( $notifications->getCount() );
+	case 'shop.changeId':
+		$id = $_REQUEST['change_id'];
+		$user_id = $_GET['vk_user_id'];
+
+		$id = intval( $id );
+
+		if( $id < 100000 && $id > 15000 ) {
+			$balance_profile = getBalance();
+			if( $balance_profile >= 200 ) {
+				$check_id = db_get("SELECT id FROM users WHERE id = $id OR nickname = $id");
+				if( count($check_id) == 0 ) {
+					db_edit(['money' => $balance_profile - 200], "vk_user_id=$user_id", 'users');
+					db_edit(['nickname' => $id], "vk_user_id=$user_id", 'users');
+					ok(
+						['balance' => $balance_profile - 200]
+					);
+				} else {
+					new Errors(1003);
+					throw new Exception( ERRORS[1003], 1003 );
+				}
+			} else {
+				new Errors(1002);throw new Exception( ERRORS[1002], 1002 );
+			}
+		} else {
+			new Errors(1004);
+			throw new Exception( ERRORS[1004], 1004 );
+		}
+		break;
+
+	case 'transfers.send':
+		$summa = $_REQUEST['summa'];
+		$send_to = $_REQUEST['send_to'];
+		$balance_profile = getBalance();
+		$id = $_GET['vk_user_id'];
+		if( $summa > 0 && $summa !== 0 ) {
+			if( $balance_profile >= $summa ) {
+				$balanceTo = db_get("SELECT * FROM users WHERE id = $send_to OR nickname = $send_to")[0];
+				if( $balanceTo ) {
+					$idTo = $balanceTo['id'];
+					$avatarTo = $balanceTo['avatar_id'];
+					$userInfo = db_get("SELECT * FROM users WHERE vk_user_id = $id")[0];
+					$idWhoSend = $userInfo['id'];
+					$avatarIdWhoSend = $userInfo['avatar_id'];
+					$avatar = '/jedi/images/avatars/'.db_get("SELECT * FROM avatars WHERE id = $avatarIdWhoSend")[0]['name'];
+					$avatarTo = '/jedi/images/avatars/'.db_get("SELECT * FROM avatars WHERE id = $avatarTo")[0]['name'];
+					if( $balanceTo['vk_user_id'] !== $id ) {
+						$help = db_edit([
+							'money' => $balanceTo['money'] + $summa
+						], "id=$idTo", 'users');
+						SystemNotifications::send($idTo, "Вам поступил перевод в размере $summa монеток от агента номер $idWhoSend", $avatar, [
+							'type' => 'money_transfer_give',
+							'object' => 0
+						]);
+						SystemNotifications::send($idWhoSend, "Вы успешно перевели $summa монеток агенту номер $idTo", $avatarTo, [
+							'type' => 'money_transfer_send',
+							'object' => 0
+						]);
+						db_edit([
+							'money' => $balance_profile - $summa
+						], "vk_user_id=$id", 'users');
+						ok(['balance' => $balance_profile - $summa, 'help' => $help]);
+					} else {
+						throw new Exception( ERRORS[1007], 1007 );
+					}
+				} else {
+					throw new Exception( ERRORS[1005], 1005 );
+				}
+			} else {
+				throw new Exception( ERRORS[1002], 1002 );
+			}
+		} else {
+			throw new Exception( ERRORS[1006], 1006 );
+		}
+	break;
+
+	case 'shop.changeAvatar':
+		$id = $_REQUEST['avatar_id'];
+		if( $id <= 27 || $id > 1 ) {
+			$balance = getBalance();
+			$user_id = $_GET['vk_user_id'];
+			if( $balance >= 300 ) {
+				$edit = db_edit([
+					'money' => $balance - 300,
+					'avatar_id' => $id
+				], "vk_user_id=$user_id", 'users');
+				ok(['edit' => $edit]);
+			} else {
+				throw new Exception( ERRORS[1002], 1002 );
+			}
+		} else {
+			throw new Exception( ERRORS[1008], 1008 );
+		}
+	break;
 	
 }
