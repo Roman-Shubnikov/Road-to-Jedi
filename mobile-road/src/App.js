@@ -36,6 +36,7 @@ import Icon28MessagesOutline from '@vkontakte/icons/dist/28/messages_outline';
 import Icon24Linked from '@vkontakte/icons/dist/24/linked';
 import Icon56FireOutline from '@vkontakte/icons/dist/56/fire_outline';
 import Icon56MoneyTransferOutline from '@vkontakte/icons/dist/56/money_transfer_outline'
+import Icon20CancelCircleFillRed from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
 
 const queryString = require('query-string');
 
@@ -292,35 +293,46 @@ class App extends React.Component {
     }
 
     ChangeId() {
-      this.setState({popout: <ScreenSpinner/>})
-      fetch(this.state.api_url + "method=shop.changeId&id=" + this.state.changed_id + "&" + window.location.search.replace('?', ''))
-      .then(res => res.json())
-      .then(data => {
-        console.log(data)
-        if(data.response) {
-          this.setState({snackbar: 
-            <Snackbar
-              layout="vertical"
-              onClose={() => this.setState({ snackbar: null })}
-              before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
-            >
-              id Агента успешно сменен
-            </Snackbar>, popout: null
-          })
-          this.LoadProfile()
-          window.history.back()
-        } else {
-          this.showAlert('Ошибка', data.error_text);
-        }
-      })
-      .catch(err => {
-        this.showErrorAlert()
-      })
+      if(this.state.changed_id){ 
+        this.setState({popout: <ScreenSpinner/>})
+        fetch(this.state.api_url + "method=shop.changeId&change_id=" + this.state.changed_id + "&" + window.location.search.replace('?', ''))
+        .then(res => res.json())
+        .then(data => {
+          console.log(data)
+          if(data.result) {
+            this.setState({snackbar: 
+              <Snackbar
+                layout="vertical"
+                onClose={() => this.setState({ snackbar: null })}
+                before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+              >
+                id Агента успешно сменен
+              </Snackbar>, popout: null
+            })
+            this.LoadProfile()
+            window.history.back()
+          } else {
+            this.showAlert('Ошибка', data.error.message);
+          }
+        })
+        .catch(err => {
+          this.showErrorAlert()
+        })
+      } else {
+        this.setState({snackbar: 
+          <Snackbar
+          layout="vertical"
+          onClose={() => this.setState({ snackbar: null })}
+          before={<Icon20CancelCircleFillRed width={24} height={24} />}
+        >
+          Вы не указали желаемый id
+        </Snackbar>});
+      }
     }
 
     deleteStats() {
       this.setState({popout: <ScreenSpinner/>})
-      fetch(this.state.api_url_second + "method=delete.stats&" + window.location.search.replace('?', ''))
+      fetch(this.state.api_url + "method=delete.stats&" + window.location.search.replace('?', ''))
       .then(res => res.json())
       .then(data => {
         console.log(data)
@@ -384,12 +396,11 @@ class App extends React.Component {
     }
 
     changeAvatar(last_selected) {
-        console.log(last_selected)
         fetch(this.state.api_url + "method=shop.changeAvatar&avatar_id=" + last_selected + "&" + window.location.search.replace('?', ''))
         .then(data => data.json())
         .then(data => {
-          console.log(data)
-            if(data.error_code !== 2 && data.error_code !== 1) {
+          console.log(data.error.code);
+            if(data.error.code !== 2 && data.error.code !== 1) {
               if(data.result){
                   this.setState({snackbar: 
                     <Snackbar
@@ -415,14 +426,15 @@ class App extends React.Component {
                     window.history.back()
                   }
                 } else {
-                  if(data.error.code === 1002){
+                  if(data.error.code === 1002) {
+                    this.setState({snackbar: 
                     <Snackbar
                     layout="vertical"
                     onClose={() => this.setState({ snackbar: null })}
-                    before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                    before={<Icon20CancelCircleFillRed width={24} height={24} />}
                   >
-                    Аватар успешно сменен
-                  </Snackbar>
+                    У вас не достаточно монет
+                  </Snackbar>});
                   }
                 }
             } else {

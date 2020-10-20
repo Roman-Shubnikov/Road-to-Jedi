@@ -1,8 +1,8 @@
 <?php
 
-ini_set('error_reporting', E_ALL);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+// ini_set('error_reporting', E_ALL);
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
 // mysqli_report(MYSQLI_REPORT_ALL); 
 
 
@@ -255,7 +255,12 @@ $params = [
 			'required' => true
 		]
 	],
-
+	'shop.changeId' => [
+		'change_id' => [
+			'type' => 'int',
+			'required' => true
+		] 
+	],
 	'notifications.get' => [],
 	'notifications.markAsViewed' => [],
 	'notifications.getCount' => [],
@@ -416,14 +421,12 @@ switch ( $method ) {
 						['balance' => $balance_profile - 200]
 					);
 				} else {
-					new Errors(1003);
 					throw new Exception( ERRORS[1003], 1003 );
 				}
 			} else {
-				new Errors(1002);throw new Exception( ERRORS[1002], 1002 );
+				throw new Exception( ERRORS[1002], 1002 );
 			}
 		} else {
-			new Errors(1004);
 			throw new Exception( ERRORS[1004], 1004 );
 		}
 		break;

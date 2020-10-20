@@ -95,18 +95,19 @@ const Money = props => (
                 <Button onClick={() => props.this.ChangeId(last_selected + 1)} before={<Icon24Repeat width={28} height={28} style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Сменить за 500 монеток</Button>
             </Div>
         </Group>
-        <Group separator="hide" header={<Header>Сброс статистики</Header>}>
+        {/* <Group separator="hide" header={<Header>Сброс статистики</Header>}>
             <Div>
                 <Button onClick={() => props.this.deleteStats()} before={<Icon28GridSquareOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Сбросить за 150 монеток</Button>
             </Div>
-        </Group>
-        <Group separator="hide" header={<Header>Опции</Header>}>
+        </Group> */}
+        {/* <Group separator="hide" header={<Header>Опции</Header>}>
             <Div>
                 <Button onClick={() => props.this.setActiveModal('send')} before={<Icon28MoneyHistoryBackwardOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Перевести</Button>
                 <br/>
                 <Button onClick={() => props.this.goVitas()} before={<Icon28GlobeOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Обучать Витька</Button>
             </Div>
-        </Group>
+        </Group> */}
+        {props.this.state.snackbar}
         {/* <Group separator="hide" header={<Header>Обнулить статистику</Header>}>
             <Div>
                 Мы обнулим вам встатистику, число всех ответов станет равным 0.
