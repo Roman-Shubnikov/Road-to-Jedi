@@ -355,13 +355,18 @@ switch ( $method ) {
 
 		$offset = 0;
 		$count = 1000;
-
-		ok( 
-			[
-			'info' => $tickets->getById( $id ),
-			'messages' => $tickets->getMessages( $id, $offset, $count )
-			]
-		);
+		$info = $tickets->getById( $id );
+		$messages = $tickets->getMessages( $id, $offset, $count );
+		if($info) {
+			ok( 
+				[
+				'info' => $tickets->getById( $id ),
+				'messages' => $tickets->getMessages( $id, $offset, $count )
+				]
+			);
+		} else {
+			throw new Exception( ERRORS[34], 34 );
+		}
 
 	case 'ticket.approveReply':
 		$id = (int) $_GET['message_id'];

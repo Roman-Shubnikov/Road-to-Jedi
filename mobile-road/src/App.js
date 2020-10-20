@@ -618,20 +618,8 @@ class App extends React.Component {
         .then(res => res.json())
         .then(data => {
           if(data.result) {
-            this.setState({tiket_info: data.response.info})
-            fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + id + "&" + window.location.search.replace('?', ''))
-        .then(res => res.json())
-        .then(data => {
-          if(data.response) {
-            console.log(data.response)
-            window.history.pushState({panel: 'tiket'}, `tiket`);
-            this.setState({tiket_message: data.response, history: [...this.state.history, "tiket"], activeModal: null, activePanel: "tiket", popout: null})
-          }
-        })
-        .catch(err => {
-          this.showErrorAlert()
-
-        })
+            this.setState({tiket_info: data.response.info,
+              tiket_message: data.response.messages, history: [...this.state.history, "tiket"], activeModal: null, activePanel: "tiket", popout: null});
           } else {
             this.setState({popout: 
               <Alert
