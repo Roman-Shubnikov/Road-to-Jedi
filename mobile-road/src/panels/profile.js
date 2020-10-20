@@ -1,7 +1,26 @@
 import React from 'react';
 
-import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
-import Switch from '@vkontakte/vkui/dist/components/Switch/Switch';
+import { 
+    Panel,
+    PanelHeader,
+    Group,
+    Alert,
+    Placeholder,
+    Separator,
+    PullToRefresh,
+    PanelSpinner,
+    InfoRow,
+    Header,
+    Counter,
+    SimpleCell,
+    PromoBanner,
+    FixedLayout,
+    Cell,
+    Div,
+    HorizontalScroll,
+    View,
+    Switch,
+    } from '@vkontakte/vkui';
 
 import Icon28FireOutline from '@vkontakte/icons/dist/28/fire_outline';
 import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
@@ -16,14 +35,10 @@ import Icon28MarketOutline from '@vkontakte/icons/dist/28/market_outline';
 import Icon28ArticleOutline from '@vkontakte/icons/dist/28/article_outline';
 import Icon28Notifications from '@vkontakte/icons/dist/28/notifications';
 
-import { Separator, PanelHeader } from '@vkontakte/vkui';
 
 const Profile = props => (
     <Panel id={props.id}>
         <PanelHeader>Профиль</PanelHeader>
-        <br/>
-        <br/>
-        <div>
             <div className="profile">
                 <div className="image_profile">
                     <img className="image_profile" src={props.this.state.profile['avatar']['url']}/>
@@ -49,73 +64,74 @@ const Profile = props => (
                     </div>
                 </div>
             </div>
-            <div className="modal_profile">
-                <a className="fantom" target="_blank" component="a" href="https://vk.me/join/AJQ1dxm7YRd7rN/MQHaAtZx7">
-                    <div className="button_profile">
-                        <Icon28GhostOutline width={28} height={28} className="icon_profile" style={{display: "inline-block"}}/> 
-                        <div className="in_button">Фантом-чат</div>
-                    </div>
-                </a>
-                <div className="button_profile">
-                    <Icon28CheckCircleOutline width={28} height={28} className="icon_profile" style={{display: "inline-block"}}/> 
-                    <div className="in_button">Положительные ответы</div>
-                    <div className="right_button">{props.this.state.profile['good_answers']}</div>
-                </div>
-                <div className="button_profile">
-                    <Icon24DoNotDisturb width={28} height={28} className="icon_profile" style={{display: "inline-block"}}/> 
-                    <div className="in_button">Отрицательные ответы</div>
-                    <div className="right_button">{props.this.state.profile['bad_answers']}</div>
-                </div>
-                <Separator 
-                    style={{
-                        width: "90%", 
-                        marginLeft: "10px",
-                        marginTop: "14px",
-                        marginBottom: "-10px"
-                    }}
-                ></Separator>
-                <div id="animation" className="button_profile" onClick={() => props.this.myQuestions()}>
-                    <Icon28PollSquareOutline width={28} height={28} className="icon_profile" style={{display: "inline-block"}}/> 
-                    <div className="in_button">Мои ответы</div>
-                    <div className="near_right_button">{props.this.state.profile['total_answers']}</div>
-                    <Icon16Chevron className="right_button"/>
-                </div>
-                <div id="animation" className="button_profile" onClick={() => props.this.goMoney()}>
-                    <Icon28MarketOutline width={28} height={28} className="icon_profile" style={{display: "inline-block"}}/> 
-                    <div className="in_button">Магазин</div>
-                    <div className="near_right_button">{props.this.state.profile['balance']}</div>
-                    <Icon16Chevron className="right_button"/>
-                </div>
-                <div id="animation" className="button_profile" onClick={() => props.this.goAchive()}>
-                    <Icon28FireOutline className="icon_profile" style={{display: "inline-block"}}/> 
-                    <div className="in_button">Достижения</div>
-                    <Icon16Chevron className="right_button"/>
-                </div>
-                <div id="animation" className="button_profile" onClick={() => props.this.Dop()}>
-                    <Icon28ArticleOutline className="icon_profile" style={{display: "inline-block"}}/> 
-                    <div className="in_button">Мои вопросы</div>
-                    <Icon16Chevron className="right_button"/>
-                </div>
-                <div id="animation" className="button_profile" onClick={() => props.this.setActiveModal("share")}>
-                    <Icon24ShareOutline width={28} height={28} className="icon_profile" style={{display: "inline-block"}}/> 
-                    <div className="in_button">Поделиться профилем</div>
-                    <Icon16Chevron className="right_button"/>
-                </div>
-                <Separator 
-                    style={{
-                        width: "90%", 
-                        marginLeft: "10px",
-                        marginTop: "14px",
-                        marginBottom: "-10px"
-                    }}
-                ></Separator>
-                <div className="button_profile">
-                    <Icon28Notifications className="icon_profile" style={{display: "inline-block"}}/> 
-                    <div className="in_button">Уведомления в сообщения</div>
-                    <Switch onChange={() => props.this.allowMessage()} className="right_button switch_case" defaultChecked={props.this.state.switchKeys}/>
-                </div>
-            </div>
-        </div>
+            <Group>
+                <SimpleCell
+                    expandable
+                    href="https://vk.me/join/AJQ1dxm7YRd7rN/MQHaAtZx7"
+                    target="_blank" rel="noopener noreferrer"
+                    before={<Icon28GhostOutline />}>
+                        Фантом-чат
+                </SimpleCell>
+
+                <SimpleCell 
+                disabled
+                before={<Icon28CheckCircleOutline 
+                width={28} 
+                height={28} />}
+                indicator={<Counter mode='primary'>{props.this.state.profile['good_answers']}</Counter>}>Положительные ответы</SimpleCell>
+
+                <SimpleCell 
+                disabled
+                before={<Icon28CheckCircleOutline 
+                width={28} 
+                height={28} />}
+                indicator={<Counter mode='primary'>{props.this.state.profile['bad_answers']}</Counter>}>Отрицательные ответы</SimpleCell>
+            </Group>
+            <Group>
+                <SimpleCell
+                expandable
+                indicator={<Counter mode='primary'>{props.this.state.profile['total_answers']}</Counter>}
+                onClick={() => {
+                    props.this.myQuestions();
+                }}
+                before={<Icon28PollSquareOutline />}>Мои ответы</SimpleCell>
+                <SimpleCell
+                expandable
+                onClick={() => {
+                    props.this.goMoney();
+                }}
+                before={<Icon28MarketOutline />}>Магазин</SimpleCell>
+                {/* props.this.state.profile['balance'] Вынести отдельно в магазин */}
+
+                <SimpleCell
+                expandable
+                onClick={() => {
+                    props.this.goAchive();
+                }}
+                before={<Icon28FireOutline />}>Достижения</SimpleCell>
+                <SimpleCell
+                expandable
+                onClick={() => {
+                    props.this.Dop();
+                }}
+                before={<Icon28ArticleOutline />}>Мои вопросы</SimpleCell>
+
+                <SimpleCell
+                expandable
+                onClick={() => {
+                    props.this.setActiveModal("share");
+                }}
+                before={<Icon28ArticleOutline />}>Поделиться профилем</SimpleCell>
+
+            </Group>
+            <Group>
+                <SimpleCell
+                onClick={() => {
+                    props.this.allowMessage();
+                }}
+                indicator={<Switch onChange={() => props.this.allowMessage()} defaultChecked={props.this.state.switchKeys}/>}
+                before={<Icon28Notifications />}>Уведомления в сообщения</SimpleCell>
+            </Group>
         {props.this.state.snackbar}
     </Panel>
 )

@@ -399,8 +399,7 @@ class App extends React.Component {
         fetch(this.state.api_url + "method=shop.changeAvatar&avatar_id=" + last_selected + "&" + window.location.search.replace('?', ''))
         .then(data => data.json())
         .then(data => {
-          console.log(data.error.code);
-            if(data.error.code !== 2 && data.error.code !== 1) {
+            if(!data.error && data.error.code !== 2 && data.error.code !== 1) {
               if(data.result){
                   this.setState({snackbar: 
                     <Snackbar
