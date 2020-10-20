@@ -27,7 +27,7 @@ import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outl
 import Icon24DoNotDisturb from '@vkontakte/icons/dist/24/do_not_disturb';
 import Icon16Chevron from '@vkontakte/icons/dist/16/chevron';
 import Icon12Fire from '@vkontakte/icons/dist/12/fire';
-import Icon16Done from '@vkontakte/icons/dist/16/done';
+import Icon16Verified from '@vkontakte/icons/dist/16/verified';
 import Icon24ShareOutline from '@vkontakte/icons/dist/24/share_outline';
 import Icon28GhostOutline from '@vkontakte/icons/dist/28/ghost_outline';
 import Icon28PollSquareOutline from '@vkontakte/icons/dist/28/poll_square_outline';
@@ -54,7 +54,7 @@ const Profile = props => (
                             : 
                             props.this.state.profile['verified'] === true ? 
                             <div className="profile_icon_ver">
-                                <Icon16Done width={12} height={12}/>  
+                                <Icon16Verified />  
                             </div>
                             : null
                         }
@@ -121,7 +121,7 @@ const Profile = props => (
                 onClick={() => {
                     props.this.setActiveModal("share");
                 }}
-                before={<Icon28ArticleOutline />}>Поделиться профилем</SimpleCell>
+                before={<Icon24ShareOutline />}>Поделиться профилем</SimpleCell>
 
             </Group>
             <Group>
