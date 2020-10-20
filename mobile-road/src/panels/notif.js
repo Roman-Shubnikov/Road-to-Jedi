@@ -1,16 +1,29 @@
 import React from 'react';
 
-import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
-import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
-import Header from '@vkontakte/vkui/dist/components/Header/Header';
-import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
-import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
-import Separator from '@vkontakte/vkui/dist/components/Separator/Separator';
+import { 
+    Panel,
+    PanelHeader,
+    Group,
+    Alert,
+    Avatar,
+    Placeholder,
+    Separator,
+    PullToRefresh,
+    PanelSpinner,
+    InfoRow,
+    Header,
+    Counter,
+    SimpleCell,
+    PromoBanner,
+    FixedLayout,
+    Cell,
+    Div,
+    HorizontalScroll,
+    View,
+    Switch,
+    } from '@vkontakte/vkui';
 
-import Icon20HomeOutline from '@vkontakte/icons/dist/20/home_outline';
-import Icon24SmileOutline from '@vkontakte/icons/dist/24/smile_outline';
-import Icon24Report from '@vkontakte/icons/dist/24/report';
-import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
+import Icon56NotificationOutline from '@vkontakte/icons/dist/56/notification_outline';
 
 function fix_time(time) {
     if(time < 10) {
@@ -57,11 +70,11 @@ var month= [
                       <div key={i}>
                   <Cell
                       key={i}
-                      onClick={result['object']['object'] !== '0' ? () => props.goTiket(result['object']['object']) : () => props.openMoneyTransfer("https://api.xelene.me" + result['image'], result['text'], result['comment'])}
+                      onClick={result['object']['object'] !== '0' ? () => props.goTiket(result['object']['object']) : () => props.openMoneyTransfer(result['image'], result['text'], result['comment'])}
                       description={new Date(result['time'] * 1e3).getDate() + " " + month[new Date(result['time'] * 1e3).getMonth()] + " " + new Date(result['time'] * 1e3).getFullYear() + " в " 
                       + fix_time(new Date(result['time'] * 1e3).getHours()) + ":" + fix_time(new Date(result['time'] * 1e3).getMinutes())}
                       size="l"
-                      before={<Avatar src={"https://api.xelene.me" + result['image']} size={56}/>}
+                      before={<Avatar src={result['image']} size={56}/>}
                       multiline="boolean"
                   >
                     <div style={{lineHeight: "17px", marginTop: "3px"}}>{result['text']}</div>
@@ -71,7 +84,11 @@ var month= [
                   </div>
                   )
                 }) :
-                <div className="stub">У Вас нет новых уведомлений</div>
+                <Placeholder 
+                stretched
+                icon={<Icon56NotificationOutline />}>
+                    У Вас нет новых уведомлений
+                </Placeholder>
                 }
             </Panel>
             )

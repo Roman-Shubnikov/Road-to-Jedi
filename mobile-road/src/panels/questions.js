@@ -1,17 +1,36 @@
 import React from 'react';
 
-import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
-import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
-import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
-import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
-import PanelHeaderButton from '@vkontakte/vkui/dist/components/PanelHeaderButton/PanelHeaderButton';
-import Button from '@vkontakte/vkui/dist/components/Button/Button';
-import Div from '@vkontakte/vkui/dist/components/Div/Div';
-import Separator from '@vkontakte/vkui/dist/components/Separator/Separator';
-import Link from '@vkontakte/vkui/dist/components/Link/Link';
+import { 
+    Panel,
+    PanelHeader,
+    PanelHeaderButton,
+    Avatar,
+    Button,
+    Group,
+    Alert,
+    Placeholder,
+    Separator,
+    PullToRefresh,
+    PanelSpinner,
+    InfoRow,
+    Header,
+    Counter,
+    SimpleCell,
+    PromoBanner,
+    FixedLayout,
+    Cell,
+    Div,
+    HorizontalScroll,
+    View,
+    Switch,
+    Banner
+    
+    } from '@vkontakte/vkui';
 
 import Icon24Filter from '@vkontakte/icons/dist/24/filter';
 import Icon24Add from '@vkontakte/icons/dist/24/add';
+import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
+
 
     class Home extends React.Component {
         constructor(props) {
@@ -33,6 +52,28 @@ import Icon24Add from '@vkontakte/icons/dist/24/add';
                 {/* <Div>
                     <Button size="l" style={{ marginLeft: 8, width: "95%" }} >Новый вопрос</Button>
                 </Div> */}
+                {props.state.ShowBanner ? <><Banner
+                mode="image"
+                size="m"
+                onDismiss={() => {
+                    props.setState({ShowBanner: false});
+                }}
+                header="Когда отвечать на вопросы - это твой профиль"
+                subheader={<span>Отвечайте на вопросы пользователей ВКонтакте и учавствуйте в рейтинге</span>}
+                background={
+                <div
+                    style={{
+                    backgroundColor: '#5b9be6',
+                    backgroundImage: 'url(https://sun9-31.userapi.com/PQ4UCzqE_jue9hAINefBMorYCdfGXvcuV5nSjA/eYugcFYzdW8.jpg)',
+                    backgroundPosition: 'right bottom',
+                    backgroundSize: '102%',
+                    backgroundRepeat: 'no-repeat',
+                    }}
+                />
+                }
+                    asideMode="dismiss"
+                    actions={<Button mode="overlay_primary" href="https://vk.com/@jedi_road-checking-responses" target="_blank" rel="noopener noreferrer" size="l">Подробнее</Button>}
+                /><Separator /></> : null}
                 {props.state.tiket_all.map(function(result, i) {
                     return (
                         <div key={i}>
@@ -55,9 +96,13 @@ import Icon24Add from '@vkontakte/icons/dist/24/add';
                 </Div>
             : null}
             {props.state.tiket_all.length === 0 ? 
-             <div>
-                <div style={{marginTop: "300px"}} className="help_title_profile">Упс, вопросы закончились.</div>
-             </div>
+            //  <div>
+            //     <div style={{marginTop: "300px"}} className="help_title_profile">Упс, вопросы закончились.</div>
+            //  </div>
+            <Placeholder 
+            icon={<Icon56InboxOutline />}>
+                Упс, кажется вопросы закончились
+            </Placeholder>
             : null}
                   
             </Panel>

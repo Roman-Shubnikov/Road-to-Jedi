@@ -37,6 +37,7 @@ import Icon24Linked from '@vkontakte/icons/dist/24/linked';
 import Icon56FireOutline from '@vkontakte/icons/dist/56/fire_outline';
 import Icon56MoneyTransferOutline from '@vkontakte/icons/dist/56/money_transfer_outline'
 import Icon20CancelCircleFillRed from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
+import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
 
 const queryString = require('query-string');
 
@@ -132,6 +133,7 @@ class App extends React.Component {
             },
             myQuestions: [],
             switchKeys: false,
+            ShowBanner: true,
 
         };
         this.onStoryChange = this.onStoryChange.bind(this);
@@ -1586,21 +1588,25 @@ class App extends React.Component {
                     onClick={this.onStoryChange}
                     selected={this.state.activeStory === 'questions'}
                     data-story="questions"
+                    text='Вопросы'
                   ><Icon28ArticleOutline/></TabbarItem>
                   <TabbarItem
                     onClick={this.onStoryChange}
                     selected={this.state.activeStory === 'top'}
                     data-story="top"
+                    text='Топ'
                   ><Icon28FavoriteOutline/></TabbarItem>
                   <TabbarItem
                     onClick={this.onStoryChange}
                     selected={this.state.activeStory === 'notif'}
                     data-story="notif"
+                    text='Уведомления'
                   ><Icon28Notification /></TabbarItem>
                   <TabbarItem
                     onClick={this.onStoryChange}
                     selected={this.state.activeStory === 'profile'}
                     data-story="profile"
+                    text='Профиль'
                   ><Icon28Profile /></TabbarItem>
                 </Tabbar>
               }>

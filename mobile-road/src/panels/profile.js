@@ -34,6 +34,7 @@ import Icon28PollSquareOutline from '@vkontakte/icons/dist/28/poll_square_outlin
 import Icon28MarketOutline from '@vkontakte/icons/dist/28/market_outline';
 import Icon28ArticleOutline from '@vkontakte/icons/dist/28/article_outline';
 import Icon28Notifications from '@vkontakte/icons/dist/28/notifications';
+import Icon12Verified from '@vkontakte/icons/dist/12/verified';
 
 
 const Profile = props => (
@@ -55,6 +56,7 @@ const Profile = props => (
                             props.this.state.profile['verified'] === true ? 
                             <div className="profile_icon_ver">
                                 <Icon16Verified />  
+                                {/* <Icon12Verified width={16} height={16} /> */}
                             </div>
                             : null
                         }
@@ -82,7 +84,7 @@ const Profile = props => (
 
                 <SimpleCell 
                 disabled
-                before={<Icon28CheckCircleOutline 
+                before={<Icon24DoNotDisturb
                 width={28} 
                 height={28} />}
                 indicator={<Counter mode='primary'>{props.this.state.profile['bad_answers']}</Counter>}>Отрицательные ответы</SimpleCell>

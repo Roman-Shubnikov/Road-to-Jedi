@@ -1,16 +1,35 @@
 import React from 'react';
 
-import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
-import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
-import PanelHeaderButton from '@vkontakte/vkui/dist/components/PanelHeaderButton/PanelHeaderButton';
-import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
-import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
-import Separator from '@vkontakte/vkui/dist/components/Separator/Separator';
+import { 
+    Panel,
+    PanelHeader,
+    PanelHeaderButton,
+    Button,
+    Group,
+    Alert,
+    Avatar,
+    Placeholder,
+    Separator,
+    PullToRefresh,
+    PanelSpinner,
+    InfoRow,
+    Header,
+    Counter,
+    SimpleCell,
+    PromoBanner,
+    FixedLayout,
+    Cell,
+    Div,
+    HorizontalScroll,
+    View,
+    Switch,
+    } from '@vkontakte/vkui';
 
 import Icon20HomeOutline from '@vkontakte/icons/dist/20/home_outline';
 import Icon24SmileOutline from '@vkontakte/icons/dist/24/smile_outline';
 import Icon24Report from '@vkontakte/icons/dist/24/report';
 import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
+import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
 
 let month = "";
 function fix_time(time) {
@@ -62,7 +81,7 @@ function fix_time(time) {
                       description={new Date(result['time'] * 1e3).getDate() + " " + months[new Date(result['time'] * 1e3).getMonth()] + " " + new Date(result['time'] * 1e3).getFullYear() + " в " 
                       + fix_time(new Date(result['time'] * 1e3).getHours()) + ":" + fix_time(new Date(result['time'] * 1e3).getMinutes())}
                       size="l"
-                      before={<Avatar src={"https://api.xelene.me" + props.state.profile['avatar']['url']} size={56}/>}
+                      before={<Avatar src={props.state.profile['avatar']['url']} size={56}/>}
                       multiline="boolean"
                   >
                     <div style={{lineHeight: "17px", marginTop: "3px"}}>{result['text']}</div>
@@ -72,7 +91,14 @@ function fix_time(time) {
                   </div>
                   )
                 }) :
-                <div className="stub">У Вас нет отвеченных репортов</div>
+                <Placeholder 
+                stretched
+                action={<Button size="l" onClick={() => {
+                    props.goNew_Tiket()
+                }}>Задать вопрос</Button>}
+                icon={<Icon56InboxOutline />}>
+                    Упс, кажется здесь нет ваших вопросов. Давайте зададим новый.
+                </Placeholder>
                 }
             </Panel>
             )
