@@ -147,8 +147,6 @@ class App extends React.Component {
 
     componentDidMount() {
         connect.subscribe(({ detail: { type, data }}) => { 
-          console.log(type)
-          console.log(data)
         if(type === 'VKWebAppAllowMessagesFromGroupResult') {
           fetch(this.state.api_url_second + "method=notifications.swift&swift=on&" + window.location.search.replace('?', ''))
             .then(res => res.json())
@@ -279,11 +277,9 @@ class App extends React.Component {
 
     userBan(user_id, text) {
       this.setState({popout: <ScreenSpinner/>})
-      console.log(this.state.api_url_second + "method=ban.user&user_id=" + user_id + "&text=" + text + "&" + window.location.search.replace('?', ''))
       fetch(this.state.api_url_second + "method=ban.user&user_id=" + user_id + "&text=" + text + "&" + window.location.search.replace('?', ''))
       .then(res => res.json())
       .then(data => {
-        console.log(data)
         if(data.response) {
           this.setActiveModal(null);
           this.showAlert('Нормас', 'Пользователь забанен');
@@ -300,7 +296,6 @@ class App extends React.Component {
         fetch(this.state.api_url + "method=shop.changeId&change_id=" + this.state.changed_id + "&" + window.location.search.replace('?', ''))
         .then(res => res.json())
         .then(data => {
-          console.log(data)
           if(data.result) {
             this.setState({snackbar: 
               <Snackbar
@@ -337,7 +332,6 @@ class App extends React.Component {
       fetch(this.state.api_url + "method=delete.stats&" + window.location.search.replace('?', ''))
       .then(res => res.json())
       .then(data => {
-        console.log(data)
         if(data.response) {
           this.setState({snackbar: 
             <Snackbar
@@ -364,7 +358,7 @@ class App extends React.Component {
               .then(res => res.json())
               .then(data => {
               if(data.response) {
-                console.log(data.response)
+                
                   this.setState({profile: data.response})
                 }})
               .catch(err => {
@@ -416,7 +410,7 @@ class App extends React.Component {
                 .then(res => res.json())
                 .then(data => {
                 if(data.response) {
-                  console.log(data.response)
+                  
                     this.setState({profile: data.response})
                   }})
                 .catch(err => {
@@ -439,7 +433,7 @@ class App extends React.Component {
                   }
                 }
             } else {
-              console.log(data)
+        
               this.setState({popout: 
                 <Alert
           actions={[{
@@ -468,8 +462,6 @@ class App extends React.Component {
     }
 
     sendRayt(mark, message_id) {
-      console.log(message_id)
-      console.log(mark)
       let reyt = 1;
       if(mark === true) {
         reyt = 1;
@@ -481,7 +473,7 @@ class App extends React.Component {
           .then(res => res.json())
           .then(data => {
             if(data) {
-              console.log(data)
+        
               fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
         .then(res => res.json())
         .then(data => {
@@ -544,7 +536,7 @@ class App extends React.Component {
       .then(res => res.json())
       .then(data => {
         if(data.response) {
-          console.log(data.response)
+          
            this.setState({popout: null})
            fetch(this.state.api_url + "method=tickets.get&count=20&unanswered=1&offset=0&" + window.location.search.replace('?', ''))
       .then(res => res.json())
@@ -622,6 +614,7 @@ class App extends React.Component {
           if(data.result) {
             this.setState({tiket_info: data.response.info,
               tiket_message: data.response.messages, history: [...this.state.history, "tiket"], activeModal: null, activePanel: "tiket", popout: null});
+            window.history.pushState({panel: 'tiket'}, `tiket`);
           } else {
             this.setState({popout: 
               <Alert
@@ -664,7 +657,7 @@ class App extends React.Component {
         .then(res => res.json())
         .then(data => {
           if(data) {
-            console.log(data.response)
+            
             this.setState({other_profile: data.response, popout: null})
             if(is_change) {
               window.history.pushState({panel: 'other_profile'}, `other_profile`);
@@ -689,7 +682,7 @@ class App extends React.Component {
         .then(res => res.json())
         .then(data => {
           if(data) {
-            console.log(data.response)
+            
             fetch(this.state.api_url + "method=ticket.getById&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
             .then(res => res.json())
              .then(data => {
@@ -715,7 +708,7 @@ class App extends React.Component {
         .then(res => res.json())
         .then(data => {
           if(data) {
-            console.log(data.response)
+            
             fetch(this.state.api_url + "method=ticket.getById&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
             .then(res => res.json())
              .then(data => {
@@ -864,7 +857,6 @@ class App extends React.Component {
         xhr.onreadystatechange = function() {//Вызывает функцию при смене состояния.
           if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
             if(xhr.responseText) {
-              console.log(xhr.responseText);
               let text = (JSON.parse(xhr.responseText));
               global.goTiket(text.response.ticket_id)
               global.setState({history: ['questions']})
@@ -975,7 +967,6 @@ class App extends React.Component {
         xhr.onreadystatechange = () => {
           if(xhr.status === 4) return;
           if ( xhr.status === 200 ) {
-            console.log(xhr.responseText)
             fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
             .then(res => res.json())
             .then(data => {
@@ -988,7 +979,6 @@ class App extends React.Component {
             })
           }
         }
-        console.log(this.state.tiket_send_message)
         
         xhr.send('message_id=' + this.state.message_id_redac + '&text=' + this.state.tiket_send_message);
     
@@ -1063,7 +1053,6 @@ class App extends React.Component {
         xhr.onreadystatechange = () => {
           if(xhr.status === 4) return;
           if ( xhr.status === 200 ) {
-            console.log(xhr.responseText)
             fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
             .then(res => res.json())
             .then(data => {
@@ -1077,7 +1066,6 @@ class App extends React.Component {
             })
           }
         }
-        console.log(this.state.tiket_send_message)
         
         xhr.send('message_id=' + this.state.message_id_add + '&text=' + this.state.tiket_send_message);
     
@@ -1163,7 +1151,6 @@ class App extends React.Component {
     copy(id) {
       this.setState({popout:
         <ActionSheet onClose={() => this.setState({ popout: null })}>
-          {console.log(parsedHash.vk_user_id)}
           {Number(this.state.tiket_info['author']['id']) === Number(parsedHash.vk_user_id) ? 
           this.state.tiket_info['status'] === 0 ||  this.state.tiket_info['status'] === 1 ?
           <ActionSheetItem autoclose onClick={() => this.deleteTicket()}>
@@ -1297,7 +1284,7 @@ class App extends React.Component {
               .then(res => res.json())
               .then(data => {
               if(data.response) {
-                  console.log(data.response)
+                  
                   this.setState({profile: data.response, popout: null, snackbar: null, switchKeys: data.response.noti})
                   this.setState({ activeStory: "profile", history: ["profile"], activePanel: "profile"})
                 }})
@@ -1379,9 +1366,9 @@ class App extends React.Component {
         this.setState({history: [...this.state.history, "achives"], activePanel: "achives"})
         window.history.pushState({panel: 'achives'}, `achives`);
       }
-
+      // '&comment=' + this.state.money_transfer_comment + 
       sendMoney() {
-        fetch(this.state.api_url_second + 'method=money.send&count=' +  this.state.money_transfer_count + '&user_id=' + this.state.money_transfer_send + '&comment=' + this.state.money_transfer_comment + "&" + window.location.search.replace('?', ''))
+        fetch(this.state.api_url_second + 'method=transfers.send&summa=' +  this.state.money_transfer_count + '&send_to=' + this.state.money_transfer_send + "&" + window.location.search.replace('?', ''))
         .then(data => data.json())
         .then(data => {
           if(typeof data.response !== 'undefined') {
@@ -1399,7 +1386,7 @@ class App extends React.Component {
            onClose={this.closePopout}
          >
            <h2>Ошибка</h2>
-           <p>{data.error_text}</p>
+           <p>{data.error.message}</p>
          </Alert>
             })
           }
@@ -1520,14 +1507,14 @@ class App extends React.Component {
           <Input maxLength="5" onChange={(e) => this.onChange(e)} placeholder="Введите id модератора" name="money_transfer_send" value={this.state.money_transfer_send}/>
           <br/>
           <Input maxLength="5" name="money_transfer_count" onChange={(e) => this.onChange(e)} placeholder="Введите кол-во монеток" value={this.state.money_transfer_count} />
-          <br/>
-          <Input maxLength="100" name="money_transfer_comment" onChange={(e) => this.onChange(e)} placeholder="Введите комментарий к переводу" value={this.state.money_transfer_comment} />
+          {/* <br/>
+          <Input maxLength="100" name="money_transfer_comment" onChange={(e) => this.onChange(e)} placeholder="Введите комментарий к переводу" value={this.state.money_transfer_comment} /> */}
           
         </ModalCard>
         <ModalCard
           id='ban_user'
           onClose={() => this.setActiveModal(null)}
-          icon={<Avatar src={"https://api.xelene.me" + this.state.other_profile['avatar']['url']} size={72} />}
+          icon={<Avatar src={this.state.other_profile['avatar']['url']} size={72} />}
           header="Забанить пользователя"
           actions={[{
             title: 'Забанить! 🤬',

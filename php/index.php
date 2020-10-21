@@ -261,6 +261,16 @@ $params = [
 			'required' => true
 		] 
 	],
+	'transfers.send' => [
+		'send_to' => [
+			'type' => 'int',
+			'required' => true
+		],
+		'summa' => [
+			'type' => 'int',
+			'required' => true
+		]
+	],
 	'notifications.get' => [],
 	'notifications.markAsViewed' => [],
 	'notifications.getCount' => [],
@@ -450,8 +460,8 @@ switch ( $method ) {
 					$userInfo = db_get("SELECT * FROM users WHERE vk_user_id = $id")[0];
 					$idWhoSend = $userInfo['id'];
 					$avatarIdWhoSend = $userInfo['avatar_id'];
-					$avatar = '/jedi/images/avatars/'.db_get("SELECT * FROM avatars WHERE id = $avatarIdWhoSend")[0]['name'];
-					$avatarTo = '/jedi/images/avatars/'.db_get("SELECT * FROM avatars WHERE id = $avatarTo")[0]['name'];
+					$avatar = AVATAR_PATH.'/'.db_get("SELECT * FROM avatars WHERE id = $avatarIdWhoSend")[0]['name'];
+					$avatarTo = AVATAR_PATH.'/'.db_get("SELECT * FROM avatars WHERE id = $avatarTo")[0]['name'];
 					if( $balanceTo['vk_user_id'] !== $id ) {
 						$help = db_edit([
 							'money' => $balanceTo['money'] + $summa
@@ -467,7 +477,7 @@ switch ( $method ) {
 						db_edit([
 							'money' => $balance_profile - $summa
 						], "vk_user_id=$id", 'users');
-						ok(['balance' => $balance_profile - $summa, 'help' => $help]);
+						ok(['money' => $balance_profile - $summa, 'help' => $help, 'avatar' => $avatarTo]);
 					} else {
 						throw new Exception( ERRORS[1007], 1007 );
 					}

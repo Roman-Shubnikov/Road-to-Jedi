@@ -39,7 +39,7 @@ import Icon16Done from '@vkontakte/icons/dist/16/done';
                 >
                   <div className="top_moderator_name">
                   {isFinite(result['nickname']) ? `Агент Поддержки #${result['nickname']}` : result['nickname'] ? result['nickname'] : `Агент Поддержки #${result['id']}`}
-                    <div className="top_moderator_name_icon">{result['flash'] === true ? <Icon12Fire onClick={() => props.setActiveModal('prom')} className="top_moderator_name_icon"/> : result['verified'] === true ? <Icon16Done width={12} height={12} className="top_moderator_name_icon_ver"/>  : null }</div>
+                    <div className="top_moderator_name_icon">{result['flash'] === true ? <Icon12Fire onClick={() => props.setActiveModal('prom')} className="top_moderator_name_icon"/> : null}{result['verified'] === true ? <Icon16Done width={12} height={12} className="top_moderator_name_icon_ver"/>  : null }</div>
                   </div>
                     
                   </Cell>

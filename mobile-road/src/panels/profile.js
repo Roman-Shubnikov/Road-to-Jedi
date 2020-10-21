@@ -52,14 +52,12 @@ const Profile = props => (
                             <div className="profile_icon">
                                 <Icon12Fire onClick={() => props.setActiveModal('prom')}/>  
                             </div>
-                            : 
-                            props.this.state.profile['verified'] === true ? 
+                            : null}
+                        {props.this.state.profile['verified'] === true ? 
                             <div className="profile_icon_ver">
                                 <Icon16Verified />  
-                                {/* <Icon12Verified width={16} height={16} /> */}
                             </div>
-                            : null
-                        }
+                            : null}
                     </div>
                     <div className="description_profile">
                   {isFinite(props.this.state.profile['nickname']) ? `#${props.this.state.profile['nickname']}` : props.this.state.profile['nickname'] ? '' : `#${props.this.state.profile['id']}`}
@@ -126,14 +124,14 @@ const Profile = props => (
                 before={<Icon24ShareOutline />}>Поделиться профилем</SimpleCell>
 
             </Group>
-            <Group>
+            {/* <Group>
                 <SimpleCell
                 onClick={() => {
                     props.this.allowMessage();
                 }}
                 indicator={<Switch onChange={() => props.this.allowMessage()} defaultChecked={props.this.state.switchKeys}/>}
                 before={<Icon28Notifications />}>Уведомления в сообщения</SimpleCell>
-            </Group>
+            </Group> */}
         {props.this.state.snackbar}
     </Panel>
 )
