@@ -41,6 +41,12 @@ $method = $_GET['method'];
 
 $params = [
 	'account.get' => [],
+	'account.setAge' => [
+		'age' => [
+			'type' => 'int',
+			'required' => true
+		]
+	],
 	'user.getById' => [
 		'id' => [
 			'type' => 'int',
@@ -85,6 +91,17 @@ $params = [
 			'type' => 'int',
 			'required' => false
 		]
+	],
+	'tickets.getByModeratorAnswers' => [
+		'offset' => [
+			'type' => 'int',
+			'required' => false
+		],
+
+		'count' => [
+			'type' => 'int',
+			'required' => false
+		],
 	],
 
 	'ticket.markMessage' => [
@@ -288,6 +305,9 @@ $tickets = new Tickets( $users );
 $notifications = new Notifications( $users );
 
 switch ( $method ) {
+	case 'account.setAge':
+		$age = $_REQUEST['age'];
+		ok( $users->ChangeAge($age));
 	case 'account.get':
 		ok( $users->getMy() );
 	
@@ -310,6 +330,12 @@ switch ( $method ) {
 		$count = $_GET['count'] ?? ITEMS_PER_PAGE;
 
 		ok( $tickets->getMy( $offset, $count ) );
+
+	case 'tickets.getByModeratorAnswers':
+		$offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
+		$count = $_GET['count'] ?? ITEMS_PER_PAGE;
+		$id = $users->id;
+		ok( $tickets->getByModeratorAnswers( $offset, $count, $id) );
 
 	case 'tickets.get':
 		$offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;

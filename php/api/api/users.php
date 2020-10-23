@@ -25,7 +25,15 @@ class Users {
 			throw new Exception( ERRORS[5] . $this->info['ban_reason'], 5 );
 		}
 	}
+	public function ChangeAge($age) {
+		$uid = $this->user->id;
 
+		$data = [
+			'age' => $age
+		];
+
+		db_edit( $data, "id = $uid", 'users' );
+	}
 	public function getMy() {
 		$info = $this->info;
 		$info['is_first_start'] = $this->is_first_start;
@@ -135,7 +143,7 @@ class Users {
 		// $res = db_get( $sql );
 		// $avatars_count = $res[0]['count'];
 
-		$avatars_count = 12;
+		$avatars_count = 24;
 
 		$data = [
 			'vk_user_id' => $this->vk_id,

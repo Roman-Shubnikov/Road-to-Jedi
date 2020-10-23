@@ -101,8 +101,8 @@ function fix_time(time) {
                     <div className="profile_moderator_name_icon">
                         <Icon12Fire onClick={() => props.setActiveModal('prom')}/>  
                     </div>
-                    : 
-                    props.state.other_profile['verified'] === true ?
+                    : null}
+                    {props.state.other_profile['verified'] === true ?
                     <div className="profile_moderator_name_icon_ver">
                         <Icon16Done width={12} height={12}/>  
                     </div>

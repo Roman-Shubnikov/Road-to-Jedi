@@ -38,6 +38,15 @@ class Tickets {
 
 		return $this->_get( $cond, $offset, $count );
 	}
+	public function getByModeratorAnswers( int $offset = 0, int $count = null, int $id ) {
+		$cond = "WHERE id in (SELECT DISTINCT ticket_id from messages where author_id=$id)";
+
+		if ( $count === null ) {
+			$count = ITEMS_PER_PAGE;
+		}
+
+		return $this->_get( $cond, $offset, $count );
+	}
 
 	public function getRandom() {
 		$sql = "SELECT id FROM tickets WHERE status = 0 ORDER BY RAND() LIMIT 1";

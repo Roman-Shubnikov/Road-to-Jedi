@@ -59,7 +59,7 @@ class Tickets {
 
 		return $this->_get( $cond, $offset, $count );
 	}
-
+	
 	public function markMessage( int $message_id, int $mark ) {
 		if ( $mark < 0 || $mark > 1 ) return false;
 

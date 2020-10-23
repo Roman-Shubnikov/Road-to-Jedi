@@ -22,21 +22,19 @@ import Icon16Done from '@vkontakte/icons/dist/16/done';
                 Топ
                 </PanelHeader>                    
 
-                  {props.state.top_agents.map(function(result, i) {
-                    console.log(result)
-                    return (
+                  {props.state.top_agents.map((result, i) => 
                     result['banned'] ? null :
-                      <div key={i}>
+                    <>
                     <Cell
-                  onClick={() => props.goOtherProfile(result['id'], true)}
-                  description={
-                    <div className="top_moderator_desc">
-                    {result['good_answers'] +  " хороших ответов, " + result['bad_answers'] + " плохих ответов"}
-                    </div>
-                  }
-                  size="l"
-                  before={<Avatar src={result['avatar']['url']} size={56}/>}
-                >
+                      onClick={() => props.goOtherProfile(result['id'], true)}
+                      description={
+                        <div className="top_moderator_desc">
+                        {result['good_answers'] +  " хороших ответов, " + result['bad_answers'] + " плохих ответов"}
+                        </div>
+                      }
+                      size="l"
+                      before={<Avatar src={result['avatar']['url']} size={56}/>}
+                    >
                   <div className="top_moderator_name">
                   {isFinite(result['nickname']) ? `Агент Поддержки #${result['nickname']}` : result['nickname'] ? result['nickname'] : `Агент Поддержки #${result['id']}`}
                     <div className="top_moderator_name_icon">{result['flash'] === true ? <Icon12Fire onClick={() => props.setActiveModal('prom')} className="top_moderator_name_icon"/> : null}{result['verified'] === true ? <Icon16Done width={12} height={12} className="top_moderator_name_icon_ver"/>  : null }</div>
@@ -44,10 +42,8 @@ import Icon16Done from '@vkontakte/icons/dist/16/done';
                     
                   </Cell>
                  <Separator></Separator>
-                    
-                    </div>
-                    )
-                  })}
+                 </>
+                  )}
             </Panel>
             )
             }

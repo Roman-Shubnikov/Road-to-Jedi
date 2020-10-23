@@ -27,7 +27,6 @@ import Icon28Profile from '@vkontakte/icons/dist/28/profile';
 import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
 import Icon24Dismiss from '@vkontakte/icons/dist/24/dismiss';
 import Icon24Add from '@vkontakte/icons/dist/24/add';
-import Icon20PlaceOutline from '@vkontakte/icons/dist/24/place';
 import Icon28Notification from '@vkontakte/icons/dist/28/notifications';
 import Icon28ArticleOutline from '@vkontakte/icons/dist/28/article_outline';
 import Icon28FavoriteOutline from '@vkontakte/icons/dist/28/favorite_outline';
@@ -38,6 +37,8 @@ import Icon56FireOutline from '@vkontakte/icons/dist/56/fire_outline';
 import Icon56MoneyTransferOutline from '@vkontakte/icons/dist/56/money_transfer_outline'
 import Icon20CancelCircleFillRed from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
 import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
+import Icon20PlaceOutline from '@vkontakte/icons/dist/20/place_outline';
+import Icon20LightbulbCircleFillYellow from '@vkontakte/icons/dist/20/lightbulb_circle_fill_yellow';
 
 const queryString = require('query-string');
 
@@ -134,6 +135,7 @@ class App extends React.Component {
             myQuestions: [],
             switchKeys: false,
             ShowBanner: true,
+            AgeUser: 0,
 
         };
         this.onStoryChange = this.onStoryChange.bind(this);
@@ -173,13 +175,13 @@ class App extends React.Component {
         }
 			  if (type === 'VKWebAppUpdateConfig') {
           this.setState({scheme: data.scheme})
-            if(data.scheme === "client_light") {
-              this.setState({scheme: "bright_light"})
-              } else if(data.scheme === "client_dark") {
-                this.setState({scheme: "space_gray"})
-              } else {
-                this.setState({scheme: data.scheme})
-              }
+            // if(data.scheme === "client_light") {
+            //   this.setState({scheme: "bright_light"})
+            //   } else if(data.scheme === "client_dark") {
+            //     this.setState({scheme: "space_gray"})
+            //   } else {
+            //     this.setState({scheme: data.scheme})
+            //   }
             }
         })
         if(hash.ticket_id !== undefined) {
@@ -277,12 +279,25 @@ class App extends React.Component {
 
     userBan(user_id, text) {
       this.setState({popout: <ScreenSpinner/>})
-      fetch(this.state.api_url_second + "method=ban.user&user_id=" + user_id + "&text=" + text + "&" + window.location.search.replace('?', ''))
+      fetch(this.state.api_url + "method=ban.user&user_id=" + user_id + "&text=" + text + "&" + window.location.search.replace('?', ''))
       .then(res => res.json())
       .then(data => {
         if(data.response) {
           this.setActiveModal(null);
           this.showAlert('Нормас', 'Пользователь забанен');
+        }
+      })
+      .catch(err => {
+        this.showErrorAlert()
+      })
+    }
+    ChangeAge(age) {
+      this.setState({popout: <ScreenSpinner/>})
+      fetch(this.state.api_url + "method=account.setAge&age=" + age + "&" + window.location.search.replace('?', ''))
+      .then(res => res.json())
+      .then(data => {
+        if(data.result) {
+          this.setActiveModal(null);
         }
       })
       .catch(err => {
@@ -1348,11 +1363,11 @@ class App extends React.Component {
 
       myQuestions() {
         this.setState({popout: <ScreenSpinner/>})
-        fetch(this.state.api_url_second + "method=my.questions&id=" + this.state.profile['id']  + "&" + window.location.search.replace('?', ''))
+        fetch(this.state.api_url + "method=tickets.getByModeratorAnswers" + "&" + window.location.search.replace('?', ''))
           .then(res => res.json())
           .then(data => {
-            if(data) {
-              this.setState({myQuestions: data, popout: null, history: [...this.state.history, "qu"], activePanel: "qu"})
+            if(data.result) {
+              this.setState({myQuestions: data.response, popout: null, history: [...this.state.history, "qu"], activePanel: "qu"})
               window.history.pushState({panel: 'qu'}, `qu`);
             }
           })
@@ -1422,10 +1437,19 @@ class App extends React.Component {
                 }
                 >
                   <Div>
-                    <Button onClick={() => this.goNew_Tiket()} level="secondary" style={{height: "35px"}} stretched before={<Icon24Add/>}>Добавить вопрос</Button>
+                    <Button onClick={() => this.goNew_Tiket()} size='l' stretched before={<Icon24Add/>}>Добавить вопрос</Button>
                   </Div>
-                  <Div>
-                    <Button onClick={() => this.getRandomTiket()} level="secondary" style={{height: "35px", marginTop: "-10px"}} stretched before={<Icon20PlaceOutline/>}>Случайный тикет</Button>
+                  <Div style={{display:'flex'}}>
+                    <Button onClick={() => this.getRandomTiket()} 
+                    stretched 
+                    size='l'
+                    // style={{marginRight: '2%'}}
+                    before={<Icon20PlaceOutline />}>Случайный тикет</Button>
+                    <Button onClick={() => this.setState({scheme: (this.state.scheme === 'client_light') ? 'client_dark' : 'client_light'})} 
+                    stretched 
+                    size='l'
+                    style={{marginLeft: '5%'}}
+                    before={<Icon20LightbulbCircleFillYellow />}>Сменить тему</Button>
                   </Div>
                 </ModalPage>
                 <ModalPage
@@ -1478,14 +1502,28 @@ class App extends React.Component {
                 </ModalPage>
                 <ModalCard
                   id="start"
-                  onClose={() => this.setActiveModal(null)}
-                  icon={<Avatar src={this.state.test.id !== undefined ? "https://api.xelene.me" + this.state.test.avatar.url : null} size={70} />}
-                  caption={<div>Вам присвоен номер #{this.state.test.id !== undefined ? this.state.test.id : "undefined"}<br/><br/>Помните, отвечать нужно вдумчиво. После ответа команда наших модераторов проверит его и даст комментарий, если всё хорошо - вам придет уведомление.<br/><br/>Сервис не имеет отношения к Администрации ВКонтакте</div>}
+                  // onClose={() => this.setActiveModal(null)}
+                  icon={<Avatar src={this.state.test.id !== undefined ? this.state.test.avatar.url : null} size={70} />}
+                  caption={<div>
+                    <div>Вам присвоен номер #{this.state.test.id !== undefined ? this.state.test.id : "undefined"}<br/><br/>Помните, отвечать нужно вдумчиво.</div>
+                    <FormLayout>
+                      <Slider
+                        min={1}
+                        max={100}
+                        step={1}
+                        value={this.state.AgeUser}
+                        onChange={e => this.setState({AgeUser:e})}
+                        top="Укажите свой возраст"
+                      />
+                    </FormLayout>
+                    
+                  </div>}
                   actions={[{
                   title: 'Вперед!',
                   type: 'secondary',
+                  disabled: (this.state.AgeUser === 0) ? true : false,
                   action: () => {
-                    this.setActiveModal(null);
+                    this.ChangeAge(this.state.AgeUser);
                   }
           }]}
         >
@@ -1504,7 +1542,7 @@ class App extends React.Component {
             }
           }]}
         >
-          <Input maxLength="5" onChange={(e) => this.onChange(e)} placeholder="Введите id модератора" name="money_transfer_send" value={this.state.money_transfer_send}/>
+          <Input maxLength="5" onChange={(e) => this.onChange(e)} placeholder="Введите id агента" name="money_transfer_send" value={this.state.money_transfer_send}/>
           <br/>
           <Input maxLength="5" name="money_transfer_count" onChange={(e) => this.onChange(e)} placeholder="Введите кол-во монеток" value={this.state.money_transfer_count} />
           {/* <br/>

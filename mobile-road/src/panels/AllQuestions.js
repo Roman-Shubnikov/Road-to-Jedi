@@ -72,25 +72,21 @@ function fix_time(time) {
                 Мои вопросы
                 </PanelHeader>
                 {props.state.myQuestions.length > 0 ?
-                props.state.myQuestions.map(function(result, i) {
-                  return (
-                      <div key={i}>
-                  <Cell
+                props.state.myQuestions.map((result, i) => 
+                <> 
+                  <SimpleCell
                       key={i}
-                      onClick={() => props.goTiket(result['ticket_id'])}
+                      onClick={() => props.goTiket(result['id'])}
                       description={new Date(result['time'] * 1e3).getDate() + " " + months[new Date(result['time'] * 1e3).getMonth()] + " " + new Date(result['time'] * 1e3).getFullYear() + " в " 
                       + fix_time(new Date(result['time'] * 1e3).getHours()) + ":" + fix_time(new Date(result['time'] * 1e3).getMinutes())}
                       size="l"
-                      before={<Avatar src={props.state.profile['avatar']['url']} size={56}/>}
-                      multiline="boolean"
+                      before={<Avatar src={result['author']['id'] === 526444378 ? "https://cdn3.iconfinder.com/data/icons/avatars-15/64/_Ninja-2-512.png" : result['author']['photo_200']} />}
                   >
-                    <div style={{lineHeight: "17px", marginTop: "3px"}}>{result['text']}</div>
-                    <div style={{marginTop: "4px"}}></div>
-                  </Cell>
-                  <Separator className={{width: "100%"}}></Separator>
-                  </div>
-                  )
-                }) :
+                    {result['title']}
+                  </SimpleCell>
+                  <Separator style={{width: "90%"}} />
+                  </>
+                ) :
                 <Placeholder 
                 stretched
                 action={<Button size="l" onClick={() => {
