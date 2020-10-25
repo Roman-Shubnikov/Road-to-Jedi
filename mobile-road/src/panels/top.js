@@ -1,10 +1,29 @@
 import React from 'react';
-
-import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
-import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
-import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
-import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
-import Separator from '@vkontakte/vkui/dist/components/Separator/Separator';
+import { 
+  Panel,
+  PanelHeader,
+  PanelHeaderButton,
+  Button,
+  Group,
+  Alert,
+  Avatar,
+  Placeholder,
+  Separator,
+  PullToRefresh,
+  PanelSpinner,
+  InfoRow,
+  Header,
+  Counter,
+  SimpleCell,
+  PromoBanner,
+  FixedLayout,
+  Cell,
+  Div,
+  HorizontalScroll,
+  View,
+  Switch,
+  ScreenSpinner,
+  } from '@vkontakte/vkui';
 
 import Icon12Fire from '@vkontakte/icons/dist/12/fire';
 import Icon16Done from '@vkontakte/icons/dist/16/done';
@@ -12,6 +31,9 @@ import Icon16Done from '@vkontakte/icons/dist/16/done';
     class Reader extends React.Component {
         constructor(props) {
             super(props);
+            this.state = {
+
+            }
         }
 
         render() {
@@ -20,12 +42,12 @@ import Icon16Done from '@vkontakte/icons/dist/16/done';
                 <Panel id={this.props.id}>
                 <PanelHeader>
                 Топ
-                </PanelHeader>                    
-
+                </PanelHeader>              
+                <><PullToRefresh onRefresh={() => {props.setState({fetching: true});props.getTopUsers()}} isFetching={props.state.fetching}>
                   {props.state.top_agents.map((result, i) => 
                     result['banned'] ? null :
-                    <>
-                    <Cell
+                    <React.Fragment key={result.id}>
+                    <SimpleCell
                       onClick={() => props.goOtherProfile(result['id'], true)}
                       description={
                         <div className="top_moderator_desc">
@@ -33,17 +55,17 @@ import Icon16Done from '@vkontakte/icons/dist/16/done';
                         </div>
                       }
                       size="l"
-                      before={<Avatar src={result['avatar']['url']} size={56}/>}
+                      before={<Avatar src={result['avatar']['url']}/>}
                     >
                   <div className="top_moderator_name">
                   {isFinite(result['nickname']) ? `Агент Поддержки #${result['nickname']}` : result['nickname'] ? result['nickname'] : `Агент Поддержки #${result['id']}`}
                     <div className="top_moderator_name_icon">{result['flash'] === true ? <Icon12Fire onClick={() => props.setActiveModal('prom')} className="top_moderator_name_icon"/> : null}{result['verified'] === true ? <Icon16Done width={12} height={12} className="top_moderator_name_icon_ver"/>  : null }</div>
                   </div>
-                    
-                  </Cell>
-                 <Separator></Separator>
-                 </>
+                  </SimpleCell>
+                 <Separator/>
+                 </React.Fragment>
                   )}
+                </PullToRefresh></>
             </Panel>
             )
             }

@@ -10,7 +10,7 @@ const DB_PASS = '1qazse45';
 const ONLINE_TIME = 300;
 
 const ITEMS_PER_PAGE = 20; // Количество элементов на одной странице
-const MAX_ITEMS_COUNT = 100;
+const MAX_ITEMS_COUNT = 30;
 
 const AVATAR_PATH = 'https://xelene.ru/road/php/images/avatars';
 

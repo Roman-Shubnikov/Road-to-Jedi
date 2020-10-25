@@ -92,7 +92,7 @@ const Profile = props => (
                 expandable
                 indicator={<Counter mode='primary'>{props.this.state.profile['total_answers']}</Counter>}
                 onClick={() => {
-                    props.this.myQuestions();
+                    props.this.goPanel('qu');
                 }}
                 before={<Icon28PollSquareOutline />}>Мои ответы</SimpleCell>
                 <SimpleCell
@@ -109,12 +109,12 @@ const Profile = props => (
                     props.this.goAchive();
                 }}
                 before={<Icon28FireOutline />}>Достижения</SimpleCell>
-                <SimpleCell
+                {/* <SimpleCell
                 expandable
                 onClick={() => {
                     props.this.Dop();
                 }}
-                before={<Icon28ArticleOutline />}>Мои вопросы</SimpleCell>
+                before={<Icon28ArticleOutline />}>Мои вопросы</SimpleCell> */}
 
                 <SimpleCell
                 expandable

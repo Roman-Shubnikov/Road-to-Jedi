@@ -2,6 +2,8 @@ import React from 'react'; // React
 import connect from '@vkontakte/vk-bridge'; // VK Connect
 import vkQr from '@vkontakte/vk-qr';
 
+import music from './music/Soloriver.mp3';
+
 import { 
   Panel,
   PanelHeader,
@@ -40,13 +42,15 @@ import {
   FormLayout,
   List,
   Slider,
-  ConfigProvider
+  ConfigProvider,
+  platform
   } from '@vkontakte/vkui';
 
 import eruda from 'eruda';
 import '@vkontakte/vkui/dist/vkui.css';
 import './style.css'
 // Импортируем панели
+import Notification from './panels/notify/main'
 import Home from './panels/questions.js'
 import Tiket from './panels/tiket.js'
 import Top from './panels/top.js'
@@ -54,7 +58,7 @@ import Profile from './panels/profile.js'
 import Other_Profile from './panels/other_profile'
 import Profile_Help from './panels/profile_help'
 import New_Tiket from './panels/new_tiket'
-import Notif from './panels/notif.js'
+import Notif from './panels/notify/panels/notif.js'
 import Money from './panels/money.js'
 import Vitas from './panels/vitas.js';
 import Qu from './panels/AllQuestions.js'
@@ -77,8 +81,12 @@ import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
 import Icon20PlaceOutline from '@vkontakte/icons/dist/20/place_outline';
 import Icon24BrushOutline from '@vkontakte/icons/dist/24/brush_outline';
 import Icon20Stars from '@vkontakte/icons/dist/20/stars';
-const queryString = require('query-string');
+import Icon28CoinsOutline from '@vkontakte/icons/dist/28/coins_outline';
+import Icon28BillheadOutline from '@vkontakte/icons/dist/28/billhead_outline';
+import Icon28FireOutline from '@vkontakte/icons/dist/28/fire_outline';
 
+const queryString = require('query-string');
+const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 const parsedHash = queryString.parse(window.location.search.replace('?', ''));
 const hash = queryString.parse(window.location.hash);
 
@@ -173,18 +181,100 @@ class App extends React.Component {
             switchKeys: false,
             ShowBanner: true,
             AgeUser: 0,
+            fetching: true,
 
         };
         this.onStoryChange = this.onStoryChange.bind(this);
         this.onChange = this.onChange.bind(this);
         this.closePopout = this.closePopout.bind(this);
         this.setActiveModal = this.setActiveModal.bind(this);
+        // this.pushHistory = (panel) => {
+        //   window.history.pushState({panel: 'panel'}, panel);
+        // }
         this.modalBack = () => {
             this.setActiveModal(this.state.modalHistory[this.state.modalHistory.length - 2]);
           };
+        this.setPopout = (value) => {
+          this.setState({popout: value})
+        }
+        this.goPanel = (panel) => {
+          this.setState({history: [...this.state.history, panel], activePanel: panel})
+          window.history.pushState({panel: panel}, panel);
+        }
+        this.getTopUsers = (needchange=false) => {
+          fetch(this.state.api_url + "method=users.getTop&" + window.location.search.replace('?', ''))
+          .then(res => res.json())
+          .then(data => {
+            if(data) {
+              this.setState({top_agents: data.response, popout: null})
+              if(needchange){
+                this.setState({ activeStory: "top", history: ["top"], activePanel: "top"})
+              }
+              setTimeout(() => {
+                this.setState({fetching: false});
+              }, 500)
+            }
+          })
+          .catch(err => {
+            this.showErrorAlert()
+
+          })
+        }
+        
+        this.Others = () => {
+          this.setState({ fetching: true });
+            fetch(this.state.api_url + "method=tickets.get&count=20&unanswered=1&offset=" + this.state.offset + "&" + window.location.search.replace('?', ''))
+            .then(res => res.json())
+            .then(data => {
+              if(data.result) {
+                var sliyan = this.state.tiket_all.concat(data.response)
+                this.setState({tiket_all: sliyan, tiket_all_helper: data.response, offset: this.state.offset + 20})
+                setTimeout(() => {
+                  this.setState({ fetching: false });
+                }, 500);
+              }
+            })
+            .catch(err => {
+              this.showErrorAlert()
+            })
+            fetch(this.state.api_url + "method=notifications.getCount&" + window.location.search.replace('?', ''))
+                .then(res => res.json())
+                .then(data => {
+                  if(data) {
+                    this.Notification(data.response)
+                  }
+                })
+                .catch(err => {
+                  this.showErrorAlert()
+                })
+          }
+          this.playAudio = () => {
+            if(!this.audio.paused){
+              this.audio.pause()
+            } else {
+              this.audio.volume = 0.2;
+              this.audio.currentTime = 11;
+              const audioPromise = this.audio.play()
+              if (audioPromise !== undefined) {
+              audioPromise
+                .then(_ => {
+                // autoplay started
+                
+                })
+                .catch(err => {
+                // catch dom exception
+                console.info(err)
+                })
+              }
+            }
+            this.setState({paused: this.audio.paused})
+          }
     }
+    
 
     componentDidMount() {
+      this.audio = new Audio(music)
+		  this.audio.load()
         connect.subscribe(({ detail: { type, data }}) => { 
         if(type === 'VKWebAppAllowMessagesFromGroupResult') {
           fetch(this.state.api_url_second + "method=notifications.swift&swift=on&" + window.location.search.replace('?', ''))
@@ -276,14 +366,7 @@ class App extends React.Component {
       }, 100)
     }
 
-    openMoneyTransfer(avatar, text, comment) {
-      this.setState({transfer: {
-        avatar: avatar,
-        text: text,
-        comment: comment.length > 0 ? comment : 'Агент не оставил комментария 😢'
-      }})
-      this.setActiveModal('transfer')
-    }
+    
 
     goVitas() {
       this.setState({popout: <ScreenSpinner/>})
@@ -334,7 +417,11 @@ class App extends React.Component {
       .then(res => res.json())
       .then(data => {
         if(data.result) {
-          this.setActiveModal(null);
+          this.setState({popout: null})
+          // setTimeout(() => {
+          //   this.playAudio()
+          // }, 5000)
+          
         }
       })
       .catch(err => {
@@ -417,30 +504,6 @@ class App extends React.Component {
                 this.showErrorAlert()
 
               })
-    }
-
-    Others() {
-      fetch(this.state.api_url + "method=tickets.get&count=20&unanswered=1&offset=" + this.state.offset + "&" + window.location.search.replace('?', ''))
-      .then(res => res.json())
-      .then(data => {
-        if(data.response) {
-          var sliyan = this.state.tiket_all.concat(data.response)
-          this.setState({tiket_all: sliyan, tiket_all_helper: data.response, offset: this.state.offset + 20})
-        }
-      })
-      .catch(err => {
-        this.showErrorAlert()
-      })
-      fetch(this.state.api_url + "method=notifications.getCount&" + window.location.search.replace('?', ''))
-          .then(res => res.json())
-          .then(data => {
-            if(data) {
-              this.Notification(data.response)
-            }
-          })
-          .catch(err => {
-            this.showErrorAlert()
-          })
     }
 
     changeAvatar(last_selected) {
@@ -1351,18 +1414,7 @@ class App extends React.Component {
             }
 		      });
         } else if(e.currentTarget.dataset.story === "top") {
-          fetch(this.state.api_url + "method=users.getTop&" + window.location.search.replace('?', ''))
-          .then(res => res.json())
-          .then(data => {
-            if(data) {
-              this.setState({top_agents: data.response, popout: null})
-              this.setState({ activeStory: "top", history: ["top"], activePanel: "top"})
-            }
-          })
-          .catch(err => {
-            this.showErrorAlert()
-
-          })
+          this.getTopUsers(true)
         } else if(e.currentTarget.dataset.story === "questions") {
           fetch(this.state.api_url + "method=tickets.get&unanswered=1&" + window.location.search.replace('?', ''))
             .then(res => res.json())
@@ -1399,6 +1451,7 @@ class App extends React.Component {
       }
 
       myQuestions() {
+        
         this.setState({popout: <ScreenSpinner/>})
         fetch(this.state.api_url + "method=tickets.getByModeratorAnswers" + "&" + window.location.search.replace('?', ''))
           .then(res => res.json())
@@ -1473,9 +1526,9 @@ class App extends React.Component {
                   </ModalPageHeader>
                 }
                 >
-                  <Div>
+                  {/* <Div>
                     <Button onClick={() => this.goNew_Tiket()} size='l' stretched before={<Icon24Add/>}>Добавить вопрос</Button>
-                  </Div>
+                  </Div> */}
                   <Div style={{display:'flex'}}>
                     <Button onClick={() => {
                       this.setActiveModal(null);
@@ -1533,7 +1586,7 @@ class App extends React.Component {
                 onClose={this.modalBack}
                 header={
                   <ModalPageHeader
-                  right={<Header onClick={this.modalBack}><Icon24Dismiss /></Header>}
+                  right={<Header onClick={this.modalBack}><Icon24Dismiss style={{color: 'var(--placeholder_icon_foreground_primary)'}} /></Header>}
                   >
                     QR
                   </ModalPageHeader>
@@ -1544,7 +1597,64 @@ class App extends React.Component {
                  <div className="qr">Отсканируйте камерой ВКонтакте!</div>
                  <br/>
                 </ModalPage>
-                <ModalCard
+                <ModalPage
+                id="start"
+                onClose={this.modalBack}
+                dynamicContentHeight
+                header={
+                  <ModalPageHeader>
+                    Привет
+                  </ModalPageHeader>
+                }>
+                  <img className="AvaModalPage" src={this.state.test.id !== undefined ? this.state.test.avatar.url : null} size={70} />
+                  <Header
+                  subtitle='Помните, отвечать нужно вдумчиво.'>Вам присвоен номер №{this.state.test.id !== undefined ? this.state.test.id : "undefined"}</Header>
+                  <FormLayout>
+                      <Slider
+                        min={10}
+                        max={100}
+                        step={1}
+                        value={this.state.AgeUser}
+                        onChange={e => {
+                          this.setState({AgeUser: e});
+                        }}
+                        top={`Укажите свой возраст: ${this.state.AgeUser}`}
+                      />
+                    </FormLayout>
+                    <Div>
+                      <SimpleCell disabled
+                      before={<Icon28CoinsOutline />}>
+                        Зарабатывай монеты
+                      </SimpleCell>
+                      <SimpleCell disabled
+                      before={<Icon28BillheadOutline />}>
+                        Отвечай на вопросы
+                      </SimpleCell>
+                      <SimpleCell disabled
+                      before={<Icon28FavoriteOutline />}>
+                        Участвуй в рейтинге
+                      </SimpleCell>
+                      <SimpleCell disabled
+                      before={<Icon28FireOutline />}>
+                        Получай отметку огня
+                      </SimpleCell>
+                    </Div>
+                    <Div>
+                      <Button 
+                      mode="secondary" 
+                      size='xl'
+                      stretched
+                      onClick={() => {
+                        // this.playAudio()
+                        
+                        this.ChangeAge(this.state.AgeUser);
+                        this.setActiveModal(null);
+                      }}>Вперёд!</Button>
+                    </Div>
+                    
+                    <Cell></Cell>
+                </ModalPage>
+                {/* <ModalCard
                   id="start"
                   // onClose={() => this.setActiveModal(null)}
                   icon={<Avatar src={this.state.test.id !== undefined ? this.state.test.avatar.url : null} size={70} />}
@@ -1570,10 +1680,10 @@ class App extends React.Component {
                     this.ChangeAge(this.state.AgeUser);
                     // this.setActiveModal(null);
                   }
-          }]}
-        >
+          }]} */}
+        {/* > */}
 
-        </ModalCard>
+        {/* </ModalCard> */}
         <ModalCard
           id='send'
           onClose={() => this.setActiveModal(null)}
@@ -1646,7 +1756,7 @@ class App extends React.Component {
           </ModalRoot>
         )
         return(
-            <ConfigProvider isWebView={true} scheme={this.state.scheme}> 
+            <ConfigProvider isWebView={platformname} scheme={this.state.scheme}> 
             <Epic activeStory={this.state.activeStory}
             tabbar={
                 this.state.activePanel !== "tiket" &&
@@ -1655,25 +1765,25 @@ class App extends React.Component {
                 this.state.activePanel !== "money" &&
                 <Tabbar>
                   <TabbarItem
-                    onClick={this.onStoryChange}
+                    onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
                     selected={this.state.activeStory === 'questions'}
                     data-story="questions"
                     text='Вопросы'
                   ><Icon28ArticleOutline/></TabbarItem>
                   <TabbarItem
-                    onClick={this.onStoryChange}
+                    onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
                     selected={this.state.activeStory === 'top'}
                     data-story="top"
                     text='Топ'
                   ><Icon28FavoriteOutline/></TabbarItem>
                   <TabbarItem
-                    onClick={this.onStoryChange}
+                    onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
                     selected={this.state.activeStory === 'notif'}
                     data-story="notif"
                     text='Уведомления'
                   ><Icon28Notification /></TabbarItem>
                   <TabbarItem
-                    onClick={this.onStoryChange}
+                    onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
                     selected={this.state.activeStory === 'profile'}
                     data-story="profile"
                     text='Профиль'
@@ -1723,7 +1833,11 @@ class App extends React.Component {
                 <Vitas id="vitas" this={this}/>
                 <Achives id="achives" this={this}/>
             </View>
-            <View 
+            <Notification 
+            id="notif"
+            this={this}
+            />
+            {/* <View 
             activePanel={this.state.activePanel} 
             history={this.state.history} 
             onSwipeBack={this.goBack}
@@ -1734,7 +1848,7 @@ class App extends React.Component {
                 <Notif id="notif" this={this}/>
                 <Tiket id="tiket" this={this}/>
                 <Other_Profile id="other_profile" this={this}/>
-            </View>
+            </View> */}
             </Epic>
             </ConfigProvider>
         );

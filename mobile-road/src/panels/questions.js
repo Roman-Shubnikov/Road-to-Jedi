@@ -73,42 +73,44 @@ import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
                     asideMode="dismiss"
                     actions={<Button mode="overlay_primary" href="https://vk.com/@jedi_road-checking-responses" target="_blank" rel="noopener noreferrer" size="l">Подробнее</Button>}
                 /><Separator /></> : null}
-                <Div>
+                {props.state.is_special_moder ? <Div>
                     <Button onClick={() => props.goNew_Tiket()}
                     size="xl" 
                     mode="outline" 
                     stretched>Новый вопрос</Button>
-                </Div>
-                {props.state.tiket_all.map((result, i) => 
-                <>
-                    <Cell
-                        key={i}
-                        onClick={() => props.goTiket(result['id'])}
-                        description={result['status'] === 0 ? "На рассмотрении" : result['status'] === 1 ? "Есть ответ" : "Закрыт" } 
-                        asideContent={<Avatar src={result['author']['id'] === 526444378 ? "https://cdn3.iconfinder.com/data/icons/avatars-15/64/_Ninja-2-512.png" : result['author']['photo_200']} size={56}/>}
-                    >
-                    {result['title']}
+                </Div> : null}
+                <PullToRefresh onRefresh={props.Others} isFetching={props.state.fetching}>
+                    {props.state.tiket_all.map((result, i) => 
+                    <>
+                        <Cell
+                            key={i}
+                            onClick={() => props.goTiket(result['id'])}
+                            description={result['status'] === 0 ? "На рассмотрении" : result['status'] === 1 ? "Есть ответ" : "Закрыт" } 
+                            asideContent={<Avatar src={result['author']['id'] === 526444378 ? "https://cdn3.iconfinder.com/data/icons/avatars-15/64/_Ninja-2-512.png" : result['author']['photo_200']} size={56}/>}
+                        >
+                        {result['title']}
 
-                    </Cell>
-                    <Separator style={{width: "90%"}} />
-                </>
-                )}
-                {props.state.tiket_all_helper.length === 20 ? 
-                <Div>
-                    <Button size="xl" level="secondary" onClick={() => props.Others()}>Загрузить ещё</Button>
-                </Div>
-            : 
-            (props.state.tiket_all.length === 0) ? null : <Footer>{props.state.tiket_all.length} вопрос(а) всего</Footer>}
-            {props.state.tiket_all.length === 0 ? 
-            //  <div>
-            //     <div style={{marginTop: "300px"}} className="help_title_profile">Упс, вопросы закончились.</div>
-            //  </div>
-            <Placeholder 
-            icon={<Icon56InboxOutline />}>
-                Упс, кажется вопросы закончились
-            </Placeholder>
-            : null}
-                  
+                        </Cell>
+                        <Separator style={{width: "90%"}} />
+                    </>
+                    )}
+                
+                    {props.state.tiket_all_helper.length === 20 ? 
+                    <Div>
+                        <Button size="xl" level="secondary" onClick={() => props.Others()}>Загрузить ещё</Button>
+                    </Div>
+                : 
+                (props.state.tiket_all.length === 0) ? null : <Footer>{props.state.tiket_all.length} вопрос(а) всего</Footer>}
+                {props.state.tiket_all.length === 0 ? 
+                //  <div>
+                //     <div style={{marginTop: "300px"}} className="help_title_profile">Упс, вопросы закончились.</div>
+                //  </div>
+                <Placeholder 
+                icon={<Icon56InboxOutline />}>
+                    Упс, кажется вопросы закончились
+                </Placeholder>
+                : null}
+            </PullToRefresh>
             </Panel>
             )
             }

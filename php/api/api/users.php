@@ -28,13 +28,12 @@ class Users {
 		}
 	}
 	public function ChangeAge($age) {
-		$uid = $this->user->id;
+		$uid = $this->vk_id;
 
 		$data = [
 			'age' => $age
 		];
-
-		db_edit( $data, "id = $uid", 'users' );
+		return db_edit( $data, "vk_user_id = $uid", 'users' );
 	}
 	public function getMy() {
 		$info = $this->info;
@@ -48,7 +47,7 @@ class Users {
 
 	public function getById( int $id ) {
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,
-						users.bad_answers, users.total_answers, users.avatar_id,  users.noti, users.money,
+						users.bad_answers, users.total_answers, users.avatar_id,  users.noti, users.money,users.age,
 						avatars.name as avatar_name, users.flash, users.verified, users.nickname, users.banned, users.ban_reason
 				FROM users
 				LEFT JOIN avatars
@@ -79,7 +78,7 @@ class Users {
 		$result = [];
 
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,
-						users.bad_answers, users.total_answers, users.avatar_id, users.money,
+						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age,
 						avatars.name as avatar_name, users.money, users.flash, users.verified, users.nickname, users.banned, users.ban_reason
 				FROM users
 				LEFT JOIN avatars
@@ -123,7 +122,7 @@ class Users {
 		$user_id = $this->vk_id;
 
 		$sql = "UPDATE users SET last_activity = $time WHERE vk_user_id = $user_id;
-				SELECT users.id, users.last_activity, users.registered, users.good_answers,
+				SELECT users.id, users.last_activity, users.registered, users.good_answers,users.age,
 						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.money, users.banned, users.noti,
 						avatars.name as avatar_name, users.special, users.banned, users.ban_reason, users.flash, users.verified, users.nickname
 				FROM users

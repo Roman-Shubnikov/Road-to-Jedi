@@ -23,11 +23,9 @@ import {
     HorizontalScroll,
     View,
     Switch,
+    ScreenSpinner,
     } from '@vkontakte/vkui';
 
-import Icon20HomeOutline from '@vkontakte/icons/dist/20/home_outline';
-import Icon24SmileOutline from '@vkontakte/icons/dist/24/smile_outline';
-import Icon24Report from '@vkontakte/icons/dist/24/report';
 import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
 import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
 
@@ -58,9 +56,33 @@ function fix_time(time) {
     class myQuestions extends React.Component {
         constructor(props) {
             super(props);
+            this.state = {
+                myQuestions:[],
+                fetching: false,
+            }
+            this.myQuestions = () => {
+                fetch(this.props.this.state.api_url + "method=tickets.getByModeratorAnswers" + "&" + window.location.search.replace('?', ''))
+                  .then(res => res.json())
+                  .then(data => {
+                    if(data.result) {
+                      this.setState({myQuestions: data.response})
+                      setTimeout(() => {
+                          this.setState({fetching: false});
+                    }, 500)
+                      
+                    }
+                  })
+                  .catch(err => {
+                    this.props.this.showErrorAlert()
+          
+                  })
+              }
         }
 
         
+        componentDidMount(){
+            this.myQuestions()
+        }
 
         render() {
             var props = this.props.this; // для более удобного использования.
@@ -71,31 +93,30 @@ function fix_time(time) {
             >
                 Мои вопросы
                 </PanelHeader>
-                {props.state.myQuestions.length > 0 ?
-                props.state.myQuestions.map((result, i) => 
-                <> 
-                  <SimpleCell
-                      key={i}
-                      onClick={() => props.goTiket(result['id'])}
-                      description={new Date(result['time'] * 1e3).getDate() + " " + months[new Date(result['time'] * 1e3).getMonth()] + " " + new Date(result['time'] * 1e3).getFullYear() + " в " 
-                      + fix_time(new Date(result['time'] * 1e3).getHours()) + ":" + fix_time(new Date(result['time'] * 1e3).getMinutes())}
-                      size="l"
-                      before={<Avatar src={result['author']['id'] === 526444378 ? "https://cdn3.iconfinder.com/data/icons/avatars-15/64/_Ninja-2-512.png" : result['author']['photo_200']} />}
-                  >
-                    {result['title']}
-                  </SimpleCell>
-                  <Separator style={{width: "90%"}} />
-                  </>
-                ) :
-                <Placeholder 
-                stretched
-                action={<Button size="l" onClick={() => {
-                    props.goNew_Tiket()
-                }}>Задать вопрос</Button>}
-                icon={<Icon56InboxOutline />}>
-                    Упс, кажется здесь нет ваших вопросов. Давайте зададим новый.
-                </Placeholder>
-                }
+                <PullToRefresh onRefresh={() => {this.setState({fetching: true});this.myQuestions()}} isFetching={this.state.fetching}>
+                    {this.state.myQuestions.length > 0 ?
+                    this.state.myQuestions.map((result, i) => 
+                    <> 
+                    <SimpleCell
+                        key={i}
+                        onClick={() => props.goTiket(result['id'])}
+                        description={new Date(result['time'] * 1e3).getDate() + " " + months[new Date(result['time'] * 1e3).getMonth()] + " " + new Date(result['time'] * 1e3).getFullYear() + " в " 
+                        + fix_time(new Date(result['time'] * 1e3).getHours()) + ":" + fix_time(new Date(result['time'] * 1e3).getMinutes())}
+                        size="l"
+                        before={<Avatar src={result['author']['id'] === 526444378 ? "https://cdn3.iconfinder.com/data/icons/avatars-15/64/_Ninja-2-512.png" : result['author']['photo_200']} />}
+                    >
+                        {result['title']}
+                    </SimpleCell>
+                    <Separator style={{width: "90%"}} />
+                    </>
+                    ) :
+                    <Placeholder 
+                    stretched
+                    icon={<Icon56InboxOutline />}>
+                        Упс, кажется здесь нет ваших вопросов.
+                    </Placeholder>
+                    }
+                </PullToRefresh>
             </Panel>
             )
             }

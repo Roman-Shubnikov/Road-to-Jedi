@@ -1,9 +1,6 @@
 @import './space_gray.css';
 @import './bright_light.css';
 
-body, html {
-    overflow-x: hidden;
-}
 #other_profile {
     --background_page: var(--background_page_my)
 }
@@ -37,7 +34,14 @@ body, html {
 #profile_help {
     --background_page: var(--background_page_my);
 }
-
+.AvaModalPage {
+    display: block;
+    margin: 20px auto;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+  
+  }
 .title_tiket {
     margin-top: 10px;
     width: 100%;
