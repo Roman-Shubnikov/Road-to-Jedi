@@ -308,6 +308,7 @@ switch ( $method ) {
 	case 'account.setAge':
 		$age = $_REQUEST['age'];
 		ok( $users->ChangeAge($age));
+
 	case 'account.get':
 		ok( $users->getMy() );
 	

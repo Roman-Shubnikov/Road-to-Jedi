@@ -158,7 +158,7 @@ body, html {
 }
 
 .top_moderator_name_icon {
-    color: var(--top_moderator_icon);
+    color: var(--dynamic_red);
     position: relative;
     float: right;
     margin-left: 1px;
@@ -166,7 +166,7 @@ body, html {
 }
 
 .top_moderator_name_icon_ver {
-    color: var(--profile_icon);
+    color: var(--dynamic_blue);
     position: relative;
     float: right;
     margin-left: 1px;
@@ -174,7 +174,7 @@ body, html {
 }
 
 .profile_moderator_name_icon {
-    color: var(--top_moderator_icon);
+    color: var(--dynamic_red);
     position: relative;
     float: right;
     margin-left: 2px;
@@ -182,7 +182,7 @@ body, html {
 }
 
 .profile_moderator_name_icon_ver {
-    color: var(--profile_icon);
+    color: var(--dynamic_blue);
     position: relative;
     float: right;
     margin-left: 2px;
@@ -191,14 +191,14 @@ body, html {
 
 .profile_icon {
     display: inline-block;
-    color: var(--top_moderator_icon);
+    color: var(--dynamic_red);
     position: relative;
     margin-left: 2px;
     margin-top: 5.5px;
 }
 
 .profile_icon_ver {
-    color: var(--profile_icon);
+    color: var(--dynamic_blue);
     display: inline-block;
     position: relative;
     margin-left: 2px;
@@ -288,7 +288,7 @@ body, html {
 }
 
 .other_icon {
-    color: var(--profile_icon);
+    color: var(--dynamic_blue);
 }
 
 .help_title_profile {
@@ -360,7 +360,7 @@ body, html {
 }
 
 .icon_profile {
-    color: var(--profile_icon)
+    color: var(--dynamic_blue)
 }
 
 .right_button {

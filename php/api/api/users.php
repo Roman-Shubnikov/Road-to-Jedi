@@ -18,7 +18,9 @@ class Users {
 
 			$this->_get();
 		}
-
+		if (!$this->info['age']){
+			$this->is_first_start = true;
+		}
 		$this->id = $this->info['id'];
 
 		if ( $this->info['banned'] ) {

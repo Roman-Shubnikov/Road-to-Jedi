@@ -2,9 +2,46 @@ import React from 'react'; // React
 import connect from '@vkontakte/vk-bridge'; // VK Connect
 import vkQr from '@vkontakte/vk-qr';
 
-import {ConfigProvider, Epic, Tabbar, TabbarItem, Snackbar, List, Div, Input, ModalRoot, Alert, ModalPage, ModalPageHeader, Cell, Button, ScreenSpinner, ActionSheet, ActionSheetItem, ModalCard, Avatar, HeaderContext } from '@vkontakte/vkui';
-import View from '@vkontakte/vkui/dist/components/View/View'
-import Header from '@vkontakte/vkui/dist/components/Header/Header'
+import { 
+  Panel,
+  PanelHeader,
+  PanelHeaderButton,
+  Button,
+  Group,
+  Alert,
+  Avatar,
+  Placeholder,
+  Separator,
+  PullToRefresh,
+  PanelSpinner,
+  InfoRow,
+  Header,
+  Counter,
+  SimpleCell,
+  PromoBanner,
+  FixedLayout,
+  Cell,
+  Div,
+  HorizontalScroll,
+  View,
+  Switch,
+  ScreenSpinner,
+  ActionSheet,
+  ActionSheetItem,
+  Snackbar,
+  ModalRoot,
+  ModalCard,
+  ModalPage,
+  ModalPageHeader,
+  Tabbar,
+  TabbarItem,
+  Epic,
+  Input,
+  FormLayout,
+  List,
+  Slider,
+  ConfigProvider
+  } from '@vkontakte/vkui';
 
 import eruda from 'eruda';
 import '@vkontakte/vkui/dist/vkui.css';
@@ -38,8 +75,8 @@ import Icon56MoneyTransferOutline from '@vkontakte/icons/dist/56/money_transfer_
 import Icon20CancelCircleFillRed from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
 import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
 import Icon20PlaceOutline from '@vkontakte/icons/dist/20/place_outline';
-import Icon20LightbulbCircleFillYellow from '@vkontakte/icons/dist/20/lightbulb_circle_fill_yellow';
-
+import Icon24BrushOutline from '@vkontakte/icons/dist/24/brush_outline';
+import Icon20Stars from '@vkontakte/icons/dist/20/stars';
 const queryString = require('query-string');
 
 const parsedHash = queryString.parse(window.location.search.replace('?', ''));
@@ -77,7 +114,7 @@ class App extends React.Component {
             activePanel: 'questions',
             activeStory: 'questions',
             history: ['questions'],
-            scheme: "space_gray",
+            scheme: "bright_light",
             activeModal: null,
             label: null,
             title_new_tiket: "",
@@ -1430,7 +1467,7 @@ class App extends React.Component {
                 onClose={this.modalBack}
                 header={
                   <ModalPageHeader
-                  right={<Header onClick={this.modalBack}><Icon24Dismiss /></Header>}
+                  right={<Header onClick={this.modalBack}><Icon24Dismiss style={{color: 'var(--placeholder_icon_foreground_primary)'}} /></Header>}
                   >
                     Настройки
                   </ModalPageHeader>
@@ -1440,16 +1477,23 @@ class App extends React.Component {
                     <Button onClick={() => this.goNew_Tiket()} size='l' stretched before={<Icon24Add/>}>Добавить вопрос</Button>
                   </Div>
                   <Div style={{display:'flex'}}>
-                    <Button onClick={() => this.getRandomTiket()} 
+                    <Button onClick={() => {
+                      this.setActiveModal(null);
+                      this.getRandomTiket();
+
+                    }} 
                     stretched 
                     size='l'
                     // style={{marginRight: '2%'}}
                     before={<Icon20PlaceOutline />}>Случайный тикет</Button>
-                    <Button onClick={() => this.setState({scheme: (this.state.scheme === 'client_light') ? 'client_dark' : 'client_light'})} 
+                    <Button onClick={() => {
+                      this.setActiveModal(null);
+                      this.setState({scheme: (this.state.scheme === 'bright_light') ? 'space_gray' : 'bright_light'})
+                    }}
                     stretched 
                     size='l'
                     style={{marginLeft: '5%'}}
-                    before={<Icon20LightbulbCircleFillYellow />}>Сменить тему</Button>
+                    before={<Icon20Stars />}>Сменить тему</Button>
                   </Div>
                 </ModalPage>
                 <ModalPage
@@ -1524,6 +1568,7 @@ class App extends React.Component {
                   disabled: (this.state.AgeUser === 0) ? true : false,
                   action: () => {
                     this.ChangeAge(this.state.AgeUser);
+                    // this.setActiveModal(null);
                   }
           }]}
         >

@@ -18,7 +18,7 @@ class Users {
 
 			$this->_get();
 		}
-
+		
 		$this->id = $this->info['id'];
 
 		if ( $this->info['banned'] ) {
@@ -69,7 +69,7 @@ class Users {
 		$result = [];
 
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,
-						users.bad_answers, users.total_answers, users.money, users.avatar_id,
+						users.bad_answers, users.total_answers, users.money, users.avatar_id, users.age,
 						avatars.name as avatar_name, users.flash, users.verified, users.nickname, users.banned, users.ban_reason
 				FROM users
 				LEFT JOIN avatars
@@ -114,7 +114,7 @@ class Users {
 
 		$sql = "UPDATE users SET last_activity = $time WHERE vk_user_id = $user_id;
 				SELECT users.id, users.last_activity, users.registered, users.good_answers,
-						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.banned, users.noti,
+						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.banned, users.noti,users.age,
 						avatars.name as avatar_name, users.special, users.banned, users.ban_reason, users.flash, users.verified, users.nickname
 				FROM users
 				LEFT JOIN avatars

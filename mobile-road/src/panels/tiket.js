@@ -54,7 +54,7 @@ const Ticket = props => (
                     {props.this.state.tiket_message.map(function(result, i) {
                         var is_mine_ticket = Number(props.this.state.tiket_info.author['id']) === Number(parsedHash.vk_user_id) ? true : false
                         var is_mine_message = Number(result['author']['id']) === Number(parsedHash.vk_user_id) ? true : false
-                        var avatar = result.author.is_moderator ? "https://api.xelene.me/" + result['author']['avatar']['url'] : result.author.photo_200
+                        var avatar = result.author.is_moderator ? result['author']['avatar']['url'] : result.author.photo_200
                         var time = fix_time(new Date(result.time * 1e3).getHours()) + ":" + fix_time(new Date(result.time * 1e3).getMinutes())
                         var title_moder = isFinite(result['nickname']) ? `Агент Поддержки #${result['nickname']}` : result['nickname'] ? result['nickname'] : `Агент Поддержки #${result['author']['id']}`;
                         return (
