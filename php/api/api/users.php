@@ -24,16 +24,36 @@ class Users {
 		$this->id = $this->info['id'];
 
 		if ( $this->info['banned'] ) {
-			throw new Exception( ERRORS[5] . $this->info['ban_reason'], 5 );
+			Show::customError(CONFIG::ERRORS[5] . $this->info['ban_reason']);
+			// throw new Exception( ERRORS[5] . $this->info['ban_reason'], 5 );
 		}
 	}
 	public function ChangeAge($age) {
-		$uid = $this->vk_id;
+		$aid = $this->id;
 
 		$data = [
 			'age' => $age
 		];
-		return db_edit( $data, "vk_user_id = $uid", 'users' );
+		return db_edit( $data, "id = $aid", 'users' );
+	}
+	public function Ban_User($agent_id, $ban=FALSE, $ban_reason=NULL){
+		if ( !$this->info['special'] ) {
+			Show::error(403);
+		}
+		$data = [
+			'banned' => (int) $ban,
+			'ban_reason' => (string)$ban_reason,
+		];
+		return db_edit( $data, "id = $agent_id", 'users' );
+	}
+	public function Prometay($agent_id, $give=TRUE){
+		if ( !$this->info['special'] ) {
+			Show::error(403);
+		}
+		$data = [
+			'flash' => (int) $give,
+		];
+		return db_edit( $data, "id = $agent_id", 'users' );
 	}
 	public function getMy() {
 		$info = $this->info;
@@ -56,7 +76,7 @@ class Users {
 		$res = db_get( $sql );
 
 		if ( empty( $res ) ) {
-			throw new Exception( ERRORS[404], 404 );
+			Show::error(404);
 		}
 
 		return $this->_formatType( $res[0] );
@@ -68,7 +88,7 @@ class Users {
 
 		foreach ( $a_ids as $i => $id ) {
 			if ( !is_numeric( $id ) ) continue;
-			if ( $i >= MAX_ITEMS_COUNT ) break;
+			if ( $i >= CONFIG::MAX_ITEMS_COUNT ) break;
 
 			$ids[] = (int) $id;
 		}
@@ -94,7 +114,7 @@ class Users {
 	}
 
 	public function getTop() {
-		$count = MAX_ITEMS_COUNT;
+		$count = CONFIG::MAX_ITEMS_COUNT;
 
 		$sql = "SELECT id FROM users ORDER BY good_answers DESC LIMIT 0, $count";
 		$ids = db_get( $sql );
@@ -108,6 +128,11 @@ class Users {
 		$s_ids = implode( ',', $a_ids );
 
 		return $this->getByIds( $s_ids, 'ORDER BY good_answers DESC' );
+	}
+	public function getRandom() {
+		$sql = "SELECT vk_user_id FROM users ORDER BY RAND() LIMIT 1";
+		$res = db_get( $sql )[0];
+		return -$res['id'];
 	}
 
 	public static function getIdByVKId( int $vk_id ) {
@@ -158,10 +183,10 @@ class Users {
 	}
 	private function _formatType( array $data ) {
 		if ( empty( $data ) ) {
-			throw new Exception( ERRORS[404], 404 );
+			Show::error(404);
 		}
 
-		$is_online = time() < $data['last_activity'] + ONLINE_TIME;
+		$is_online = time() < $data['last_activity'] + CONFIG::ONLINE_TIME;
 
 		if ( !$data['id'] ) {
 			return [];
@@ -176,7 +201,7 @@ class Users {
 				],
 				'avatar' => [
 					'id' => (int) $data['avatar_id'],
-					'url' => AVATAR_PATH . '/' . $data['avatar_name']
+					'url' => CONFIG::AVATAR_PATH . '/' . $data['avatar_name']
 				],
 				'good_answers' => (int) $data['good_answers'],
 				'bad_answers' => (int) $data['bad_answers'],

@@ -6,38 +6,72 @@
 // mysqli_report(MYSQLI_REPORT_ALL); 
 
 
-header( 'Access-Control-Allow-Origin: *' );
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: POST, GET, DELETE, PUT, PATCH, OPTIONS');
+    header('Access-Control-Allow-Headers: token, Content-Type');
+    header('Access-Control-Max-Age: 1728000');
+    header('Content-Length: 0');
+    header('Content-Type: text/plain');
+    die();
+}
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/json');
 
-require 'api/api/config.php';
+
+// require 'api/api/config.php';
+
+
+
+require("Utils/config.php");
+require("Utils/Show.php");
+require("Utils/AccessCheck.php");
+require("Utils/FludControl.php");
+require("Utils.php");
 require 'api/db.php';
-require 'api/func.php';
+// require 'api/func.php';
 require 'vkapi.php';
 
-set_exception_handler( 'error' );
+// set_exception_handler( 'exceptionerror' );
 
 require 'api/api/users.php';
 require 'api/api/tickets.php';
 require 'api/api/notifications.php';
 
-$check = check_sign();
-if ( !$check ) {
-	throw new Exception( ERRORS[4], 4 );
-}
-
 session_id( $_GET['vk_user_id'] );
 session_start();
 
-$control = flood_control();
-if ( !$control ) {
-	throw new Exception( ERRORS[3], 3 );
-}
 function getBalance() {
     $user_id = $_GET['vk_user_id'];
 
     return db_get("SELECT money FROM users WHERE vk_user_id = $user_id")[0]['money'];
 }
+function exceptionerror( $ex ) {
+	$code = $ex->getCode();
+	$msg = $ex->getMessage();
 
-$method = $_GET['method'];
+	if ( $code == 0 ) $msg = CONFIG::ERRORS[0];
+
+	$data = [
+		'result' => false,
+		'error' => [
+			'code' => $code,
+			'message' => $msg
+		]
+	];
+
+	$pretty = isset($_GET['debug']) ? JSON_PRETTY_PRINT : 0;
+	echo json_encode( $data, JSON_UNESCAPED_UNICODE | $pretty );
+}
+function offset_count( int &$offset, int &$count ) {
+	if ( $offset < 0 ) $offset = 0;
+	if ( $count < 0 ) $count = CONFIG::ITEMS_PER_PAGE;
+
+	if ( $count > CONFIG::MAX_ITEMS_COUNT ) $count = CONFIG::MAX_ITEMS_COUNT;
+}
+
+new AccessCheck();
+new FludControl();
 
 $params = [
 	'account.get' => [],
@@ -45,6 +79,33 @@ $params = [
 		'age' => [
 			'type' => 'int',
 			'required' => true
+		]
+	],
+	'account.Flash' => [
+		'agent_id' => [
+			'type' => 'int',
+			'required' => true,
+		],
+		'give' => [
+			'type' => 'int',
+			'required' => false,
+			'default' => 1,
+		],
+	],
+	'account.ban' => [
+		'agent_id' => [
+			'type' => 'int',
+			'required' => true
+		],
+		'banned' => [
+			'type' => 'bool',
+			'required' => false,
+			'default' => FALSE
+		],
+		'reason' => [
+			'type' => 'string',
+			'required' => false,
+			'default' => NULL
 		]
 	],
 	'user.getById' => [
@@ -60,7 +121,7 @@ $params = [
 			'required' => true
 		]
 	],
-
+	'users.getRandom' => [],
 	'users.getTop' => [],
 	'ticket.getRandom' => [],
 
@@ -292,100 +353,123 @@ $params = [
 	'notifications.markAsViewed' => [],
 	'notifications.getCount' => [],
 ];
+$user_id = $_GET['vk_user_id'];
+$method = $_GET['method'];
+
+$data = file_get_contents('php://input');
+$data = json_decode($data, true);
 
 if ( !isset( $params[$method] ) ) {
-	throw new Exception( ERRORS[3456782], 3456782 );
+	Show::error(405);
 }
+Utils::checkParams($data,$params[$method]);
 
-check_params( $params[$method] );
-
-
-$users = new Users( $_GET['vk_user_id'] );
+$users = new Users( $user_id );
 $tickets = new Tickets( $users );
 $notifications = new Notifications( $users );
 
 switch ( $method ) {
 	case 'account.setAge':
 		$age = $_REQUEST['age'];
-		ok( $users->ChangeAge($age));
+		if($age < 10 || $age > 100){
+			Show::error(1009);
+		}
+		Show::response( $users->ChangeAge($age));
 
 	case 'account.get':
-		ok( $users->getMy() );
+		Show::response( $users->getMy() );
+	
+	case 'account.Flash':
+		$agent_id = $_REQUEST['agent_id'];
+		$give = (bool)$_REQUEST['give'];
+		Show::response( $users->Prometay($agent_id, $give) );
+
+	case 'account.ban':
+		$agent_id = $_REQUEST['agent_id'];
+		if($agent_id < 0){
+			$agent_id = $users->getIdByVKId(-$agent_id);
+		}
+		$banned = (bool) $_REQUEST['banned'];
+		$ban_reason = (string) $_REQUEST['reason'];
+		Show::response( $users->Ban_User( $agent_id, $banned, $ban_reason ) );
 	
 	case 'user.getById':
 		$id = (int) $_GET['id'];
-		ok( $users->getById( $id ) );
+		Show::response( $users->getById( $id ) );
 
 	case 'users.getByIds':
 		$ids = $_GET['ids'];
-		ok( $users->getByIds( $ids ) );
+		Show::response( $users->getByIds( $ids ) );
 
 	case 'users.getTop':
-		ok( $users->getTop() );
+		Show::response( $users->getTop() );
+	
+	case 'users.getRandom':
+		Show::response( $users->getRandom() );
 
 	case 'ticket.getRandom':
-		ok( $tickets->getRandom() );
+		Show::response( $tickets->getRandom() );
 
 	case 'tickets.getMy':
 		$offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
-		$count = $_GET['count'] ?? ITEMS_PER_PAGE;
+		$count = $_GET['count'] ?? CONFIG::ITEMS_PER_PAGE;
 
-		ok( $tickets->getMy( $offset, $count ) );
+		Show::response( $tickets->getMy( $offset, $count ) );
 
 	case 'tickets.getByModeratorAnswers':
 		$offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
-		$count = $_GET['count'] ?? ITEMS_PER_PAGE;
+		$count = $_GET['count'] ?? CONFIG::ITEMS_PER_PAGE;
 		$id = $users->id;
-		ok( $tickets->getByModeratorAnswers( $offset, $count, $id) );
+		Show::response( $tickets->getByModeratorAnswers( $offset, $count, $id) );
 
 	case 'tickets.get':
 		$offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
-		$count = $_GET['count'] ?? ITEMS_PER_PAGE;
+		$count = $_GET['count'] ?? CONFIG::ITEMS_PER_PAGE;
 		$unanswered = (bool) $_GET['unanswered'] ?? false;
 
-		ok( $tickets->get( $unanswered, $offset, $count ) );
+		Show::response( $tickets->get( $unanswered, $offset, $count ) );
 
 	case 'ticket.getMessages':
 		$id = (int) $_GET['ticket_id'];
 		$offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
-		$count = $_GET['count'] ?? ITEMS_PER_PAGE;
+		$count = $_GET['count'] ?? CONFIG::ITEMS_PER_PAGE;
 
-		ok( $tickets->getMessages( $id, $offset, $count ) );
+		Show::response( $tickets->getMessages( $id, $offset, $count ) );
 
 	case 'ticket.sendMessage':
 		$id = isset( $_POST['ticket_id'] ) ? $_POST['ticket_id'] : $_GET['ticket_id'];
 		$text = isset( $_POST['text'] ) ? $_POST['text'] : $_GET['text'];
 
-		ok( $tickets->sendMessage( $id, $text ) );
+		Show::response( $tickets->sendMessage( $id, $text ) );
 
 	case 'ticket.editMessage':
 		$id = isset( $_POST['message_id'] ) ? $_POST['message_id'] : $_GET['message_id'];
 		$text = isset( $_POST['text'] ) ? $_POST['text'] : $_GET['text'];
 
-		ok( $tickets->editMessage( $id, $text ) );
+		Show::response( $tickets->editMessage( $id, $text ) );
 
 	case 'ticket.commentMessage':
 		$id = isset( $_POST['message_id'] ) ? $_POST['message_id'] : $_GET['message_id'];
 		$text = isset( $_POST['text'] ) ? $_POST['text'] : $_GET['text'];
 
-		ok( $tickets->commentMessage( $id, $text ) );
+		Show::response( $tickets->commentMessage( $id, $text ) );
 
 	case 'ticket.editComment':
 		$id = isset( $_POST['message_id'] ) ? $_POST['message_id'] : $_GET['message_id'];
 		$text = isset( $_POST['text'] ) ? $_POST['text'] : $_GET['text'];
 
-		ok( $tickets->editComment( $id, $text ) );
+		Show::response( $tickets->editComment( $id, $text ) );
 
 	case 'ticket.deleteComment':
 		$id = isset( $_POST['message_id'] ) ? $_POST['message_id'] : $_GET['message_id'];
 
-		ok( $tickets->deleteComment( $id ) );
+		Show::response( $tickets->deleteComment( $id ) );
 
 	case 'ticket.add':
 		$title = $_POST['title'];
 		$text = $_POST['text'];
 
-		ok( $tickets->add( $title, $text ) );
+		Show::response( $tickets->add( $title, $text ) );
 
 	case 'ticket.getById':
 		$id = (int) $_GET['ticket_id'];
@@ -395,57 +479,57 @@ switch ( $method ) {
 		$info = $tickets->getById( $id );
 		$messages = $tickets->getMessages( $id, $offset, $count );
 		if($info) {
-			ok( 
+			Show::response( 
 				[
 				'info' => $tickets->getById( $id ),
 				'messages' => $tickets->getMessages( $id, $offset, $count )
 				]
 			);
 		} else {
-			throw new Exception( ERRORS[34], 34 );
+			Show::error(34);
 		}
 
 	case 'ticket.approveReply':
 		$id = (int) $_GET['message_id'];
 
-		ok( $tickets->approve( $id ) );
+		Show::response( $tickets->approve( $id ) );
 
 	case 'ticket.close':
 		$id = (int) $_GET['ticket_id'];
 
-		ok( $tickets->close( $id ) );
+		Show::response( $tickets->close( $id ) );
 
 	case 'ticket.open':
 		$id = (int) $_GET['ticket_id'];
 
-		ok( $tickets->open( $id ) );
+		Show::response( $tickets->open( $id ) );
 
 	case 'tickets.getByModerator':
 		$mid = (int) $_GET['moderator_id'];
 		$mark = isset( $_GET['mark'] ) ? $_GET['mark'] : -1;
 		$offset = (int) $_GET['offset'] ?? 0;
-		$count = $_GET['count'] ?? ITEMS_PER_PAGE;
+		$count = $_GET['count'] ?? CONFIG::ITEMS_PER_PAGE;
 
-		ok( $tickets->getByModerator( $mid, $mark, $offset, $count ) );
+		Show::response( $tickets->getByModerator( $mid, $mark, $offset, $count ) );
 
 	case 'ticket.markMessage':
-		$id = (int) $_GET['message_id'];
-		$mark = (int) $_GET['mark'];
+		$id = (int) $_REQUEST['message_id'];
+		$mark = (int) $_REQUEST['mark'];
 
-		ok( $tickets->markMessage( $id, $mark ) );
+		Show::response( $tickets->markMessage( $id, $mark ) );
 
 	case 'ticket.deleteMessage':
 		$id = (int) $_GET['message_id'];
-		ok( $tickets->deleteMessage( $id ) );
+		Show::response( $tickets->deleteMessage( $id ) );
 
 	case 'notifications.get':
-		ok( $notifications->get() );
+		Show::response( $notifications->get() );
 
 	case 'notifications.markAsViewed':
-		ok( $notifications->markAsViewed() );
+		Show::response( $notifications->markAsViewed() );
 
 	case 'notifications.getCount':
-		ok( $notifications->getCount() );
+		Show::response( $notifications->getCount() );
 	case 'shop.changeId':
 		$id = $_REQUEST['change_id'];
 		$user_id = $_GET['vk_user_id'];
@@ -459,17 +543,17 @@ switch ( $method ) {
 				if( count($check_id) == 0 ) {
 					db_edit(['money' => $balance_profile - 200], "vk_user_id=$user_id", 'users');
 					db_edit(['nickname' => $id], "vk_user_id=$user_id", 'users');
-					ok(
+					Show::response(
 						['balance' => $balance_profile - 200]
 					);
 				} else {
-					throw new Exception( ERRORS[1003], 1003 );
+					Show::error(1003);
 				}
 			} else {
-				throw new Exception( ERRORS[1002], 1002 );
+				Show::error(1002);
 			}
 		} else {
-			throw new Exception( ERRORS[1004], 1004 );
+			Show::error(1004);
 		}
 		break;
 
@@ -487,8 +571,8 @@ switch ( $method ) {
 					$userInfo = db_get("SELECT * FROM users WHERE vk_user_id = $id")[0];
 					$idWhoSend = $userInfo['id'];
 					$avatarIdWhoSend = $userInfo['avatar_id'];
-					$avatar = AVATAR_PATH.'/'.db_get("SELECT * FROM avatars WHERE id = $avatarIdWhoSend")[0]['name'];
-					$avatarTo = AVATAR_PATH.'/'.db_get("SELECT * FROM avatars WHERE id = $avatarTo")[0]['name'];
+					$avatar = CONFIG::AVATAR_PATH.'/'.db_get("SELECT * FROM avatars WHERE id = $avatarIdWhoSend")[0]['name'];
+					$avatarTo = CONFIG::AVATAR_PATH.'/'.db_get("SELECT * FROM avatars WHERE id = $avatarTo")[0]['name'];
 					if( $balanceTo['vk_user_id'] !== $id ) {
 						$help = db_edit([
 							'money' => $balanceTo['money'] + $summa
@@ -504,18 +588,18 @@ switch ( $method ) {
 						db_edit([
 							'money' => $balance_profile - $summa
 						], "vk_user_id=$id", 'users');
-						ok(['money' => $balance_profile - $summa, 'help' => $help, 'avatar' => $avatarTo]);
+						Show::response(['money' => $balance_profile - $summa, 'help' => $help, 'avatar' => $avatarTo]);
 					} else {
-						throw new Exception( ERRORS[1007], 1007 );
+						Show::error(1007);
 					}
 				} else {
-					throw new Exception( ERRORS[1005], 1005 );
+					Show::error(1005);
 				}
 			} else {
-				throw new Exception( ERRORS[1002], 1002 );
+				Show::error(1002);
 			}
 		} else {
-			throw new Exception( ERRORS[1006], 1006 );
+			Show::error(1006);
 		}
 	break;
 
@@ -529,12 +613,12 @@ switch ( $method ) {
 					'money' => $balance - 300,
 					'avatar_id' => $id
 				], "vk_user_id=$user_id", 'users');
-				ok(['edit' => $edit]);
+				Show::response(['edit' => $edit]);
 			} else {
-				throw new Exception( ERRORS[1002], 1002 );
+				Show::error(1002);
 			}
 		} else {
-			throw new Exception( ERRORS[1008], 1008 );
+			Show::error(1008);
 		}
 	break;
 	

@@ -9,7 +9,7 @@ class VKApi {
 
 	function __construct( string $token = null ) {
 		if ( $token === null ) {
-			$this->token = VK_APP_TOKEN;
+			$this->token = CONFIG::VK_APP_TOKEN;
 			return;
 		}
 

@@ -75,9 +75,7 @@ const Profile = props => (
 
                 <SimpleCell 
                 disabled
-                before={<Icon28CheckCircleOutline 
-                width={28} 
-                height={28} />}
+                before={<Icon28CheckCircleOutline />}
                 indicator={<Counter mode='primary'>{props.this.state.profile['good_answers']}</Counter>}>Положительные ответы</SimpleCell>
 
                 <SimpleCell 

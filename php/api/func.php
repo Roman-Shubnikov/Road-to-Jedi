@@ -34,6 +34,10 @@ function check_params( $params ) {
 				break;
 			case 'string':
 				if ( !is_string( $_REQUEST[$name] ) ) $ok_type = false;
+				break;
+			case 'float':
+				if ( !is_float( $_REQUEST[$name] ) ) $ok_type = false;
+				
 		}
 
 		if ( !$ok_type ) {

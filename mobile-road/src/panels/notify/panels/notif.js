@@ -49,21 +49,27 @@ var month= [
 ];
 
 
-    class Reader extends React.Component {
+export default class ReaderNotif extends React.Component {
         constructor(props) {
             super(props);
             this.state = {
-                notification: [],
+                notification: null,
+                fetching: false,
 
             }
+
             this.getNotif = () => {
                 fetch(this.props.this.state.api_url + "method=notifications.get&" + window.location.search.replace('?', ''))
                 .then(res => res.json())
                 .then(data => {
                 if(data.result) {
                     this.setState({notification: data.response})
-                    this.setState({ activeStory: "notif", history: ["notif"], activePanel: "notif"})
-                }
+                    setTimeout(() => {
+                        this.setState({ fetching: false });
+                      }, 500);
+                }else {
+                   this.props.this.showErrorAlert(data.error.message)
+                  }
                 })
                 .catch(err => {
                 this.props.this.showErrorAlert()
@@ -83,8 +89,8 @@ var month= [
                 <PanelHeader>
                 Уведомления
                 </PanelHeader>
-                <><PullToRefresh onRefresh={() => {props.setState({fetching: true});this.getNotif()}} isFetching={props.state.fetching}>
-                    {this.state.notification.length > 0 ?
+                <><PullToRefresh onRefresh={() => {this.setState({fetching: true});this.getNotif()}} isFetching={this.state.fetching}>
+                    {this.state.notification ? this.state.notification.length > 0 ?
                     this.state.notification.map((result, i) =>
                     <React.Fragment key={i}> 
                         <SimpleCell
@@ -106,6 +112,8 @@ var month= [
                     icon={<Icon56NotificationOutline />}>
                         У Вас нет новых уведомлений
                     </Placeholder>
+                    :
+                    <PanelSpinner />
                     }
                 </PullToRefresh></>
             </Panel>
@@ -113,4 +121,3 @@ var month= [
             }
         }
   
-export default Reader;

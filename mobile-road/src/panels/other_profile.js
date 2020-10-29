@@ -27,6 +27,9 @@ function fix_time(time) {
     class Reader extends React.Component {
         constructor(props) {
             super(props);
+            this.state = {
+                
+            }
         }
 
         please_Month(text) {

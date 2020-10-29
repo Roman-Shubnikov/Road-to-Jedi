@@ -3,17 +3,20 @@ import React from 'react'
 import Icon16Done from '@vkontakte/icons/dist/16/done';
 import Icon16Cancel from '@vkontakte/icons/dist/16/cancel';
 import Icon12OnlineVkmobile from '@vkontakte/icons/dist/12/online_vkmobile';
+const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+
 
 
 const Message = props => (
     props.is_mine === true ?
         <div className="mine_message">
-            <div id="animation" className="message_report_moderator" style={props.approved ? {marginBottom: "20px"} : null}  onClick={() => props.onClick()}>
-            <p className="moderator_name_message">{props.title} {props.approved ? '✔️' : ''}</p>
-                <p className="text_message">{props.children}</p>
-                <p className="time_message">{props.time}</p>
-            </div>
-            {props.is_mark === 1 ? 
+            <div id="animation" className="message_report_moderator" style={{marginBottom: props.approved ? "20px" : null, right: platformname ? "-12%" : "-22%"}}>
+                <div onClick={() => props.onClick()}>
+                    <p className="moderator_name_message">{props.title} {props.approved ? '✔️' : ''}</p>
+                    <p className="text_message">{props.children}</p>
+                    
+                </div>
+                {props.is_mark === 1 ? 
                 <div className="approved" onClick={() => props.DoneApp()}>
                     <Icon16Done className="approved_icon green" height={15} width={15} style={{display: "inline-block"}}/>
                 </div>
@@ -22,6 +25,12 @@ const Message = props => (
                     <Icon16Cancel className="approved_icon" height={15} width={15} style={{display: "inline-block"}}/>
                 </div>
             : null}
+                <img className="avatar_message_moderator" src={props.avatar} 
+                style={{marginLeft: platformname ? "99%" : "99%"}} 
+                />
+                <p className="time_message">{props.time}</p>
+            </div>
+            
         </div>
     :
     <div className="all_message" style={props.is_mark === false ? {marginBottom: "-3px"} : null}>

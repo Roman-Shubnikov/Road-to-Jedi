@@ -52,7 +52,7 @@
 
 .message_report {
     display: inline-block;
-    width: 100%;
+    width: 70%;
     border-radius: 15px;
     padding: 0px 12px 0px 10px;
     margin-left: 55px;
@@ -69,7 +69,15 @@
     border-radius: 50%;
     margin-left: 8px;
     position: absolute;
-    float: left;
+    bottom: 0px;
+}
+.avatar_message_moderator {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    /* margin-left: 99%; */
+    /* margin-right: 8px; */
+    position: absolute;
     bottom: 0px;
 }
 
@@ -78,20 +86,26 @@
     display: flex;
     width: 90%;
 }
+.mine_message{
+    right: 0;
+    position: relative;
+    display: flex;
+    width: 95%;
+}
 
 .message_report_moderator {
-    right: -20%;
+    /* right: -20%; */
     position: relative;
     display: inline-block;
     border-radius: 15px;
     padding: 0px 12px 0px 10px;
     margin-left: 8px;
-    margin-top: 10px;
+    margin-top: 2%;
     width: 70%;
     background: var(--text_message_to);
     word-break: break-word;
     white-space: pre-wrap;
-    height: auto;
+    /* height: auto; */
 }
 
 .moderator_name_message {
@@ -178,11 +192,13 @@
 }
 
 .profile_moderator_name_icon {
-    color: var(--dynamic_red);
+    /* color: var(--dynamic_red); */
+    transition: all 1s;
     position: relative;
     float: right;
     margin-left: 2px;
     margin-top: 5.5px;
+
 }
 
 .profile_moderator_name_icon_ver {
@@ -225,7 +241,17 @@
   position: fixed;
   width: 100%;
   height: 69px;
+  z-index: 6;
   background: var(--background_page_my);
+}
+
+.message_sending{
+    position: fixed;
+    display: flex;
+    width: 100%;
+    z-index: 6;
+    background: var(--background_page_my);
+    bottom: 0px;
 }
 
 .down_input_message {
@@ -256,15 +282,14 @@
 }
 
 .send_text {
-    margin-left: 88.5%;
-    margin-bottom: 12px;
-    padding: 5px;
+    padding: 3px;
+    margin-left: 2%;
+    margin-top: 8%;
+    height: 30px;
+    width: 30px;
     background: var(--button_send);
     color: var(--button_send_color);
     border-radius: 50%;
-    display: flex;
-    bottom: 0px;
-    position: fixed;
 }
 
 .scroll_helper {
@@ -302,7 +327,6 @@
     padding: 0 10px 0 10px;
 
 }
-
 .approved {
     height: 15px;
     width: 15px;
@@ -310,12 +334,12 @@
     border: solid var(--message_icon_moder) 1px;
     z-index: 0;
     margin-top: -35px;
+    margin: 2% 97% 2% 0;
     right: 69%;
     z-index: 5;
     padding: 10px 10px 10px 10px;
     border-radius: 50%;
     box-shadow: 0px 0px 1px 0px var(--message_icon_moder);
-    position: absolute;
 }
 
 .green {

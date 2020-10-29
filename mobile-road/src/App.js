@@ -50,6 +50,7 @@ import eruda from 'eruda';
 import '@vkontakte/vkui/dist/vkui.css';
 import './style.css'
 // Импортируем панели
+import Questions from './panels/questions/main'
 import Notification from './panels/notify/main'
 import Home from './panels/questions.js'
 import Tiket from './panels/tiket.js'
@@ -119,6 +120,7 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            account:[],
             activePanel: 'questions',
             activeStory: 'questions',
             history: ['questions'],
@@ -181,7 +183,7 @@ class App extends React.Component {
             switchKeys: false,
             ShowBanner: true,
             AgeUser: 0,
-            fetching: true,
+            need_epic: true,
 
         };
         this.onStoryChange = this.onStoryChange.bind(this);
@@ -191,6 +193,9 @@ class App extends React.Component {
         // this.pushHistory = (panel) => {
         //   window.history.pushState({panel: 'panel'}, panel);
         // }
+        this.changeData = (name,value) => {
+          this.setState({ [name]: value });
+        }
         this.modalBack = () => {
             this.setActiveModal(this.state.modalHistory[this.state.modalHistory.length - 2]);
           };
@@ -252,8 +257,8 @@ class App extends React.Component {
             if(!this.audio.paused){
               this.audio.pause()
             } else {
-              this.audio.volume = 0.2;
-              this.audio.currentTime = 11;
+              this.audio.volume = 0.1;
+              this.audio.currentTime = 0;
               const audioPromise = this.audio.play()
               if (audioPromise !== undefined) {
               audioPromise
@@ -302,13 +307,7 @@ class App extends React.Component {
         }
 			  if (type === 'VKWebAppUpdateConfig') {
           this.setState({scheme: data.scheme})
-            // if(data.scheme === "client_light") {
-            //   this.setState({scheme: "bright_light"})
-            //   } else if(data.scheme === "client_dark") {
-            //     this.setState({scheme: "space_gray"})
-            //   } else {
-            //     this.setState({scheme: data.scheme})
-            //   }
+
             }
         })
         if(hash.ticket_id !== undefined) {
@@ -325,8 +324,8 @@ class App extends React.Component {
         .then(res => res.json())
         .then(data => {
           if(data.response) {
-            this.setState({test: data.response, is_first_start: data.response.is_first_start, popout: null, switchKeys: data.response.noti})
-            this.Others()
+            this.setState({test: data.response, account: data.response, is_first_start: data.response.is_first_start, popout: null, switchKeys: data.response.noti})
+            // this.Others()
             if(data.response.special === true) {
               this.setState({is_special_moder: true})
             }
@@ -339,10 +338,9 @@ class App extends React.Component {
         actions={[{
           title: 'Повторить',
           autoclose: true,
-          style: 'cancel',
           action: () => this.componentDidMount()
         }]}
-        onClose={this.closePopout}
+        onClose={() => {this.closePopout();this.componentDidMount()}}
       >
         <h2>Ошибка</h2>
         <p>{data.error.message}</p>
@@ -350,7 +348,7 @@ class App extends React.Component {
           }
         })
         .catch(err => {
-          this.showErrorAlert()
+          this.showErrorAlert(err)
         })
     }
 
@@ -411,23 +409,7 @@ class App extends React.Component {
         this.showErrorAlert()
       })
     }
-    ChangeAge(age) {
-      this.setState({popout: <ScreenSpinner/>})
-      fetch(this.state.api_url + "method=account.setAge&age=" + age + "&" + window.location.search.replace('?', ''))
-      .then(res => res.json())
-      .then(data => {
-        if(data.result) {
-          this.setState({popout: null})
-          // setTimeout(() => {
-          //   this.playAudio()
-          // }, 5000)
-          
-        }
-      })
-      .catch(err => {
-        this.showErrorAlert()
-      })
-    }
+    
 
     ChangeId() {
       if(this.state.changed_id){ 
@@ -1137,21 +1119,20 @@ class App extends React.Component {
       }
     }
 
-    showErrorAlert() {
-      this.setState({
-        popout: 
+    showErrorAlert(error=null){
+      this.setPopout(
         <Alert
             actions={[{
             title: 'Отмена',
             autoclose: true,
-            style: 'cancel'
+            mode: 'cancel'
             }]}
-            onClose={this.closePopout}
+            onClose={() => this.closePopout}
         >
           <h2>Ошибка</h2>
-          <p>Что-то пошло не так, попробуйте снова!</p>
+          {error ? <p>{error}</p> : <p>Что-то пошло не так, попробуйте снова!</p>}
         </Alert>
-    })
+    )
   }
 
     sendNewMessageComment() {
@@ -1759,10 +1740,7 @@ class App extends React.Component {
             <ConfigProvider isWebView={platformname} scheme={this.state.scheme}> 
             <Epic activeStory={this.state.activeStory}
             tabbar={
-                this.state.activePanel !== "tiket" &&
-                this.state.activePanel !== "new_tiket" &&
-                this.state.activePanel !== "other_profile" &&
-                this.state.activePanel !== "money" &&
+                this.state.need_epic &&
                 <Tabbar>
                   <TabbarItem
                     onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
@@ -1790,11 +1768,11 @@ class App extends React.Component {
                   ><Icon28Profile /></TabbarItem>
                 </Tabbar>
               }>
-            <View 
+            {/* <View 
             activePanel={this.state.activePanel} 
             history={this.state.history} 
             onSwipeBack={this.goBack}
-            id="questions"
+            id="questios"
             modal={modal}
             popout={this.state.popout}
             >
@@ -1803,7 +1781,7 @@ class App extends React.Component {
                 <Tiket id="tiket" this={this}/>
                 <Profile id="profile" this={this}/>
                 <Other_Profile id="other_profile" this={this}/>
-            </View>
+            </View> */}
             <View 
             activePanel={this.state.activePanel} 
             history={this.state.history} 
@@ -1836,7 +1814,17 @@ class App extends React.Component {
             <Notification 
             id="notif"
             this={this}
+            account={this.state.account}
+            special={this.state.account.special}
+            popout={this.state.popout}
             />
+            <Questions 
+            id='questions'
+            this={this}
+            ticket_id={hash.ticket_id}
+            agent_id={hash.agent_id}
+            account={this.state.account}
+            popout={this.state.popout} />
             {/* <View 
             activePanel={this.state.activePanel} 
             history={this.state.history} 

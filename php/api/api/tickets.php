@@ -33,7 +33,7 @@ class Tickets {
 		}
 
 		if ( $count === null ) {
-			$count = ITEMS_PER_PAGE;
+			$count = CONFIG::ITEMS_PER_PAGE;
 		}
 
 		return $this->_get( $cond, $offset, $count );
@@ -42,7 +42,7 @@ class Tickets {
 		$cond = "WHERE id in (SELECT DISTINCT ticket_id from messages where author_id=$id)";
 
 		if ( $count === null ) {
-			$count = ITEMS_PER_PAGE;
+			$count = CONFIG::ITEMS_PER_PAGE;
 		}
 
 		return $this->_get( $cond, $offset, $count );
@@ -60,7 +60,7 @@ class Tickets {
 		$cond = "WHERE author_id = $id";
 
 		if ( $count === null ) {
-			$count = ITEMS_PER_PAGE;
+			$count = CONFIG::ITEMS_PER_PAGE;
 		}
 
 		return $this->_get( $cond, $offset, $count );
@@ -68,8 +68,6 @@ class Tickets {
 
 	public function markMessage( int $message_id, int $mark ) {
 		if ( $mark < 0 || $mark > 1 ) return false;
-
-		$user_id = $_GET['vk_user_id'];
 
 		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.mark, messages.time, messages.text,
 					   users.avatar_id, users.nickname, users.money, avatars.name as avatar_name, messages.approved
@@ -81,22 +79,14 @@ class Tickets {
 				WHERE messages.id = $message_id";
 		$res = db_get( $sql )[0];
 
-		$sql = "SELECT special FROM users WHERE vk_user_id = $user_id";
-
-		$is_special = (bool) db_get( $sql )[0]['special'];
-
-		if ( empty( $res ) ) {
-			throw new Exception( ERRORS[404], 404 );
-		}
-
 		$ticket = $this->getById( $res['ticket_id'] );
 
-		if ( !$is_special ) {
-			throw new Exception( ERRORS[32], 32 );
+		if ( !$this->user->info['special'] ) {
+			Show::error(32);
 		}
 
 		if( $res['author_id'] < 0) {
-			throw new Exception( ERRORS[33], 33 );
+			Show::error(33);
 		}
 
 		if ( $res['mark'] != -1 ) {
@@ -125,7 +115,7 @@ class Tickets {
 			'object' => $ticket['id']
 		];
 
-		$avatar = AVATAR_PATH . '/' . $res['avatar_name'];
+		$avatar = CONFIG::AVATAR_PATH . '/' . $res['avatar_name'];
 		SystemNotifications::send( $auid, $notification, $avatar, $object );
 
 		return $result;
@@ -135,20 +125,20 @@ class Tickets {
 		$title = trim( $title );
 		$text = trim( $text );
 
-		if ( mb_strlen( $title ) > MAX_TICKETS_TITLE_LEN ) {
-			throw new Exception( ERRORS[20], 20 );
+		if ( mb_strlen( $title ) > CONFIG::MAX_TICKETS_TITLE_LEN ) {
+			Show::error(20);
 		}
 
-		if ( mb_strlen( $text ) > MAX_TICKETS_TEXT_LEN ) {
-			throw new Exception( ERRORS[21], 21 );
+		if ( mb_strlen( $text ) > CONFIG::MAX_TICKETS_TEXT_LEN ) {
+			Show::error(21);
 		}
 
-		if ( mb_strlen( $title ) < MIN_MESSAGE_LEN ) {
-			throw new Exception( ERRORS[24], 24 );
+		if ( mb_strlen( $title ) < CONFIG::MIN_MESSAGE_LEN ) {
+			Show::error(24);
 		}
 
-		if ( mb_strlen( $text ) < MIN_MESSAGE_LEN ) {
-			throw new Exception( ERRORS[23], 23 );
+		if ( mb_strlen( $text ) < CONFIG::MIN_MESSAGE_LEN ) {
+			Show::error(23);
 		}
 
 
@@ -164,7 +154,7 @@ class Tickets {
 		$res = db_add( $data, 'tickets' );
 		$id = $mysqli->insert_id;
 		if ( !$res ) {
-			throw new Exception( ERRORS[0], 0 );
+			Show::error(0);
 		}
 
 		$message = $this->sendMessage( $id, $text );
@@ -176,19 +166,19 @@ class Tickets {
 		$ticket = $this->getById( $ticket_id, false );
 		$text = trim( $text );
 		if ( !$ticket['id'] ) {
-			throw new Exception( ERROR[404], 404 );
+			Show::error(404);
 		}
 
 		if ( $ticket['status'] == 2 ) {
-			throw new Exception( ERRORS[30], 30 );
+			Show::error(30);
 		}
 
-		if ( mb_strlen( $text ) > MAX_TICKETS_TEXT_LEN ) {
-			throw new Exception( ERRORS[21], 21 );
+		if ( mb_strlen( $text ) > CONFIG::MAX_TICKETS_TEXT_LEN ) {
+			Show::error(21);
 		}
 
-		if ( mb_strlen( $text ) < MIN_MESSAGE_LEN ) {
-			throw new Exception( ERRORS[23], 23 );
+		if ( mb_strlen( $text ) < CONFIG::MIN_MESSAGE_LEN ) {
+			Show::error(23);
 		}
 
 		$uid = $this->user->id;
@@ -211,7 +201,7 @@ class Tickets {
 		$res = db_add( $message, 'messages' );
 
 		if ( !$res ) {
-			throw new Exception( ERRORS[0], 0 );
+			Show::error(0);
 		}
 
 		global $mysqli;
@@ -248,18 +238,25 @@ class Tickets {
 	}
 
 	public function getMessages( int $ticket_id, int $offset = 0, int $count = null ) {
+		$viewer = $this->user->id;
 		if ( $count === null ) {
-			$count = ITEMS_PER_PAGE;
+			$count = CONFIG::ITEMS_PER_PAGE;
 		}
 
 		offset_count( $offset, $count );
 
 		$ticket = $this->getById( $ticket_id );
+		$author_ticket = -$ticket['author']['id'];
 		$is_author = ( $this->user->vk_id == $ticket['author']['id'] );
 		$cond = '';
 
 		if ( $is_author ) {
 			$cond = "AND ( messages.author_id < 0 OR messages.approved = 1 )";
+		} else {
+			if(!$this->user->info['special']){
+				$cond = "AND (messages.author_id = $author_ticket OR messages.author_id = $viewer OR messages.approved = 1)";
+			}
+			
 		}
 
 		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.mark, messages.time, messages.text,
@@ -285,13 +282,13 @@ class Tickets {
 					'nickname' => $message['nickname'],
 					'avatar' => [
 						'id' => (int) $message['avatar_id'],
-						'url' => AVATAR_PATH . '/' . $message['avatar_name'],
+						'url' => CONFIG::AVATAR_PATH . '/' . $message['avatar_name'],
 					],
 					'is_moderator' => true,
-					'is_special' => (bool) $message['special']
+					'is_special' => (bool) $message['special'],
+					
 				];
 			}
-
 			if ( $ticket['author']['id'] == $this->user->vk_id ) {
 				unset( $message['approved'] );
 			}
@@ -305,7 +302,7 @@ class Tickets {
 
 	public function approve( int $message_id ) {
 		if ( !$this->user->info['special'] ) {
-			throw new Exception( ERRORS[403], 403 );
+			Show::error(403);
 		}
 
 		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.mark, messages.time, messages.text,
@@ -319,11 +316,11 @@ class Tickets {
 		$res = db_get( $sql )[0];
 
 		if ( empty( $res ) ) {
-			throw new Exception( ERRORS[404], 404 );
+			Show::error(404);
 		}
 
 		if ( $res['author_id'] < 0 ) {
-			throw new Exception( ERRORS[22], 22 );
+			Show::error(22);
 		}
 
 		if ( $res['approved'] ) {
@@ -339,7 +336,7 @@ class Tickets {
 			'object' => $ticket['id']
 		];
 
-		$avatar = AVATAR_PATH . '/' . $res['avatar_name'];
+		$avatar = CONFIG::AVATAR_PATH . '/' . $res['avatar_name'];
 		SystemNotifications::send( $auid, $notification, $avatar, $object );
 
 
@@ -351,7 +348,7 @@ class Tickets {
 				'object' => $ticket['id']
 			];
 
-			$avatar = AVATAR_PATH . '/' . $this->user->info['avatar_name'];
+			$avatar = CONFIG::AVATAR_PATH . '/' . $this->user->info['avatar_name'];
 			SystemNotifications::send( $auid, $notification, $avatar, $object );
 		}
 
@@ -377,7 +374,7 @@ class Tickets {
 
 	public function commentMessage( int $message_id, string $text ) {
 		if ( !$this->user->info['special'] ) {
-			throw new Exception( ERRORS[403], 403 );
+			Show::error(403);
 		}
 
 		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.comment
@@ -390,23 +387,20 @@ class Tickets {
 		$avatar_name = db_get("SELECT name from avatars WHERE id = $avatar_id")[0]['name'];
 
 		if ( empty( $res ) ) {
-			throw new Exception( ERRORS[404], 404 );
+			Show::error(404);
 		}
 
-		if ( $author_id < 0 ) {
-			throw new Exception( ERRORS[25], 25 );
+		if ( $author_id < 0 || !empty( $res['comment'] ) ) {
+			Show::error(25);
 		}
 
-		if ( !empty( $res['comment'] ) ) {
-			throw new Exception( ERRORS[25], 25 );
+
+		if ( mb_strlen( $text ) > CONFIG::MAX_TICKETS_TEXT_LEN ) {
+			Show::error(21);
 		}
 
-		if ( mb_strlen( $text ) > MAX_TICKETS_TEXT_LEN ) {
-			throw new Exception( ERRORS[21], 21 );
-		}
-
-		if ( mb_strlen( $text ) < MIN_MESSAGE_LEN ) {
-			throw new Exception( ERRORS[23], 23 );
+		if ( mb_strlen( $text ) < CONFIG::MIN_MESSAGE_LEN ) {
+			Show::error(23);
 		}
 
 		$auid = $this->user->id;
@@ -421,14 +415,14 @@ class Tickets {
 			'object' => $res['ticket_id']
 		];
 
-		SystemNotifications::send( $res['author_id'], $notification, AVATAR_PATH . '/' . $avatar_name, $object );
+		SystemNotifications::send( $res['author_id'], $notification, CONFIG::AVATAR_PATH . '/' . $avatar_name, $object );
 
 		return db_edit( $data, "id = $message_id", 'messages' );
 	}
 
 	public function editComment( int $message_id, string $new_text ) {
 		if ( !$this->user->info['special'] ) {
-			throw new Exception( ERRORS[403], 403 );
+			Show::error(403);
 		}
 
 		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.comment, messages.comment_author_id
@@ -437,19 +431,19 @@ class Tickets {
 		$res = db_get( $sql )[0];
 
 		if ( empty( $res ) ) {
-			throw new Exception( ERRORS[404], 404 );
+			Show::error(404);
 		}
 
 		if ( $res['comment_author_id'] !== $this->user->id ) {
-			throw new Exception( ERRORS[403], 403 );
+			Show::error(403);
 		}
 
-		if ( mb_strlen( $new_text ) > MAX_TICKETS_TEXT_LEN ) {
-			throw new Exception( ERRORS[21], 21 );
+		if ( mb_strlen( $new_text ) > CONFIG::MAX_TICKETS_TEXT_LEN ) {
+			Show::error(21);
 		}
 
-		if ( mb_strlen( $new_text ) < MIN_MESSAGE_LEN ) {
-			throw new Exception( ERRORS[23], 23 );
+		if ( mb_strlen( $new_text ) < CONFIG::MIN_MESSAGE_LEN ) {
+			Show::error(23);
 		}
 
 		$auid = $this->user->id;
@@ -463,7 +457,7 @@ class Tickets {
 
 	public function deleteComment( int $message_id ) {
 		if ( !$this->user->info['special'] ) {
-			throw new Exception( ERRORS[403], 403 );
+			Show::error(403);
 		}
 
 		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.comment, messages.comment_author_id
@@ -472,11 +466,11 @@ class Tickets {
 		$res = db_get( $sql )[0];
 
 		if ( empty( $res ) ) {
-			throw new Exception( ERRORS[404], 404 );
+			Show::error(404);
 		}
 
 		if ( $res['comment_author_id'] !== $this->user->id ) {
-			throw new Exception( ERRORS[403], 403 );
+			Show::error(403);
 		}
 
 		$data = [
@@ -494,25 +488,25 @@ class Tickets {
 		$res = db_get( $sql )[0];
 
 		if ( empty( $res ) ) {
-			throw new Exception( ERRORS[404], 404 );
+			Show::error(404);
 		}
 
 		if ( $res['author_id'] < 0 && $this->user->info['special'] ) {
-			throw new Exception( ERRORS[403], 403 );
+			Show::error(403);
 		}
 
 		if ( $res['author_id'] == $this->user->id || $res['author_id'] == -$this->user->vk_id || $this->user->info['special'] ) {
 			return db_del( "id = $message_id", 'messages' );
 		}
 
-		throw new Exception( ERRORS[403], 403 );
+		Show::error(403);
 	}
 
 	public function getByModerator( int $moderator_id, int $mark = -1, int $offset = 0, int $count = null ) {
 		$auid = $moderator_id;
 
 		if ( $count === null ) {
-			$count = ITEMS_PER_PAGE;
+			$count = CONFIG::ITEMS_PER_PAGE;
 		}
 
 		offset_count( $offset, $count );
@@ -547,23 +541,23 @@ class Tickets {
 		$res = db_get( $sql )[0];
 
 		if ( empty( $res ) ) {
-			throw new Exception( ERRORS[404], 404 );
+			Show::error(404);
 		}
 
 		if ( $res['author_id'] !== $this->user->id && $res['author_id'] !== -$this->user->vk_id ) {
-			throw new Exception( ERRORS[403], 403 );
+			Show::error(403);
 		}
 
 		if ( $res['approved'] ) {
-			throw new Exception( ERRORS[31], 31 );
+			Show::error(31);
 		}
 
-		if ( mb_strlen( $text ) > MAX_TICKETS_TEXT_LEN ) {
-			throw new Exception( ERRORS[21], 21 );
+		if ( mb_strlen( $text ) > CONFIG::MAX_TICKETS_TEXT_LEN ) {
+			Show::error(21);
 		}
 
-		if ( mb_strlen( $text ) < MIN_MESSAGE_LEN ) {
-			throw new Exception( ERRORS[23], 23 );
+		if ( mb_strlen( $text ) < CONFIG::MIN_MESSAGE_LEN ) {
+			Show::error(23);
 		}
 
 		$data = [
@@ -586,11 +580,11 @@ class Tickets {
 		$ticket = $this->getById( $ticket_id );
 
 		if ( !$ticket['id'] ) {
-			throw new Exception( ERRORS[404], 404 );
+			Show::error(404);
 		}
 
 		if ( $this->user->vk_id !== $ticket['author']['id'] && !$this->user->info['special'] ) {
-			throw new Exception( ERRORS[403], 403 );
+			Show::error(403);
 		}
 
 		$data = [
@@ -602,7 +596,7 @@ class Tickets {
 
 	private function _get( string $cond, int $offset = 0, int $count = null ) {
 		if ( $count === null ) {
-			$count = ITEMS_PER_PAGE;
+			$count = CONFIG::ITEMS_PER_PAGE;
 		}
 
 		offset_count( $offset, $count );

@@ -1,7 +1,7 @@
 <?php
 
 
-$mysqli = new mysqli( DB_HOST, DB_USER, DB_PASS, DB_NAME );
+$mysqli = new mysqli( CONFIG::DB_HOST, CONFIG::DB_USER, CONFIG::DB_PASS, CONFIG::DB_NAME );
 //$mysqli = new mysqli( "localhost", "mysql", "mysql", "jedi" );
 $mysqli->set_charset( "utf8mb4" );
 
