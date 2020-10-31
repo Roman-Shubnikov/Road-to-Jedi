@@ -2,41 +2,22 @@ import React from 'react';
 import { 
     Panel,
     PanelHeader,
-    PanelHeaderButton,
     ScreenSpinner,
-
     Group,
     Input,
     Avatar,
     Button,
-    Alert,
-    Placeholder,
-    Separator,
-    PullToRefresh,
-    PanelSpinner,
-    InfoRow,
     Header,
-    Counter,
-    SimpleCell,
-    PromoBanner,
-    FixedLayout,
-    Cell,
     Div,
-    HorizontalScroll,
-    View,
-    Switch,
     Snackbar,
     PanelHeaderBack
     } from '@vkontakte/vkui';
 
 import Icon24Repeat from '@vkontakte/icons/dist/24/repeat';
 import Icon28MoneyCircleOutline from '@vkontakte/icons/dist/28/money_circle_outline';
-import Icon28GlobeOutline from '@vkontakte/icons/dist/28/globe_outline';
 
 import Icon28MoneyHistoryBackwardOutline from '@vkontakte/icons/dist/28/money_history_backward_outline';
-import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
 import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
-import Icon28GridSquareOutline from '@vkontakte/icons/dist/28/grid_square_outline';
 import Icon20CancelCircleFillRed from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
 
 var avatars = [
@@ -69,18 +50,9 @@ var avatars = [
 
 ]
 
-var last_selected = null
-
-
-
-
 const blueBackground = {
     backgroundColor: 'var(--accent)'
   };
-  const redBackground = {
-    backgroundColor: 'var(--destructive)'
-  };
-  
 export default class Market extends React.Component{
     constructor(props){
         super(props)
@@ -90,11 +62,11 @@ export default class Market extends React.Component{
             last_selected: null,
 
         }
-        var props = this.props.this;
-        this.setPopout = props.setPopout;
-        this.showErrorAlert = props.showErrorAlert;
-        this.showAlert = props.showAlert;
-        this.setActiveModal = props.setActiveModal;
+        var propsbi = this.props.this;
+        this.setPopout = propsbi.setPopout;
+        this.showErrorAlert = propsbi.showErrorAlert;
+        this.showAlert = propsbi.showAlert;
+        this.setActiveModal = propsbi.setActiveModal;
         this.onChange = (event) => {
             var name = event.currentTarget.name;
             var value = event.currentTarget.value;
@@ -106,7 +78,12 @@ export default class Market extends React.Component{
       var object = []
           for (let i = 0; i < number; i++ ) {
               object.push(
-                  <img id={i} onClick={(e) => this.selectImage(e)} style={i === 0 ? {marginLeft: "20px"} : null} className="changes_avatars" key={i} src={"https://xelene.ru/road/php/images/avatars/" + avatars[i]}/>
+                  <img id={i}
+                  onClick={(e) => this.selectImage(e)} 
+                  style={i === 0 ? {marginLeft: "20px"} : null} 
+                  className="changes_avatars" key={i} 
+                  src={"https://xelene.ru/road/php/images/avatars/" + avatars[i]}
+                  alt={'ava'} />
               )
           }
       
@@ -196,7 +173,6 @@ export default class Market extends React.Component{
       }
 
     render() {
-        var props = this.props.this;
         return(
             <Panel id={this.props.id}>
                 <PanelHeader 

@@ -5,42 +5,15 @@ import {
     Panel,
     PanelHeader,
     PanelHeaderButton,
-    Button,
     Group,
-    Alert,
     Avatar,
-    Placeholder,
     Separator,
-    PullToRefresh,
-    PanelSpinner,
-    InfoRow,
-    Header,
     Counter,
     SimpleCell,
-    PromoBanner,
-    FixedLayout,
     Cell,
-    Div,
-    HorizontalScroll,
-    View,
-    Switch,
     ScreenSpinner,
     ActionSheet,
     ActionSheetItem,
-    Snackbar,
-    ModalRoot,
-    ModalCard,
-    ModalPage,
-    ModalPageHeader,
-    Tabbar,
-    TabbarItem,
-    Epic,
-    Input,
-    FormLayout,
-    List,
-    Slider,
-    ConfigProvider,
-    platform
     } from '@vkontakte/vkui';
 
 import Icon28RecentOutline from '@vkontakte/icons/dist/28/recent_outline';
@@ -51,7 +24,6 @@ import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
 import Icon16Fire from '@vkontakte/icons/dist/16/fire';
 import Icon16Verified from '@vkontakte/icons/dist/16/verified';
 
-let month = "undefined"
 function fix_time(time) {
     if(time < 10) {
         return "0" + time
@@ -66,10 +38,10 @@ function fix_time(time) {
                 api_url: "https://xelene.ru/road/php/index.php?",
                 other_profile: null
             }
-            var props = this.props.this;
-            this.setPopout = props.setPopout;
-            this.showErrorAlert = props.showErrorAlert;
-            this.setActiveModal = props.setActiveModal;
+            var propsbi = this.props.this;
+            this.setPopout = propsbi.setPopout;
+            this.showErrorAlert = propsbi.showErrorAlert;
+            this.setActiveModal = propsbi.setActiveModal;
         }
         PrepareProfile(is_change=false){
             fetch(this.state.api_url + "method=user.getById&id=" + this.props.agent_id + "&" + window.location.search.replace('?', ''))
@@ -167,6 +139,8 @@ function fix_time(time) {
                case 11:
                    month= "декабря"
                break;
+               default: 
+                month = "января"
             }
             return month
          }

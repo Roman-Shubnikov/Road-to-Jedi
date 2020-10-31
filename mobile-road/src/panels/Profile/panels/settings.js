@@ -5,29 +5,10 @@ import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { 
     Panel,
     PanelHeader,
-    PanelHeaderButton,
-    ScreenSpinner,
-
     Group,
-    Input,
-    Avatar,
-    Button,
     Alert,
-    Placeholder,
-    Separator,
-    PullToRefresh,
-    PanelSpinner,
-    InfoRow,
-    Header,
     Counter,
     SimpleCell,
-    PromoBanner,
-    FixedLayout,
-    Cell,
-    Div,
-    HorizontalScroll,
-    View,
-    Switch,
     Snackbar,
     PanelHeaderBack,
     CellButton,
@@ -49,11 +30,11 @@ export default class Settings extends React.Component{
             api_url: "https://xelene.ru/road/php/index.php?",
 
         }
-        var props = this.props.this;
-        this.setPopout = props.setPopout;
-        this.showErrorAlert = props.showErrorAlert;
-        this.showAlert = props.showAlert;
-        this.setActiveModal = props.setActiveModal;
+        var propsbi = this.props.this;
+        this.setPopout = propsbi.setPopout;
+        this.showErrorAlert = propsbi.showErrorAlert;
+        this.showAlert = propsbi.showAlert;
+        this.setActiveModal = propsbi.setActiveModal;
         this.onChange = (event) => {
             var name = event.currentTarget.name;
             var value = event.currentTarget.value;
@@ -133,7 +114,7 @@ export default class Settings extends React.Component{
                     },{
                       title: 'Удалить аккаунт',
                       autoclose: true,
-                      style: 'destructive',
+                      mode: 'destructive',
                       action: () => this.deleteAccount(),
                     }]}
                     onClose={() => this.setPopout(null)}

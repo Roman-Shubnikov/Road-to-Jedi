@@ -5,40 +5,10 @@ import {
     PanelHeader,
     PanelHeaderButton,
     Button,
-    Group,
     Alert,
-    Avatar,
-    Placeholder,
-    Separator,
-    PullToRefresh,
-    PanelSpinner,
-    InfoRow,
-    Header,
-    Counter,
-    SimpleCell,
-    PromoBanner,
-    FixedLayout,
-    Cell,
-    Div,
-    HorizontalScroll,
-    View,
-    Switch,
     ScreenSpinner,
-    ActionSheet,
-    ActionSheetItem,
-    Snackbar,
-    ModalRoot,
-    ModalCard,
-    ModalPage,
-    ModalPageHeader,
-    Tabbar,
-    TabbarItem,
-    Epic,
     Input,
     FormLayout,
-    List,
-    Slider,
-    ConfigProvider,
     Textarea,
     } from '@vkontakte/vkui';
 
@@ -52,9 +22,6 @@ export default class NewTicket extends React.Component {
                 api_url: "https://xelene.ru/road/php/index.php?",
                 title_new_tiket: '',
                 text_new_tiket: '',
-
-
-
             }
             this.onChange = (event) => {
                 var name = event.currentTarget.name;
@@ -77,7 +44,7 @@ export default class NewTicket extends React.Component {
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         
             xhr.onreadystatechange = function() {//Вызывает функцию при смене состояния.
-            if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+            if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
                 if(xhr.responseText) {
                 let text = (JSON.parse(xhr.responseText));
                 global.props.this.goTiket(text.response.ticket_id)
@@ -123,7 +90,6 @@ export default class NewTicket extends React.Component {
         }
 
         render() {
-            var props = this.props.this; // для более удобного использования.
             return (
                 <Panel id={this.props.id}>
                 <PanelHeader 
@@ -148,7 +114,6 @@ export default class NewTicket extends React.Component {
                     top={this.state.text_new_tiket === null ? "Подробнее о проблеме (0/2020). Не менее 5 символов" : "Подробнее о проблеме (" + this.state.text_new_tiket.length + "/2020). Не менее 5 символов"} 
                     onChange={(e) => this.onChange(e)}
                     value={this.state.text_new_tiket}
-                    onChange={(e) => this.onChange(e)}
                     ></Textarea>
                     <Button
                     size="xl" 

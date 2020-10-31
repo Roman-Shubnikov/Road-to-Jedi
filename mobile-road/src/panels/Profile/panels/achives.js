@@ -1,10 +1,10 @@
 import React from 'react';
 
-import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
-import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
-import PanelHeaderButton from '@vkontakte/vkui/dist/components/PanelHeaderButton/PanelHeaderButton';
-
-import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
+import { 
+    Panel,
+    PanelHeader,
+    PanelHeaderBack
+    } from '@vkontakte/vkui';
 
 export default class Achiviement extends React.Component{
     constructor(props){
@@ -14,23 +14,19 @@ export default class Achiviement extends React.Component{
 
 
         }
-        var props = this.props.this;
-        this.setPopout = props.setPopout;
-        this.showErrorAlert = props.showErrorAlert;
-        this.setActiveModal = props.setActiveModal;
+        var propsbi = this.props.this;
+        this.setPopout = propsbi.setPopout;
+        this.showErrorAlert = propsbi.showErrorAlert;
+        this.setActiveModal = propsbi.setActiveModal;
     }
     render(){
         return(
             <Panel id={this.props.id}>
                 <PanelHeader 
-                    left={
-                        <PanelHeaderButton onClick={() => this.props.this.goBack()}> 
-                            <Icon24BrowserBack/>
-                        </PanelHeaderButton>
-                }>
+                    left={<PanelHeaderBack onClick={() => this.props.this.goBack()} />}>
                 </PanelHeader>
                 <div className="Achives_Block">
-                    <img src="https://vk.com/images/blog/about/img_about_2_2x.png"/>
+                    <img src="https://vk.com/images/blog/about/img_about_2_2x.png" alt={'Дракон'} />
                 </div>
                 <div style={{marginTop: "20px"}} className="help_title_profile">В недалеком будущем здесь что-то будет</div>
                 <div className="help_title_profile">Ждем вместе с вами!</div>

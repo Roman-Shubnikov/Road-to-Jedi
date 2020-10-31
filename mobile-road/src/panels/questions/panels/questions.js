@@ -1,6 +1,4 @@
 import React from 'react';
-import bridge from '@vkontakte/vk-bridge'; // VK Brige
-
 
 import { 
     Panel,
@@ -8,30 +6,17 @@ import {
     PanelHeaderButton,
     Avatar,
     Button,
-    Group,
-    Alert,
     Placeholder,
     Separator,
     PullToRefresh,
     PanelSpinner,
-    InfoRow,
-    Header,
-    Counter,
-    SimpleCell,
-    PromoBanner,
-    FixedLayout,
     Cell,
     Div,
-    HorizontalScroll,
-    View,
-    Switch,
     Banner,
     Footer
     
     } from '@vkontakte/vkui';
 
-import Icon24Filter from '@vkontakte/icons/dist/24/filter';
-import Icon24Add from '@vkontakte/icons/dist/24/add';
 import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
 import Icon28CubeBoxOutline from '@vkontakte/icons/dist/28/cube_box_outline';
 
@@ -53,10 +38,10 @@ export default class Questions extends React.Component {
                 ShowBanner: true,
 
             }
-            var props = this.props.this;
-            this.setPopout = props.setPopout;
-            this.showErrorAlert = props.showErrorAlert;
-            this.setActiveModal = props.setActiveModal;
+            var propsbi = this.props.this;
+            this.setPopout = propsbi.setPopout;
+            this.showErrorAlert = propsbi.showErrorAlert;
+            this.setActiveModal = propsbi.setActiveModal;
             this.Prepare_questions = this.Prepare_questions.bind(this);
         }
         Prepare_questions(need_offset=false){

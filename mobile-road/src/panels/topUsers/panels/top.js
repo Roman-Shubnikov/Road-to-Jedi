@@ -2,27 +2,10 @@ import React from 'react';
 import { 
   Panel,
   PanelHeader,
-  PanelHeaderButton,
-  Button,
-  Group,
-  Alert,
   Avatar,
-  Placeholder,
   Separator,
   PullToRefresh,
-  PanelSpinner,
-  InfoRow,
-  Header,
-  Counter,
   SimpleCell,
-  PromoBanner,
-  FixedLayout,
-  Cell,
-  Div,
-  HorizontalScroll,
-  View,
-  Switch,
-  ScreenSpinner,
   } from '@vkontakte/vkui';
 
 import Icon16Fire from '@vkontakte/icons/dist/16/fire';
@@ -36,10 +19,10 @@ import Icon16Verified from '@vkontakte/icons/dist/16/verified';
               fetching: false,
               top_agents: null,
             }
-            var props = this.props.this;
-            this.setPopout = props.setPopout;
-            this.showErrorAlert = props.showErrorAlert;
-            this.setActiveModal = props.setActiveModal;
+            var propsbi = this.props.this;
+            this.setPopout = propsbi.setPopout;
+            this.showErrorAlert = propsbi.showErrorAlert;
+            this.setActiveModal = propsbi.setActiveModal;
         }
         getTopUsers(){
           fetch(this.state.api_url + "method=users.getTop&" + window.location.search.replace('?', ''))

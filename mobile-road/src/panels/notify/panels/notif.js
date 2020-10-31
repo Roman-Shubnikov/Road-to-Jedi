@@ -3,24 +3,12 @@ import React from 'react';
 import { 
     Panel,
     PanelHeader,
-    Group,
-    Alert,
     Avatar,
     Placeholder,
     Separator,
     PullToRefresh,
     PanelSpinner,
-    InfoRow,
-    Header,
-    Counter,
     SimpleCell,
-    PromoBanner,
-    FixedLayout,
-    Cell,
-    Div,
-    HorizontalScroll,
-    View,
-    Switch,
     } from '@vkontakte/vkui';
 
 import Icon56NotificationOutline from '@vkontakte/icons/dist/56/notification_outline';

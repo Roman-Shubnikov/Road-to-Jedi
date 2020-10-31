@@ -22,9 +22,9 @@ Sentry.init({
 
 connect.send('VKWebAppInit', {});
 const root = document.getElementById('root');
-// if(platform() === IOS) {
-//     mVKMiniAppsScrollHelper(root); 
-// }
+if(platform() === IOS) {
+    mVKMiniAppsScrollHelper(root); 
+}
 
 ReactDOM.render(<App />, root);
 

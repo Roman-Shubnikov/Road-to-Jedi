@@ -3,38 +3,20 @@ import React from 'react';
 import { 
     Panel,
     PanelHeader,
-    PanelHeaderButton,
     Button,
-    Group,
-    Alert,
-    Avatar,
     Placeholder,
     Separator,
     PullToRefresh,
-    PanelSpinner,
-    InfoRow,
-    Header,
-    Counter,
-    SimpleCell,
-    PromoBanner,
-    FixedLayout,
     Cell,
     Div,
-    HorizontalScroll,
-    View,
-    Switch,
-    ScreenSpinner,
     PanelHeaderBack,
     Tabs,
     TabsItem,
     Search,
     } from '@vkontakte/vkui';
 
-import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
 import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
 import Icon28WarningTriangleOutline from '@vkontakte/icons/dist/28/warning_triangle_outline';
-
-let month = "";
 function fix_time(time) {
     if(time < 10) {
         return "0" + time
@@ -62,6 +44,7 @@ export default class myQuestions extends React.Component {
         constructor(props) {
             super(props);
             this.state = {
+                api_url: "https://xelene.ru/road/php/index.php?",
                 myQuestions:[],
                 fetching: false,
                 activeTab: 'positive',
@@ -69,7 +52,7 @@ export default class myQuestions extends React.Component {
                 limiter: 5
             }
             this.myQuestions = () => {
-                fetch(this.props.this.state.api_url + "method=tickets.getByModeratorAnswers" + "&" + window.location.search.replace('?', ''))
+                fetch(this.state.api_url + "method=tickets.getByModeratorAnswers&" + window.location.search.replace('?', ''))
                   .then(res => res.json())
                   .then(data => {
                     if(data.result) {

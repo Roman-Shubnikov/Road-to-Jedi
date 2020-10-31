@@ -2,46 +2,16 @@ import React from 'react';
 import { 
     Panel,
     PanelHeader,
-    PanelHeaderButton,
     ScreenSpinner,
-
-    Group,
-    Input,
-    Avatar,
-    Button,
-    Alert,
-    Placeholder,
     Separator,
-    PullToRefresh,
-    PanelSpinner,
-    InfoRow,
     Header,
-    Counter,
-    SimpleCell,
-    PromoBanner,
-    FixedLayout,
-    Cell,
-    Div,
-    HorizontalScroll,
-    View,
-    Switch,
-    Snackbar,
     PanelHeaderBack,
-    CellButton,
     Radio,
     FormLayout,
     } from '@vkontakte/vkui';
 
 import Message from '../../../components/message'
 import avaUser from '../../../images/user.jpg'
-
-
-import Icon28DoneOutline from '@vkontakte/icons/dist/28/done_outline';
-import Icon28CoinsOutline from '@vkontakte/icons/dist/28/coins_outline';
-import Icon28DeleteOutline from '@vkontakte/icons/dist/28/delete_outline';
-import Icon28PaletteOutline from '@vkontakte/icons/dist/28/palette_outline';
-import Icon28TargetOutline from '@vkontakte/icons/dist/28/target_outline';
-
 
 export default class SchemeChange extends React.Component{
     constructor(props){
@@ -50,11 +20,11 @@ export default class SchemeChange extends React.Component{
             api_url: "https://xelene.ru/road/php/index.php?",
 
         }
-        var props = this.props.this;
-        this.setPopout = props.setPopout;
-        this.showErrorAlert = props.showErrorAlert;
-        this.showAlert = props.showAlert;
-        this.setActiveModal = props.setActiveModal;
+        var propsbi = this.props.this;
+        this.setPopout = propsbi.setPopout;
+        this.showErrorAlert = propsbi.showErrorAlert;
+        this.showAlert = propsbi.showAlert;
+        this.setActiveModal = propsbi.setActiveModal;
         this.onChange = (event) => {
             var name = event.currentTarget.name;
             var value = event.currentTarget.value;
@@ -86,7 +56,6 @@ export default class SchemeChange extends React.Component{
     
 
     render() {
-        var props = this.props.this;
         return(
             <Panel id={this.props.id}>
                 <PanelHeader 

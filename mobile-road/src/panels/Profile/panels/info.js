@@ -2,30 +2,10 @@ import React from 'react';
 import { 
     Panel,
     PanelHeader,
-    PanelHeaderButton,
-    ScreenSpinner,
-
     Group,
-    Input,
-    Avatar,
-    Button,
-    Alert,
     Placeholder,
     Separator,
-    PullToRefresh,
-    PanelSpinner,
-    InfoRow,
-    Header,
-    Counter,
     SimpleCell,
-    PromoBanner,
-    FixedLayout,
-    Cell,
-    Div,
-    HorizontalScroll,
-    View,
-    Switch,
-    Snackbar,
     PanelHeaderBack,
     Footer
     } from '@vkontakte/vkui';
@@ -42,7 +22,6 @@ export default class Info extends React.Component{
     }
 
     render() {
-        var props = this.props.this;
         return(
             <Panel id={this.props.id}>
                 <PanelHeader 
@@ -51,7 +30,7 @@ export default class Info extends React.Component{
                     }>
                     О сервисе
                 </PanelHeader>
-                <Placeholder icon={<img src={IconJedi} />} >Версия 2.0</Placeholder>
+                <Placeholder icon={<img src={IconJedi} alt='jedi' />} >Версия 2.0</Placeholder>
                 <Separator />
                 <Group>
                   <SimpleCell

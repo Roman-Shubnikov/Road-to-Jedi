@@ -3,79 +3,35 @@ import bridge from '@vkontakte/vk-bridge'; // VK Brige
 
 
 import { 
-  Panel,
-  PanelHeader,
-  PanelHeaderButton,
   Button,
-  Group,
   Alert,
   Avatar,
-  Placeholder,
-  Separator,
-  PullToRefresh,
-  PanelSpinner,
-  InfoRow,
   Header,
-  Counter,
-  SimpleCell,
-  PromoBanner,
-  FixedLayout,
-  Cell,
   Div,
-  HorizontalScroll,
   View,
-  Switch,
   ScreenSpinner,
-  ActionSheet,
-  ActionSheetItem,
-  Snackbar,
   ModalRoot,
   ModalCard,
   ModalPage,
   ModalPageHeader,
-  Tabbar,
-  TabbarItem,
-  Epic,
   Input,
-  FormLayout,
-  List,
-  Slider,
-  ConfigProvider,
-  platform
   } from '@vkontakte/vkui';
 
-import eruda from 'eruda';
 import '@vkontakte/vkui/dist/vkui.css';
 import '../../style.css';
 // Импортируем панели
 import Top from './panels/top';
-import Other_Profile from '../../components/other_profile';
+import OtherProfile from '../../components/other_profile';
 
-import Icon28Profile from '@vkontakte/icons/dist/28/profile';
-import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
 import Icon24Dismiss from '@vkontakte/icons/dist/24/dismiss';
-import Icon24Add from '@vkontakte/icons/dist/24/add';
-import Icon28Notification from '@vkontakte/icons/dist/28/notifications';
-import Icon28ArticleOutline from '@vkontakte/icons/dist/28/article_outline';
-import Icon28FavoriteOutline from '@vkontakte/icons/dist/28/favorite_outline';
-import Icon24Qr from '@vkontakte/icons/dist/24/qr';
-import Icon28MessagesOutline from '@vkontakte/icons/dist/28/messages_outline';
-import Icon24Linked from '@vkontakte/icons/dist/24/linked';
 import Icon56FireOutline from '@vkontakte/icons/dist/56/fire_outline';
-import Icon56MoneyTransferOutline from '@vkontakte/icons/dist/56/money_transfer_outline'
-import Icon20CancelCircleFillRed from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
-import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
 import Icon20PlaceOutline from '@vkontakte/icons/dist/20/place_outline';
-import Icon24BrushOutline from '@vkontakte/icons/dist/24/brush_outline';
 import Icon20Stars from '@vkontakte/icons/dist/20/stars';
-import Icon28CoinsOutline from '@vkontakte/icons/dist/28/coins_outline';
-import Icon28BillheadOutline from '@vkontakte/icons/dist/28/billhead_outline';
-import Icon28FireOutline from '@vkontakte/icons/dist/28/fire_outline';
 
-const queryString = require('query-string');
-const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
-const parsedHash = queryString.parse(window.location.search.replace('?', ''));
-const hash = queryString.parse(window.location.hash);
+// const queryString = require('query-string');
+// const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+// const parsedHash = queryString.parse(window.location.search.replace('?', ''));
+// const hash = queryString.parse(window.location.hash);
 
 export default class Main extends React.Component {
     constructor(props) {
@@ -345,7 +301,7 @@ export default class Main extends React.Component {
             onSwipeBack={this.goBack}
             >
               <Top id="top" this={this} account={this.props.account} />
-              <Other_Profile id="other_profile" this={this} agent_id={this.state.active_other_profile} account={this.props.account}/>
+              <OtherProfile id="other_profile" this={this} agent_id={this.state.active_other_profile} account={this.props.account}/>
             </View>   
         )
     }

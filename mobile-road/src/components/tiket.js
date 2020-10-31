@@ -4,49 +4,17 @@ import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { 
     Panel,
     PanelHeader,
-    PanelHeaderButton,
     Button,
-    Group,
-    Alert,
-    Avatar,
-    Placeholder,
-    Separator,
-    PullToRefresh,
-    PanelSpinner,
-    InfoRow,
-    Header,
-    Counter,
-    SimpleCell,
-    PromoBanner,
     FixedLayout,
-    Cell,
     Div,
-    HorizontalScroll,
-    View,
-    Switch,
     ScreenSpinner,
     ActionSheet,
     ActionSheetItem,
-    Snackbar,
-    ModalRoot,
-    ModalCard,
-    ModalPage,
-    ModalPageHeader,
-    Tabbar,
-    TabbarItem,
-    Epic,
-    Input,
-    FormLayout,
-    List,
-    Slider,
-    ConfigProvider,
-    platform,
     Textarea,
     PanelHeaderBack
     } from '@vkontakte/vkui';
 
 import Icon24Up from '@vkontakte/icons/dist/24/up';
-import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
 import Icon16ReplyOutline from '@vkontakte/icons/dist/16/reply_outline';
 import Ninja from '../images/Ninja.webp'
 
@@ -96,11 +64,11 @@ export default class Ticket extends React.Component {
 
 
         }
-        var props = this.props.this;
-        this.setPopout = props.setPopout;
-        this.showErrorAlert = props.showErrorAlert;
-        this.setActiveModal = props.setActiveModal;
-        this.goOtherProfile = props.goOtherProfile;
+        var propsbi = this.props.this;
+        this.setPopout = propsbi.setPopout;
+        this.showErrorAlert = propsbi.showErrorAlert;
+        this.setActiveModal = propsbi.setActiveModal;
+        this.goOtherProfile = propsbi.goOtherProfile;
         this.sendRayt = this.sendRayt.bind(this);
         this.onChange = (event) => {
           var name = event.currentTarget.name;
@@ -281,7 +249,7 @@ export default class Ticket extends React.Component {
               .then(res => res.json())
               .then(data => {
                 if(data.result) {
-                  this.setState({tiket_message: data.response, tiket_send_message: "",add_comment: false, redaction: false, tiket_send_message: ""})
+                  this.setState({tiket_message: data.response, tiket_send_message: "",add_comment: false, redaction: false})
                   this.setPopout(null)
                 }else {
                   this.showErrorAlert(data.error.message)
@@ -410,7 +378,7 @@ export default class Ticket extends React.Component {
               .then(res => res.json())
               .then(data => {
                 if(data.result) {
-                  this.setState({tiket_message: data.response, tiket_send_message: "", add_comment: false, redaction: false, tiket_send_message: ""})
+                  this.setState({tiket_message: data.response, tiket_send_message: "", add_comment: false, redaction: false})
                   this.setPopout(null)
                 }else {
                   this.showErrorAlert(data.error.message)
@@ -466,10 +434,10 @@ export default class Ticket extends React.Component {
                             Number(thisOb.state.tiket_info.author['id']) === Number(parsedHash.vk_user_id) ?
                             <Message 
                                 title={result.author.id === 526444378 ? "Витёк" : result.author.is_moderator ? title_moder : result.author.first_name + " " + result.author.last_name} 
-                                title_icon={result.moderator_comment != undefined ? <Icon16ReplyOutline width={10} height={10} style={{display: "inline-block"}}/> : false}
+                                title_icon={result.moderator_comment !== undefined ? <Icon16ReplyOutline width={10} height={10} style={{display: "inline-block"}}/> : false}
                                 is_mine={is_mine_message === is_mine_ticket}
                                 avatar={avatar}
-                                onClick={() => thisOb.Admin(result['id'], result['author'].first_name ? -result['author']['id'] : result['author']['id'] , result['text'], result.moderator_comment != undefined ? result['moderator_comment']['text'] : null,avatar, result['mark'])}
+                                onClick={() => thisOb.Admin(result['id'], result['author'].first_name ? -result['author']['id'] : result['author']['id'] , result['text'], result.moderator_comment !== undefined ? result['moderator_comment']['text'] : null,avatar, result['mark'])}
                                 key={i}
                                 is_special={thisOb.props.account.special}
                                 is_mark={result.mark}
@@ -486,12 +454,12 @@ export default class Ticket extends React.Component {
                             :
                             <Message 
                                 title={result.author.id === 526444378 ? "Витёк" : result.author.is_moderator ? title_moder : result.author.first_name + " " + result.author.last_name} 
-                                title_icon={result.moderator_comment != undefined ? <Icon16ReplyOutline width={10} height={10} style={{display: "inline-block"}}/> : false}
+                                title_icon={result.moderator_comment !== undefined ? <Icon16ReplyOutline width={10} height={10} style={{display: "inline-block"}}/> : false}
                                 is_mine={result.author.is_moderator}
                                 avatar={result.author.id === 526444378 ? Ninja : avatar}
                                 key={i}
                                 time={time}
-                                onClick={() => thisOb.Admin(result['id'], result['author'].first_name ? -result['author']['id'] : result['author']['id'], result['text'], result.moderator_comment != undefined ? result['moderator_comment']['text'] : null,avatar, result['mark'])}
+                                onClick={() => thisOb.Admin(result['id'], result['author'].first_name ? -result['author']['id'] : result['author']['id'], result['text'], result.moderator_comment !== undefined ? result['moderator_comment']['text'] : null,avatar, result['mark'])}
                                 is_special={thisOb.props.account.special}
                                 is_mark={result.mark}
                                 sendRayt_false={() => thisOb.sendRayt(false, result.id)}

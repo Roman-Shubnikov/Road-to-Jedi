@@ -7,38 +7,19 @@ import {
     Group,
     Avatar,
     Button,
-    Alert,
-    Placeholder,
     Separator,
-    PullToRefresh,
-    PanelSpinner,
-    InfoRow,
-    Header,
     Counter,
     SimpleCell,
-    PromoBanner,
-    FixedLayout,
-    Cell,
     Div,
-    HorizontalScroll,
-    View,
-    Switch,
     } from '@vkontakte/vkui';
 
-import Icon28FireOutline from '@vkontakte/icons/dist/28/fire_outline';
-import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
-import Icon24DoNotDisturb from '@vkontakte/icons/dist/24/do_not_disturb';
-import Icon16Chevron from '@vkontakte/icons/dist/16/chevron';
 import Icon12Fire from '@vkontakte/icons/dist/12/fire';
 import Icon16Verified from '@vkontakte/icons/dist/16/verified';
-import Icon24ShareOutline from '@vkontakte/icons/dist/24/share_outline';
 import Icon28GhostOutline from '@vkontakte/icons/dist/28/ghost_outline';
 import Icon28PollSquareOutline from '@vkontakte/icons/dist/28/poll_square_outline';
 import Icon28MarketOutline from '@vkontakte/icons/dist/28/market_outline';
 import Icon28PaletteOutline from '@vkontakte/icons/dist/28/palette_outline';
-import Icon28ArticleOutline from '@vkontakte/icons/dist/28/article_outline';
 import Icon28Notifications from '@vkontakte/icons/dist/28/notifications';
-import Icon12Verified from '@vkontakte/icons/dist/12/verified';
 import Icon28QrCodeOutline from '@vkontakte/icons/dist/28/qr_code_outline';
 
 
@@ -49,10 +30,10 @@ export default class Profile extends React.Component{
             api_url: "https://xelene.ru/road/php/index.php?",
 
         }
-        var props = this.props.this;
-        this.setPopout = props.setPopout;
-        this.showErrorAlert = props.showErrorAlert;
-        this.setActiveModal = props.setActiveModal;
+        var propsbi = this.props.this;
+        this.setPopout = propsbi.setPopout;
+        this.showErrorAlert = propsbi.showErrorAlert;
+        this.setActiveModal = propsbi.setActiveModal;
 
     }
     render(){
