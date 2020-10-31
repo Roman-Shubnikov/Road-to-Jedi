@@ -39,13 +39,14 @@ class Tickets {
 		return $this->_get( $cond, $offset, $count );
 	}
 	public function getByModeratorAnswers( int $offset = 0, int $count = null, int $id ) {
-		$cond = "WHERE id in (SELECT DISTINCT ticket_id from messages where author_id=$id)";
-
-		if ( $count === null ) {
-			$count = CONFIG::ITEMS_PER_PAGE;
+		$author = $this->user->id;
+		$sql = "SELECT id,text,ticket_id,mark,time FROM messages WHERE (mark = 1 or mark = 0) and author_id > 0 and author_id=$author ORDER BY time desc";
+		$res = db_get( $sql );
+		$ans = [];
+		foreach ( $res as $message ) {
+			$ans[] = ['id' => (int)$message['id'], 'text' => $message['text'], 'ticket_id' => (int)$message['ticket_id'], 'mark' => (int)$message['mark'], 'time' => (int)$message['time']];
 		}
-
-		return $this->_get( $cond, $offset, $count );
+		return $ans;
 	}
 
 	public function getRandom() {
@@ -104,11 +105,13 @@ class Tickets {
 		// Увеличиваем счетчик оцененных ответов
 		$auid = $res['author_id'];
 		$good_or_bad = $mark == 1 ? 'good_answers' : 'bad_answers';
-
-		$sql = "UPDATE users SET $good_or_bad = $good_or_bad + 1 WHERE id = $auid";
+		$money = $mark == 1 ? 'money=money+1' : 'money=money';
+		$sql = "UPDATE users SET $good_or_bad = $good_or_bad + 1, $money WHERE id = $auid";
 		db_get( $sql );
 
-		$notification = substr( $res['text'], 0, 150 ).'...';
+		// $notification = substr( $res['text'], 0, 150 ).'...';
+		$notification = 'Администрация оценила ваш ответ';
+
 
 		$object = [
 			'type' => $mark == 1 ? 'add_good_answer' : 'add_bad_answer',
@@ -329,7 +332,9 @@ class Tickets {
 
 		$ticket = $this->getById( $res['ticket_id'] );
 
-		$notification = substr( $res['text'], 0, 150 ).'...';
+		// $notification = substr( $res['text'], 0, 150 ).'...';
+		$notification = 'Администрация одобрила ваш ответ';
+
 		$auid = Users::getIdByVKId( $ticket['author']['id'] );
 		$object = [
 			'type' => 'ticket_reply',

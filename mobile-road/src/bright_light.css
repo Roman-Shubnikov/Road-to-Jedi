@@ -15,7 +15,7 @@ body[scheme="bright_light"] {
     --input_color: #EDEEF0;
     --input_text: #000;
     --message_icon_moder: rgb(255, 255, 255);
-    --top_moderator_icon: #f15b49;
+    --prom_icon: #f15b49;
     --button_home: #3895ff;
     --button_home_shadow: rgba(0,0,0,0.5);
 }

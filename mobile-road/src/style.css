@@ -176,7 +176,7 @@
 }
 
 .top_moderator_name_icon {
-    color: var(--dynamic_red);
+    color: var(--prom_icon);
     position: relative;
     float: right;
     margin-left: 1px;
@@ -188,11 +188,11 @@
     position: relative;
     float: right;
     margin-left: 1px;
-    margin-top: 2.72px;
+    
 }
 
 .profile_moderator_name_icon {
-    /* color: var(--dynamic_red); */
+    color: var(--prom_icon);
     transition: all 1s;
     position: relative;
     float: right;
@@ -211,7 +211,7 @@
 
 .profile_icon {
     display: inline-block;
-    color: var(--dynamic_red);
+    color: var(--prom_icon);
     position: relative;
     margin-left: 2px;
     margin-top: 5.5px;
@@ -222,7 +222,7 @@
     display: inline-block;
     position: relative;
     margin-left: 2px;
-    margin-top: 5.5px;
+    margin-top: 2.5px;
 }
 
 .top_moderator_desc {
@@ -502,7 +502,7 @@
 
 .scrollImages {
     width: 100%;
-    height: 90px;
+    height: 105px;
     overflow: hidden;
     overflow-x: scroll;
     white-space:nowrap;

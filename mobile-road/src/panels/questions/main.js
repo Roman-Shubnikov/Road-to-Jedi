@@ -38,6 +38,7 @@ import {
   Epic,
   Input,
   FormLayout,
+  FormStatus,
   List,
   Slider,
   ConfigProvider,
@@ -105,6 +106,7 @@ export default class Main extends React.Component {
         }
         this.changeData = this.props.this.changeData;
         this.playAudio = this.props.this.playAudio;
+        this.ReloadProfile = this.props.reloadProfile;
         // this.copy = this.props.this.copy;
         // this.recordHistory = (panel) => {
         //   this.setState({history: [...this.state.history, panel]})
@@ -170,9 +172,6 @@ export default class Main extends React.Component {
               modalHistory: modalHistory
             });
           };
-          this.closePopout = () => {
-            this.setState({ popout: null });
-          }
           this.showAlert = (title, text) => {
             this.setState({
               popout: 
@@ -182,7 +181,7 @@ export default class Main extends React.Component {
                     autoclose: true,
                     mode: 'cancel'
                   }]}
-                  onClose={this.closePopout}
+                  onClose={() => this.setPopout(null)}
                 >
                   <h2>{title}</h2>
                   <p>{text}</p>
@@ -197,7 +196,7 @@ export default class Main extends React.Component {
                   autoclose: true,
                   mode: 'cancel'
                   }]}
-                  onClose={() => this.closePopout}
+                  onClose={() => this.setPopout(null)}
               >
                 <h2>Ошибка</h2>
                 {error ? <p>{error}</p> : <p>Что-то пошло не так, попробуйте снова!</p>}
@@ -255,21 +254,18 @@ export default class Main extends React.Component {
         })
     }
     componentDidMount(){
-        if(this.props.ticket_id !== undefined){
-          this.goTiket(this.props.ticket_id)
-          if(window.history.pushState) {
-            window.history.pushState('', '/', window.location.pathname + window.location.search)
-        } else {
-            window.location.hash = '';
+        if(hash.ticket_id !== undefined){
+          this.goTiket(hash.ticket_id)
+          bridge.send("VKWebAppSetLocation", {"location": ""});
         }
-        }
-        if(this.props.agent_id !== undefined) {
-          this.goOtherProfile(this.props.agent_id);
-          if(window.history.pushState) {
-            window.history.pushState('', '/', window.location.pathname + window.location.search)
-        } else {
-            window.location.hash = '';
-        }
+        if(hash.agent_id !== undefined) {
+          this.goOtherProfile(hash.agent_id);
+          bridge.send("VKWebAppSetLocation", {"location": ""});
+        //   if(window.history.pushState) {
+        //     window.history.pushState('', '/', window.location.pathname + window.location.search)
+        // } else {
+        //     window.location.hash = '';
+        // }
         }
       
     }
@@ -286,85 +282,62 @@ export default class Main extends React.Component {
                 Добро пожаловать в игру
               </ModalPageHeader>
             }>
-              <img className="AvaModalPage" src={this.props.account.id !== undefined ? this.props.account.avatar.url : null} size={70} />
-              <Header
-              subtitle='Помните, отвечать нужно вдумчиво.'>Вам присвоен номер #{this.props.account.id !== undefined ? this.props.account.id : "undefined"}</Header>
-              <FormLayout>
-                  <Slider
-                    min={10}
-                    max={100}
-                    step={1}
-                    value={this.state.AgeUser}
-                    onChange={e => {
-                      this.setState({AgeUser: e});
-                    }}
-                    top={`Укажите свой возраст: ${this.state.AgeUser}`}
-                  />
-                </FormLayout>
-                <Div>
-                  <SimpleCell disabled
-                  before={<Icon28CoinsOutline />}>
-                    Зарабатывай монеты
-                  </SimpleCell>
-                  <SimpleCell disabled
-                  before={<Icon28BillheadOutline />}>
-                    Отвечай на вопросы
-                  </SimpleCell>
-                  <SimpleCell disabled
-                  before={<Icon28FavoriteOutline />}>
-                    Участвуй в рейтинге
-                  </SimpleCell>
-                  <SimpleCell disabled
-                  before={<Icon28FireOutline />}>
-                    Получай отметку огня
-                  </SimpleCell>
-                </Div>
-                <Div>
-                  <Button 
-                  mode="secondary" 
-                  size='xl'
-                  stretched
-                  onClick={() => {
-                    this.playAudio()
-                    
-                    this.ChangeAge(this.state.AgeUser);
-                    this.setActiveModal(null);
-                  }}>Вперёд!</Button>
-                </Div>
-                
-                <Cell></Cell>
-            </ModalPage>
-              <ModalPage
-                id="settings"
-                onClose={this.modalBack}
-                header={
-                  <ModalPageHeader
-                  right={<Header onClick={this.modalBack}><Icon24Dismiss style={{color: 'var(--placeholder_icon_foreground_primary)'}} /></Header>}
-                  >
-                    Настройки
-                  </ModalPageHeader>
-                }
-                >
-                  <Div style={{display:'flex'}}>
-                    <Button onClick={() => {
+              <Div style={{marginTop: 0}}>
+                <img className="AvaModalPage" src={this.props.account.id !== undefined ? this.props.account.avatar.url : null} size={70} />
+                  <Header
+                  subtitle='Помните, отвечать нужно вдумчиво.'>Вам присвоен номер #{this.props.account.id !== undefined ? this.props.account.id : "undefined"}</Header>
+                <Separator />
+                <FormLayout>
+                  <FormStatus header="Внимание! Важная информация" mode="error">
+                    Сервис не имеет отношения к Администрации Вконтакте, а так же их разработкам.
+                  </FormStatus>
+                    <Slider
+                      min={10}
+                      max={100}
+                      step={1}
+                      value={this.state.AgeUser}
+                      onChange={e => {
+                        this.setState({AgeUser: e});
+                      }}
+                      top={`Укажите свой возраст: ${this.state.AgeUser}`}
+                    />
+                  </FormLayout>
+                  <Group>
+                    <SimpleCell disabled multiline
+                    before={<Icon28CoinsOutline />}>
+                      Зарабатывай монеты
+                    </SimpleCell>
+                    <SimpleCell disabled multiline
+                    before={<Icon28BillheadOutline />}>
+                      Отвечай на вопросы
+                    </SimpleCell>
+                    <SimpleCell disabled multiline
+                    before={<Icon28FavoriteOutline />}>
+                      Участвуй в рейтинге
+                    </SimpleCell>
+                    <SimpleCell disabled multiline
+                    before={<Icon28FireOutline />}>
+                      Получай отметку огня
+                    </SimpleCell>
+                  </Group>
+                  
+                  <Div>
+                    <Button 
+                    mode="secondary" 
+                    size='xl'
+                    stretched
+                    onClick={() => {
+                      this.playAudio()
+                      
+                      this.ChangeAge(this.state.AgeUser);
                       this.setActiveModal(null);
-                      this.getRandomTiket();
-
-                    }} 
-                    stretched 
-                    size='l'
-                    // style={{marginRight: '2%'}}
-                    before={<Icon20PlaceOutline />}>Случайный тикет</Button>
-                    <Button onClick={() => {
-                      this.setActiveModal(null);
-                      this.props.this.changeData('scheme',(this.props.this.state.scheme === 'bright_light') ? 'space_gray' : 'bright_light')
-                    }}
-                    stretched 
-                    size='l'
-                    style={{marginLeft: '5%'}}
-                    before={<Icon20Stars />}>Сменить тему</Button>
+                      setTimeout(() => {
+                        this.ReloadProfile();
+                      },2000);
+                    }}>Вперёд!</Button>
                   </Div>
-                </ModalPage>
+                </Div>
+            </ModalPage>
               <ModalCard
                 id={'prom'}
                 onClose={() => this.setActiveModal(null)}
@@ -437,6 +410,7 @@ export default class Main extends React.Component {
             activePanel={this.state.activePanel}
             modal={modal}
             popout={this.state.popout}
+            onSwipeBack={this.goBack}
             >
               <Questions id='questions' this={this} account={this.props.account} />
               <NewTicket id='new_ticket' this={this} account={this.props.account} /> 

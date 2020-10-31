@@ -174,9 +174,6 @@ export default class Notify extends React.Component {
               modalHistory: modalHistory
             });
           };
-          this.closePopout = () => {
-            this.setState({ popout: null });
-          }
           this.showAlert = (title, text) => {
             this.setState({
               popout: 
@@ -186,7 +183,7 @@ export default class Notify extends React.Component {
                     autoclose: true,
                     mode: 'cancel'
                   }]}
-                  onClose={this.closePopout}
+                  onClose={() => this.setPopout(null)}
                 >
                   <h2>{title}</h2>
                   <p>{text}</p>
@@ -201,7 +198,7 @@ export default class Notify extends React.Component {
                   autoclose: true,
                   mode: 'cancel'
                   }]}
-                  onClose={() => this.closePopout}
+                  onClose={() => this.setPopout(null)}
               >
                 <h2>Ошибка</h2>
                 {error ? <p>{error}</p> : <p>Что-то пошло не так, попробуйте снова!</p>}

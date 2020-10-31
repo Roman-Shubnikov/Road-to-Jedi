@@ -1,4 +1,6 @@
 import React from 'react';
+import bridge from '@vkontakte/vk-bridge'; // VK Brige
+
 
 import { 
     Panel,
@@ -31,6 +33,7 @@ import {
 import Icon24Filter from '@vkontakte/icons/dist/24/filter';
 import Icon24Add from '@vkontakte/icons/dist/24/add';
 import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
+import Icon28CubeBoxOutline from '@vkontakte/icons/dist/28/cube_box_outline';
 
 import BannerAvatarPC from '../../../images/question_banner_pc.jpg'
 import BannerAvatarMobile from '../../../images/question_banner_mobile.png'
@@ -90,7 +93,7 @@ export default class Questions extends React.Component {
                     this.setActiveModal('start');
                 }
                 this.setPopout(null)
-            }, 4000)
+            }, 1000) //4000
         }
 
         render() {
@@ -99,7 +102,7 @@ export default class Questions extends React.Component {
             return (
                 <Panel id={this.props.id}> 
                 <PanelHeader
-                left={<PanelHeaderButton onClick={() => this.setActiveModal("settings")}><Icon24Filter/></PanelHeaderButton>}
+                left={<PanelHeaderButton onClick={() => this.props.this.getRandomTiket()}><Icon28CubeBoxOutline/></PanelHeaderButton>}
                 >
                 Вопросы
                 </PanelHeader>

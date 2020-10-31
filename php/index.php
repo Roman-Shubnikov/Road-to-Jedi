@@ -75,8 +75,15 @@ new FludControl();
 
 $params = [
 	'account.get' => [],
+	'account.delete' => [],
 	'account.setAge' => [
 		'age' => [
+			'type' => 'int',
+			'required' => true
+		]
+	],
+	'account.changeScheme' => [
+		'scheme' => [
 			'type' => 'int',
 			'required' => true
 		]
@@ -335,7 +342,7 @@ $params = [
 	],
 	'shop.changeId' => [
 		'change_id' => [
-			'type' => 'int',
+			'type' => 'string',
 			'required' => true
 		] 
 	],
@@ -353,22 +360,22 @@ $params = [
 	'notifications.markAsViewed' => [],
 	'notifications.getCount' => [],
 ];
-$user_id = $_GET['vk_user_id'];
+$user_id = (int) $_GET['vk_user_id'];
 $method = $_GET['method'];
-
-$data = file_get_contents('php://input');
-$data = json_decode($data, true);
 
 if ( !isset( $params[$method] ) ) {
 	Show::error(405);
 }
-Utils::checkParams($data,$params[$method]);
+Utils::checkParams($params[$method]);
 
 $users = new Users( $user_id );
 $tickets = new Tickets( $users );
 $notifications = new Notifications( $users );
 
 switch ( $method ) {
+	case 'account.delete':
+		Show::response( $users->deleteAccount());
+
 	case 'account.setAge':
 		$age = $_REQUEST['age'];
 		if($age < 10 || $age > 100){
@@ -378,6 +385,13 @@ switch ( $method ) {
 
 	case 'account.get':
 		Show::response( $users->getMy() );
+	
+	case 'account.changeScheme':
+		$scheme = $_REQUEST['scheme'];
+		if(!in_array($scheme, [0,1,2])){
+			Show::error(1010);
+		}
+		Show::response( $users->changeScheme($scheme) );
 	
 	case 'account.Flash':
 		$agent_id = $_REQUEST['agent_id'];
@@ -533,10 +547,8 @@ switch ( $method ) {
 	case 'shop.changeId':
 		$id = $_REQUEST['change_id'];
 		$user_id = $_GET['vk_user_id'];
-
-		$id = intval( $id );
-
-		if( $id < 100000 && $id > 15000 ) {
+		$len = strlen($id);
+		if( $len < 11 && $len > 0 ) {
 			$balance_profile = getBalance();
 			if( $balance_profile >= 200 ) {
 				$check_id = db_get("SELECT id FROM users WHERE id = $id OR nickname = $id");
@@ -605,7 +617,7 @@ switch ( $method ) {
 
 	case 'shop.changeAvatar':
 		$id = $_REQUEST['avatar_id'];
-		if( $id <= 27 || $id > 1 ) {
+		if( $id <= 24 && $id > 0 ) {
 			$balance = getBalance();
 			$user_id = $_GET['vk_user_id'];
 			if( $balance >= 300 ) {

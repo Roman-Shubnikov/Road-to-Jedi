@@ -203,12 +203,12 @@ function fix_time(time) {
                   {isFinite(this.state.other_profile['nickname']) ? `Агент Поддержки #${this.state.other_profile['nickname']}` : this.state.other_profile['nickname'] ? this.state.other_profile['nickname'] : `Агент Поддержки #${this.state.other_profile['id']}`}
                     {this.state.other_profile['flash'] === true ? 
                     <div className="profile_moderator_name_icon">
-                        <Icon16Fire style={{color: "var(--dynamic_red)"}} onClick={() => props.setActiveModal('prom')} />  
+                        <Icon16Fire width={12} height={12} style={{color: "var(--prom_icon)"}} onClick={() => props.setActiveModal('prom')} />  
                     </div>
                     : null}
                     {this.state.other_profile['verified'] === true ?
                     <div className="profile_moderator_name_icon">
-                        <Icon16Verified style={{color: "var(--dynamic_blue)"}} />  
+                        <Icon16Verified width={12} height={12} style={{color: "var(--dynamic_blue)"}} />  
                     </div>
                     : null}
                   </div>

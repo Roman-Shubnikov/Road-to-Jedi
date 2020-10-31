@@ -41,7 +41,8 @@ import {
     Slider,
     ConfigProvider,
     platform,
-    Textarea
+    Textarea,
+    PanelHeaderBack
     } from '@vkontakte/vkui';
 
 import Icon24Up from '@vkontakte/icons/dist/24/up';
@@ -446,9 +447,9 @@ export default class Ticket extends React.Component {
         return(
         <Panel id={this.props.id}>
             <PanelHeader 
-                left={<PanelHeaderButton onClick={() => props.this.goBack()}><Icon24BrowserBack/></PanelHeaderButton>}
+                left={<PanelHeaderBack onClick={() => this.props.this.goBack()} />}
             >
-                <span id="animation" onClick={() => this.copy(props.this.state.tiket_info['id'])}>Вопрос #{this.state.tiket_info['id']}</span>
+                <span id="animation" onClick={() => this.copy(this.state.tiket_info['id'])}>Вопрос #{this.state.tiket_info['id']}</span>
             </PanelHeader>
             {/* MESSAGES */}
             <div className="title_tiket">{new Date(this.state.tiket_info['time'] * 1e3).getDate()} {add_month(this.state.tiket_info['time'])}</div>

@@ -51,11 +51,13 @@ import '@vkontakte/vkui/dist/vkui.css';
 import './style.css'
 // Импортируем панели
 import Questions from './panels/questions/main'
+import Top from './panels/topUsers/main'
 import Notification from './panels/notify/main'
-import Home from './panels/questions.js'
+import Profile from './panels/Profile/main'
+
 import Tiket from './panels/tiket.js'
-import Top from './panels/top.js'
-import Profile from './panels/profile.js'
+// import Top from './panels/top.js'
+// import Profile from './panels/profile.js'
 import Other_Profile from './panels/other_profile'
 import Profile_Help from './panels/profile_help'
 import New_Tiket from './panels/new_tiket'
@@ -186,7 +188,6 @@ class App extends React.Component {
             need_epic: true,
 
         };
-        this.onStoryChange = this.onStoryChange.bind(this);
         this.onChange = this.onChange.bind(this);
         this.closePopout = this.closePopout.bind(this);
         this.setActiveModal = this.setActiveModal.bind(this);
@@ -195,6 +196,22 @@ class App extends React.Component {
         // }
         this.changeData = (name,value) => {
           this.setState({ [name]: value });
+        }
+        this.LoadProfile = () => {
+          fetch(this.state.api_url + "method=account.get&" + window.location.search.replace('?', ''))
+          .then(res => res.json())
+          .then(data => {
+          if(data.result) {
+              this.setState({account: data.response,popout: null, switchKeys: data.response.noti})
+              if(Number(this.state.account.scheme) !== 0){
+                let change = (Number(this.state.account.scheme) === 1) ? 'bright_light' : 'space_gray';
+                this.setState({scheme: change})
+              }
+            }})
+          .catch(err => {
+            this.showErrorAlert(err)
+    
+          })
         }
         this.modalBack = () => {
             this.setActiveModal(this.state.modalHistory[this.state.modalHistory.length - 2]);
@@ -276,10 +293,10 @@ class App extends React.Component {
           }
     }
     
-
     componentDidMount() {
       this.audio = new Audio(music)
-		  this.audio.load()
+      this.audio.load()
+      this.audio.loop = true;
         connect.subscribe(({ detail: { type, data }}) => { 
         if(type === 'VKWebAppAllowMessagesFromGroupResult') {
           fetch(this.state.api_url_second + "method=notifications.swift&swift=on&" + window.location.search.replace('?', ''))
@@ -310,27 +327,15 @@ class App extends React.Component {
 
             }
         })
-        if(hash.ticket_id !== undefined) {
-          this.goTiket(hash.ticket_id)
-        }
-        if(hash.agent_id !== undefined) {
-          this.goOtherProfile(hash.agent_id, true)
-        }
-        if(hash.new !== undefined) {
-          this.goNew_Tiket()
-        }
         window.addEventListener('popstate', e => e.preventDefault() & this.goBack(e)); 
         fetch(this.state.api_url + "method=account.get&" + window.location.search.replace('?', ''))
         .then(res => res.json())
         .then(data => {
-          if(data.response) {
-            this.setState({test: data.response, account: data.response, is_first_start: data.response.is_first_start, popout: null, switchKeys: data.response.noti})
-            // this.Others()
-            if(data.response.special === true) {
-              this.setState({is_special_moder: true})
-            }
-            if(data.response.is_first_start === true) {
-              this.setActiveModal("start")
+          if(data.result) {
+            this.setState({account: data.response, popout: null, switchKeys: data.response.noti})
+            if(Number(this.state.account.scheme) !== 0){
+              let change = (Number(this.state.account.scheme) === 1) ? 'bright_light' : 'space_gray';
+              this.setState({scheme: change})
             }
           } else {
             this.setState({popout: 
@@ -387,7 +392,7 @@ class App extends React.Component {
               autoclose: true,
               style: 'cancel'
             }]}
-            onClose={this.closePopout}
+            onClose={this.setPopout(null)}
           >
             <h2>{title}</h2>
             <p>{text}</p>
@@ -474,19 +479,7 @@ class App extends React.Component {
       })
     }
 
-    LoadProfile() {
-      fetch(this.state.api_url + "method=account.get&" + window.location.search.replace('?', ''))
-              .then(res => res.json())
-              .then(data => {
-              if(data.response) {
-                
-                  this.setState({profile: data.response})
-                }})
-              .catch(err => {
-                this.showErrorAlert()
-
-              })
-    }
+    
 
     changeAvatar(last_selected) {
         fetch(this.state.api_url + "method=shop.changeAvatar&avatar_id=" + last_selected + "&" + window.location.search.replace('?', ''))
@@ -1127,7 +1120,7 @@ class App extends React.Component {
             autoclose: true,
             mode: 'cancel'
             }]}
-            onClose={() => this.closePopout}
+            onClose={() => this.setPopout(null)}
         >
           <h2>Ошибка</h2>
           {error ? <p>{error}</p> : <p>Что-то пошло не так, попробуйте снова!</p>}
@@ -1756,12 +1749,6 @@ class App extends React.Component {
                   ><Icon28FavoriteOutline/></TabbarItem>
                   <TabbarItem
                     onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
-                    selected={this.state.activeStory === 'notif'}
-                    data-story="notif"
-                    text='Уведомления'
-                  ><Icon28Notification /></TabbarItem>
-                  <TabbarItem
-                    onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
                     selected={this.state.activeStory === 'profile'}
                     data-story="profile"
                     text='Профиль'
@@ -1782,7 +1769,7 @@ class App extends React.Component {
                 <Profile id="profile" this={this}/>
                 <Other_Profile id="other_profile" this={this}/>
             </View> */}
-            <View 
+            {/* <View 
             activePanel={this.state.activePanel} 
             history={this.state.history} 
             onSwipeBack={this.goBack}
@@ -1792,8 +1779,8 @@ class App extends React.Component {
             >
                 <Top id="top" this={this}/>
                 <Other_Profile id="other_profile" this={this}/>
-            </View>
-            <View 
+            </View> */}
+            {/* <View 
             activePanel={this.state.activePanel} 
             history={this.state.history} 
             onSwipeBack={this.goBack}
@@ -1810,21 +1797,35 @@ class App extends React.Component {
                 <New_Tiket id="new_tiket" this={this}/>
                 <Vitas id="vitas" this={this}/>
                 <Achives id="achives" this={this}/>
-            </View>
+            </View> */}
+            
+            <Questions 
+            id='questions'
+            this={this}
+            reloadProfile={this.LoadProfile}
+            account={this.state.account}
+            popout={this.state.popout} />
+
+            <Top 
+            id='top'
+            this={this}
+            account={this.state.account}
+            popout={this.state.popout} />
+
             <Notification 
             id="notif"
             this={this}
             account={this.state.account}
-            special={this.state.account.special}
             popout={this.state.popout}
             />
-            <Questions 
-            id='questions'
+
+            <Profile 
+            id="profile"
             this={this}
-            ticket_id={hash.ticket_id}
-            agent_id={hash.agent_id}
+            reloadProfile={this.LoadProfile}
             account={this.state.account}
             popout={this.state.popout} />
+
             {/* <View 
             activePanel={this.state.activePanel} 
             history={this.state.history} 

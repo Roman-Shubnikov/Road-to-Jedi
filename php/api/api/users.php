@@ -36,6 +36,18 @@ class Users {
 		];
 		return db_edit( $data, "id = $aid", 'users' );
 	}
+	public function ChangeScheme($scheme) {
+		$aid = $this->id;
+
+		$data = [
+			'scheme' => $scheme
+		];
+		return db_edit( $data, "id = $aid", 'users' );
+	}
+	public function deleteAccount() {
+		$aid = $this->id;
+		return db_del("id = $aid", 'users' );
+	}
 	public function Ban_User($agent_id, $ban=FALSE, $ban_reason=NULL){
 		if ( !$this->info['special'] ) {
 			Show::error(403);
@@ -148,8 +160,8 @@ class Users {
 
 		$sql = "UPDATE users SET last_activity = $time WHERE vk_user_id = $user_id;
 				SELECT users.id, users.last_activity, users.registered, users.good_answers,users.age,
-						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.money, users.banned, users.noti,
-						avatars.name as avatar_name, users.special, users.banned, users.ban_reason, users.flash, users.verified, users.nickname
+						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.banned, users.noti, users.scheme,
+						users.special, users.banned, users.ban_reason, users.flash, users.verified, users.nickname,avatars.name as avatar_name
 				FROM users
 				LEFT JOIN avatars
 				ON users.avatar_id = avatars.id
@@ -209,7 +221,10 @@ class Users {
 				'registered' => (int) $data['registered'],
 				'flash' => (bool) $data['flash'],
 				'verified' => (bool) $data['verified'],
-				'balance' => (float) $data['money']
+				'balance' => (float) $data['money'],
+				'scheme' => (int) $data['scheme'],
+				'age' => (int) $data['age'],
+				'notif_count' => (int) $data['notifications_count'],
 			];	
 		}
 		 
