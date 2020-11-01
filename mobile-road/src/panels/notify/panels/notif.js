@@ -64,9 +64,27 @@ export default class ReaderNotif extends React.Component {
 
                 })
             }
+            this.markView = () => {
+                fetch(this.props.this.state.api_url + "method=notifications.markAsViewed&" + window.location.search.replace('?', ''))
+                .then(res => res.json())
+                .then(data => {
+                if(data.result) {
+                    setTimeout(() => {
+                        this.props.this.ReloadProfile();
+                      }, 4000)
+                }else {
+                   this.props.this.showErrorAlert(data.error.message)
+                  }
+                })
+                .catch(err => {
+                this.props.this.showErrorAlert()
+
+                })
+            }
         }
         componentDidMount() {
             this.getNotif();
+            this.markView();
         }
         
 

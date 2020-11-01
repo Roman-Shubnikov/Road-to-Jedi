@@ -6,6 +6,7 @@ import music from './music/Soloriver.mp3';
 import { 
   Alert,
   Avatar,
+  Counter,
   ScreenSpinner,
   Snackbar,
   Tabbar,
@@ -238,8 +239,9 @@ class App extends React.Component {
                     selected={this.state.activeStory === 'top'}
                     data-story="top"
                     text='Топ'
-                  ><Icon28FavoriteOutline/></TabbarItem>
+                  ><Icon28FavoriteOutline /></TabbarItem>
                   <TabbarItem
+                    label={this.state.account.notif_count ? <Counter size="s" mode="prominent">{this.state.account.notif_count}</Counter> : null}
                     onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
                     selected={this.state.activeStory === 'profile'}
                     data-story="profile"
@@ -263,6 +265,7 @@ class App extends React.Component {
               <Notification 
               id="notif"
               this={this}
+              reloadProfile={this.LoadProfile}
               account={this.state.account}
               popout={this.state.popout}
               />

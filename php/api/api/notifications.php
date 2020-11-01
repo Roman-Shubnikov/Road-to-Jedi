@@ -83,7 +83,7 @@ class Notifications {
 			'delivered' => 1
 		];
 
-		db_edit( $data, "owner_id = $uid", 'notifications' );
+		return db_edit( $data, "owner_id = $uid", 'notifications' );
 	}
 
 	private function _formateType( array $data ) {

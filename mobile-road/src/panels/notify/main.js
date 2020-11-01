@@ -48,6 +48,7 @@ export default class Notify extends React.Component {
 
         }
         this.changeData = this.props.this.changeData;
+        this.ReloadProfile = this.props.reloadProfile;
         // this.copy = this.props.this.copy;
         // this.recordHistory = (panel) => {
         //   this.setState({history: [...this.state.history, panel]})

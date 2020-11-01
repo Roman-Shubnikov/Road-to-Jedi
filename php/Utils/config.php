@@ -23,7 +23,7 @@ class CONFIG {
 	const SECRET_KEY = 'g3MXdwsVrz7J3vVw6pk4';
 	const VK_APP_TOKEN = '6ad515826ad515826ad51582306aa4051866ad56ad51582344086bf623d0b12c9fea49a';
 	
-	const FLOOD_CONTROL = 99999;
+	const FLOOD_CONTROL = 10;
 	const FLOOD_CONTROL_BAN = 60;
 	
 	const ERRORS = [

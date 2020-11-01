@@ -125,6 +125,9 @@ class Tickets {
 	}
 
 	public function add( string $title, string $text ) {
+		if ( !$this->user->info['special'] ) {
+			Show::error(403);
+		}
 		$title = trim( $title );
 		$text = trim( $text );
 
@@ -285,7 +288,7 @@ class Tickets {
 					'nickname' => $message['nickname'],
 					'avatar' => [
 						'id' => (int) $message['avatar_id'],
-						'url' => CONFIG::AVATAR_PATH . '/' . $message['avatar_name'],
+						'url' => $message['avatar_name'] ? CONFIG::AVATAR_PATH . '/' . $message['avatar_name'] : CONFIG::AVATAR_PATH . '/' . rand(1,24),
 					],
 					'is_moderator' => true,
 					'is_special' => (bool) $message['special'],
