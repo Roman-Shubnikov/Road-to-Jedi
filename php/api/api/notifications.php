@@ -23,9 +23,9 @@ class SystemNotifications {
 		if( $user['noti'] ) {
 			$data = [
 				'user_id' => $user['vk_user_id'],
-				'random_id' => time(),
-				'message' => "$text\n$object_lol\n\nТвой Витёк...",
-				'access_token' =>'f8373822789d677c55a24c195cb74bd4b97ee014e00adc7a3c8a1985d31c5527c281cd2936dc2ff76a31b',
+				'random_id' => 0,
+				'message' => "$text\n$object_lol",
+				'access_token' =>'9e1740c170fe79333a5512e6513f6036ba361fcc0dead0588f0a320e53831679b9bc7adc80208f370e11a',
 				'v' => '5.120'
 			];
 
