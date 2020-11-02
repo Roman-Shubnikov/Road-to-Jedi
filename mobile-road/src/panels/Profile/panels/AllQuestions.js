@@ -49,7 +49,7 @@ export default class myQuestions extends React.Component {
                 fetching: false,
                 activeTab: 'positive',
                 search: '',
-                limiter: 5
+                limiter: 20
             }
             this.myQuestions = () => {
                 fetch(this.state.api_url + "method=tickets.getByModeratorAnswers&" + window.location.search.replace('?', ''))
@@ -143,7 +143,7 @@ export default class myQuestions extends React.Component {
                         mode='secondary' 
                         size='xl' 
                         stretched
-                        onClick={() => this.setState({limiter: this.state.limiter + 2})}
+                        onClick={() => this.setState({limiter: this.state.limiter + 10})}
                         >Показать ещё 10 ответов</Button>
                     </Div> : null}
                     </> :

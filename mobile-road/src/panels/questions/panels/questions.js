@@ -74,7 +74,7 @@ export default class Questions extends React.Component {
             this.Prepare_questions()
             setTimeout(() => {
                 if(this.props.account.is_first_start){
-                    this.props.this.playAudio()
+                    // this.props.this.playAudio()
                     this.setActiveModal('start');
                 }
                 this.setPopout(null)

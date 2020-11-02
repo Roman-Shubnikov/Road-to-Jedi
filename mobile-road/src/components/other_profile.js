@@ -216,7 +216,7 @@ function fix_time(time) {
                     </SimpleCell>
                 </Group>}
                 <Separator />
-                <div style={{marginTop: "20px"}} className="help_title_profile">В недалеком будущем здесь что-то будет</div>
+                <div style={{marginTop: "20px"}} className="help_title_profile">В недалеком будущем здесь что-то будет.</div>
                 <div className="help_title_profile">Ждем вместе с вами!</div>
                 </> : null}
             </Panel>

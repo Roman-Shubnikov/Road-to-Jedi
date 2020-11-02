@@ -6,7 +6,6 @@ import music from './music/Soloriver.mp3';
 import { 
   Alert,
   Avatar,
-  Counter,
   ScreenSpinner,
   Snackbar,
   Tabbar,
@@ -126,6 +125,9 @@ class App extends React.Component {
               this.showErrorAlert()
             })
         }
+        if(type === 'VKWebAppViewHide') {
+          console.log('closing...')
+        }
 			  if (type === 'VKWebAppUpdateConfig') {
           this.setState({scheme: data.scheme})
 
@@ -241,7 +243,6 @@ class App extends React.Component {
                     text='Топ'
                   ><Icon28FavoriteOutline /></TabbarItem>
                   <TabbarItem
-                    label={this.state.account.notif_count ? <Counter size="s" mode="prominent">{this.state.account.notif_count}</Counter> : null}
                     onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
                     selected={this.state.activeStory === 'profile'}
                     data-story="profile"

@@ -105,7 +105,7 @@ class Tickets {
 		// Увеличиваем счетчик оцененных ответов
 		$auid = $res['author_id'];
 		$good_or_bad = $mark == 1 ? 'good_answers' : 'bad_answers';
-		$money = $mark == 1 ? 'money=money+1' : 'money=money';
+		$money = $mark == 1 ? 'money=money+10' : 'money=money';
 		$sql = "UPDATE users SET $good_or_bad = $good_or_bad + 1, $money WHERE id = $auid";
 		db_get( $sql );
 
@@ -288,7 +288,7 @@ class Tickets {
 					'nickname' => $message['nickname'],
 					'avatar' => [
 						'id' => (int) $message['avatar_id'],
-						'url' => $message['avatar_name'] ? CONFIG::AVATAR_PATH . '/' . $message['avatar_name'] : CONFIG::AVATAR_PATH . '/' . rand(1,24),
+						'url' => $message['avatar_name'] ? CONFIG::AVATAR_PATH . '/' . $message['avatar_name'] : CONFIG::AVATAR_PATH . '/' . rand(1,24) . '.png',
 					],
 					'is_moderator' => true,
 					'is_special' => (bool) $message['special'],

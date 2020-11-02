@@ -401,7 +401,45 @@ export default class Ticket extends React.Component {
             this.showErrorAlert("Текст сообщения должен быть минимум из 5 символов.")
         }
       }
+      sendNewMessageComment() {
+        this.setPopout(<ScreenSpinner/>)
+        if(this.state.tiket_send_message.length >= 5) {
+          var url = this.state.api_url + 'method=ticket.commentMessage&' + window.location.search.replace('?', '');
+          var method = 'POST';
+          var async = true;
+      
+          var xhr = new XMLHttpRequest();
+          xhr.open( method, url, async );
+          xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      
+          xhr.onreadystatechange = () => {
+            if(xhr.status === 4) return;
+            if ( xhr.status === 200 ) {
+              console.log(xhr.responseText)
+              fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
+              .then(res => res.json())
+              .then(data => {
+                if(data.result) {
+                  this.setState({tiket_message: data.response, tiket_send_message: "",add_comment: false, redaction: false})
+                }else{
+                  this.showErrorAlert(data.error.message)
+                }
+              })
+              .catch(err => {
+                this.showErrorAlert(err)
   
+              })
+            }
+          }
+          xhr.send('message_id=' + this.state.message_id_add + '&text=' + this.state.tiket_send_message);
+      
+          xhr.onerror = ( error ) => {
+            this.showErrorAlert(error)
+          }
+        } else {
+          this.showErrorAlert("Текст сообщения должен быть минимум из 5 символов.")
+        }
+      }
     componentDidMount(){
       this.setPopout(<ScreenSpinner/>)
       this.Prepare_ticket()

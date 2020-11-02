@@ -293,7 +293,7 @@ export default class Main extends React.Component {
                     size='xl'
                     stretched
                     onClick={() => {
-                      this.playAudio()
+                      // this.playAudio()
                       
                       this.ChangeAge(this.state.AgeUser);
                       this.setActiveModal(null);
