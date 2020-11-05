@@ -23,7 +23,7 @@ export default class Achiviement extends React.Component{
         return(
             <Panel id={this.props.id}>
                 <PanelHeader 
-                    left={<PanelHeaderBack onClick={() => this.props.this.goBack()} />}>
+                    left={<PanelHeaderBack onClick={() => window.history.back()} />}>
                 </PanelHeader>
                 <div className="Achives_Block">
                     <img src="https://vk.com/images/blog/about/img_about_2_2x.png" alt={'Дракон'} />

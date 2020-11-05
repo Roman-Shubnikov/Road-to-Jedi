@@ -3,7 +3,7 @@
 // ini_set('error_reporting', E_ALL);
 // ini_set('display_errors', 1);
 // ini_set('display_startup_errors', 1);
-// mysqli_report(MYSQLI_REPORT_ALL); 
+// mysqli_report(MYSQLI_REPORT_STRICT); 
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -35,6 +35,7 @@ require 'vkapi.php';
 // set_exception_handler( 'exceptionerror' );
 
 require 'api/api/users.php';
+require 'api/api/account.php';
 require 'api/api/tickets.php';
 require 'api/api/notifications.php';
 
@@ -81,6 +82,33 @@ $params = [
 			'type' => 'int',
 			'required' => true
 		]
+	],
+	'account.getVerfStatus' => [],
+	'account.sendRequestVerf' => [
+		'title' => [
+			'type' => 'string',
+			'required' => true
+		],
+		'description' => [
+			'type' => 'string',
+			'required' => true
+		],
+		'phone_number' => [
+			'type' => 'int',
+			'required' => true
+		],
+		'phone_sign' => [
+			'type' => 'string',
+			'required' => true
+		],
+		'cond1' => [
+			'type' => 'int',
+			'required' => true
+		],
+		'cond2' => [
+			'type' => 'int',
+			'required' => true
+		],
 	],
 	'account.changeScheme' => [
 		'scheme' => [
@@ -369,19 +397,20 @@ if ( !isset( $params[$method] ) ) {
 Utils::checkParams($params[$method]);
 
 $users = new Users( $user_id );
+$account = new Account( $users );
 $tickets = new Tickets( $users );
 $notifications = new Notifications( $users );
 
 switch ( $method ) {
 	case 'account.delete':
-		Show::response( $users->deleteAccount());
+		Show::response( $account->deleteAccount());
 
 	case 'account.setAge':
 		$age = $_REQUEST['age'];
 		if($age < 10 || $age > 100){
 			Show::error(1009);
 		}
-		Show::response( $users->ChangeAge($age));
+		Show::response( $account->ChangeAge($age));
 
 	case 'account.get':
 		Show::response( $users->getMy() );
@@ -391,12 +420,12 @@ switch ( $method ) {
 		if(!in_array($scheme, [0,1,2])){
 			Show::error(1010);
 		}
-		Show::response( $users->changeScheme($scheme) );
+		Show::response( $account->changeScheme($scheme) );
 	
 	case 'account.Flash':
 		$agent_id = $_REQUEST['agent_id'];
 		$give = (bool)$_REQUEST['give'];
-		Show::response( $users->Prometay($agent_id, $give) );
+		Show::response( $account->Prometay($agent_id, $give) );
 
 	case 'account.ban':
 		$agent_id = $_REQUEST['agent_id'];
@@ -405,8 +434,32 @@ switch ( $method ) {
 		}
 		$banned = (bool) $_REQUEST['banned'];
 		$ban_reason = (string) $_REQUEST['reason'];
-		Show::response( $users->Ban_User( $agent_id, $banned, $ban_reason ) );
-	
+		Show::response( $account->Ban_User( $agent_id, $banned, $ban_reason ) );
+
+	case 'account.getVerfStatus':
+		Show::response( $account->getVerfStatus() );
+
+	case 'account.sendRequestVerf':
+		$title = (string) $_REQUEST['title'];
+		$desc = (string) $_REQUEST['description'];
+		$number = (int) $_REQUEST['phone_number'];
+		$sign_number = (string) $_REQUEST['phone_sign'];
+		$conditions = (bool)$_REQUEST['cond1'] && (bool)$_REQUEST['cond2'];
+		if(mb_strlen($title) > 5 && mb_strlen($desc) > 10){
+			if($conditions){
+				$sign_num_construct = CONFIG::APP_ID . CONFIG::SECRET_KEY . $user_id . 'phone_number' . $number;
+				$shasignature = rtrim(strtr(base64_encode(hash('sha256', $sign_num_construct, true)), '+/', '-_'), '=');
+				if($sign_number === $shasignature){
+					Show::response( $account->NewRequestVerf($title, $desc,$number) );
+				}else{
+					Show::error(1102);
+				}
+			}else{
+				Show::error(1101);
+			}
+		}else{
+			Show::error(1100);
+		}
 	case 'user.getById':
 		$id = (int) $_GET['id'];
 		Show::response( $users->getById( $id ) );
@@ -445,8 +498,8 @@ switch ( $method ) {
 
 	case 'ticket.getMessages':
 		$id = (int) $_GET['ticket_id'];
-		$offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
-		$count = $_GET['count'] ?? CONFIG::ITEMS_PER_PAGE;
+		$offset = 0;
+		$count = 1000;
 
 		Show::response( $tickets->getMessages( $id, $offset, $count ) );
 
@@ -547,7 +600,7 @@ switch ( $method ) {
 	case 'shop.changeId':
 		$id = $_REQUEST['change_id'];
 		$user_id = $_GET['vk_user_id'];
-		$len = strlen($id);
+		$len = mb_strlen($id);
 		if( $len < 11 && $len > 0 ) {
 			$balance_profile = getBalance();
 			if( $balance_profile >= 200 ) {
@@ -617,7 +670,7 @@ switch ( $method ) {
 
 	case 'shop.changeAvatar':
 		$id = $_REQUEST['avatar_id'];
-		if( $id <= 24 && $id > 0 ) {
+		if( $id <= 17 && $id > 0 ) {
 			$balance = getBalance();
 			$user_id = $_GET['vk_user_id'];
 			if( $balance >= 300 ) {

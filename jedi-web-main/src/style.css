@@ -1,0 +1,277 @@
+input {
+    outline: none;
+}
+
+.all_wrapper {
+    width: 100%;
+    min-height: 100vh;
+    background: #FFFFFF;
+}
+
+.header {
+    display: flex;
+    position: absolute;
+    width: 100%;
+    height: 68px;
+
+    background: #FFFFFF;
+    box-shadow: 0px 2.77778px 61.8056px rgba(0, 0, 0, 0.11);
+    border-radius: 0px 0px 6.94444px 6.94444px;
+}
+
+.header_titles {
+    display: flex;
+}
+
+.header_title:hover {
+    cursor: pointer;
+}
+
+.header_title {
+    text-align: center;
+    min-width: 70px;
+    margin-left: 40px;
+    margin-top: 23px;
+
+    font-weight: 500;
+    font-size: 16.585px;
+    line-height: 19px;
+
+    letter-spacing: -0.207312px;
+}
+
+.select_title {
+    height: 5px;
+
+    margin-top: 21px;
+    background: #87A9FF;
+    border-radius: 13.8889px;
+}
+
+.header_buttons {
+    width: auto;
+    position: absolute;
+    display: flex;
+    
+    right: 0;
+}
+
+.header_button {
+    width: 40px;
+    height: 40px;
+
+    margin-left: 17px;
+    margin-top: 13px;
+    border-radius: 50%;
+    background-color: #EFEFEF;
+}
+
+.header_icon {
+    position: absolute;
+
+    padding: 9.75px;
+}
+
+.header_icon:hover, .header_dropdown:hover {
+    color: #3F8AE0;
+    cursor: pointer;
+}
+
+.header_profile {
+    margin-top: 13px;
+    display: flex;
+
+    padding-left: 38px;
+}
+
+.header_dropdown {
+    margin-top: 16.5px;
+
+    margin-left: 12.5px;
+    margin-right: 38px;
+    color: #B1B1B1;
+}
+
+.header_dropdown_open {
+    transform: rotate(180deg);
+}
+
+.header_image, .header_image img {
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+}
+
+.header_profile_open {
+    display: none;
+    align-items: center;
+    background: #FFFFFF;
+    box-shadow: 0px 0px 51.6px rgba(0, 0, 0, 0.14);
+    border-radius: 10.4px;
+
+    position: absolute;
+    right: 10px;
+    top: 83px;
+    z-index: 5;
+
+    width: 237.12px;
+    height: 114px;
+}
+
+.header_profile_open_title {
+    padding: 13px 0px 14px 29px;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 16px;
+    letter-spacing: -0.157445px;
+
+    color: #000000;
+}
+
+.header_profile_open_title:hover {
+    background: rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+}
+
+.avatars {
+    font-weight: 500;
+    font-size: 20.6354px;
+    line-height: 24px;
+    letter-spacing: -0.257943px;
+    margin-left: 30px;
+    margin-top: 50px;
+
+    color: #000000;
+}
+
+.header_notification {
+    z-index: 100;
+    position: absolute;
+    min-width: 329px;
+    width: 35%;
+
+    min-height: 115px;
+    max-height: 476.16px;
+    right: 200px;
+    top: 82.83px;
+
+    background: #FFFFFF;
+    box-shadow: 0px 0px 84.4911px rgba(0, 0, 0, 0.14);
+    border-radius: 17.0292px;
+}
+
+.noti_title {
+    font-weight: bold;
+    font-size: 15.7193px;
+    line-height: 37px;
+    letter-spacing: -0.740977px;
+    margin: 13px 24px;
+
+    color: #000000;
+}
+
+.noti_wrapper {
+    width: 100%;
+}
+
+.noti_wrapper:hover {
+    cursor: pointer;
+}
+
+.noti_near_wrapp {
+    display: flex;
+    width: 90%;
+
+    margin: auto;
+}
+
+.noti_near_wrapp img {
+    width: 39px;
+    height: 39px;
+
+    border-radius: 50%;
+
+    margin-right: 15px;
+    margin-bottom: 13px;
+}
+
+.title_noti, .description_noti {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.title_noti:hover, .description_noti:hover {
+    color: #3F8AE0
+}
+
+.title_noti {
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 16px;
+    letter-spacing: -0.173916px;
+    
+    color: #000000;    
+}
+
+.description_noti {
+    margin-top: 3px;
+    font-weight: normal;
+    font-size: 11px;
+    line-height: 13px;
+    letter-spacing: -0.129857px;
+
+    color: #000000;
+}
+
+.titles_wrapper_noti {
+    width: 80%;
+
+    margin-top: 3px;
+}
+
+.all_wrapp_noti {
+    overflow-y: scroll;
+
+    max-height: 413.5px;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+
+.custom_snackbar {
+    z-index: 10;
+    transform: translate(300px, 0px);
+    transition: 1s;
+    position: fixed;
+    top: 80px;
+    right: 10px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+
+    background: #FFFFFF;
+    box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.08);
+    border-radius: 9px;
+
+    font-weight: 500;
+    font-size: 11px;
+    line-height: 13px;
+}
+
+.custom_snackbar_wrapp {
+    display: flex;
+    padding: 0 24px;
+}
+
+.custom_snackbar img {
+    width: 14px;
+    height: 14px;
+
+    margin-right: 10px;
+    border-radius: 50%;
+}

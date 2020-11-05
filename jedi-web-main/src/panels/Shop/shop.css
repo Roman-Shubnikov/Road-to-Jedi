@@ -1,0 +1,187 @@
+.wrapper_shop {
+    width: 100%;
+
+    background: #fff;
+}
+
+.wrapper_functions {
+    width: 100%;
+
+    padding-top: 43px;
+    margin: auto;
+    display: flex;
+}
+
+.wrapper_change_number {
+    width: 30%;
+    margin-left: 35px;
+    position: relative;
+
+    background: #73A2FF;
+}
+
+.wrapper_change_number, .wrapper_send_money {
+    border-radius: 16px;
+    height: 233px;
+    margin: auto;
+}
+
+.wrapper_send_money {
+    width: 58%;
+    max-width: 600px;
+
+    background: #65DC86;
+    background-repeat: no-repeat;
+    background-image: url('https://sun9-62.userapi.com/c854528/v854528765/2456cd/ODPANgfKgok.jpg');
+}
+
+.wrapper_change_number-input {
+    width: 100%;
+    text-align: center;
+    margin-top: 35px;
+}
+
+.wrapper_change_number-input input {
+    border-radius: 7px;
+
+    font-size: 13.4024px;
+    line-height: 15px;
+    letter-spacing: -0.16753px;
+
+    color: #fff;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.wrapper_change_number-input button, .wrapper_change_number-input input {
+    border: 0;
+    width: 80%;
+    
+    padding: 13px;
+
+    font-style: normal;
+    font-weight: 500;
+
+}
+
+.wrapper_change_number-input button {
+    margin-top: 22px;
+
+    color: #73A2FF;
+
+}
+
+.wrapper_change_number-input button, .send_money_inputs button {
+    width: 90%;
+    background: #fff;
+    border: 0;
+    font-style: normal;
+    font-weight: 500;
+    padding: 13px;
+    text-align: center;
+    font-size: 16.4029px;
+    line-height: 19px;
+    letter-spacing: -0.205036px;
+
+    border-radius: 7px;
+} 
+
+.wrapper_change_number-input button:active, .send_money_inputs button:active  {
+    opacity: 0.8;
+}  
+
+.wrapper_change_number-input button:hover, .send_money_inputs button:hover  {
+    box-shadow: 0px 2.86252px 15.7439px rgba(0, 0, 0, 0.11);
+}  
+
+.wrapper_change_number-input span {
+    opacity: 0.3;
+}
+
+.wrapper_change_number input::placeholder, .send_money_inputs input::placeholder { 
+    color: rgba(255, 255, 255, 0.62);
+}
+
+.wrapper_change_number h2 {
+    font-weight: 500;
+    font-size: 21.7315px;
+    line-height: 25px;
+
+    margin-top: 41.5px;
+    text-align: center;
+    letter-spacing: -0.271644px;
+
+    color: #FFFFFF;
+}
+
+.wrapper_send_money {
+    display: flex;
+}
+
+.send_money_title {
+    height: 233.76px;
+    width: 50%;
+
+    font-style: normal;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 23px;
+    display: flex;
+    align-items: center;
+    letter-spacing: -0.333143px;
+
+    color: #FFFFFF;
+
+    padding: 0 33px;
+}
+
+.send_money_inputs {
+    width: 50%;
+    margin: auto;
+}
+
+.send_money_inputs input {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 7.17055px;
+    margin-bottom: 13px;
+    padding: 13px;
+    width: 80%;
+    color: #fff;
+
+    border: 0;
+} 
+
+.send_money_inputs button {
+    margin-top: 20px;
+    color: #7CDB97;
+} 
+
+.wrapper_avatars {
+    height: auto;
+    width: 95%;
+    margin: auto;
+}
+
+.wrapper_avatars img {
+    width: 127px;
+    height: 127px;
+
+    background: rgba(0, 29, 61, 0.08);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+    border-radius: 50%;
+
+    margin-left: 25px;
+    margin-right: 20px;
+    margin-top: 15px;
+    cursor: pointer;
+}
+
+.header_balance {
+    margin-top: 25px;
+    margin-right: 20px;
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 16px;
+    letter-spacing: -0.16753px;
+
+    color: #818181;
+}

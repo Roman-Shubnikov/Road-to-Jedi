@@ -30,17 +30,22 @@ import MYQuest from './panels/AllQuestions';
 import Settings from './panels/settings';
 import SchemeChange from './panels/schemechange';
 import Info from './panels/info'
+import Verfy from './panels/verfy'
 import Tiket from '../../components/tiket';
 import OtherProfile from '../../components/other_profile'
+
+//Импортируем модальные карточки
+import ModalPrometay from '../../Modals/Prometay';
+import ModalDonut from '../../Modals/Donut'
 
 import Icon24Dismiss from '@vkontakte/icons/dist/24/dismiss';
 import Icon24Qr from '@vkontakte/icons/dist/24/qr';
 import Icon28MessagesOutline from '@vkontakte/icons/dist/28/messages_outline';
 import Icon24Linked from '@vkontakte/icons/dist/24/linked';
-import Icon56FireOutline from '@vkontakte/icons/dist/56/fire_outline';
 import Icon56MoneyTransferOutline from '@vkontakte/icons/dist/56/money_transfer_outline'
 import Icon20PlaceOutline from '@vkontakte/icons/dist/20/place_outline';
 import Icon20Stars from '@vkontakte/icons/dist/20/stars';
+
 
 // const queryString = require('query-string');
 // const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
@@ -86,6 +91,7 @@ export default class Main extends React.Component {
             money_transfer_count: null,
             AgeUser: 0,
             snackbar: null,
+            myQuestions:[],
         }
         this.changeData = this.props.this.changeData;
         this.playAudio = this.props.this.playAudio;
@@ -93,6 +99,27 @@ export default class Main extends React.Component {
         this.ChangeData = this.props.this.changeData;
         this.setPopout = (value) => {
           this.setState({popout: value})
+        }
+        this.myQuestions = () => {
+          fetch(this.state.api_url + "method=tickets.getByModeratorAnswers&" + window.location.search.replace('?', ''))
+            .then(res => res.json())
+            .then(data => {
+              if(data.result) {
+                this.setState({myQuestions: data.response})
+                setTimeout(() => {
+                    this.setState({fetching: false});
+              }, 500)
+                
+              }
+            })
+            .catch(err => {
+              this.props.this.showErrorAlert()
+    
+            })
+        }
+        this.handlePopstate = (e) => {
+          e.preventDefault();
+          this.goBack()
         }
         this.setSnack = (value) => {
           this.setState({snackbar: value})
@@ -121,21 +148,24 @@ export default class Main extends React.Component {
               bridge.send("VKWebAppClose", {"status": "success"});
           } else if (history.length > 1) {
               history.pop()
-              this.setState({activePanel: history[history.length - 1]})
-              if(history[history.length - 1] === 'ticket'){
-                this.changeData('need_epic', false)
-              } else{
-                this.changeData('need_epic', true)
-              }
+              this.setState({activePanel: history[history.length - 1], snackbar: null})
+              // if(history[history.length - 1] === 'ticket'){
+              //   this.changeData('need_epic', false)
+              // } else{
+              //   this.changeData('need_epic', true)
+              // }
           }
       }
         this.goPanel = (panel) => {
-          this.setState({history: [...this.state.history, panel], activePanel: panel})
-          if(panel === 'ticket'){
-            this.changeData('need_epic', false)
-          } else{
-            this.changeData('need_epic', true)
-          }
+          let history = this.state.history.slice();
+          history.push(panel)
+          window.history.pushState( { panel: panel }, panel );
+          this.setState({history: history, activePanel: panel, snackbar: null})
+          // if(panel === 'ticket'){
+          //   this.changeData('need_epic', false)
+          // } else{
+          //   this.changeData('need_epic', true)
+          // }
         }
         this.setActiveModal = (activeModal) => {
             activeModal = activeModal || null;
@@ -232,6 +262,13 @@ export default class Main extends React.Component {
         }
       })
     }
+    componentDidMount(){
+      window.addEventListener('popstate', this.handlePopstate); 
+      this.myQuestions();
+    }
+    componentWillUnmount(){
+      window.removeEventListener('popstate', this.handlePopstate)
+    }
     render() {
         const modal = (
             <ModalRoot
@@ -268,20 +305,17 @@ export default class Main extends React.Component {
                     before={<Icon20Stars />}>Сменить тему</Button>
                   </Div>
                 </ModalPage>
-              <ModalCard
-                id={'prom'}
-                onClose={() => this.setActiveModal(null)}
-                icon={<Icon56FireOutline style={{color: "var(--prom_icon)"}} width={72} height={72} />}
-                caption="Прометей — особенный значок, выдаваемый агентам за хорошее качество ответов."
-                actions={[{
-                  title: 'Класс!',
-                  mode: 'secondary',
-                  action: () => {
-                    this.setActiveModal(null);
-                  }
-                }
-                ]}
-              />
+
+              <ModalPrometay
+              id='prom'
+              onClose={() => this.setActiveModal(null)}
+              action={() => this.setActiveModal(null)} />
+
+              <ModalDonut
+              id='donut'
+              onClose={() => this.setActiveModal(null)}
+              action={() => this.setActiveModal(null)} />
+
               <ModalCard
                 id='ban_user'
                 onClose={() => this.setActiveModal(null)}
@@ -397,12 +431,13 @@ export default class Main extends React.Component {
             >
 
               <Prof id="profile" this={this} account={this.props.account} />
-              <MYQuest id="qu" this={this} account={this.props.account} /> 
+              <MYQuest id="qu" this={this} account={this.props.account} myQuestions={this.state.myQuestions} /> 
               <Market id="market" this={this} account={this.props.account} />
               <Achievements id="achievements" this={this} account={this.props.account} />
               <Settings id="settings" this={this} account={this.props.account} />
               <SchemeChange id="schemechange" this={this} account={this.props.account} />
               <Info id='info' this={this} />
+              <Verfy id='verf' this={this} account={this.props.account} />
               <Tiket id="ticket" this={this} ticket_id={this.state.ticket_id} account={this.props.account} />
               <OtherProfile id="other_profile" this={this} agent_id={this.state.active_other_profile} account={this.props.account}/>
             </View>   

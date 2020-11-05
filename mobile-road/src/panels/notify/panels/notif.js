@@ -9,6 +9,7 @@ import {
     PullToRefresh,
     PanelSpinner,
     SimpleCell,
+    PanelHeaderBack,
     } from '@vkontakte/vkui';
 
 import Icon56NotificationOutline from '@vkontakte/icons/dist/56/notification_outline';
@@ -92,7 +93,8 @@ export default class ReaderNotif extends React.Component {
             var props = this.props.this; // для более удобного использования.
             return (
                 <Panel id={this.props.id}>
-                <PanelHeader>
+                <PanelHeader
+                left={<PanelHeaderBack onClick={() => {this.props.this.changeData("activeStory", 'profile');}} />}>
                 Уведомления
                 </PanelHeader>
                 <><PullToRefresh onRefresh={() => {this.setState({fetching: true});this.getNotif()}} isFetching={this.state.fetching}>

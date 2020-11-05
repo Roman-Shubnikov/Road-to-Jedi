@@ -2,14 +2,25 @@ import React from 'react';
 import { 
   Panel,
   PanelHeader,
+  Div,
   Avatar,
   Separator,
   PullToRefresh,
   SimpleCell,
+  PanelSpinner,
+  FormStatus,
+  ScreenSpinner,
+
   } from '@vkontakte/vkui';
 
 import Icon16Fire from '@vkontakte/icons/dist/16/fire';
 import Icon16Verified from '@vkontakte/icons/dist/16/verified';
+import Icon16StarCircleFillYellow from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
+// import Icon28SyncOutline from '@vkontakte/icons/dist/28/sync_outline';
+
+
+// const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+
 
     class Reader extends React.Component {
         constructor(props) {
@@ -17,45 +28,47 @@ import Icon16Verified from '@vkontakte/icons/dist/16/verified';
             this.state = {
               api_url: "https://xelene.ru/road/php/index.php?",
               fetching: false,
-              top_agents: null,
             }
             var propsbi = this.props.this;
             this.setPopout = propsbi.setPopout;
             this.showErrorAlert = propsbi.showErrorAlert;
             this.setActiveModal = propsbi.setActiveModal;
         }
-        getTopUsers(){
-          fetch(this.state.api_url + "method=users.getTop&" + window.location.search.replace('?', ''))
-          .then(res => res.json())
-          .then(data => {
-            if(data.result) {
-              this.setState({top_agents: data.response})
-              setTimeout(() => {
-                this.setState({fetching: false});
-              }, 500)
-            }
-          })
-          .catch(err => {
-            this.showErrorAlert(err)
-
-          })
+        Prepare_top(needPopout=false) {
+          if(needPopout){
+            this.setPopout(<ScreenSpinner />)
+          }
+          this.props.this.getTopUsers()
+          setTimeout(() => {
+            this.setState({fetching: false});
+            if(needPopout){
+              this.setPopout(null)
+          }
+          }, 500)
         }
         componentDidMount(){
-          this.getTopUsers()
+          // this.Prepare_top()
         }
         render() {
             var props = this.props.this; // для более удобного использования.
             return (
                 <Panel id={this.props.id}>
-                <PanelHeader>
+                <PanelHeader
+                // left={platformname ? null : <PanelHeaderButton onClick={() => this.Prepare_top(true)}><Icon28SyncOutline/></PanelHeaderButton>}
+                >
                 Топ
-                </PanelHeader>              
-                <><PullToRefresh onRefresh={() => {this.setState({fetching: true});this.getTopUsers()}} isFetching={this.state.fetching}>
-                  {this.state.top_agents ? this.state.top_agents.map((result, i) => 
+                </PanelHeader>
+                <Div>
+                    <FormStatus header="Внимание! Важная информация" mode="default">
+                    Сервис не имеет отношения к Администрации Вконтакте, а так же их разработкам.
+                    </FormStatus>
+                </Div>
+                <><PullToRefresh onRefresh={() => {this.setState({fetching: true});this.Prepare_top()}} isFetching={this.state.fetching}>
+                  {this.props.top_agents ? this.props.top_agents.map((result, i) => 
                     result['banned'] ? null :
                     <React.Fragment key={result.id}>
                     <SimpleCell
-                      onClick={() => props.goOtherProfile(result['id'], true)}
+                      onClick={() => {props.goOtherProfile(result['id'], true);this.setState({top_agents: null});}}
                       description={
                         <div className="top_moderator_desc">
                         {result['good_answers'] +  " хороших ответов, " + result['bad_answers'] + " плохих ответов"}
@@ -69,6 +82,9 @@ import Icon16Verified from '@vkontakte/icons/dist/16/verified';
                     <div className="top_moderator_name_icon">
                       {result['flash'] === true ? <Icon16Fire width={12} height={12} onClick={() => this.setActiveModal('prom')} className="top_moderator_name_icon"/> : null}
                     </div>
+                    <div className="top_moderator_name_icon">
+                      {result['donut'] === true ? <Icon16StarCircleFillYellow width={12} height={12} className="top_moderator_name_icon" onClick={() => this.setActiveModal('donut')} /> : null}
+                    </div>
                     <div className="top_moderator_name_icon_ver">
                       {result['verified'] === true ? <Icon16Verified className="top_moderator_name_icon_ver"/>  : null }
                     </div>
@@ -76,7 +92,7 @@ import Icon16Verified from '@vkontakte/icons/dist/16/verified';
                   </SimpleCell>
                  <Separator/>
                  </React.Fragment>
-                  ) : null}
+                  ) : <PanelSpinner />}
                 </PullToRefresh></>
             </Panel>
             )

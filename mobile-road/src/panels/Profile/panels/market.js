@@ -2,7 +2,6 @@ import React from 'react';
 import { 
     Panel,
     PanelHeader,
-    ScreenSpinner,
     Group,
     Input,
     Avatar,
@@ -38,13 +37,13 @@ var avatars = [
     "15.png",
     "16.png",
     "17.png",
-    "18.png",
-    "19.png",
-    "20.png",
-    "21.png",
-    "22.png",
-    "23.png",
-    "24.png",
+    // "18.png",
+    // "19.png",
+    // "20.png",
+    // "21.png",
+    // "22.png",
+    // "23.png",
+    // "24.png",
     // "25.png",
     // "26.png",
 
@@ -104,6 +103,9 @@ export default class Market extends React.Component{
         fetch(this.state.api_url + "method=shop.changeAvatar&avatar_id=" + last_selected + "&" + window.location.search.replace('?', ''))
         .then(data => data.json())
         .then(data => {
+          let last_image = document.getElementById(this.state.last_selected)
+          last_image.className = "changes_avatars"
+          this.setState({last_selected: null})
               if(data.result){
                   this.props.this.setSnack( 
                     <Snackbar
@@ -119,23 +121,23 @@ export default class Market extends React.Component{
                     this.props.this.ReloadProfile();
                   }, 4000)
                 }else{
-                  this.setState({snackbar: 
+                  this.props.this.setSnack(
                     <Snackbar
                     layout="vertical"
                     onClose={() => this.props.this.setSnack(null)}
                     before={<Icon20CancelCircleFillRed width={24} height={24} />}
                   >
                     {data.error.message}
-                  </Snackbar>});
+                  </Snackbar>);
                 }
             })
             .catch(err => {
                 this.showErrorAlert(err)
         })
+        
     }
     ChangeId() {
         if(this.state.changed_id){ 
-          this.setPopout(<ScreenSpinner/>)
           fetch(this.state.api_url + "method=shop.changeId&change_id=" + this.state.changed_id + "&" + window.location.search.replace('?', ''))
           .then(res => res.json())
           .then(data => {
@@ -149,12 +151,18 @@ export default class Market extends React.Component{
                   id Агента успешно сменен
                 </Snackbar>
               )
-              this.setPopout(null)
               setTimeout(() => {
                 this.props.this.ReloadProfile();
               }, 4000)
             } else {
-                this.showErrorAlert(data.error.message)
+              this.props.this.setSnack(
+                <Snackbar
+                layout="vertical"
+                onClose={() => this.props.this.setSnack(null)}
+                before={<Icon20CancelCircleFillRed width={24} height={24} />}
+              >
+                {data.error.message}
+              </Snackbar>);
             }
           })
           .catch(err => {
@@ -177,7 +185,7 @@ export default class Market extends React.Component{
             <Panel id={this.props.id}>
                 <PanelHeader 
                     left={
-                        <PanelHeaderBack onClick={() => this.props.this.goBack()} /> 
+                        <PanelHeaderBack onClick={() => window.history.back()} /> 
                 }>
                     Магазин
                 </PanelHeader>
@@ -186,7 +194,7 @@ export default class Market extends React.Component{
                             {this.images()}
                         </div>
                         <Div>
-                            <Button onClick={() => {this.changeAvatar(Number(this.state.last_selected) + 1);this.setState({last_selected: null});this.props.this.goBack() }} 
+                            <Button onClick={() => {this.changeAvatar(Number(this.state.last_selected) + 1)}} 
                             before={<Icon28MoneyCircleOutline 
                             style={{marginRight: "5px"}}/>} 
                             size="xl" 
@@ -194,11 +202,11 @@ export default class Market extends React.Component{
                             disabled={(this.state.last_selected !== null) ? false : true}>Сменить за 300 монеток</Button>
                         </Div>
                 </Group>
-                <Group separator="hide" header={<Header>Сменить id агента</Header>}>
+                <Group separator="hide" header={<Header>Сменить свой ник</Header>}>
                     <Div>
                         <Input placeholder="Введите желаемый ник (макс. 10 символов)" onChange={(e) => this.onChange(e)} value={this.state.changed_id} maxLength="10" name="changed_id"/>
                         <br/>
-                        <Button onClick={() => {this.ChangeId(this.state.changed_id);this.props.this.goBack()}} 
+                        <Button onClick={() => {this.ChangeId(this.state.changed_id)}} 
                         before={<Icon24Repeat width={28} height={28} style={{marginRight: "5px"}}/>}
                         size="xl" 
                         mode="secondary"

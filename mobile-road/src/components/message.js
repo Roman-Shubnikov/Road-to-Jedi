@@ -11,7 +11,10 @@ const Message = props => (
         <div className="mine_message">
             <div id="animation" className="message_report_moderator" style={{marginBottom: props.approved ? "20px" : null, right: platformname ? "-12%" : "-22%"}}>
                 <div onClick={() => props.onClick()}>
-                    <p className="moderator_name_message">{props.title} {props.approved ? '✔️' : ''}</p>
+                    <p className="moderator_name_message">
+                        {props.title} 
+                        {/* {props.approved ? '✔️' : ''} */}
+                    </p>
                     <p className="text_message">{props.children}</p>
                     
                 </div>

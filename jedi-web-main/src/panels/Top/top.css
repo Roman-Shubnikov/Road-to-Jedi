@@ -1,0 +1,22 @@
+.wrapper_top_owner {
+    width: 100%;
+    height: auto;
+}
+
+.wrapper_my_top {
+    padding-top: 34px;
+    width: 91.6%;
+    margin: auto;
+}
+
+.wrapper_others {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.wrapper_other_owner {
+    width: 91.6%;
+    box-shadow: 0px 0px 211px rgba(0, 0, 0, 0.11);
+    border-radius: 10px 10px 0 0;
+    margin: auto;
+}

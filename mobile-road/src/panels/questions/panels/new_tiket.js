@@ -94,7 +94,7 @@ export default class NewTicket extends React.Component {
                 <Panel id={this.props.id}>
                 <PanelHeader 
                     left={
-                    <PanelHeaderButton onClick={() => this.props.this.goBack()}> 
+                    <PanelHeaderButton onClick={() => window.history.back()}> 
                     <Icon24BrowserBack/>
                     </PanelHeaderButton>
                     }>

@@ -26,7 +26,7 @@ export default class Info extends React.Component{
             <Panel id={this.props.id}>
                 <PanelHeader 
                     left={
-                    <PanelHeaderBack onClick={() => this.props.this.goBack()} /> 
+                    <PanelHeaderBack onClick={() => window.history.back()} /> 
                     }>
                     О сервисе
                 </PanelHeader>

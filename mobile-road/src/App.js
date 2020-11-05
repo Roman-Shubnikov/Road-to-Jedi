@@ -129,11 +129,16 @@ class App extends React.Component {
           console.log('closing...')
         }
 			  if (type === 'VKWebAppUpdateConfig') {
-          this.setState({scheme: data.scheme})
+          if(this.state.account){
+            let change = (Number(this.state.account.scheme) === 1) ? 'bright_light' : 'space_gray';
+            this.setState({scheme: change})
+          }else{
+            this.setState({scheme: data.scheme})
+          }
+          
 
-            }
+          }
         })
-        window.addEventListener('popstate', e => e.preventDefault() & this.goBack(e)); 
         fetch(this.state.api_url + "method=account.get&" + window.location.search.replace('?', ''))
         .then(res => res.json())
         .then(data => {
@@ -226,59 +231,63 @@ class App extends React.Component {
     render() {
         return(
             <ConfigProvider isWebView={platformname} scheme={this.state.scheme}> 
-            <Epic activeStory={this.state.activeStory}
-            tabbar={
-                this.state.need_epic &&
-                <Tabbar>
-                  <TabbarItem
-                    onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
-                    selected={this.state.activeStory === 'questions'}
-                    data-story="questions"
-                    text='Вопросы'
-                  ><Icon28ArticleOutline/></TabbarItem>
-                  <TabbarItem
-                    onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
-                    selected={this.state.activeStory === 'top'}
-                    data-story="top"
-                    text='Топ'
-                  ><Icon28FavoriteOutline /></TabbarItem>
-                  <TabbarItem
-                    onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
-                    selected={this.state.activeStory === 'profile'}
-                    data-story="profile"
-                    text='Профиль'
-                  ><Icon28Profile /></TabbarItem>
-                </Tabbar>
-              }>
-              <Questions 
-              id='questions'
-              this={this}
-              reloadProfile={this.LoadProfile}
-              account={this.state.account}
-              popout={this.state.popout} />
+              <Epic activeStory={this.state.activeStory}
+              tabbar={
+                  this.state.need_epic &&
+                  <Tabbar>
+                    <TabbarItem
+                      onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
+                      selected={this.state.activeStory === 'questions'}
+                      data-story="questions"
+                      text='Вопросы'
+                    ><Icon28ArticleOutline/></TabbarItem>
+                    <TabbarItem
+                      onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
+                      selected={this.state.activeStory === 'top'}
+                      data-story="top"
+                      text='Топ'
+                    ><Icon28FavoriteOutline /></TabbarItem>
+                    <TabbarItem
+                      onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
+                      selected={this.state.activeStory === 'profile'}
+                      data-story="profile"
+                      text='Профиль'
+                    ><Icon28Profile /></TabbarItem>
+                  </Tabbar>
+                }>
+                <Questions 
+                id='questions'
+                this={this}
+                scheme={this.state.scheme}
+                reloadProfile={this.LoadProfile}
+                account={this.state.account}
+                popout={this.state.popout} />
 
-              <Top 
-              id='top'
-              this={this}
-              account={this.state.account}
-              popout={this.state.popout} />
+                <Top 
+                id='top'
+                this={this}
+                scheme={this.state.scheme}
+                account={this.state.account}
+                popout={this.state.popout} />
 
-              <Notification 
-              id="notif"
-              this={this}
-              reloadProfile={this.LoadProfile}
-              account={this.state.account}
-              popout={this.state.popout}
-              />
+                <Notification 
+                id="notif"
+                this={this}
+                scheme={this.state.scheme}
+                reloadProfile={this.LoadProfile}
+                account={this.state.account}
+                popout={this.state.popout}
+                />
 
-              <Profile 
-              id="profile"
-              this={this}
-              reloadProfile={this.LoadProfile}
-              account={this.state.account}
-              popout={this.state.popout} />
-              
-            </Epic>
+                <Profile 
+                id="profile"
+                this={this}
+                reloadProfile={this.LoadProfile}
+                scheme={this.state.scheme}
+                account={this.state.account}
+                popout={this.state.popout} />
+                
+              </Epic>
             </ConfigProvider>
         );
     }

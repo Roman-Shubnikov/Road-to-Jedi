@@ -9,18 +9,19 @@ import {
     Alert,
     Counter,
     SimpleCell,
-    Snackbar,
     PanelHeaderBack,
     CellButton,
     } from '@vkontakte/vkui';
+
+import {platform, IOS} from '@vkontakte/vkui';
 
 import Icon28DoneOutline from '@vkontakte/icons/dist/28/done_outline';
 import Icon28CoinsOutline from '@vkontakte/icons/dist/28/coins_outline';
 import Icon28DeleteOutline from '@vkontakte/icons/dist/28/delete_outline';
 import Icon28PaletteOutline from '@vkontakte/icons/dist/28/palette_outline';
-import Icon20CancelCircleFillRed from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
 import Icon28TargetOutline from '@vkontakte/icons/dist/28/target_outline';
 import Icon28InfoOutline from '@vkontakte/icons/dist/28/info_outline';
+import Icon28FavoriteOutline from '@vkontakte/icons/dist/28/favorite_outline';
 
 
 export default class Settings extends React.Component{
@@ -56,14 +57,16 @@ export default class Settings extends React.Component{
 
       })
     }
-
+    nofinc(){
+      return
+    }
     render() {
         var props = this.props.this;
         return(
             <Panel id={this.props.id}>
                 <PanelHeader 
                     left={
-                        <PanelHeaderBack onClick={() => this.props.this.goBack()} /> 
+                        <PanelHeaderBack onClick={() => window.history.back()} /> 
                 }>
                     Настройки
                 </PanelHeader>
@@ -80,21 +83,27 @@ export default class Settings extends React.Component{
                   expandable
                   onClick={() => props.goPanel('schemechange')}>Смена темы</SimpleCell>
                   <SimpleCell
-                  onClick={() => this.props.this.setSnack(
-                    <Snackbar
-                    layout="vertical"
-                    onClose={() => this.props.this.setSnack(null)}
-                    before={<Icon20CancelCircleFillRed width={24} height={24} />}
-                  >
-                    Данный раздел ещё не готов для просмотра. Он стесняется :)
-                  </Snackbar>)}
+                  indicator={this.props.account['verified'] ? 'Присвоен' : null}
+                  disabled={this.props.account['verified']}
+                  expandable={!this.props.account['verified']}
+                  onClick={!this.props.account['verified'] ? () => props.goPanel('verf') : () => this.nofinc()}
                   before={<Icon28DoneOutline />}>Верификация</SimpleCell>
+
+                  
                 </Group>
                 <Group>
                   <SimpleCell
                   disabled
                   indicator={<Counter>{this.props.account.balance}</Counter>}
                   before={<Icon28CoinsOutline />}>Баланс</SimpleCell>
+                  
+                  {(platform() !== IOS) ? <SimpleCell
+                  expandable
+                  href="https://vk.com/jedi_road?source=description&w=donut_payment-188280516"
+                  target="_blank" rel="noopener noreferrer"
+                  before={<Icon28FavoriteOutline/>}>VK Donut</SimpleCell> : null}
+                </Group>
+                <Group>
                   <SimpleCell
                   expandable
                   onClick={() => {
@@ -129,3 +138,11 @@ export default class Settings extends React.Component{
         )
     }
 }
+// this.props.this.setSnack(
+//   <Snackbar
+//   layout="vertical"
+//   onClose={() => this.props.this.setSnack(null)}
+//   before={<Icon20CancelCircleFillRed width={24} height={24} />}
+// >
+//   Данный раздел ещё не готов для просмотра. Он стесняется :)
+// </Snackbar>)

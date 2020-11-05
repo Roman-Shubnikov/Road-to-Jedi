@@ -51,23 +51,7 @@ export default class myQuestions extends React.Component {
                 search: '',
                 limiter: 20
             }
-            this.myQuestions = () => {
-                fetch(this.state.api_url + "method=tickets.getByModeratorAnswers&" + window.location.search.replace('?', ''))
-                  .then(res => res.json())
-                  .then(data => {
-                    if(data.result) {
-                      this.setState({myQuestions: data.response})
-                      setTimeout(() => {
-                          this.setState({fetching: false});
-                    }, 500)
-                      
-                    }
-                  })
-                  .catch(err => {
-                    this.props.this.showErrorAlert()
-          
-                  })
-              }
+            
         }
         getFiltresQuestions(questions){
             if(this.state.activeTab === 'positive'){
@@ -84,19 +68,25 @@ export default class myQuestions extends React.Component {
         limiter(questions){
             return questions.slice(0, this.state.limiter)
         }
+        prepare_questions(){
+            this.props.this.myQuestions()
+            setTimeout(() => {
+                this.setState({ fetching: false });
+              }, 500);
+        }
         componentDidMount(){
-            this.myQuestions()
+            // this.prepare_questions()
         }
 
         render() {
             var props = this.props.this; // для более удобного использования.
-            var questions = this.getFiltresQuestions(this.state.myQuestions);
+            var questions = this.getFiltresQuestions(this.props.myQuestions);
             var searched = this.getFilterSearch(questions);
             var limiter_search = this.limiter(searched);
             return (
                 <Panel id={this.props.id}>
             <PanelHeader separator={false}
-                left={<PanelHeaderBack onClick={() => this.props.this.goBack()} />}
+                left={<PanelHeaderBack onClick={() => window.history.back()} />}
             >
                 Мои ответы
                 </PanelHeader>
@@ -118,7 +108,7 @@ export default class myQuestions extends React.Component {
                     Отрицательные
                 </TabsItem>
                 </Tabs>
-                <PullToRefresh onRefresh={() => {this.setState({fetching: true});this.myQuestions()}} isFetching={this.state.fetching}>
+                <PullToRefresh onRefresh={() => {this.setState({fetching: true});this.prepare_questions()}} isFetching={this.state.fetching}>
                     {questions.length > 0 ?
                     searched.length > 0 ?
                     <>

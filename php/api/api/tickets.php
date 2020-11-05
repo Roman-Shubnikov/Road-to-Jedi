@@ -261,6 +261,8 @@ class Tickets {
 		} else {
 			if(!$this->user->info['special']){
 				$cond = "AND (messages.author_id = $author_ticket OR messages.author_id = $viewer OR messages.approved = 1)";
+			}else{
+				$cond = "AND (messages.mark=-1 or messages.mark=1 or messages.author_id = $viewer)";
 			}
 			
 		}

@@ -10,8 +10,7 @@ import {
     ScreenSpinner,
     ActionSheet,
     ActionSheetItem,
-    Textarea,
-    PanelHeaderBack
+    PanelHeaderBack,
     } from '@vkontakte/vkui';
 
 import Icon24Up from '@vkontakte/icons/dist/24/up';
@@ -55,7 +54,7 @@ export default class Ticket extends React.Component {
         super(props);
         this.state = {
             api_url: "https://xelene.ru/road/php/index.php?",
-            tiket_info: [],
+            tiket_info: null,
             tiket_message: [],
             tiket_send_message: '',
             add_comment: false,
@@ -245,20 +244,29 @@ export default class Ticket extends React.Component {
           xhr.onreadystatechange = () => {
             if(xhr.status === 4) return;
             if ( xhr.status === 200 ) {
-              fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
-              .then(res => res.json())
-              .then(data => {
-                if(data.result) {
-                  this.setState({tiket_message: data.response, tiket_send_message: "",add_comment: false, redaction: false})
-                  this.setPopout(null)
-                }else {
-                  this.showErrorAlert(data.error.message)
-                }
-              })
-              .catch(err => {
-                this.showErrorAlert(err)
-  
-              })
+              setTimeout(() => {
+                fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
+                .then(res => res.json())
+                .then(data => {
+                  if(data.result) {
+                    this.setState({tiket_message: data.response, tiket_send_message: "",add_comment: false, redaction: false})
+                    this.setPopout(null)
+                    setTimeout(() => {
+                      this.setState({tiket_send_message: "."})
+                    }, 1000)
+                    setTimeout(() => {
+                      this.setState({tiket_send_message: ""})
+                    }, 1000)
+                  }else {
+                    this.showErrorAlert(data.error.message)
+                  }
+                })
+                .catch(err => {
+                  this.showErrorAlert(err)
+    
+                })
+              }, 500)
+              
             }
           }
           
@@ -266,8 +274,6 @@ export default class Ticket extends React.Component {
       
           xhr.onerror = ( error ) => {
             this.showErrorAlert(error)
-  
-            console.error( error );
           }
         } else {
             // this.showErrorAlert("Текст сообщения должен быть минимум из 5 символов.")
@@ -378,8 +384,9 @@ export default class Ticket extends React.Component {
               .then(res => res.json())
               .then(data => {
                 if(data.result) {
-                  this.setState({tiket_message: data.response, tiket_send_message: "", add_comment: false, redaction: false})
+                  this.setState({tiket_message: data.response, tiket_send_message: " ", add_comment: false, redaction: false})
                   this.setPopout(null)
+                  this.setState({tiket_send_message: ""})
                 }else {
                   this.showErrorAlert(data.error.message)
                 }
@@ -394,8 +401,6 @@ export default class Ticket extends React.Component {
       
           xhr.onerror = ( error ) => {
             this.showErrorAlert(error)
-  
-            console.error( error );
           }
         } else {
             this.showErrorAlert("Текст сообщения должен быть минимум из 5 символов.")
@@ -415,12 +420,13 @@ export default class Ticket extends React.Component {
           xhr.onreadystatechange = () => {
             if(xhr.status === 4) return;
             if ( xhr.status === 200 ) {
-              console.log(xhr.responseText)
               fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
               .then(res => res.json())
               .then(data => {
                 if(data.result) {
-                  this.setState({tiket_message: data.response, tiket_send_message: "",add_comment: false, redaction: false})
+                  this.setState({tiket_message: data.response, tiket_send_message: " ",add_comment: false, redaction: false})
+                  this.setPopout(null)
+                  this.setState({tiket_send_message: ""})
                 }else{
                   this.showErrorAlert(data.error.message)
                 }
@@ -453,14 +459,15 @@ export default class Ticket extends React.Component {
         return(
         <Panel id={this.props.id}>
             <PanelHeader 
-                left={<PanelHeaderBack onClick={() => this.props.this.goBack()} />}
+                left={<PanelHeaderBack onClick={() => window.history.back()} />}
             >
-                <span id="animation" onClick={() => this.copy(this.state.tiket_info['id'])}>Вопрос #{this.state.tiket_info['id']}</span>
+                {this.state.tiket_info ? <span id="animation" onClick={() => this.copy(this.state.tiket_info['id'])}>Вопрос #{this.state.tiket_info['id']}</span> : null}
             </PanelHeader>
             {/* MESSAGES */}
+            {this.state.tiket_info ? <>
             <div className="title_tiket">{new Date(this.state.tiket_info['time'] * 1e3).getDate()} {add_month(this.state.tiket_info['time'])}</div>
             <div className="title_tiket" style={{marginTop: "10px", width: "95%", marginLeft: "10px"}}>Пользователь обратился с вопросом  «{this.state.tiket_info['title']}»</div>
-                    {this.state.tiket_message ? this.state.tiket_message.map(function(result, i) {
+                    <>{this.state.tiket_message ? this.state.tiket_message.map(function(result, i) {
                         var is_mine_ticket = Number(thisOb.state.tiket_info.author['id']) === Number(parsedHash.vk_user_id) ? true : false
 
 
@@ -509,6 +516,8 @@ export default class Ticket extends React.Component {
                                 {result.text}
                             </Message>
                         )}) : null}
+                        <div style={{marginBottom: '10vh'}}></div>
+                      </>
             {/* INPUT */}
             {this.state.tiket_info['status'] === 0 || (this.state.redaction === true || this.state.add_comment === true) ? 
                 //  <div id="other" className="other">
@@ -519,20 +528,23 @@ export default class Ticket extends React.Component {
                 //         <Icon24Up style={{color: (this.state.tiket_send_message.length > 5) ? "var(--dynamic_green)" : "var(--dynamic_orange)"}} />
                 //     </div>
                 // </div>
-                <Div className="message_sending">
-                    <Textarea 
-                    maxLength="2020" 
-                    value={this.state.tiket_send_message}
-                    name="tiket_send_message"
+                <FixedLayout vertical='bottom'>
+                  <Div className="message_sending">
+                    <textarea maxLength="2020" 
+                    name="tiket_send_message" 
+                    value={this.state.tiket_send_message} 
                     onChange={(e) => this.onChange(e)} 
-                    placeholder={this.state.add_comment ? "Комментарий... (Не менее 6 символов)" : "Ответ... (Не менее 6 символов)"}
-                    style={{width: platformname ? "82%" : "85%"}}></Textarea>
-                    <div className="send_text" 
+                    placeholder={this.state.add_comment ? "Ваш комментарий..." : "Ваше сообщение..."} 
+                    className="textarea"
+                    style={{width: platformname ? '80%' : '85%'}}></textarea>
+                    <div className="send_text"
                     onClick={() => {(this.state.tiket_send_message.length > 5) ? this.state.redaction !== true && this.state.add_comment !== true ? this.sendNewMessage() : this.state.redaction ? this.sendNewMessageRedact() : this.sendNewMessageComment() : this.nofinc()}}
                     style={{background: (this.state.tiket_send_message.length > 5) ? "var(--button_send)" : "#98A0AD"}} >
                         <Icon24Up width={30} height={30} />
                     </div>
-                </Div>
+                  </Div>
+                </FixedLayout>
+                
                  : null}
             {this.state.tiket_info['status'] === 1 ? 
                 Number(this.state.tiket_info['author']['id']) === Number(parsedHash.vk_user_id) ?
@@ -546,10 +558,7 @@ export default class Ticket extends React.Component {
                         
                     </div>
                 : null
-            : null}
-                <br/>
-                <br/>
-                <br/>
+            : null}</> : null}
             </Panel>
         )
     }

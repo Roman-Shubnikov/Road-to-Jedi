@@ -11,16 +11,21 @@ import {
     Counter,
     SimpleCell,
     Div,
+    FixedLayout,
+    FormStatus,
     } from '@vkontakte/vkui';
 
 import Icon12Fire from '@vkontakte/icons/dist/12/fire';
 import Icon16Verified from '@vkontakte/icons/dist/16/verified';
-import Icon28GhostOutline from '@vkontakte/icons/dist/28/ghost_outline';
 import Icon28PollSquareOutline from '@vkontakte/icons/dist/28/poll_square_outline';
 import Icon28MarketOutline from '@vkontakte/icons/dist/28/market_outline';
-import Icon28PaletteOutline from '@vkontakte/icons/dist/28/palette_outline';
+// import Icon28PaletteOutline from '@vkontakte/icons/dist/28/palette_outline';
 import Icon28Notifications from '@vkontakte/icons/dist/28/notifications';
-import Icon28QrCodeOutline from '@vkontakte/icons/dist/28/qr_code_outline';
+// import Icon24NotificationSubtractOutline from '@vkontakte/icons/dist/24/notification_subtract_outline';
+import Icon28ShareExternalOutline from '@vkontakte/icons/dist/28/share_external_outline';
+import Icon16StarCircleFillYellow from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
+import Icon28Messages from '@vkontakte/icons/dist/28/messages';
+
 
 
 export default class Profile extends React.Component{
@@ -44,7 +49,7 @@ export default class Profile extends React.Component{
                 left={<><PanelHeaderButton onClick={() => {
                     this.setActiveModal("share");
                 }}>
-                        <Icon28QrCodeOutline />
+                        <Icon28ShareExternalOutline />
                     </PanelHeaderButton>
                     <PanelHeaderButton label={this.props.account.notif_count ? <Counter size="s" mode="prominent">{this.props.account.notif_count}</Counter> : null}
                     onClick={() => {
@@ -52,6 +57,14 @@ export default class Profile extends React.Component{
                     }}>
                         <Icon28Notifications/>
                     </PanelHeaderButton></>}>Профиль</PanelHeader>
+                    <FixedLayout vertical='bottom'>
+                        <Div>
+                            <FormStatus header="Внимание! Важная информация" mode="default">
+                            Сервис не имеет отношения к Администрации Вконтакте, а так же их разработкам.
+                            </FormStatus>
+                        </Div>
+                        
+                    </FixedLayout>
                     <SimpleCell
                     disabled
                     before={<Avatar src={this.props.account['avatar']['url']} size={72} />}
@@ -62,17 +75,21 @@ export default class Profile extends React.Component{
                             <p style={{margin:0}}>
                                 {isFinite(this.props.account['nickname']) ? `Агент Поддержки` : this.props.account['nickname'] ? this.props.account['nickname'] : `Агент Поддержки`}
                             </p> 
-                            {
-                                this.props.account['flash'] === true ? 
+                            {this.props.account['flash'] === true ? 
                                     <div className="profile_icon">
                                         <Icon12Fire width={12} height={12} onClick={() => props.setActiveModal('prom')}/>  
                                     </div>
                                     : null}
-                                {this.props.account['verified'] === true ? 
-                                    <div className="profile_icon_ver">
-                                        <Icon16Verified />  
-                                    </div>
-                                    : null}
+                            {this.props.account['donut'] === true ? 
+                                <div className="profile_icon">
+                                    <Icon16StarCircleFillYellow width={12} height={12} onClick={() => props.setActiveModal('donut')} />  
+                                </div>
+                                : null}
+                            {this.props.account['verified'] === true ? 
+                                <div className="profile_icon_ver">
+                                    <Icon16Verified />  
+                                </div>
+                                : null}
                         </div>
                         
                     </SimpleCell>
@@ -90,10 +107,10 @@ export default class Profile extends React.Component{
                     <Group>
                         <SimpleCell
                             expandable
-                            href="https://vk.me/join/AJQ1dxm7YRd7rN/MQHaAtZx7"
+                            href="https://vk.me/join/zyWQzsgQ9iw6V2YAfbwiGtuO883rnYhXwAY="
                             target="_blank" rel="noopener noreferrer"
-                            before={<Icon28GhostOutline />}>
-                                Фантом-чат
+                            before={<Icon28Messages />}>
+                                Чат
                         </SimpleCell>
 
                     </Group>
@@ -111,13 +128,13 @@ export default class Profile extends React.Component{
                         }}
                         before={<Icon28MarketOutline />}>Магазин</SimpleCell>
                         {/* props.this.state.profile['balance'] Вынести отдельно в магазин */}
-
+                        {/* 
                         <SimpleCell
                         expandable
                         onClick={() => {
                             this.props.this.goPanel('achievements');
                         }}
-                        before={<Icon28PaletteOutline />}>Достижения</SimpleCell>
+                        before={<Icon28PaletteOutline />}>Достижения</SimpleCell> */}
                         {/* <SimpleCell
                         expandable
                         onClick={() => {

@@ -6,6 +6,9 @@ import {
     PanelHeader,
     PanelHeaderButton,
     Group,
+    Div,
+    FormStatus,
+    FixedLayout,
     Avatar,
     Separator,
     Counter,
@@ -23,6 +26,7 @@ import Icon28InfoOutline from '@vkontakte/icons/dist/28/info_outline';
 import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
 import Icon16Fire from '@vkontakte/icons/dist/16/fire';
 import Icon16Verified from '@vkontakte/icons/dist/16/verified';
+import Icon16StarCircleFillYellow from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
 
 function fix_time(time) {
     if(time < 10) {
@@ -155,18 +159,26 @@ function fix_time(time) {
                 <Panel id={this.props.id}>
                 <PanelHeader 
                     left={
-                        <PanelHeaderButton onClick={() => this.props.this.goBack()}>
+                        <PanelHeaderButton onClick={() => window.history.back()}>
 
                     <Icon24BrowserBack/>
                     </PanelHeaderButton>
                     }>
                         <span onClick={() => this.copy(this.state.other_profile['id'], this.state.other_profile['flash'])}>Профиль</span>
                 </PanelHeader>
+                <FixedLayout vertical='bottom'>
+                    <Div>
+                        <FormStatus header="Внимание! Важная информация" mode="default">
+                        Сервис не имеет отношения к Администрации Вконтакте, а так же их разработкам.
+                        </FormStatus>
+                    </Div>
+                    
+                </FixedLayout>
                 {this.state.other_profile ? <>
                 <Cell
                   description={
                       <div className="description_other_profile">
-                     {this.state.other_profile['online']['is_online'] === true ? "online" : new Date(this.state.other_profile['online']['last_seen'] * 1e3).getDate() + " " + this.please_Month(new Date(this.state.other_profile['registered'] * 1e3).getMonth() + 1) + " "  + new Date(this.state.other_profile['online']['last_seen'] * 1e3).getFullYear() + " в " 
+                     {this.state.other_profile['online']['is_online'] === true ? "online" : new Date(this.state.other_profile['online']['last_seen'] * 1e3).getDate() + " " + this.please_Month(new Date(this.state.other_profile['online']['last_seen'] * 1e3).getMonth()) + " "  + new Date(this.state.other_profile['online']['last_seen'] * 1e3).getFullYear() + " в " 
                   + fix_time(new Date(this.state.other_profile['online']['last_seen'] * 1e3).getHours()) + ":" + fix_time(new Date(this.state.other_profile['online']['last_seen'] * 1e3).getMinutes())}
                   </div>
                 }
@@ -178,6 +190,11 @@ function fix_time(time) {
                     {this.state.other_profile['flash'] === true ? 
                     <div className="profile_moderator_name_icon">
                         <Icon16Fire width={12} height={12} style={{color: "var(--prom_icon)"}} onClick={() => props.setActiveModal('prom')} />  
+                    </div>
+                    : null}
+                    {this.state.other_profile['donut'] === true ?
+                    <div className="profile_moderator_name_icon">
+                        <Icon16StarCircleFillYellow width={12} height={12} onClick={() => props.setActiveModal('donut')} />  
                     </div>
                     : null}
                     {this.state.other_profile['verified'] === true ?
@@ -193,7 +210,7 @@ function fix_time(time) {
                     <SimpleCell 
                         disabled
                         before={<Icon28RecentOutline />}
-                        indicator={new Date(this.state.other_profile.registered * 1e3).getDate() + " " + this.please_Month(new Date(this.state.other_profile['registered'] * 1e3).getMonth() + 1) + " " + new Date(this.state.other_profile.registered * 1e3).getFullYear()}>
+                        indicator={new Date(this.state.other_profile.registered * 1e3).getDate() + " " + this.please_Month(new Date(this.state.other_profile['registered'] * 1e3).getMonth()) + " " + new Date(this.state.other_profile.registered * 1e3).getFullYear()}>
                             Дата регистрации
                     </SimpleCell>
                     <SimpleCell 
@@ -216,8 +233,8 @@ function fix_time(time) {
                     </SimpleCell>
                 </Group>}
                 <Separator />
-                <div style={{marginTop: "20px"}} className="help_title_profile">В недалеком будущем здесь что-то будет.</div>
-                <div className="help_title_profile">Ждем вместе с вами!</div>
+                {/* <div style={{marginTop: "20px"}} className="help_title_profile">В недалеком будущем здесь что-то будет.</div>
+                <div className="help_title_profile">Ждем вместе с вами!</div> */}
                 </> : null}
             </Panel>
             )

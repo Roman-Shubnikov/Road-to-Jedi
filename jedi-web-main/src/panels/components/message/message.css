@@ -1,0 +1,92 @@
+.all_message_wrapp {
+    width: 100%; height: auto;
+    padding-bottom: 30px;
+    position: relative;
+}
+
+.message_avatar, .message_avatar img {
+    background: rgba(0, 29, 61, 0.08);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+    width: 33px; height: 33px;
+    border-radius: 50%;
+}
+
+.message_avatar a {
+    cursor: pointer;
+}
+
+.message_wrapp, .message_comment_icon, .message_mark {
+    background: #F4F4F4;
+}
+
+.message_wrapp {
+    width: 100%; height: auto;
+    padding: 20px 26px;
+    margin-left: 18.5px;
+    border-radius: 15px;
+}
+
+.message_title {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 21px;
+}
+
+.message_text {
+    white-space: pre-wrap;
+    font-size: 15px;
+}
+
+.message_time {
+    margin-top: 11.5px;
+    font-weight: 600;
+    font-size: 14px;
+
+    color: #CBCBCB;
+}
+
+.message_down_box {
+    height: 40px;
+    margin-top: 10px;
+    margin-left: 50px;
+    display: flex;
+}
+
+.message_comment_icon {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+}
+
+.message_comment_icon {
+    display: flex;
+    align-items: center;
+}
+
+.comment_icon {
+    margin: auto;
+    color: #4B4B4B;
+}
+
+.comment_icon:hover {
+    cursor: pointer;
+    color: #3F8AE0;
+}
+
+.message_mark {
+    background: #F4F4F4;
+    border-radius: 86px;
+
+    padding: 12.5px 29px;
+}
+
+.wrapp_box_down {
+    display: flex;
+    position: absolute;
+    right: 0;
+}
+
+.delete_mark {
+    cursor: pointer;
+    margin-right: 15px;
+    color: #E64646;
+}

@@ -28,45 +28,7 @@ class Users {
 			// throw new Exception( ERRORS[5] . $this->info['ban_reason'], 5 );
 		}
 	}
-	public function ChangeAge($age) {
-		$aid = $this->id;
-
-		$data = [
-			'age' => $age
-		];
-		return db_edit( $data, "id = $aid", 'users' );
-	}
-	public function ChangeScheme($scheme) {
-		$aid = $this->id;
-
-		$data = [
-			'scheme' => $scheme
-		];
-		return db_edit( $data, "id = $aid", 'users' );
-	}
-	public function deleteAccount() {
-		$aid = $this->id;
-		return db_del("id = $aid", 'users' );
-	}
-	public function Ban_User($agent_id, $ban=FALSE, $ban_reason=NULL){
-		if ( !$this->info['special'] ) {
-			Show::error(403);
-		}
-		$data = [
-			'banned' => (int) $ban,
-			'ban_reason' => (string)$ban_reason,
-		];
-		return db_edit( $data, "id = $agent_id", 'users' );
-	}
-	public function Prometay($agent_id, $give=TRUE){
-		if ( !$this->info['special'] ) {
-			Show::error(403);
-		}
-		$data = [
-			'flash' => (int) $give,
-		];
-		return db_edit( $data, "id = $agent_id", 'users' );
-	}
+	
 	public function getMy() {
 		$info = $this->info;
 		$info['is_first_start'] = $this->is_first_start;
@@ -79,8 +41,8 @@ class Users {
 
 	public function getById( int $id ) {
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,
-						users.bad_answers, users.total_answers, users.avatar_id,  users.noti, users.money,users.age,
-						avatars.name as avatar_name, users.flash, users.verified, users.nickname, users.banned, users.ban_reason
+						users.bad_answers, users.total_answers, users.avatar_id,  users.noti, users.money,users.age,users.scheme,
+						avatars.name as avatar_name, users.flash, users.verified, users.donut, users.nickname, users.banned, users.ban_reason
 				FROM users
 				LEFT JOIN avatars
 				ON users.avatar_id = avatars.id
@@ -110,8 +72,8 @@ class Users {
 		$result = [];
 
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,
-						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age,
-						avatars.name as avatar_name, users.money, users.flash, users.verified, users.nickname, users.banned, users.ban_reason
+						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme,
+						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.nickname, users.banned, users.ban_reason
 				FROM users
 				LEFT JOIN avatars
 				ON users.avatar_id = avatars.id
@@ -161,7 +123,7 @@ class Users {
 		$sql = "UPDATE users SET last_activity = $time WHERE vk_user_id = $user_id;
 				SELECT users.id, users.last_activity, users.registered, users.good_answers,users.age,
 						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.banned, users.noti, users.scheme,
-						users.special, users.banned, users.ban_reason, users.flash, users.verified, users.nickname,avatars.name as avatar_name
+						users.special, users.banned, users.ban_reason, users.flash, users.verified,users.donut,users.nickname,avatars.name as avatar_name
 				FROM users
 				LEFT JOIN avatars
 				ON users.avatar_id = avatars.id
@@ -221,6 +183,7 @@ class Users {
 				'registered' => (int) $data['registered'],
 				'flash' => (bool) $data['flash'],
 				'verified' => (bool) $data['verified'],
+				'donut' => (bool) $data['donut'],
 				'balance' => (float) $data['money'],
 				'scheme' => (int) $data['scheme'],
 				'age' => (int) $data['age'],

@@ -18,7 +18,10 @@ import Notif from './panels/notif';
 import Tiket from '../../components/tiket';
 import OtherProfile from '../../components/other_profile'
 
-import Icon56FireOutline from '@vkontakte/icons/dist/56/fire_outline';
+//Импортируем модальные карточки
+import ModalPrometay from '../../Modals/Prometay';
+import ModalDonut from '../../Modals/Donut'
+
 
 // const queryString = require('query-string');
 // const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
@@ -56,7 +59,10 @@ export default class Notify extends React.Component {
         this.setPopout = (value) => {
           this.setState({popout: value})
         }
-        
+        this.handlePopstate = (e) => {
+          e.preventDefault();
+          this.goBack()
+        }
         this.goTiket = (id) => {
           this.setPopout(<ScreenSpinner/>)
           this.setState({ticket_id: id})
@@ -90,20 +96,23 @@ export default class Notify extends React.Component {
           } else if (history.length > 1) {
               history.pop()
               this.setState({activePanel: history[history.length - 1]})
-              if(history[history.length - 1] === 'ticket'){
-                this.changeData('need_epic', false)
-              } else{
-                this.changeData('need_epic', true)
-              }
+              // if(history[history.length - 1] === 'ticket'){
+              //   this.changeData('need_epic', false)
+              // } else{
+              //   this.changeData('need_epic', true)
+              // }
           }
       }
         this.goPanel = (panel) => {
-          this.setState({history: [...this.state.history, panel], activePanel: panel})
-          if(panel === 'ticket'){
-            this.changeData('need_epic', false)
-          } else{
-            this.changeData('need_epic', true)
-          }
+          let history = this.state.history.slice();
+          history.push(panel)
+          window.history.pushState( { panel: panel }, panel );
+          this.setState({history: history, activePanel: panel})
+          // if(panel === 'ticket'){
+          //   this.changeData('need_epic', false)
+          // } else{
+          //   this.changeData('need_epic', true)
+          // }
         }
         this.setActiveModal = (activeModal) => {
             activeModal = activeModal || null;
@@ -169,25 +178,26 @@ export default class Notify extends React.Component {
         this.showErrorAlert()
       })
     }
+    componentDidMount(){
+      window.addEventListener('popstate', this.handlePopstate); 
+    }
+    componentWillUnmount(){
+      window.removeEventListener('popstate', this.handlePopstate)
+    }
     render() {
         const modal = (
             <ModalRoot
             activeModal={this.state.activeModal}
             >
-              <ModalCard
-                id={'prom'}
-                onClose={() => this.setActiveModal(null)}
-                icon={<Icon56FireOutline style={{color: "var(--dynamic_red)"}} width={72} height={72} />}
-                caption="Прометей — особенный значок, выдаваемый агентам за хорошее качество ответов."
-                actions={[{
-                  title: 'Класс!',
-                  mode: 'secondary',
-                  action: () => {
-                    this.setActiveModal(null);
-                  }
-                }
-                ]}
-              />
+              <ModalPrometay
+              id='prom'
+              onClose={() => this.setActiveModal(null)}
+              action={() => this.setActiveModal(null)} />
+
+              <ModalDonut
+              id='donut'
+              onClose={() => this.setActiveModal(null)}
+              action={() => this.setActiveModal(null)} />
               <ModalCard
                 id='ban_user'
                 onClose={() => this.setActiveModal(null)}

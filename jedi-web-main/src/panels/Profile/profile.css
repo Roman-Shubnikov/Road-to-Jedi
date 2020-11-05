@@ -1,0 +1,235 @@
+.profile_wrapper {
+    width: 100%;
+}
+
+.profile_avatar {
+    text-align: center;
+}
+
+.profile_avatar img {
+    width: 75px;
+    height: 75px;
+
+    margin-top: 66px;
+}
+
+.profile_title {
+    font-weight: bold;
+    font-size: 24.945px;
+    letter-spacing: -0.242745px;
+
+    color: #000000;
+}
+
+.profile_owner_block {
+    margin: auto;
+    display: flex;
+    
+    width: 85%;
+}
+
+.profile_owner_first {
+    box-shadow: 0px 0px 143.563px rgba(0, 0, 0, 0.11);
+    background: #BDFFB7;
+    border-radius: 9.5px;
+}
+
+.profile_owner_balance_title {
+    margin-top: 53px;
+    font-weight: 500;
+    font-size: 11.5291px;
+    line-height: 19px;
+    text-align: center;
+    letter-spacing: -0.230582px;
+
+    color: #515151;
+}
+
+.profile_owner_balance {
+    font-style: normal;
+    font-weight: 600;
+    font-size: 30.7443px;
+    line-height: 19px;
+    text-align: center;
+    letter-spacing: -0.230582px;
+
+    color: #515151;
+}
+
+.profile_owner_icons {
+    margin: auto;
+    width: 95%;
+
+    display: flex;
+}
+
+.profile_owner_icon:hover {
+    cursor: pointer;
+}
+
+.profile_owner_icon {
+    width: 82.33px;
+    height: 62.6px;
+    margin: auto;
+
+    margin-top: 46px;
+    font-weight: 500;
+    font-size: 9.11191px;
+    line-height: 12px;
+    text-align: center;
+    letter-spacing: -0.273357px;
+
+    color: #515151;
+}
+
+.profile_icon {
+    margin: auto;
+    margin-bottom: 3px;
+
+    color: #515151;
+}
+
+.profile_owner_first, .profile_owner_second {
+    width: 50%;
+    height: 247.66px;
+}
+
+.profile_owner_second {    }
+
+.profile_qr_wrapper {
+    background: #AEDDFF;
+    border-radius: 10.2192px;
+
+    margin-left: 28.5px;
+    height: 117.71px;
+    box-shadow: 0px 0px 143.563px rgba(0, 0, 0, 0.11);
+
+    display: flex;
+    align-items: center;
+}
+
+.profile_money_send_wrapper, .profile_money_achievements_wrapper {
+    border-radius: 10.2192px;
+
+    margin-left: 28.5px;
+    height: 117.71px;
+    box-shadow: 0px 0px 143.563px rgba(0, 0, 0, 0.11);
+}
+
+.profile_money_send_wrapper {
+    background: #BCFEB6;
+}
+
+.profile_money_achievements_wrapper {
+    background: #FFD0D0;
+}
+
+.profile_qr {
+    margin-left: 28px; 
+
+    width: 70px;
+    height: 70px;
+}
+
+.profile_qr_title {
+    margin-left: 40px;
+    font-weight: 600;
+    font-size: 15.7179px;
+    line-height: 19px;
+    letter-spacing: -0.240335px;
+
+    color: #000000;
+}
+
+.up_fix {
+    margin-top: 11.5px;;
+}
+
+.profile_answers {
+    margin-left: 28.5px;
+    margin-top: 11.5px;
+    height: 117.71px;
+
+    display: flex;
+}
+
+.profile_answer, .profile_response {
+    width: 47%;
+    height: 117.71px;
+    border-radius: 10.2192px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+
+    box-shadow: 0px 0px 143.563px rgba(0, 0, 0, 0.11);
+}
+
+.profile_answer {
+    background: #FFDFAE;
+}
+
+.profile_count {
+    font-weight: 600;
+    font-size: 28.6738px;
+    line-height: 37px;
+    letter-spacing: -0.74552px;
+}
+
+.profile_count, .profile_under_count {
+    font-style: normal;
+    text-align: center;
+    color: #000000;
+}
+
+.profile_under_count {
+    font-weight: 500;
+    font-size: 17px;
+    line-height: 23px;
+    letter-spacing: -0.459737px;
+}
+
+.profile_response {
+    margin-left: 28.5px;
+    background: #C8AEFF;
+}
+
+.profile_title_question {
+    font-style: normal;
+    font-weight: bold;
+    font-size: 25px;
+    line-height: 38px;
+    letter-spacing: -0.769737px;
+    margin-left: 40px;
+    margin-top: 50px;
+
+    color: #000000;
+}
+
+.profile_title_question span {
+    opacity: 0.3;
+}
+
+.title_special_profile_wrapp, .desc_special_profile_wrapp {
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 140%;
+    letter-spacing: -0.329373px;
+    padding-left: 21px;
+}
+
+.title_special_profile_wrapp {
+    padding-top: 29px;
+    padding-left: 21px;
+}
+
+.desc_special_profile_wrapp {
+    padding-top: 10px;
+    opacity: 0.55;
+}
+
+.titles_profile {
+    display: flex;
+
+    margin-top: 36px;
+    margin-bottom: 45px;
+}

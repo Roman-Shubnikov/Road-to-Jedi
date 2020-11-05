@@ -60,7 +60,7 @@ export default class SchemeChange extends React.Component{
             <Panel id={this.props.id}>
                 <PanelHeader 
                     left={
-                        <PanelHeaderBack onClick={() => this.props.this.goBack()} /> 
+                        <PanelHeaderBack onClick={() => window.history.back()} /> 
                 }>
                     Смена темы
                 </PanelHeader>

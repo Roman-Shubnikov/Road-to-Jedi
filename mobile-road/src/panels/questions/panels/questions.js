@@ -13,12 +13,15 @@ import {
     Cell,
     Div,
     Banner,
-    Footer
+    Footer,
+    ScreenSpinner
     
     } from '@vkontakte/vkui';
 
 import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
 import Icon28CubeBoxOutline from '@vkontakte/icons/dist/28/cube_box_outline';
+// import Icon28SyncOutline from '@vkontakte/icons/dist/28/sync_outline';
+import Icon24Spinner from '@vkontakte/icons/dist/24/spinner';
 
 import BannerAvatarPC from '../../../images/question_banner_pc.jpg'
 import BannerAvatarMobile from '../../../images/question_banner_mobile.png'
@@ -32,8 +35,6 @@ export default class Questions extends React.Component {
             this.state = {
                 api_url: "https://xelene.ru/road/php/index.php?",
                 fething: false,
-                tiket_all: null,
-                tiket_all_helper: null,
                 offset: 0,
                 ShowBanner: true,
 
@@ -44,34 +45,20 @@ export default class Questions extends React.Component {
             this.setActiveModal = propsbi.setActiveModal;
             this.Prepare_questions = this.Prepare_questions.bind(this);
         }
-        Prepare_questions(need_offset=false){
-            this.setState({ fetching: true });
-            fetch(this.state.api_url + "method=tickets.get&count=20&unanswered=1&offset=" + this.state.offset + "&" + window.location.search.replace('?', ''))
-            .then(res => res.json())
-            .then(data => {
-              if(data.result) {
-                this.setState({tiket_all: []})
-                if(this.state.tiket_all){
-                    var sliyan = data.response ? this.state.tiket_all.concat(data.response) : this.state.tiket_all;
-                }
-                
-                this.setState({tiket_all: sliyan, tiket_all_helper: data.response})
-                if(need_offset){
-                    this.setState({ offset: this.state.offset + 20 })
-                }
-                setTimeout(() => {
-                  this.setState({ fetching: false });
-                }, 500);
-              }else{
-                this.showErrorAlert(data.error.message)
+        Prepare_questions(need_offset=false, needPopout=false){
+            if(needPopout){
+                this.setPopout(<ScreenSpinner />)
             }
-            })
-            .catch(err => {
-              this.showErrorAlert(err)
-            })
+            this.props.this.getQuestions(need_offset)
+            setTimeout(() => {
+                this.setState({ fetching: false });
+                if(needPopout){
+                    this.setPopout(null)
+                }
+              }, 500);
         }
         componentDidMount() {
-            this.Prepare_questions()
+            // this.Prepare_questions()
             setTimeout(() => {
                 if(this.props.account.is_first_start){
                     // this.props.this.playAudio()
@@ -87,7 +74,10 @@ export default class Questions extends React.Component {
             return (
                 <Panel id={this.props.id}> 
                 <PanelHeader
-                left={<PanelHeaderButton onClick={() => this.props.this.getRandomTiket()}><Icon28CubeBoxOutline/></PanelHeaderButton>}
+                left={<>
+                <PanelHeaderButton onClick={() => this.props.this.getRandomTiket()}><Icon28CubeBoxOutline/></PanelHeaderButton>
+                {/* {platformname ? null : <PanelHeaderButton onClick={() => this.Prepare_questions(false, true)}><Icon28SyncOutline/></PanelHeaderButton>} */}
+                </>}
                 >
                 Вопросы
                 </PanelHeader>
@@ -121,11 +111,11 @@ export default class Questions extends React.Component {
                     mode="outline" 
                     stretched>Новый вопрос</Button>
                 </Div> : null}
-                <PullToRefresh onRefresh={this.Prepare_questions} isFetching={this.state.fetching}>
-                    {this.state.tiket_all ? this.state.tiket_all.length > 0 ? this.state.tiket_all.map((result, i) => 
+                <PullToRefresh onRefresh={() => {this.setState({ fetching: true });this.Prepare_questions()}} isFetching={this.state.fetching}>
+                    {this.props.tiket_all ? this.props.tiket_all.length > 0 ? this.props.tiket_all.map((result, i) => 
                     <React.Fragment key={i}>
                         <Cell
-                            onClick={() => props.goTiket(result['id'])}
+                            onClick={() => {this.setState({tiket_all: null});props.goTiket(result['id'])}}
                             description={result['status'] === 0 ? "На рассмотрении" : result['status'] === 1 ? "Есть ответ" : "Закрыт" } 
                             asideContent={<Avatar src={result['author']['id'] === 526444378 ? "https://cdn3.iconfinder.com/data/icons/avatars-15/64/_Ninja-2-512.png" : result['author']['photo_200']} size={56}/>}
                         >
@@ -134,22 +124,28 @@ export default class Questions extends React.Component {
                         </Cell>
                         <Separator style={{width: "90%"}} />
                     </React.Fragment>
-                    ) : null : null}
-                
-                    {this.state.tiket_all_helper ? this.state.tiket_all_helper.length === 20 ? 
-                    <Div>
-                        <Button size="xl" level="secondary" onClick={() => this.Prepare_questions(true)}>Загрузить ещё</Button>
-                    </Div>
-                : this.state.tiket_all ?
-                (this.state.tiket_all.length === 0) ? null : <Footer>{this.state.tiket_all.length} вопрос(а) всего</Footer>
+                    ) : <Placeholder 
+                    icon={<Icon56InboxOutline />}>
+                        Упс, кажется вопросы закончились
+                    </Placeholder>
+                     : <PanelSpinner />}
+                {this.props.tiket_all_helper ? this.props.tiket_all_helper.length === 20 ? 
+                <Div>
+                    <Button size="xl" 
+                    level="secondary" 
+                    before={this.state.fetching ? <Icon24Spinner width={28} height={28} className='Spinner__self' /> : null}
+                    onClick={() => {this.setState({ fetching: true });this.Prepare_questions(true)}}>Загрузить ещё</Button>
+                </Div>
+                : this.props.tiket_all ?
+                (this.props.tiket_all.length === 0) ? null : <Footer>{this.props.tiket_all.length} вопрос(а) всего</Footer>
                  : null :
                 null}
-                {this.state.tiket_all ? this.state.tiket_all.length === 0 ? 
+                {/* {this.state.tiket_all ? this.state.tiket_all.length === 0 ? 
                 <Placeholder 
                 icon={<Icon56InboxOutline />}>
                     Упс, кажется вопросы закончились
                 </Placeholder>
-                : null : <PanelSpinner />}
+                : null : <PanelSpinner />} */}
             </PullToRefresh>
             </Panel>
             )

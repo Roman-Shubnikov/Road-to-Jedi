@@ -1,0 +1,120 @@
+.wrapp_ticket {
+    margin: 47px 40px;
+}
+
+.title_ticket {
+    font-style: normal;
+    font-weight: bold;
+    font-size: 24px;
+    line-height: 29px;
+    letter-spacing: -0.327747px;
+    margin-bottom: 30px;
+
+    color: #000000;
+}
+
+.description_ticket {
+    white-space: pre-wrap;
+    font-size: 15.566px;
+    line-height: 144.69%;
+    letter-spacing: -0.210294px;
+    margin: 19px 0;
+
+    color: #000000;
+}
+
+.user_ticket {
+    padding-top: 10px;
+    display: flex;
+}
+
+.user_ticket img {
+    margin-right: 20px;
+    width: 41px;
+    height: 41px;
+
+    border-radius: 50%;
+}
+
+.user_ticket img:hover, .title_user_ticket:hover, .description_user_ticket:hover {
+    cursor: pointer;
+    color: #3F8AE0;
+}
+
+.title_user_ticket {
+    margin-top: 5px;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 17px;
+    letter-spacing: -0.187699px;
+
+    color: #000000;
+}
+
+.description_user_ticket {
+    margin-top: 3px;
+    font-weight: 500;
+    font-size: 12.0283px;
+    line-height: 14px;
+    letter-spacing: -0.210294px;
+
+    color: #818181;
+}
+
+.response_ticket {
+    margin-top: 60px;
+}
+
+.response_ticket span {
+    opacity: 0.3;
+}
+
+.error {
+    color: #B5B5B5;
+    text-align: center;
+
+    padding-bottom: 20px;
+}
+
+.down_input {
+    display: flex;
+    align-items: center;
+
+    padding-bottom: 20px;
+}
+
+.down_input textarea {
+    font-size: 13;
+    resize: none;
+    outline: none;
+
+    color: #000;
+    padding-top: 12px !important;
+    padding: 0px 26px;
+    width: 100%;
+    border: 0;
+    background: #F4F4F4;
+    border-radius: 231.325px;
+}
+
+.down_input textarea::placeholder {
+    color: #9B9B9B;
+}
+
+.button_down_input {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    width: 40px;
+    height: 34px;
+    margin-left: 17px;
+
+    background: #66A3FF;
+    box-shadow: 0px 2.82967px 58.0082px rgba(102, 163, 255, 0.48);
+    border-radius: 48.1043px;
+}
+
+.button_down_input:hover {
+    cursor: pointer;
+}

@@ -23,13 +23,18 @@ import '../../style.css';
 import Top from './panels/top';
 import OtherProfile from '../../components/other_profile';
 
+//Импортируем модальные карточки
+import ModalPrometay from '../../Modals/Prometay';
+import ModalDonut from '../../Modals/Donut'
+
 import Icon24Dismiss from '@vkontakte/icons/dist/24/dismiss';
-import Icon56FireOutline from '@vkontakte/icons/dist/56/fire_outline';
 import Icon20PlaceOutline from '@vkontakte/icons/dist/20/place_outline';
 import Icon20Stars from '@vkontakte/icons/dist/20/stars';
 
-// const queryString = require('query-string');
 // const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+
+
+// const queryString = require('query-string');
 // const parsedHash = queryString.parse(window.location.search.replace('?', ''));
 // const hash = queryString.parse(window.location.hash);
 
@@ -53,6 +58,7 @@ export default class Main extends React.Component {
               'comment': ''
             },
             AgeUser: 0,
+            top_agents: null,
 
         
 
@@ -63,10 +69,26 @@ export default class Main extends React.Component {
         // this.recordHistory = (panel) => {
         //   this.setState({history: [...this.state.history, panel]})
         // }
+        this.getTopUsers = () => {
+          fetch(this.state.api_url + "method=users.getTop&" + window.location.search.replace('?', ''))
+          .then(res => res.json())
+          .then(data => {
+            if(data.result) {
+              this.setState({top_agents: data.response})
+            }
+          })
+          .catch(err => {
+            this.showErrorAlert(err)
+
+          })
+        }
         this.setPopout = (value) => {
           this.setState({popout: value})
         }
-        
+        this.handlePopstate = (e) => {
+          e.preventDefault();
+          this.goBack()
+        }
         this.goTiket = (id) => {
           this.setPopout(<ScreenSpinner/>)
           this.setState({ticket_id: id})
@@ -92,20 +114,23 @@ export default class Main extends React.Component {
           } else if (history.length > 1) {
               history.pop()
               this.setState({activePanel: history[history.length - 1]})
-              if(history[history.length - 1] === 'ticket'){
-                this.changeData('need_epic', false)
-              } else{
-                this.changeData('need_epic', true)
-              }
+              // if(history[history.length - 1] === 'ticket'){
+              //   this.changeData('need_epic', false)
+              // } else{
+              //   this.changeData('need_epic', true)
+              // }
           }
       }
         this.goPanel = (panel) => {
-          this.setState({history: [...this.state.history, panel], activePanel: panel})
-          if(panel === 'ticket'){
-            this.changeData('need_epic', false)
-          } else{
-            this.changeData('need_epic', true)
-          }
+          let history = this.state.history.slice();
+          history.push(panel)
+          window.history.pushState( { panel: panel }, panel );
+          this.setState({history: history, activePanel: panel})
+          // if(panel === 'ticket'){
+          //   this.changeData('need_epic', false)
+          // } else{
+          //   this.changeData('need_epic', true)
+          // }
         }
         this.setActiveModal = (activeModal) => {
             activeModal = activeModal || null;
@@ -205,6 +230,14 @@ export default class Main extends React.Component {
 
         })
     }
+    
+    componentDidMount(){
+      window.addEventListener('popstate', this.handlePopstate); 
+      this.getTopUsers()
+    }
+    componentWillUnmount(){
+      window.removeEventListener('popstate', this.handlePopstate)
+    }
     render() {
         const modal = (
             <ModalRoot
@@ -241,20 +274,16 @@ export default class Main extends React.Component {
                     before={<Icon20Stars />}>Сменить тему</Button>
                   </Div>
                 </ModalPage>
-              <ModalCard
-                id={'prom'}
-                onClose={() => this.setActiveModal(null)}
-                icon={<Icon56FireOutline style={{color: "var(--prom_icon)"}} width={72} height={72} />}
-                caption="Прометей — особенный значок, выдаваемый агентам за хорошее качество ответов."
-                actions={[{
-                  title: 'Класс!',
-                  mode: 'secondary',
-                  action: () => {
-                    this.setActiveModal(null);
-                  }
-                }
-                ]}
-              />
+              <ModalPrometay
+              id='prom'
+              onClose={() => this.setActiveModal(null)}
+              action={() => this.setActiveModal(null)} />
+
+              <ModalDonut
+              id='donut'
+              onClose={() => this.setActiveModal(null)}
+              action={() => this.setActiveModal(null)} />
+
               <ModalCard
                 id='ban_user'
                 onClose={() => this.setActiveModal(null)}
@@ -300,7 +329,7 @@ export default class Main extends React.Component {
             popout={this.state.popout}
             onSwipeBack={this.goBack}
             >
-              <Top id="top" this={this} account={this.props.account} />
+              <Top id="top" this={this} account={this.props.account} top_agents={this.state.top_agents} />
               <OtherProfile id="other_profile" this={this} agent_id={this.state.active_other_profile} account={this.props.account}/>
             </View>   
         )
