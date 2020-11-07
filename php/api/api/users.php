@@ -143,7 +143,7 @@ class Users {
 		// $res = db_get( $sql );
 		// $avatars_count = $res[0]['count'];
 
-		$avatars_count = 24;
+		$avatars_count = 17;
 
 		$data = [
 			'vk_user_id' => $this->vk_id,

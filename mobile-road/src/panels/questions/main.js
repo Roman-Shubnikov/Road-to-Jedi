@@ -3,13 +3,9 @@ import bridge from '@vkontakte/vk-bridge'; // VK Brige
 
 
 import { 
-  Button,
-  Group,
   Alert,
   Avatar,
-  Separator,
   Header,
-  SimpleCell,
   Div,
   View,
   ScreenSpinner,
@@ -18,9 +14,6 @@ import {
   ModalPage,
   ModalPageHeader,
   Input,
-  FormLayout,
-  FormStatus,
-  Slider,
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
@@ -36,10 +29,6 @@ import ModalPrometay from '../../Modals/Prometay';
 import ModalDonut from '../../Modals/Donut'
 
 import Icon24Dismiss from '@vkontakte/icons/dist/24/dismiss';
-import Icon28FavoriteOutline from '@vkontakte/icons/dist/28/favorite_outline';
-import Icon28CoinsOutline from '@vkontakte/icons/dist/28/coins_outline';
-import Icon28BillheadOutline from '@vkontakte/icons/dist/28/billhead_outline';
-import Icon28FireOutline from '@vkontakte/icons/dist/28/fire_outline';
 
 const queryString = require('query-string');
 // const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
@@ -206,23 +195,7 @@ export default class Main extends React.Component {
           )
         }
     }
-    ChangeAge(age) {
-      this.setState({popout: <ScreenSpinner/>})
-      fetch(this.state.api_url + "method=account.setAge&age=" + age + "&" + window.location.search.replace('?', ''))
-      .then(res => res.json())
-      .then(data => {
-        if(data.result) {
-          this.setState({popout: null})
-          // setTimeout(() => {
-          //   this.playAudio()
-          // }, 5000)
-          
-        }
-      })
-      .catch(err => {
-        this.showErrorAlert(err)
-      })
-    }
+    
     userBan(user_id, text) {
       this.setPopout(<ScreenSpinner/>)
       fetch(this.state.api_url + "method=account.ban&agent_id=" + user_id + "&banned=true&reason=" + text + "&" + window.location.search.replace('?', ''))
@@ -257,6 +230,7 @@ export default class Main extends React.Component {
     }
     componentDidMount(){
       window.addEventListener('popstate', this.handlePopstate); 
+      this.changeData('need_epic', true)
         if(hash.ticket_id !== undefined){
           this.goTiket(hash.ticket_id)
           bridge.send("VKWebAppSetLocation", {"location": ""});
@@ -280,74 +254,7 @@ export default class Main extends React.Component {
         const modal = (
             <ModalRoot
             activeModal={this.state.activeModal}
-            ><ModalPage
-            id="start"
-            onClose={this.modalBack}
-            dynamicContentHeight
-            header={
-              <ModalPageHeader>
-                Добро пожаловать в игру
-              </ModalPageHeader>
-            }>
-              <Div style={{marginTop: 0}}>
-                <img className="AvaModalPage" 
-                src={this.props.account.id !== undefined ? this.props.account.avatar.url : null} 
-                size={70}
-                alt='твоя ава' />
-                  <Header
-                  subtitle='Помните, отвечать нужно вдумчиво.'>Вам присвоен номер #{this.props.account.id !== undefined ? this.props.account.id : "undefined"}</Header>
-                <Separator />
-                <FormLayout>
-                  <FormStatus header="Внимание! Важная информация" mode="error">
-                    Сервис не имеет отношения к Администрации Вконтакте, а так же их разработкам.
-                  </FormStatus>
-                    <Slider
-                      min={10}
-                      max={100}
-                      step={1}
-                      value={this.state.AgeUser}
-                      onChange={e => {
-                        this.setState({AgeUser: e});
-                      }}
-                      top={`Укажите свой возраст: ${this.state.AgeUser}`}
-                    />
-                  </FormLayout>
-                  <Group>
-                    <SimpleCell disabled multiline
-                    before={<Icon28CoinsOutline />}>
-                      Зарабатывай монеты
-                    </SimpleCell>
-                    <SimpleCell disabled multiline
-                    before={<Icon28BillheadOutline />}>
-                      Отвечай на вопросы
-                    </SimpleCell>
-                    <SimpleCell disabled multiline
-                    before={<Icon28FavoriteOutline />}>
-                      Участвуй в рейтинге
-                    </SimpleCell>
-                    <SimpleCell disabled multiline
-                    before={<Icon28FireOutline />}>
-                      Получай отметку огня
-                    </SimpleCell>
-                  </Group>
-                  
-                  <Div>
-                    <Button 
-                    mode="secondary" 
-                    size='xl'
-                    stretched
-                    onClick={() => {
-                      // this.playAudio()
-                      
-                      this.ChangeAge(this.state.AgeUser);
-                      this.setActiveModal(null);
-                      setTimeout(() => {
-                        this.ReloadProfile();
-                      },2000);
-                    }}>Вперёд!</Button>
-                  </Div>
-                </Div>
-            </ModalPage>
+            >
               <ModalPrometay
               id='prom'
               onClose={() => this.setActiveModal(null)}

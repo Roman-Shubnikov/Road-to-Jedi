@@ -290,7 +290,7 @@ class Tickets {
 					'nickname' => $message['nickname'],
 					'avatar' => [
 						'id' => (int) $message['avatar_id'],
-						'url' => $message['avatar_name'] ? CONFIG::AVATAR_PATH . '/' . $message['avatar_name'] : CONFIG::AVATAR_PATH . '/' . rand(1,24) . '.png',
+						'url' => $message['avatar_name'] ? CONFIG::AVATAR_PATH . '/' . $message['avatar_name'] : CONFIG::AVATAR_PATH . '/' . rand(1,17) . '.png',
 					],
 					'is_moderator' => true,
 					'is_special' => (bool) $message['special'],

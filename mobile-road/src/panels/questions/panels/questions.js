@@ -58,14 +58,15 @@ export default class Questions extends React.Component {
               }, 500);
         }
         componentDidMount() {
+            this.setPopout(null)
             // this.Prepare_questions()
-            setTimeout(() => {
-                if(this.props.account.is_first_start){
-                    // this.props.this.playAudio()
-                    this.setActiveModal('start');
-                }
-                this.setPopout(null)
-            }, 1000) //4000
+            // setTimeout(() => {
+            //     if(this.props.account.is_first_start){
+            //         // this.props.this.playAudio()
+            //         this.setActiveModal('start');
+            //     }
+            //     this.setPopout(null)
+            // }, 1000) //4000
         }
 
         render() {

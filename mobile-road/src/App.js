@@ -21,6 +21,7 @@ import Questions from './panels/questions/main'
 import Top from './panels/topUsers/main'
 import Notification from './panels/notify/main'
 import Profile from './panels/Profile/main'
+import Start from './panels/Start/main'
 
 import Icon28Profile from '@vkontakte/icons/dist/28/profile';
 import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
@@ -147,6 +148,9 @@ class App extends React.Component {
             if(Number(this.state.account.scheme) !== 0){
               let change = (Number(this.state.account.scheme) === 1) ? 'bright_light' : 'space_gray';
               this.setState({scheme: change})
+            }
+            if(this.state.account.is_first_start){
+              this.setState({activeStory: 'start'});
             }
           } else {
             this.setState({popout: 
@@ -287,6 +291,13 @@ class App extends React.Component {
                 account={this.state.account}
                 popout={this.state.popout} />
                 
+                <Start 
+                id="start"
+                this={this}
+                reloadProfile={this.LoadProfile}
+                scheme={this.state.scheme}
+                account={this.state.account}
+                popout={this.state.popout} />
               </Epic>
             </ConfigProvider>
         );

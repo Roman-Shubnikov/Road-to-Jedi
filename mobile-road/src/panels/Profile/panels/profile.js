@@ -60,7 +60,7 @@ export default class Profile extends React.Component{
                     <FixedLayout vertical='bottom'>
                         <Div>
                             <FormStatus header="Внимание! Важная информация" mode="default">
-                            Сервис не имеет отношения к Администрации Вконтакте, а так же их разработкам.
+                            Сервис не имеет отношения к Администрации Вконтакте, а также их разработкам.
                             </FormStatus>
                         </Div>
                         

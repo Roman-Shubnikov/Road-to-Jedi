@@ -60,7 +60,7 @@ import Icon16StarCircleFillYellow from '@vkontakte/icons/dist/16/star_circle_fil
                 </PanelHeader>
                 <Div>
                     <FormStatus header="Внимание! Важная информация" mode="default">
-                    Сервис не имеет отношения к Администрации Вконтакте, а так же их разработкам.
+                    Сервис не имеет отношения к Администрации Вконтакте, а также их разработкам.
                     </FormStatus>
                 </Div>
                 <><PullToRefresh onRefresh={() => {this.setState({fetching: true});this.Prepare_top()}} isFetching={this.state.fetching}>
