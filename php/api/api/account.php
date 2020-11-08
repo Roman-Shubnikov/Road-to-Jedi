@@ -54,7 +54,7 @@ class Account {
 		];
 		return db_edit( $data, "id = $agent_id", 'users' );
     }
-    public function NewRequestVerf($title, $desc, $number){
+    public function NewRequestVerf($title, $desc){
 		$aid = $this->user->id;
 		if($this->user->info['verified']){
 			Show::error(1103);
@@ -66,7 +66,7 @@ class Account {
             'aid' => $aid,
             'title' => $title,
             'descverf' => $desc,
-            'number' => $number,
+            // 'number' => $number,
             'time' => time(),
 		];
 		

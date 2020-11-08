@@ -283,7 +283,7 @@
 .send_text {
     padding: 1px;
     margin-left: 2%;
-    margin-top: 0.5%;
+    margin-top: 5%;
     height: 30px;
     width: 30px;
     background: var(--button_send);

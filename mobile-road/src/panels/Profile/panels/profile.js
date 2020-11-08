@@ -57,14 +57,7 @@ export default class Profile extends React.Component{
                     }}>
                         <Icon28Notifications/>
                     </PanelHeaderButton></>}>Профиль</PanelHeader>
-                    <FixedLayout vertical='bottom'>
-                        <Div>
-                            <FormStatus header="Внимание! Важная информация" mode="default">
-                            Сервис не имеет отношения к Администрации Вконтакте, а также их разработкам.
-                            </FormStatus>
-                        </Div>
-                        
-                    </FixedLayout>
+                    
                     <SimpleCell
                     disabled
                     before={<Avatar src={this.props.account['avatar']['url']} size={72} />}
@@ -149,6 +142,11 @@ export default class Profile extends React.Component{
                         before={<Icon24ShareOutline />}>Поделиться профилем</SimpleCell> */}
                         
                     </Group>
+                    <Div>
+                        <FormStatus header="Внимание! Важная информация" mode="default">
+                        Сервис не имеет отношения к Администрации Вконтакте, а также их разработкам.
+                        </FormStatus>
+                    </Div>
                     {/* <Group>
                         <SimpleCell
                         onClick={() => {

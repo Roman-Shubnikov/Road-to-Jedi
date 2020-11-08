@@ -18,6 +18,7 @@ import {
   ModalPageHeader,
   Input,
   List,
+  Snackbar
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
@@ -38,13 +39,14 @@ import OtherProfile from '../../components/other_profile'
 import ModalPrometay from '../../Modals/Prometay';
 import ModalDonut from '../../Modals/Donut'
 
-import Icon24Dismiss from '@vkontakte/icons/dist/24/dismiss';
-import Icon24Qr from '@vkontakte/icons/dist/24/qr';
-import Icon28MessagesOutline from '@vkontakte/icons/dist/28/messages_outline';
-import Icon24Linked from '@vkontakte/icons/dist/24/linked';
+import Icon24Dismiss              from '@vkontakte/icons/dist/24/dismiss';
+import Icon24Qr                   from '@vkontakte/icons/dist/24/qr';
+import Icon28MessagesOutline      from '@vkontakte/icons/dist/28/messages_outline';
+import Icon24Linked               from '@vkontakte/icons/dist/24/linked';
 import Icon56MoneyTransferOutline from '@vkontakte/icons/dist/56/money_transfer_outline'
-import Icon20PlaceOutline from '@vkontakte/icons/dist/20/place_outline';
-import Icon20Stars from '@vkontakte/icons/dist/20/stars';
+import Icon20PlaceOutline         from '@vkontakte/icons/dist/20/place_outline';
+import Icon20Stars                from '@vkontakte/icons/dist/20/stars';
+import Icon16CheckCircle          from '@vkontakte/icons/dist/16/check_circle';
 
 
 // const queryString = require('query-string');
@@ -67,6 +69,9 @@ function qr(agent_id, sheme) {
   })
   )
 }
+const blueBackground = {
+  backgroundColor: 'var(--accent)'
+};
 export default class Main extends React.Component {
     constructor(props) {
         super(props);
@@ -399,8 +404,14 @@ export default class Main extends React.Component {
                 >
                   <List>
                     <Cell onClick={() => this.setActiveModal("qr")} before={<Icon24Qr width={28} height={28}/>}>QR-code</Cell>
-                    <Cell onClick={() => {bridge.send("VKWebAppShare", {"link": "https://vk.com/app7409818#agent_id=" + this.props.account['id']}); this.setActiveModal(null)}} before={<Icon28MessagesOutline width={28} height={28}/>}>В сообщения</Cell>
-                    <Cell onClick={() => {bridge.send("VKWebAppCopyText", {text: "https://vk.com/app7409818#agent_id=" + this.props.account['id']}); this.setActiveModal(null)}} before={<Icon24Linked width={28} height={28}/>}>Скопировать ссылку</Cell>
+                    <Cell onClick={() => {bridge.send("VKWebAppShare", {"link": "https://vk.com/app7409818#agent_id=" + this.props.account['id']}); this.setActiveModal(null);}} before={<Icon28MessagesOutline width={28} height={28}/>}>В сообщения</Cell>
+                    <Cell onClick={() => {bridge.send("VKWebAppCopyText", {text: "https://vk.com/app7409818#agent_id=" + this.props.account['id']}); this.setActiveModal(null);this.setSnack(<Snackbar
+                    layout="vertical"
+                    onClose={() => this.setSnack(null)}
+                    before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                  >
+                    Ссылка скопирована
+                  </Snackbar>);}} before={<Icon24Linked width={28} height={28}/>}>Скопировать ссылку</Cell>
                   </List>
                 </ModalPage>
                 <ModalPage

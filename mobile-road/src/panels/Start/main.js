@@ -10,6 +10,7 @@ import '@vkontakte/vkui/dist/vkui.css';
 import '../../style.css'
 // Импортируем панели
 import Startov from './panels/start';
+import Startov2 from './panels/start2';
 
 export default class Start extends React.Component {
     constructor(props) {
@@ -50,11 +51,6 @@ export default class Start extends React.Component {
           } else if (history.length > 1) {
               history.pop()
               this.setState({activePanel: history[history.length - 1]})
-              if(history[history.length - 1] === 'ticket'){
-                this.changeData('need_epic', false)
-              } else{
-                this.changeData('need_epic', true)
-              }
           }
       }
         this.goPanel = (panel) => {
@@ -116,6 +112,7 @@ export default class Start extends React.Component {
             onSwipeBack={this.goBack}
             >
               <Startov id='start' account={this.props.account} this={this} />
+              <Startov2 id='start2' account={this.props.account} this={this} />
             </View>   
         )
     }

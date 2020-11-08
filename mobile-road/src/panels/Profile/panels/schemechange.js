@@ -12,6 +12,7 @@ import {
 
 import Message from '../../../components/message'
 import avaUser from '../../../images/user.jpg'
+import avaAgent from '../../../images/schemeagent.jpg'
 
 export default class SchemeChange extends React.Component{
     constructor(props){
@@ -74,7 +75,7 @@ export default class SchemeChange extends React.Component{
                 <Message
                 title='Агент Поддержки'
                 is_mine={true}
-                avatar={'https://xelene.ru/road/php/images/avatars/10004.png'}
+                avatar={avaAgent}
                 >Действительно</Message>
                 <Separator style={{marginTop: 10}} />
                 <FormLayout>

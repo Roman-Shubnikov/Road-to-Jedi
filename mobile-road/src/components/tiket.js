@@ -11,6 +11,7 @@ import {
     ActionSheet,
     ActionSheetItem,
     PanelHeaderBack,
+    Textarea,
     } from '@vkontakte/vkui';
 
 import Icon24Up from '@vkontakte/icons/dist/24/up';
@@ -150,7 +151,7 @@ export default class Ticket extends React.Component {
         this.props.this.setPopout(
           <ActionSheet onClose={() => this.setPopout(null)}>
              {author_id > 0 ?
-            <ActionSheetItem autoclose onClick={() => this.goOtherProfile(author_id)}>
+            <ActionSheetItem autoclose onClick={() => {this.setState({tiket_message: []});this.goOtherProfile(author_id);}}>
               Профиль
             </ActionSheetItem>
             : null}
@@ -270,7 +271,7 @@ export default class Ticket extends React.Component {
             }
           }
           
-          xhr.send( 'ticket_id=' + this.state.tiket_info['id'] + '&text=' + this.state.tiket_send_message);
+          xhr.send( 'ticket_id=' + this.state.tiket_info['id'] + '&text=' + this.state.tiket_send_message.trim());
       
           xhr.onerror = ( error ) => {
             this.showErrorAlert(error)
@@ -397,7 +398,7 @@ export default class Ticket extends React.Component {
             }
           }
           
-          xhr.send('message_id=' + this.state.message_id_redac + '&text=' + this.state.tiket_send_message);
+          xhr.send('message_id=' + this.state.message_id_redac + '&text=' + this.state.tiket_send_message.trim());
       
           xhr.onerror = ( error ) => {
             this.showErrorAlert(error)
@@ -437,7 +438,7 @@ export default class Ticket extends React.Component {
               })
             }
           }
-          xhr.send('message_id=' + this.state.message_id_add + '&text=' + this.state.tiket_send_message);
+          xhr.send('message_id=' + this.state.message_id_add + '&text=' + this.state.tiket_send_message.trim());
       
           xhr.onerror = ( error ) => {
             this.showErrorAlert(error)
@@ -516,7 +517,7 @@ export default class Ticket extends React.Component {
                                 {result.text}
                             </Message>
                         )}) : null}
-                        <div style={{marginBottom: '10vh'}}></div>
+                        <div style={{marginBottom: '20vh'}}></div>
                       </>
             {/* INPUT */}
             {this.state.tiket_info['status'] === 0 || (this.state.redaction === true || this.state.add_comment === true) ? 
@@ -530,16 +531,24 @@ export default class Ticket extends React.Component {
                 // </div>
                 <FixedLayout vertical='bottom'>
                   <Div className="message_sending">
-                    <textarea maxLength="2020" 
+                  <Textarea 
+                    maxLength="2020" 
+                    value={this.state.tiket_send_message}
+                    grow={false}
+                    name="tiket_send_message"
+                    onChange={(e) => this.onChange(e)} 
+                    placeholder={this.state.add_comment ? "Ваш комментарий..." : "Ваше сообщение..."}
+                    style={{width: platformname ? "82%" : "85%"}}></Textarea>
+                    {/* <textarea maxLength="2020" 
                     name="tiket_send_message" 
                     value={this.state.tiket_send_message} 
                     onChange={(e) => this.onChange(e)} 
                     placeholder={this.state.add_comment ? "Ваш комментарий..." : "Ваше сообщение..."} 
                     className="textarea"
-                    style={{width: platformname ? '80%' : '85%'}}></textarea>
+                    style={{width: platformname ? '80%' : '85%'}}></textarea> */}
                     <div className="send_text"
-                    onClick={() => {(this.state.tiket_send_message.length > 5) ? this.state.redaction !== true && this.state.add_comment !== true ? this.sendNewMessage() : this.state.redaction ? this.sendNewMessageRedact() : this.sendNewMessageComment() : this.nofinc()}}
-                    style={{background: (this.state.tiket_send_message.length > 5) ? "var(--button_send)" : "#98A0AD"}} >
+                    onClick={() => {(this.state.tiket_send_message.trim().length > 5) ? this.state.redaction !== true && this.state.add_comment !== true ? this.sendNewMessage() : this.state.redaction ? this.sendNewMessageRedact() : this.sendNewMessageComment() : this.nofinc()}}
+                    style={{background: (this.state.tiket_send_message.trim().length > 5) ? "var(--button_send)" : "#98A0AD"}} >
                         <Icon24Up width={30} height={30} />
                     </div>
                   </Div>

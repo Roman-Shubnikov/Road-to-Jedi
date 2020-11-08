@@ -93,14 +93,14 @@ $params = [
 			'type' => 'string',
 			'required' => true
 		],
-		'phone_number' => [
-			'type' => 'int',
-			'required' => true
-		],
-		'phone_sign' => [
-			'type' => 'string',
-			'required' => true
-		],
+		// 'phone_number' => [
+		// 	'type' => 'int',
+		// 	'required' => true
+		// ],
+		// 'phone_sign' => [
+		// 	'type' => 'string',
+		// 	'required' => true
+		// ],
 		'cond1' => [
 			'type' => 'int',
 			'required' => true
@@ -442,18 +442,18 @@ switch ( $method ) {
 	case 'account.sendRequestVerf':
 		$title = (string) $_REQUEST['title'];
 		$desc = (string) $_REQUEST['description'];
-		$number = (int) $_REQUEST['phone_number'];
-		$sign_number = (string) $_REQUEST['phone_sign'];
+		// $number = (int) $_REQUEST['phone_number'];
+		// $sign_number = (string) $_REQUEST['phone_sign'];
 		$conditions = (bool)$_REQUEST['cond1'] && (bool)$_REQUEST['cond2'];
-		if(mb_strlen($title) > 5 && mb_strlen($desc) > 10){
+		if(mb_strlen($title) > 5 && mb_strlen($desc) > 10 && mb_strlen($title) <= 2000 && mb_strlen($desc) <= 2000){
 			if($conditions){
-				$sign_num_construct = CONFIG::APP_ID . CONFIG::SECRET_KEY . $user_id . 'phone_number' . $number;
-				$shasignature = rtrim(strtr(base64_encode(hash('sha256', $sign_num_construct, true)), '+/', '-_'), '=');
-				if($sign_number === $shasignature){
-					Show::response( $account->NewRequestVerf($title, $desc,$number) );
-				}else{
-					Show::error(1102);
-				}
+				// $sign_num_construct = CONFIG::APP_ID . CONFIG::SECRET_KEY . $user_id . 'phone_number' . $number;
+				// $shasignature = rtrim(strtr(base64_encode(hash('sha256', $sign_num_construct, true)), '+/', '-_'), '=');
+				// if($sign_number === $shasignature){
+					Show::response( $account->NewRequestVerf($title, $desc) );
+				// }else{
+				// 	Show::error(1102);
+				// }
 			}else{
 				Show::error(1101);
 			}
@@ -505,25 +505,25 @@ switch ( $method ) {
 
 	case 'ticket.sendMessage':
 		$id = isset( $_POST['ticket_id'] ) ? $_POST['ticket_id'] : $_GET['ticket_id'];
-		$text = isset( $_POST['text'] ) ? $_POST['text'] : $_GET['text'];
+		$text = trim($_REQUEST['text']);
 
 		Show::response( $tickets->sendMessage( $id, $text ) );
 
 	case 'ticket.editMessage':
 		$id = isset( $_POST['message_id'] ) ? $_POST['message_id'] : $_GET['message_id'];
-		$text = isset( $_POST['text'] ) ? $_POST['text'] : $_GET['text'];
+		$text = trim($_REQUEST['text']);
 
 		Show::response( $tickets->editMessage( $id, $text ) );
 
 	case 'ticket.commentMessage':
 		$id = isset( $_POST['message_id'] ) ? $_POST['message_id'] : $_GET['message_id'];
-		$text = isset( $_POST['text'] ) ? $_POST['text'] : $_GET['text'];
+		$text = trim($_REQUEST['text']);
 
 		Show::response( $tickets->commentMessage( $id, $text ) );
 
 	case 'ticket.editComment':
 		$id = isset( $_POST['message_id'] ) ? $_POST['message_id'] : $_GET['message_id'];
-		$text = isset( $_POST['text'] ) ? $_POST['text'] : $_GET['text'];
+		$text = trim($_REQUEST['text']);
 
 		Show::response( $tickets->editComment( $id, $text ) );
 
@@ -534,7 +534,7 @@ switch ( $method ) {
 
 	case 'ticket.add':
 		$title = $_POST['title'];
-		$text = $_POST['text'];
+		$text = trim($_REQUEST['text']);
 
 		Show::response( $tickets->add( $title, $text ) );
 

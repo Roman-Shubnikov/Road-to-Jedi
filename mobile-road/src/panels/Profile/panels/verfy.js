@@ -37,9 +37,9 @@ export default class Verfy extends React.Component{
             check2: false,
             title: '',
             description: '',
-            number: '',
-            numberstatus: true,
-            sign_number: '',
+            // number: '',
+            // numberstatus: true,
+            // sign_number: '',
             verfstatus: -1,
 
         }
@@ -59,8 +59,8 @@ export default class Verfy extends React.Component{
       fetch(this.state.api_url + 
       "method=account.sendRequestVerf&title=" + this.state.title + 
       "&description=" + this.state.description + 
-      "&phone_number=" + this.state.number + 
-      "&phone_sign=" + this.state.sign_number + 
+      // "&phone_number=" + this.state.number + 
+      // "&phone_sign=" + this.state.sign_number + 
       "&cond1=1&cond2=1&" + window.location.search.replace('?', ''))
       .then(res => res.json())
       .then(data => {
@@ -93,6 +93,22 @@ export default class Verfy extends React.Component{
 
         })
     }
+    validateTitle(title){
+      let valid = 'error';
+      if(title.length <= 2000 && title.length > 5){
+        valid = 'valid'
+      }
+
+      return valid
+    }
+    validateDesc(title){
+      let valid = 'error';
+      if(title.length <= 2000 && title.length > 10){
+        valid = 'valid'
+      }
+
+      return valid
+    }
     componentDidMount(){
       this.setPopout(<ScreenSpinner />);
       this.checkVerfStatus();
@@ -110,36 +126,37 @@ export default class Verfy extends React.Component{
                 </PanelHeader>
                 {(this.state.verfstatus !== -1) ? (this.state.verfstatus === 2) ? <><Placeholder 
                 icon={<img src={VerfIcon} alt='Ожидайте рассмотрения' />}
+                // action={<Div>
+                //   <Button size="xl" onClick={() => {window.history.back()}}>Вернуться к настройкам</Button>
+                // </Div>}
                 header='Вы отправили заявку на верификацию'>Вы отправили заявку на верификацию, по
-                                                              окончанию проверки — Вам позвонит наш
-                                                              сотрудник и сообщит результаты о
-                                                              официальном статусе.<br /><br />
-                                                              Администрация проекта не сообщает о
-                                                              рассмотрении верификации.</Placeholder>
-                <FixedLayout vertical='bottom'>
-                  <Div>
-                    <Button size="xl" onClick={() => {window.history.back()}}>Вернуться к настройкам</Button>
-                  </Div>
-                </FixedLayout>
-                
+                                                            окончанию проверки — мы сообщим Вам
+                                                            о результатах официального статуса.
+                                                            <br /><br />Администрация проекта не сообщает о
+                                                            процессе рассмотрения
+                                                            верификации.</Placeholder>
                                                               </> : <>
                 <FormLayout>
-                  {this.state.numberstatus ? null : <FormStatus header='Некорректное заполнение формы' mode='error'>
+                  {/* {this.state.numberstatus ? null : <FormStatus header='Некорректное заполнение формы' mode='error'>
                     Вы должны указать номер телефона. Если этого не сделать, то пройти процедуру верефикации не получится
-                  </FormStatus>}
-                  <FormLayoutGroup top="Общая информация" >
+                  </FormStatus>} */}
+                  <FormLayoutGroup top="Общая информация" bottom={this.validateTitle(this.state.title) === 'valid' ? '' : 'Текст должен быть не больше 2000 и не меньше 6 символов'}>
                     <Input 
+                    maxLength="2000" 
                     onChange={this.onChange}
                     name='title'
+                    status={this.validateTitle(this.state.title)}
                     placeholder='Введите свой текст...' />
                   </FormLayoutGroup>
-                  <FormLayoutGroup top="Почему вы решили верифицировать профиль">
+                  <FormLayoutGroup top="Почему вы решили верифицировать профиль" bottom={this.validateDesc(this.state.description) === 'valid' ? '' : 'Текст должен быть не больше 2000 и не меньше 11 символов'}>
                     <Textarea 
+                    maxLength="2000" 
+                    status={this.validateDesc(this.state.description)}
                     name='description'
                     onChange={this.onChange}
                     placeholder='Введите свой текст...' />
                   </FormLayoutGroup>
-                  <SimpleCell
+                  {/* <SimpleCell
                   description="Нажмите чтобы указать номер телефона"
                   onClick={() => bridge.send("VKWebAppGetPhoneNumber", {})
                   .then(data => {
@@ -148,11 +165,11 @@ export default class Verfy extends React.Component{
                   .catch(error => {
                     this.setState({numberstatus: false})
                   })}
-                  before={<Icon28SmartphoneOutline/>}>Ваш номер телефона</SimpleCell>
-                  {this.state.number ? <Input
+                  before={<Icon28SmartphoneOutline/>}>Ваш номер телефона</SimpleCell> */}
+                  {/* {this.state.number ? <Input
                   top='Ваш номер'
                   disabled
-                  value={this.state.number} /> : null}
+                  value={this.state.number} /> : null} */}
                   <Checkbox checked={this.state.check1} onChange={() => this.state.check1 ? this.setState({check1: false}) : this.setState({check1: true})}>
                     Согласен с <Link 
                     href='https://vk.com/@jedi_road-chto-takoe-verifikaciya-i-kak-ee-poluchit-galochku'
@@ -172,8 +189,8 @@ export default class Verfy extends React.Component{
                     !this.state.check1 || 
                     !this.state.check2 || 
                     !this.state.title ||
-                    !this.state.description ||
-                    !this.state.number
+                    !this.state.description
+                    // !this.state.number
                   }
                   onClick={() => this.handleForm()}
                   >Отправить на рассмотрение</Button>

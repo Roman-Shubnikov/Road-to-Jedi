@@ -1,31 +1,33 @@
 {
   "files": {
-    "main.css": "/road/static/css/main.4c087162.chunk.css",
-    "main.js": "/road/static/js/main.bd46df98.chunk.js",
-    "main.js.map": "/road/static/js/main.bd46df98.chunk.js.map",
+    "main.css": "/road/static/css/main.a7add682.chunk.css",
+    "main.js": "/road/static/js/main.015da425.chunk.js",
+    "main.js.map": "/road/static/js/main.015da425.chunk.js.map",
     "runtime-main.js": "/road/static/js/runtime-main.394b0f17.js",
     "runtime-main.js.map": "/road/static/js/runtime-main.394b0f17.js.map",
     "static/css/2.6326594c.chunk.css": "/road/static/css/2.6326594c.chunk.css",
-    "static/js/2.39173bdf.chunk.js": "/road/static/js/2.39173bdf.chunk.js",
-    "static/js/2.39173bdf.chunk.js.map": "/road/static/js/2.39173bdf.chunk.js.map",
+    "static/js/2.8a60ffb9.chunk.js": "/road/static/js/2.8a60ffb9.chunk.js",
+    "static/js/2.8a60ffb9.chunk.js.map": "/road/static/js/2.8a60ffb9.chunk.js.map",
     "index.html": "/road/index.html",
-    "precache-manifest.99d94b616d700de1b3fea846925e047a.js": "/road/precache-manifest.99d94b616d700de1b3fea846925e047a.js",
+    "precache-manifest.7e1e7207d5894dd6d14965ea888a7990.js": "/road/precache-manifest.7e1e7207d5894dd6d14965ea888a7990.js",
     "service-worker.js": "/road/service-worker.js",
     "static/css/2.6326594c.chunk.css.map": "/road/static/css/2.6326594c.chunk.css.map",
-    "static/css/main.4c087162.chunk.css.map": "/road/static/css/main.4c087162.chunk.css.map",
-    "static/js/2.39173bdf.chunk.js.LICENSE.txt": "/road/static/js/2.39173bdf.chunk.js.LICENSE.txt",
+    "static/css/main.a7add682.chunk.css.map": "/road/static/css/main.a7add682.chunk.css.map",
+    "static/js/2.8a60ffb9.chunk.js.LICENSE.txt": "/road/static/js/2.8a60ffb9.chunk.js.LICENSE.txt",
     "static/media/Ninja.webp": "/road/static/media/Ninja.0c4d240d.webp",
     "static/media/Soloriver.mp3": "/road/static/media/Soloriver.57a77e9b.mp3",
     "static/media/jedi.svg": "/road/static/media/jedi.7c18eb66.svg",
     "static/media/question_banner_mobile.png": "/road/static/media/question_banner_mobile.14c5ae38.png",
     "static/media/question_banner_pc.jpg": "/road/static/media/question_banner_pc.b2b8189b.jpg",
+    "static/media/schemeagent.jpg": "/road/static/media/schemeagent.e2c15877.jpg",
+    "static/media/start_slide_2.png": "/road/static/media/start_slide_2.3f3bb849.png",
     "static/media/user.jpg": "/road/static/media/user.cfc7e0b1.jpg"
   },
   "entrypoints": [
     "static/js/runtime-main.394b0f17.js",
     "static/css/2.6326594c.chunk.css",
-    "static/js/2.39173bdf.chunk.js",
-    "static/css/main.4c087162.chunk.css",
-    "static/js/main.bd46df98.chunk.js"
+    "static/js/2.8a60ffb9.chunk.js",
+    "static/css/main.a7add682.chunk.css",
+    "static/js/main.015da425.chunk.js"
   ]
 }

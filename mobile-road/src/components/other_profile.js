@@ -166,14 +166,7 @@ function fix_time(time) {
                     }>
                         <span onClick={() => this.copy(this.state.other_profile['id'], this.state.other_profile['flash'])}>Профиль</span>
                 </PanelHeader>
-                <FixedLayout vertical='bottom'>
-                    <Div>
-                        <FormStatus header="Внимание! Важная информация" mode="default">
-                        Сервис не имеет отношения к Администрации Вконтакте, а также их разработкам.
-                        </FormStatus>
-                    </Div>
-                    
-                </FixedLayout>
+                
                 {this.state.other_profile ? <>
                 <Cell
                   description={
@@ -233,6 +226,11 @@ function fix_time(time) {
                     </SimpleCell>
                 </Group>}
                 <Separator />
+                <Div>
+                    <FormStatus header="Внимание! Важная информация" mode="default">
+                    Сервис не имеет отношения к Администрации Вконтакте, а также их разработкам.
+                    </FormStatus>
+                </Div>
                 {/* <div style={{marginTop: "20px"}} className="help_title_profile">В недалеком будущем здесь что-то будет.</div>
                 <div className="help_title_profile">Ждем вместе с вами!</div> */}
                 </> : null}
