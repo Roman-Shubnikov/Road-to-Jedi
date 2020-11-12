@@ -105,10 +105,10 @@ $params = [
 			'type' => 'int',
 			'required' => true
 		],
-		'cond2' => [
-			'type' => 'int',
-			'required' => true
-		],
+		// 'cond2' => [
+		// 	'type' => 'int',
+		// 	'required' => true
+		// ],
 	],
 	'account.changeScheme' => [
 		'scheme' => [
@@ -444,7 +444,7 @@ switch ( $method ) {
 		$desc = (string) $_REQUEST['description'];
 		// $number = (int) $_REQUEST['phone_number'];
 		// $sign_number = (string) $_REQUEST['phone_sign'];
-		$conditions = (bool)$_REQUEST['cond1'] && (bool)$_REQUEST['cond2'];
+		$conditions = (bool)$_REQUEST['cond1'];
 		if(mb_strlen($title) > 5 && mb_strlen($desc) > 10 && mb_strlen($title) <= 2000 && mb_strlen($desc) <= 2000){
 			if($conditions){
 				// $sign_num_construct = CONFIG::APP_ID . CONFIG::SECRET_KEY . $user_id . 'phone_number' . $number;
@@ -603,13 +603,13 @@ switch ( $method ) {
 		$len = mb_strlen($id);
 		if( $len < 11 && $len > 0 ) {
 			$balance_profile = getBalance();
-			if( $balance_profile >= 200 ) {
+			if( $balance_profile >= 2 ) {
 				$check_id = db_get("SELECT id FROM users WHERE id = $id OR nickname = $id");
 				if( count($check_id) == 0 ) {
-					db_edit(['money' => $balance_profile - 200], "vk_user_id=$user_id", 'users');
+					db_edit(['money' => $balance_profile - 2], "vk_user_id=$user_id", 'users');
 					db_edit(['nickname' => $id], "vk_user_id=$user_id", 'users');
 					Show::response(
-						['balance' => $balance_profile - 200]
+						['balance' => $balance_profile - 2]
 					);
 				} else {
 					Show::error(1003);
@@ -622,6 +622,24 @@ switch ( $method ) {
 		}
 		break;
 
+	case 'shop.changeAvatar':
+		$id = $_REQUEST['avatar_id'];
+		if( $id <= 25 && $id > 0 ) {
+			$balance = getBalance();
+			$user_id = $_GET['vk_user_id'];
+			if( $balance >= 1 ) {
+				$edit = db_edit([
+					'money' => $balance - 1,
+					'avatar_id' => $id
+				], "vk_user_id=$user_id", 'users');
+				Show::response(['edit' => $edit]);
+			} else {
+				Show::error(1002);
+			}
+		} else {
+			Show::error(1008);
+		}
+	break;
 	case 'transfers.send':
 		$summa = $_REQUEST['summa'];
 		$send_to = $_REQUEST['send_to'];
@@ -661,30 +679,13 @@ switch ( $method ) {
 					Show::error(1005);
 				}
 			} else {
-				Show::error(1002);
+				Show::error(1011);
 			}
 		} else {
 			Show::error(1006);
 		}
 	break;
 
-	case 'shop.changeAvatar':
-		$id = $_REQUEST['avatar_id'];
-		if( $id <= 17 && $id > 0 ) {
-			$balance = getBalance();
-			$user_id = $_GET['vk_user_id'];
-			if( $balance >= 300 ) {
-				$edit = db_edit([
-					'money' => $balance - 300,
-					'avatar_id' => $id
-				], "vk_user_id=$user_id", 'users');
-				Show::response(['edit' => $edit]);
-			} else {
-				Show::error(1002);
-			}
-		} else {
-			Show::error(1008);
-		}
-	break;
+	
 	
 }

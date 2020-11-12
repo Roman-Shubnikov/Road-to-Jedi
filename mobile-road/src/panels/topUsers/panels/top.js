@@ -60,13 +60,14 @@ import Icon16StarCircleFillYellow from '@vkontakte/icons/dist/16/star_circle_fil
                 </PanelHeader>
                 <Div>
                     <FormStatus header="Внимание! Важная информация" mode="default">
-                    Сервис не имеет отношения к Администрации Вконтакте, а также их разработкам.
+                    Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
                     </FormStatus>
                 </Div>
                 <><PullToRefresh onRefresh={() => {this.setState({fetching: true});this.Prepare_top()}} isFetching={this.state.fetching}>
                   {this.props.top_agents ? this.props.top_agents.map((result, i) => 
                     result['banned'] ? null :
                     <React.Fragment key={result.id}>
+                      <Separator/>
                     <SimpleCell
                       onClick={() => {props.goOtherProfile(result['id'], true);this.setState({top_agents: null});}}
                       description={
@@ -90,7 +91,7 @@ import Icon16StarCircleFillYellow from '@vkontakte/icons/dist/16/star_circle_fil
                     </div>
                   </div>
                   </SimpleCell>
-                 <Separator/>
+                 
                  </React.Fragment>
                   ) : <PanelSpinner />}
                 </PullToRefresh></>

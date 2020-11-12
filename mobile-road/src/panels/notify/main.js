@@ -91,6 +91,7 @@ export default class Notify extends React.Component {
         };
         this.goBack = () => {
           const history = this.state.history;
+          this.setActiveModal(null);
           if(history.length === 1) {
               bridge.send("VKWebAppClose", {"status": "success"});
           } else if (history.length > 1) {

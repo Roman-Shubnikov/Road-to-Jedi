@@ -143,7 +143,7 @@ export default class myQuestions extends React.Component {
                     </Placeholder> :
                     <Placeholder 
                     icon={<Icon56InboxOutline />}>
-                        Упс, кажется здесь нет ваших ответов.
+                        Упс, кажется, здесь нет ваших ответов.
                     </Placeholder>
                     }
                 </PullToRefresh>

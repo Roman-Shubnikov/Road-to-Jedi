@@ -25,6 +25,9 @@ const root = document.getElementById('root');
 if(platform() === IOS) {
     mVKMiniAppsScrollHelper(root); 
 }
-
+if (process.env.NODE_ENV === "development") {
+  import("./eruda").then(({ default: eruda }) => {}); //runtime download
+}
 ReactDOM.render(<App />, root);
+
 

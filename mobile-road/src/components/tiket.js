@@ -47,7 +47,7 @@ function fix_time(time) {
 
 function add_month(month) {
     let number_month = new Date(month * 1e3).getMonth()
-    return months[number_month]
+    return months[number_month - 1]
 }
 
 export default class Ticket extends React.Component {
@@ -148,58 +148,61 @@ export default class Ticket extends React.Component {
           })
       }
       Admin(id, author_id, text, comment,avatar=null, mark = -1){
-        this.props.this.setPopout(
-          <ActionSheet onClose={() => this.setPopout(null)}>
-             {author_id > 0 ?
-            <ActionSheetItem autoclose onClick={() => {this.setState({tiket_message: []});this.goOtherProfile(author_id);}}>
-              Профиль
+        if(this.props.account.special){
+          this.props.this.setPopout(
+            <ActionSheet onClose={() => this.setPopout(null)}>
+               {author_id > 0 ?
+              <ActionSheetItem autoclose onClick={() => {this.setState({tiket_message: []});this.goOtherProfile(author_id);}}>
+                Профиль
+              </ActionSheetItem>
+              : null}
+             { this.props.account.special && mark !== 0 && mark !== 1 && author_id > 0 ? 
+              <ActionSheetItem autoclose onClick={() => this.sendRayt(true, id)}>
+                Оценить положительно
+              </ActionSheetItem> 
+              : null}
+              { this.props.account.special && mark !== 0 && mark !== 1 && author_id > 0 ? 
+              <ActionSheetItem autoclose onClick={() => this.sendRayt(false, id)}>
+                Оценить отрицательно
+              </ActionSheetItem> 
+              : null }
+              { this.props.account.special === true && author_id > 0 ? 
+              <ActionSheetItem autoclose onClick={() => this.sendClear(id)}>
+                Одобрить
+              </ActionSheetItem> 
+              : null }
+              { (this.props.account.special === true && author_id < 0) ? 
+              <ActionSheetItem autoclose onClick={() => {this.props.this.setState({other_profile:{'id':author_id,'avatar': {'url': avatar}}});this.setActiveModal('ban_user');}}>
+                Забанить пользователя
+              </ActionSheetItem> 
+              : null }
+              { this.props.account.special === true && author_id > 0 ? 
+              comment === null || comment === undefined? 
+              <ActionSheetItem autoclose onClick={() => this.setState({add_comment: true, message_id_add: id})}>
+              Добавить комментарий
+              </ActionSheetItem> 
+              : null
+              : null }
+              {Number(author_id === this.props.account.id) ? 
+             <ActionSheetItem autoclose onClick={() => this.setState({redaction: true, message_id_redac: id, tiket_send_message: text})}>
+             Редактировать
+             </ActionSheetItem>
+             : null}
+          {comment === null || comment === undefined ? null : 
+              <ActionSheetItem autoclose onClick={() => {this.props.this.setState({comment: comment}); this.setActiveModal("comment")}}>
+              Просмотреть комментарий
             </ActionSheetItem>
-            : null}
-           { this.props.account.special && mark !== 0 && mark !== 1 && author_id > 0 ? 
-            <ActionSheetItem autoclose onClick={() => this.sendRayt(true, id)}>
-              Оценить положительно
-            </ActionSheetItem> 
-            : null}
-            { this.props.account.special && mark !== 0 && mark !== 1 && author_id > 0 ? 
-            <ActionSheetItem autoclose onClick={() => this.sendRayt(false, id)}>
-              Оценить отрицательно
-            </ActionSheetItem> 
-            : null }
-            { this.props.account.special === true && author_id > 0 ? 
-            <ActionSheetItem autoclose onClick={() => this.sendClear(id)}>
-              Одобрить
-            </ActionSheetItem> 
-            : null }
-            { (this.props.account.special === true && author_id < 0) ? 
-            <ActionSheetItem autoclose onClick={() => {this.props.this.setState({other_profile:{'id':author_id,'avatar': {'url': avatar}}});this.setActiveModal('ban_user');}}>
-              Забанить пользователя
-            </ActionSheetItem> 
-            : null }
-            { this.props.account.special === true && author_id > 0 ? 
-            comment === null || comment === undefined? 
-            <ActionSheetItem autoclose onClick={() => this.setState({add_comment: true, message_id_add: id})}>
-            Добавить комментарий
-            </ActionSheetItem> 
-            : null
-            : null }
-            {Number(author_id === this.props.account.id) ? 
-           <ActionSheetItem autoclose onClick={() => this.setState({redaction: true, message_id_redac: id, tiket_send_message: text})}>
-           Редактировать
-           </ActionSheetItem>
-           : null}
-        {comment === null || comment === undefined ? null : 
-            <ActionSheetItem autoclose onClick={() => {this.props.this.setState({comment: comment}); this.setActiveModal("comment")}}>
-            Просмотреть комментарий
-          </ActionSheetItem>
-            }
-            {Number(author_id) === Number(this.props.account.id) || this.props.account.special === true ? 
-            <ActionSheetItem autoclose onClick={() => this.deleteMessage(id)}>
-              Удалить сообщение
-            </ActionSheetItem>
-            : null}
-            {<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}
-          </ActionSheet>
-        )
+              }
+              {Number(author_id) === Number(this.props.account.id) || this.props.account.special === true ? 
+              <ActionSheetItem autoclose onClick={() => this.deleteMessage(id)}>
+                Удалить сообщение
+              </ActionSheetItem>
+              : null}
+              {<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}
+            </ActionSheet>
+          )
+        }
+        
       }
       copy(id) {
         this.setPopout(
@@ -271,7 +274,7 @@ export default class Ticket extends React.Component {
             }
           }
           
-          xhr.send( 'ticket_id=' + this.state.tiket_info['id'] + '&text=' + this.state.tiket_send_message.trim());
+          xhr.send( 'ticket_id=' + this.state.tiket_info['id'] + '&text=' + encodeURIComponent(this.state.tiket_send_message.trim()));
       
           xhr.onerror = ( error ) => {
             this.showErrorAlert(error)
@@ -398,7 +401,7 @@ export default class Ticket extends React.Component {
             }
           }
           
-          xhr.send('message_id=' + this.state.message_id_redac + '&text=' + this.state.tiket_send_message.trim());
+          xhr.send('message_id=' + this.state.message_id_redac + '&text=' + encodeURIComponent(this.state.tiket_send_message.trim()));
       
           xhr.onerror = ( error ) => {
             this.showErrorAlert(error)
@@ -438,7 +441,7 @@ export default class Ticket extends React.Component {
               })
             }
           }
-          xhr.send('message_id=' + this.state.message_id_add + '&text=' + this.state.tiket_send_message.trim());
+          xhr.send('message_id=' + this.state.message_id_add + '&text=' + encodeURIComponent(this.state.tiket_send_message.trim()));
       
           xhr.onerror = ( error ) => {
             this.showErrorAlert(error)
@@ -517,7 +520,7 @@ export default class Ticket extends React.Component {
                                 {result.text}
                             </Message>
                         )}) : null}
-                        <div style={{marginBottom: '20vh'}}></div>
+                        {!((this.state.tiket_info['status'] === 1) || (this.state.tiket_info['status'] === 2)) ? <div style={{marginBottom: '20vh'}}></div> : <div style={{marginBottom: '5vh'}}></div>}
                       </>
             {/* INPUT */}
             {this.state.tiket_info['status'] === 0 || (this.state.redaction === true || this.state.add_comment === true) ? 

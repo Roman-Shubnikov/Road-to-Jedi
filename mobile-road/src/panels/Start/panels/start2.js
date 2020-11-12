@@ -70,12 +70,12 @@ export default class Start extends React.Component {
                 <Separator /> */}
                 <Placeholder 
                 icon={<img style={{width: 200, height: 180}} src={SclidePlaceholder} alt='Тут была иконка... Press F to pay respect...' />}
-                header='Прежде чем начать. Укажите следуюшие
+                header='Прежде чем начать. Укажите следующие
                                     данные, они помогут нам оценивать
                                     Ваши ответы.'></Placeholder>
                 <FormLayout>
                   <FormStatus header="Внимание! Важная информация" mode="error">
-                    Сервис не имеет отношения к Администрации Вконтакте, а также их разработкам.
+                    Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
                   </FormStatus>
                     <Slider
                       min={10}

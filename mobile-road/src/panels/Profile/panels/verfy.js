@@ -34,7 +34,6 @@ export default class Verfy extends React.Component{
         this.state = {
             api_url: "https://xelene.ru/road/php/index.php?",
             check1: false,
-            check2: false,
             title: '',
             description: '',
             // number: '',
@@ -57,11 +56,11 @@ export default class Verfy extends React.Component{
     handleForm(){
       this.setPopout(<ScreenSpinner />);
       fetch(this.state.api_url + 
-      "method=account.sendRequestVerf&title=" + this.state.title + 
-      "&description=" + this.state.description + 
+      "method=account.sendRequestVerf&title=" + encodeURIComponent(this.state.title) + 
+      "&description=" + encodeURIComponent(this.state.description) + 
       // "&phone_number=" + this.state.number + 
       // "&phone_sign=" + this.state.sign_number + 
-      "&cond1=1&cond2=1&" + window.location.search.replace('?', ''))
+      "&cond1=1&" + window.location.search.replace('?', ''))
       .then(res => res.json())
       .then(data => {
       if(data.result) {
@@ -94,20 +93,27 @@ export default class Verfy extends React.Component{
         })
     }
     validateTitle(title){
-      let valid = 'error';
-      if(title.length <= 2000 && title.length > 5){
-        valid = 'valid'
+      if(title.length > 0){
+        let valid = ['error', 'Текст должен быть не больше 2000 и не меньше 6 символов' ];
+        if(title.length <= 2000 && title.length > 5){
+          valid = ['valid', '']
+        }
+  
+        return valid
       }
-
-      return valid
+      return ['default', '']
+      
     }
     validateDesc(title){
-      let valid = 'error';
-      if(title.length <= 2000 && title.length > 10){
-        valid = 'valid'
+      if(title.length > 0){
+        let valid = ['error', 'Текст должен быть не больше 2000 и не меньше 11 символов'];
+        if(title.length <= 2000 && title.length > 10){
+          valid = ['valid', '']
+        }
+  
+        return valid
       }
-
-      return valid
+      return ['default', '']
     }
     componentDidMount(){
       this.setPopout(<ScreenSpinner />);
@@ -130,7 +136,7 @@ export default class Verfy extends React.Component{
                 //   <Button size="xl" onClick={() => {window.history.back()}}>Вернуться к настройкам</Button>
                 // </Div>}
                 header='Вы отправили заявку на верификацию'>Вы отправили заявку на верификацию, по
-                                                            окончанию проверки — мы сообщим Вам
+                                                            окончании проверки — мы сообщим Вам
                                                             о результатах официального статуса.
                                                             <br /><br />Администрация проекта не сообщает о
                                                             процессе рассмотрения
@@ -140,18 +146,18 @@ export default class Verfy extends React.Component{
                   {/* {this.state.numberstatus ? null : <FormStatus header='Некорректное заполнение формы' mode='error'>
                     Вы должны указать номер телефона. Если этого не сделать, то пройти процедуру верефикации не получится
                   </FormStatus>} */}
-                  <FormLayoutGroup top="Общая информация" bottom={this.validateTitle(this.state.title) === 'valid' ? '' : 'Текст должен быть не больше 2000 и не меньше 6 символов'}>
+                  <FormLayoutGroup top="Общая информация" bottom={this.validateTitle(this.state.title)[1]}>
                     <Input 
                     maxLength="2000" 
                     onChange={this.onChange}
                     name='title'
-                    status={this.validateTitle(this.state.title)}
+                    status={this.validateTitle(this.state.title)[0]}
                     placeholder='Введите свой текст...' />
                   </FormLayoutGroup>
-                  <FormLayoutGroup top="Почему вы решили верифицировать профиль" bottom={this.validateDesc(this.state.description) === 'valid' ? '' : 'Текст должен быть не больше 2000 и не меньше 11 символов'}>
+                  <FormLayoutGroup top="Почему вы решили верифицировать профиль" bottom={this.validateDesc(this.state.description)[1]}>
                     <Textarea 
                     maxLength="2000" 
-                    status={this.validateDesc(this.state.description)}
+                    status={this.validateDesc(this.state.description)[0]}
                     name='description'
                     onChange={this.onChange}
                     placeholder='Введите свой текст...' />
@@ -177,9 +183,6 @@ export default class Verfy extends React.Component{
                     правилами
                       </Link> верификации
                   </Checkbox>
-                  <Checkbox checked={this.state.check2} onChange={() => this.state.check2 ? this.setState({check2: false}) : this.setState({check2: true})}>
-                    Готов к телефонному разговору с модератором отдела верификации
-                  </Checkbox>
                 </FormLayout>
                 <Div>
                   <Button 
@@ -187,9 +190,8 @@ export default class Verfy extends React.Component{
                   stretched
                   disabled={
                     !this.state.check1 || 
-                    !this.state.check2 || 
-                    !this.state.title ||
-                    !this.state.description
+                    !(this.validateTitle(this.state.title)[0] === 'valid') ||
+                    !(this.validateDesc(this.state.description)[0] === 'valid')
                     // !this.state.number
                   }
                   onClick={() => this.handleForm()}

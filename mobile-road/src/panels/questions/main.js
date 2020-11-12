@@ -123,6 +123,7 @@ export default class Main extends React.Component {
         };
         this.goBack = () => {
           const history = this.state.history;
+          this.setActiveModal(null);
           if(history.length === 1) {
               bridge.send("VKWebAppClose", {"status": "success"});
           } else if (history.length > 1) {
@@ -179,13 +180,14 @@ export default class Main extends React.Component {
               </Alert>
             })
           }
-          this.showErrorAlert = (error=null) => {
+          this.showErrorAlert = (error=null, action=null) => {
             this.setPopout(
               <Alert
                   actions={[{
                   title: 'Отмена',
                   autoclose: true,
-                  mode: 'cancel'
+                  mode: 'cancel',
+                  action: action,
                   }]}
                   onClose={() => this.setPopout(null)}
               >

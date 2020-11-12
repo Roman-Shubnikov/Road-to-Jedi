@@ -1,5 +1,5 @@
 import React from 'react'; // React
-import connect from '@vkontakte/vk-bridge'; // VK Connect
+import bridge from '@vkontakte/vk-bridge'; // VK Brige
 
 import music from './music/Soloriver.mp3';
 
@@ -37,7 +37,13 @@ const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera 
 const blueBackground = {
   backgroundColor: 'var(--accent)'
 };
-
+function isEmpty(obj) {
+  for (let key in obj) {
+    // если тело цикла начнет выполняться - значит в объекте есть свойства
+    return false;
+  }
+  return true;
+}
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -45,6 +51,7 @@ class App extends React.Component {
             account:[],
             activeStory: 'questions',
             scheme: "bright_light",
+            default_scheme: "bright_light",
             api_url: "https://xelene.ru/road/php/index.php?",
             popout: <ScreenSpinner/>,
             snackbar: null,
@@ -61,10 +68,35 @@ class App extends React.Component {
           .then(data => {
           if(data.result) {
               this.setState({account: data.response,popout: null, switchKeys: data.response.noti})
-              if(Number(this.state.account.scheme) !== 0){
-                let change = (Number(this.state.account.scheme) === 1) ? 'bright_light' : 'space_gray';
-                this.setState({scheme: change})
-              }
+              if(!isEmpty(this.state.account)){
+                if(Number(this.state.account.scheme) === 0){
+                  this.setState({scheme: this.state.default_scheme})
+                }
+                if(Number(this.state.account.scheme) === 1){
+                  this.setState({scheme: 'bright_light'})
+                  if(platformname){
+                    bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF"});
+                  }
+                  
+                }
+                if(Number(this.state.account.scheme) === 2){
+                  this.setState({scheme: 'space_gray'})
+                  if(platformname){
+                    bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A"});
+                  }
+                }
+              }else{
+                this.setState({scheme: data.scheme})
+                if(data.scheme === 'space_gray'){
+                  if(platformname){
+                    bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A"});
+                  }
+                }else{
+                  if(platformname){
+                    bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF"});
+                  }
+                }
+                }
             }})
           .catch(err => {
             this.showErrorAlert(err)
@@ -101,9 +133,9 @@ class App extends React.Component {
       this.audio = new Audio(music)
       this.audio.load()
       this.audio.loop = true;
-        connect.subscribe(({ detail: { type, data }}) => { 
+      bridge.subscribe(({ detail: { type, data }}) => { 
         if(type === 'VKWebAppAllowMessagesFromGroupResult') {
-          fetch(this.state.api_url_second + "method=notifications.swift&swift=on&" + window.location.search.replace('?', ''))
+          fetch(this.state.api_url + "method=notifications.swift&swift=on&" + window.location.search.replace('?', ''))
             .then(res => res.json())
             .then(data => {
               if(data) {
@@ -115,7 +147,7 @@ class App extends React.Component {
             })
         }
         if(type === 'VKWebAppAllowMessagesFromGroupFailed') {
-          fetch(this.state.api_url_second + "method=notifications.swift&swift=off&" + window.location.search.replace('?', ''))
+          fetch(this.state.api_url + "method=notifications.swift&swift=off&" + window.location.search.replace('?', ''))
             .then(res => res.json())
             .then(data => {
               if(data) {
@@ -130,14 +162,36 @@ class App extends React.Component {
           console.log('closing...')
         }
 			  if (type === 'VKWebAppUpdateConfig') {
-          if(this.state.account){
-            let change = (Number(this.state.account.scheme) === 1) ? 'bright_light' : 'space_gray';
-            this.setState({scheme: change})
+          // console.log(data)
+          this.setState({default_scheme: data.scheme});
+          if(!isEmpty(this.state.account)){
+            if(Number(this.state.account.scheme) === 0){
+              this.setState({scheme: data.scheme})
+            }
+            if(Number(this.state.account.scheme) === 1){
+              this.setState({scheme: 'bright_light'})
+              if(platformname){
+                bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF"});
+              }
+            }
+            if(Number(this.state.account.scheme) === 2){
+              this.setState({scheme: 'space_gray'})
+              if(platformname){
+                bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A"});
+              }
+            }
           }else{
             this.setState({scheme: data.scheme})
-          }
-          
-
+            if(data.scheme === 'space_gray'){
+              if(platformname){
+                bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A"});
+              }
+            }else{
+              if(platformname){
+                bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF"});
+              }
+            }
+            }
           }
         })
         fetch(this.state.api_url + "method=account.get&" + window.location.search.replace('?', ''))
@@ -145,26 +199,34 @@ class App extends React.Component {
         .then(data => {
           if(data.result) {
             this.setState({account: data.response, popout: null, switchKeys: data.response.noti})
-            if(Number(this.state.account.scheme) !== 0){
-              let change = (Number(this.state.account.scheme) === 1) ? 'bright_light' : 'space_gray';
-              this.setState({scheme: change})
-            }
+              if(Number(this.state.account.scheme) === 1){
+                this.setState({scheme: 'bright_light'})
+                if(platformname){
+                  bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF"});
+                }
+              }
+              if(Number(this.state.account.scheme) === 2){
+                this.setState({scheme: 'space_gray'})
+                if(platformname){
+                  bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A"});
+                }
+              }
             if(this.state.account.is_first_start){
               this.setState({activeStory: 'start'});
             }
           } else {
-            this.setState({popout: 
+            this.setPopout(
               <Alert
         actions={[{
           title: 'Повторить',
           autoclose: true,
           action: () => this.componentDidMount()
         }]}
-        onClose={() => {this.closePopout();this.componentDidMount()}}
+        onClose={() => {this.setPopout(null);this.componentDidMount()}}
       >
         <h2>Ошибка</h2>
         <p>{data.error.message}</p>
-            </Alert>})
+            </Alert>)
           }
         })
         .catch(err => {
@@ -288,6 +350,7 @@ class App extends React.Component {
                 this={this}
                 reloadProfile={this.LoadProfile}
                 scheme={this.state.scheme}
+                default_scheme={this.state.default_scheme}
                 account={this.state.account}
                 popout={this.state.popout} />
                 

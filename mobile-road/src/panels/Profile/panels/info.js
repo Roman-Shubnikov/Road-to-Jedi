@@ -49,7 +49,7 @@ export default class Info extends React.Component{
                   </SimpleCell>
                 </Group>
                 <Separator />
-                <Footer>Всегда ваша<br/>Команда Jedi</Footer>
+                <Footer>Всегда ваша,<br/>Команда Jedi</Footer>
             </Panel>
         )
     }

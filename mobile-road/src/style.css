@@ -1,6 +1,16 @@
 @import './space_gray.css';
 @import './bright_light.css';
 
+div,p{
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none;   /* Chrome/Safari/Opera */
+    -khtml-user-select: none;    /* Konqueror */
+    -moz-user-select: none;      /* Firefox */
+    -ms-user-select: none;       /* Internet Explorer/Edge */
+    user-select: none;           
+}
+
+
 #other_profile {
     --background_page: var(--background_page_my)
 }

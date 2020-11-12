@@ -55,11 +55,11 @@ function fix_time(time) {
                 this.setState({other_profile: data.response})
                 this.setPopout(null)
               }else {
-                this.showErrorAlert(data.error.message)
+                this.showErrorAlert(data.error.message, () => window.history.back())
               }
             })
             .catch(err => {
-              this.showErrorAlert(err)
+              this.showErrorAlert(err, () => window.history.back())
     
             })
         }
@@ -228,7 +228,7 @@ function fix_time(time) {
                 <Separator />
                 <Div>
                     <FormStatus header="Внимание! Важная информация" mode="default">
-                    Сервис не имеет отношения к Администрации Вконтакте, а также их разработкам.
+                    Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
                     </FormStatus>
                 </Div>
                 {/* <div style={{marginTop: "20px"}} className="help_title_profile">В недалеком будущем здесь что-то будет.</div>

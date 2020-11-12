@@ -117,15 +117,15 @@ export default class Settings extends React.Component{
                   onClick={() => this.setPopout(<Alert
                     actionsLayout='vertical'
                     actions={[{
-                      title: 'Нет, я нажал сюда случайно',
-                      autoclose: true,
-                      style: 'cancel'
-                    },{
                       title: 'Удалить аккаунт',
                       autoclose: true,
                       mode: 'destructive',
                       action: () => this.deleteAccount(),
-                    }]}
+                    },{
+                      title: 'Нет, я нажал сюда случайно',
+                      autoclose: true,
+                      style: 'cancel'
+                    },]}
                     onClose={() => this.setPopout(null)}
                   >
                     <h2>Внимание, опасность</h2>

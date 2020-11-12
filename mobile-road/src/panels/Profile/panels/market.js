@@ -9,7 +9,11 @@ import {
     Header,
     Div,
     Snackbar,
-    PanelHeaderBack
+    PanelHeaderBack,
+    Separator,
+    Text,
+    SimpleCell,
+    PanelHeaderButton
     } from '@vkontakte/vkui';
 
 import Icon24Repeat from '@vkontakte/icons/dist/24/repeat';
@@ -18,6 +22,7 @@ import Icon28MoneyCircleOutline from '@vkontakte/icons/dist/28/money_circle_outl
 import Icon28MoneyHistoryBackwardOutline from '@vkontakte/icons/dist/28/money_history_backward_outline';
 import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
 import Icon20CancelCircleFillRed from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
+import Icon28InfoCircleOutline from '@vkontakte/icons/dist/28/info_circle_outline';
 
 var avatars = [
     "1.png",
@@ -37,15 +42,17 @@ var avatars = [
     "15.png",
     "16.png",
     "17.png",
-    // "18.png",
-    // "19.png",
-    // "20.png",
-    // "21.png",
-    // "22.png",
-    // "23.png",
-    // "24.png",
-    // "25.png",
+    "18.png",
+    "19.png",
+    "20.png",
+    "21.png",
+    "22.png",
+    "23.png",
+    "24.png",
+    "25.png",
     // "26.png",
+    // "27.png",
+    // "28.png",
 
 ]
 
@@ -103,9 +110,13 @@ export default class Market extends React.Component{
         fetch(this.state.api_url + "method=shop.changeAvatar&avatar_id=" + last_selected + "&" + window.location.search.replace('?', ''))
         .then(data => data.json())
         .then(data => {
-          let last_image = document.getElementById(this.state.last_selected)
-          last_image.className = "changes_avatars"
-          this.setState({last_selected: null})
+          if(last_selected){
+            let last_image = document.getElementById(this.state.last_selected)
+            last_image.className = "changes_avatars"
+            this.setState({last_selected: null})
+          }
+          
+          
               if(data.result){
                   this.props.this.setSnack( 
                     <Snackbar
@@ -185,46 +196,55 @@ export default class Market extends React.Component{
             <Panel id={this.props.id}>
                 <PanelHeader 
                     left={
-                        <PanelHeaderBack onClick={() => window.history.back()} /> 
+                        <><PanelHeaderBack onClick={() => window.history.back()} />
+                        <PanelHeaderButton 
+                        href='https://vk.com/@jedi_road-sistema-nachisleniya-ballov-i-shop'
+                        target="_blank" rel="noopener noreferrer">
+                          <Icon28InfoCircleOutline />
+                        </PanelHeaderButton> </>
                 }>
                     Магазин
                 </PanelHeader>
-                <Group separator="hide" header={<Header>Сменить аватар</Header>}>
-                        <div className="scrollImages">
-                            {this.images()}
-                        </div>
-                        <Div>
-                            <Button onClick={() => {this.changeAvatar(Number(this.state.last_selected) + 1)}} 
-                            before={<Icon28MoneyCircleOutline 
-                            style={{marginRight: "5px"}}/>} 
-                            size="xl" 
-                            mode="secondary"
-                            disabled={(this.state.last_selected !== null) ? false : true}>Сменить за 300 монеток</Button>
-                        </Div>
-                </Group>
-                <Group separator="hide" header={<Header>Сменить свой ник</Header>}>
-                    <Div>
-                        <Input placeholder="Введите желаемый ник (макс. 10 символов)" onChange={(e) => this.onChange(e)} value={this.state.changed_id} maxLength="10" name="changed_id"/>
-                        <br/>
-                        <Button onClick={() => {this.ChangeId(this.state.changed_id)}} 
-                        before={<Icon24Repeat width={28} height={28} style={{marginRight: "5px"}}/>}
-                        size="xl" 
-                        mode="secondary"
-                        disabled={(this.state.changed_id <= 0) ? true : false}>Сменить за 500 монеток</Button>
-                    </Div>
-                </Group>
+                <Div>
+                  <Text weight='medium'>Монетки — это универсальная условная единица для приобретения различных товаров в магазине</Text>
+                </Div>
+                <SimpleCell disabled indicator={this.props.account.balance}>Ваш баланс</SimpleCell>
+                <Separator />
+                <Header>Сменить аватар</Header>
+                <div className="scrollImages">
+                    {this.images()}
+                </div>
+                <Div>
+                    <Button onClick={() => {this.changeAvatar(Number(this.state.last_selected) + 1)}} 
+                    before={<Icon28MoneyCircleOutline 
+                    style={{marginRight: "5px"}}/>} 
+                    size="xl" 
+                    mode="secondary"
+                    disabled={(this.state.last_selected !== null) ? false : true}>Сменить за 1 монетку</Button>
+                </Div>
+                <Separator />
+                <Header>Сменить свой ник</Header>
+                <Div>
+                    <Input placeholder="Введите желаемый ник (макс. 10 символов)" onChange={(e) => this.onChange(e)} value={this.state.changed_id} maxLength="10" name="changed_id"/>
+                    <br/>
+                    <Button onClick={() => {this.ChangeId(this.state.changed_id)}} 
+                    before={<Icon24Repeat width={28} height={28} style={{marginRight: "5px"}}/>}
+                    size="xl" 
+                    mode="secondary"
+                    disabled={(this.state.changed_id <= 0) ? true : false}>Сменить за 2 монетки</Button>
+                </Div>
                 {/* <Group separator="hide" header={<Header>Сброс статистики</Header>}>
                     <Div>
                         <Button onClick={() => props.this.deleteStats()} before={<Icon28GridSquareOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Сбросить за 150 монеток</Button>
                     </Div>
                 </Group> */}
-                <Group separator="hide" header={<Header>Опции</Header>}>
+                <Separator />
+                <Header>Опции</Header>
                     <Div>
                         <Button onClick={() => this.setActiveModal('send')} before={<Icon28MoneyHistoryBackwardOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Перевести</Button>
                         {/* <br/>
                         <Button onClick={() => props.this.goVitas()} before={<Icon28GlobeOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Обучать Витька</Button> */}
                     </Div>
-                </Group>
                 {this.props.this.state.snackbar}
                 {/* <Group separator="hide" header={<Header>Обнулить статистику</Header>}>
                     <Div>

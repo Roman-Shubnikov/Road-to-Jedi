@@ -92,8 +92,8 @@ export default class Main extends React.Component {
               'comment': ''
             },
             moneys: null,
-            money_transfer_send: null,
-            money_transfer_count: null,
+            money_transfer_send: '',
+            money_transfer_count: '',
             AgeUser: 0,
             snackbar: null,
             myQuestions:[],
@@ -118,7 +118,7 @@ export default class Main extends React.Component {
               }
             })
             .catch(err => {
-              this.props.this.showErrorAlert()
+              this.props.this.showErrorAlert(err)
     
             })
         }
@@ -149,6 +149,7 @@ export default class Main extends React.Component {
         };
         this.goBack = () => {
           const history = this.state.history;
+          this.setActiveModal(null);
           if(history.length === 1) {
               bridge.send("VKWebAppClose", {"status": "success"});
           } else if (history.length > 1) {
@@ -256,12 +257,18 @@ export default class Main extends React.Component {
       })
     }
     sendMoney() {
+      this.setPopout(<ScreenSpinner />)
       fetch(this.state.api_url + 'method=transfers.send&summa=' +  this.state.money_transfer_count + '&send_to=' + this.state.money_transfer_send + "&" + window.location.search.replace('?', ''))
       .then(data => data.json())
       .then(data => {
         if(data.result) {
-          this.setState({moneys: data.response})
-          this.setActiveModal("moneys")
+          setTimeout(() => {
+            this.ReloadProfile();
+            this.setPopout(null)
+            this.setState({moneys: data.response})
+            this.setActiveModal("moneys")
+          }, 4000)
+          
         } else {
           this.showErrorAlert(data.error.message)
         }
@@ -371,7 +378,7 @@ export default class Main extends React.Component {
                   mode: 'secondary',
                   action: () => {
                     this.setActiveModal(null);
-                    this.setState({moneys: null, money_transfer_count: null, money_transfer_send: null})
+                    this.setState({moneys: null, money_transfer_count: '', money_transfer_send: ''})
                   }
                 }]}
               >
@@ -404,7 +411,7 @@ export default class Main extends React.Component {
                 >
                   <List>
                     <Cell onClick={() => this.setActiveModal("qr")} before={<Icon24Qr width={28} height={28}/>}>QR-code</Cell>
-                    <Cell onClick={() => {bridge.send("VKWebAppShare", {"link": "https://vk.com/app7409818#agent_id=" + this.props.account['id']}); this.setActiveModal(null);}} before={<Icon28MessagesOutline width={28} height={28}/>}>В сообщения</Cell>
+                    {/* <Cell onClick={() => {bridge.send("VKWebAppShowWallPostBox", {"message": "https://vk.com/app7409818#agent_id=" + this.props.account['id']}); this.setActiveModal(null);}} before={<Icon28MessagesOutline width={28} height={28}/>}>В сообщения</Cell> */}
                     <Cell onClick={() => {bridge.send("VKWebAppCopyText", {text: "https://vk.com/app7409818#agent_id=" + this.props.account['id']}); this.setActiveModal(null);this.setSnack(<Snackbar
                     layout="vertical"
                     onClose={() => this.setSnack(null)}
@@ -446,7 +453,7 @@ export default class Main extends React.Component {
               <Market id="market" this={this} account={this.props.account} />
               <Achievements id="achievements" this={this} account={this.props.account} />
               <Settings id="settings" this={this} account={this.props.account} />
-              <SchemeChange id="schemechange" this={this} account={this.props.account} />
+              <SchemeChange id="schemechange" this={this} default_scheme={this.props.default_scheme} account={this.props.account} />
               <Info id='info' this={this} />
               <Verfy id='verf' this={this} account={this.props.account} />
               <Tiket id="ticket" this={this} ticket_id={this.state.ticket_id} account={this.props.account} />

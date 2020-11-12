@@ -74,7 +74,8 @@ export default class Main extends React.Component {
           .then(res => res.json())
           .then(data => {
             if(data.result) {
-              this.setState({top_agents: data.response})
+              this.setState({top_agents: data.response});
+              this.setPopout(null);
             }
           })
           .catch(err => {
@@ -109,6 +110,7 @@ export default class Main extends React.Component {
         };
         this.goBack = () => {
           const history = this.state.history;
+          this.setActiveModal(null);
           if(history.length === 1) {
               bridge.send("VKWebAppClose", {"status": "success"});
           } else if (history.length > 1) {
@@ -173,7 +175,7 @@ export default class Main extends React.Component {
                   autoclose: true,
                   mode: 'cancel'
                   }]}
-                  onClose={() => this.closePopout}
+                  onClose={() => this.setPopout(null)}
               >
                 <h2>Ошибка</h2>
                 {error ? <p>{error}</p> : <p>Что-то пошло не так, попробуйте снова!</p>}

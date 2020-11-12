@@ -34,11 +34,13 @@ export default class SchemeChange extends React.Component{
         this.ChangeScheme = (e) => {
             this.setPopout(<ScreenSpinner />)
             let value = e.currentTarget.value;
+            if(value === 0){
+                this.props.this.ChangeData('scheme', this.props.default_scheme)
+            }
             fetch(this.state.api_url + "method=account.changeScheme&scheme=" + value + "&" + window.location.search.replace('?', ''))
                 .then(res => res.json())
                 .then(data => {
                 if(data.result) {
-
                     setTimeout(() => {
                         this.props.this.ReloadProfile();
                         this.setPopout(null)

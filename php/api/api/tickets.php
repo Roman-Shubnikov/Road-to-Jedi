@@ -175,7 +175,7 @@ class Tickets {
 			Show::error(404);
 		}
 
-		if ( $ticket['status'] == 2 ) {
+		if ( $ticket['status'] == 2 || $ticket['id'] == 1) {
 			Show::error(30);
 		}
 
@@ -545,8 +545,9 @@ class Tickets {
 	}
 
 	public function editMessage( int $message_id, string $text ) {
-		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.approved
-			    FROM messages 
+		$sql = "SELECT messages.id, tickets.status, messages.ticket_id, messages.author_id, messages.approved
+			    FROM messages LEFT JOIN tickets
+				ON messages.ticket_id = tickets.id
 				WHERE messages.id = $message_id";
 		$res = db_get( $sql )[0];
 
@@ -557,7 +558,9 @@ class Tickets {
 		if ( $res['author_id'] !== $this->user->id && $res['author_id'] !== -$this->user->vk_id ) {
 			Show::error(403);
 		}
-
+		if( $res['status'] == 1 || $res['status'] == 2){
+			Show::error(30);
+		}
 		if ( $res['approved'] ) {
 			Show::error(31);
 		}
