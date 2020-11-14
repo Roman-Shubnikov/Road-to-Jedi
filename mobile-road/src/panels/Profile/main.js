@@ -3,22 +3,25 @@ import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import vkQr from '@vkontakte/vk-qr';
 
 
+
 import { 
-  Button,
   Alert,
   Avatar,
   Header,
   Cell,
-  Div,
   View,
   ScreenSpinner,
   ModalRoot,
   ModalCard,
   ModalPage,
   ModalPageHeader,
+  PanelHeaderButton,
   Input,
   List,
-  Snackbar
+  Snackbar,
+  ANDROID,
+  IOS,
+  withPlatform,
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
@@ -38,14 +41,13 @@ import OtherProfile from '../../components/other_profile'
 //Импортируем модальные карточки
 import ModalPrometay from '../../Modals/Prometay';
 import ModalDonut from '../../Modals/Donut'
+import ModalComment from '../../Modals/Comment';
 
 import Icon24Dismiss              from '@vkontakte/icons/dist/24/dismiss';
 import Icon24Qr                   from '@vkontakte/icons/dist/24/qr';
 // import Icon28MessagesOutline      from '@vkontakte/icons/dist/28/messages_outline';
 import Icon24Linked               from '@vkontakte/icons/dist/24/linked';
 import Icon56MoneyTransferOutline from '@vkontakte/icons/dist/56/money_transfer_outline'
-import Icon20PlaceOutline         from '@vkontakte/icons/dist/20/place_outline';
-import Icon20Stars                from '@vkontakte/icons/dist/20/stars';
 import Icon16CheckCircle          from '@vkontakte/icons/dist/16/check_circle';
 
 
@@ -72,7 +74,7 @@ function qr(agent_id, sheme) {
 const blueBackground = {
   backgroundColor: 'var(--accent)'
 };
-export default class Main extends React.Component {
+export default withPlatform(class Main extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -282,41 +284,11 @@ export default class Main extends React.Component {
       window.removeEventListener('popstate', this.handlePopstate)
     }
     render() {
+      const { platform } = this.props;
         const modal = (
             <ModalRoot
             activeModal={this.state.activeModal}
             >
-              <ModalPage
-                id="settings"
-                onClose={this.modalBack}
-                header={
-                  <ModalPageHeader
-                  right={<Header onClick={this.modalBack}><Icon24Dismiss style={{color: 'var(--placeholder_icon_foreground_primary)'}} /></Header>}
-                  >
-                    Настройки
-                  </ModalPageHeader>
-                }
-                >
-                  <Div style={{display:'flex'}}>
-                    <Button onClick={() => {
-                      this.setActiveModal(null);
-                      this.getRandomTiket();
-
-                    }} 
-                    stretched 
-                    size='l'
-                    // style={{marginRight: '2%'}}
-                    before={<Icon20PlaceOutline />}>Случайный тикет</Button>
-                    <Button onClick={() => {
-                      this.setActiveModal(null);
-                      this.props.this.changeData('scheme',(this.props.this.state.scheme === 'bright_light') ? 'space_gray' : 'bright_light')
-                    }}
-                    stretched 
-                    size='l'
-                    style={{marginLeft: '5%'}}
-                    before={<Icon20Stars />}>Сменить тему</Button>
-                  </Div>
-                </ModalPage>
 
               <ModalPrometay
               id='prom'
@@ -403,7 +375,8 @@ export default class Main extends React.Component {
                 onClose={this.modalBack}
                 header={
                   <ModalPageHeader
-                  right={<Header onClick={this.modalBack}><Icon24Dismiss /></Header>}
+                  right={platform === ANDROID && <Header onClick={this.modalBack}><Icon24Dismiss /></Header>}
+                  left={platform === IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
                   >
                     Поделиться
                   </ModalPageHeader>
@@ -426,7 +399,9 @@ export default class Main extends React.Component {
                 onClose={this.modalBack}
                 header={
                   <ModalPageHeader
-                  right={<Header onClick={this.modalBack}><Icon24Dismiss style={{color: 'var(--placeholder_icon_foreground_primary)'}} /></Header>}
+                  // right={<Header onClick={this.modalBack}><Icon24Dismiss style={{color: 'var(--placeholder_icon_foreground_primary)'}} /></Header>}
+                  right={platform === ANDROID && <Header onClick={this.modalBack}><Icon24Dismiss /></Header>}
+                  left={platform === IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
                   >
                     QR
                   </ModalPageHeader>
@@ -437,6 +412,10 @@ export default class Main extends React.Component {
                  <div className="qr">Отсканируйте камерой ВКонтакте!</div>
                  <br/>
                 </ModalPage>
+                <ModalComment
+                  id='comment'
+                  onClose={this.modalBack}
+                  comment={this.state.comment} />
             </ModalRoot>
         )
         return(
@@ -462,3 +441,4 @@ export default class Main extends React.Component {
         )
     }
 }
+)

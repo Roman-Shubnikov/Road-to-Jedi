@@ -4,6 +4,7 @@ import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { 
   Alert,
   View,
+  ScreenSpinner,
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
@@ -11,6 +12,8 @@ import '../../style.css'
 // Импортируем панели
 import Startov from './panels/start';
 import Startov2 from './panels/start2';
+
+var ignore_back = false;
 
 export default class Start extends React.Component {
     constructor(props) {
@@ -45,13 +48,29 @@ export default class Start extends React.Component {
             this.setActiveModal(this.state.modalHistory[this.state.modalHistory.length - 2]);
         };
         this.goBack = () => {
-          const history = this.state.history;
-          this.setActiveModal(null);
-          if(history.length === 1) {
-              bridge.send("VKWebAppClose", {"status": "success"});
-          } else if (history.length > 1) {
-              history.pop()
-              this.setState({activePanel: history[history.length - 1]})
+          if(!ignore_back){
+            ignore_back = true;
+            const history = this.state.history;
+            if(history.length === 1) {
+                bridge.send("VKWebAppClose", {"status": "success"});
+            } else if (history.length > 1) {
+                history.pop()
+                this.setState({activePanel: history[history.length - 1]})
+                // if(history[history.length - 1] === 'ticket'){
+                //   this.changeData('need_epic', false)
+                // } else{
+                //   this.changeData('need_epic', true)
+                // }
+                this.setPopout(<ScreenSpinner />)
+                setTimeout(() => {
+                  this.setPopout(null)
+                }, 500)
+            }
+            setTimeout(() => {ignore_back = false;}, 500)
+            
+          }else{
+            const history = this.state.history;
+            window.history.pushState( { panel: history[history.length - 1] }, history[history.length - 1] );
           }
       }
         this.goPanel = (panel) => {

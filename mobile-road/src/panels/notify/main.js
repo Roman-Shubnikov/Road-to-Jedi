@@ -8,6 +8,7 @@ import {
   ModalRoot,
   ModalCard,
   Input,
+
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
@@ -20,6 +21,8 @@ import OtherProfile from '../../components/other_profile'
 //Импортируем модальные карточки
 import ModalPrometay from '../../Modals/Prometay';
 import ModalDonut from '../../Modals/Donut'
+import ModalComment from '../../Modals/Comment';
+
 
 
 // const queryString = require('query-string');
@@ -233,6 +236,10 @@ export default class Notify extends React.Component {
                 }]}
               >
               </ModalCard>
+              <ModalComment
+                id='comment'
+                onClose={this.modalBack}
+                comment={this.state.comment} />
             </ModalRoot>
         )
         return(

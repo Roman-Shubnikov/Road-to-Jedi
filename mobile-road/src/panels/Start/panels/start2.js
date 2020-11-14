@@ -14,7 +14,7 @@ import {
     } from '@vkontakte/vkui';
 
 
-import SclidePlaceholder from '../../../images/start_slide_2.png'
+// import SclidePlaceholder from '../../../images/start_slide_2.png'
 
 export default class Start extends React.Component {
         constructor(props) {
@@ -60,7 +60,7 @@ export default class Start extends React.Component {
                   subtitle='Помните, отвечать нужно вдумчиво.'>Вам присвоен номер #{this.props.account.id !== undefined ? this.props.account.id : "undefined"}</Header>
                 <Separator /> */}
                 <Placeholder 
-                icon={<img style={{width: 200, height: 180}} src={SclidePlaceholder} alt='Тут была иконка... Press F to pay respect...' />}
+                // icon={<img style={{width: 200, height: 180}} src={SclidePlaceholder} alt='Тут была иконка... Press F to pay respect...' />}
                 header='Прежде чем начать. Укажите следующие
                                     данные, они помогут нам оценивать
                                     Ваши ответы.'></Placeholder>

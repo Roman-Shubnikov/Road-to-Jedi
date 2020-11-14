@@ -50,8 +50,8 @@ var avatars = [
     "24.png",
     "25.png",
     "26.png",
-    // "27.png",
-    // "28.png",
+    "27.png",
+    "28.png",
 
 ]
 
@@ -84,9 +84,16 @@ export default class Market extends React.Component{
           for (let i = 0; i < number; i++ ) {
               object.push(
                   <img id={i}
-                  onClick={(e) => this.selectImage(e)} 
+                  onClick={(e) => (this.props.account.avatar.id === i +1) ? this.props.this.setSnack(
+                    <Snackbar
+                    layout="vertical"
+                    onClose={() => this.props.this.setSnack(null)}
+                    before={<Icon20CancelCircleFillRed width={24} height={24} />}
+                  >
+                    Вы уже имеете данный аватар
+                  </Snackbar>) : this.selectImage(e)} 
                   style={i === 0 ? {marginLeft: "20px"} : null} 
-                  className="changes_avatars" key={i} 
+                  className="changes_avatars pointer" key={i} 
                   src={"https://xelene.ru/road/php/images/avatars/" + avatars[i]}
                   alt={'ava'} />
               )
@@ -98,7 +105,7 @@ export default class Market extends React.Component{
     let number = e.currentTarget.id;
     if(this.state.last_selected !== null){
       let last_image = document.getElementById(this.state.last_selected)
-      last_image.className = "changes_avatars"
+      last_image.className = "changes_avatars pointer"
     }
     let image = document.getElementById(number);
     

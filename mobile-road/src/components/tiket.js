@@ -12,13 +12,10 @@ import {
     ActionSheetItem,
     PanelHeaderBack,
     Textarea,
-    Avatar,
-    Snackbar,
     } from '@vkontakte/vkui';
 
 import Icon24Up from '@vkontakte/icons/dist/24/up';
 import Icon16ReplyOutline from '@vkontakte/icons/dist/16/reply_outline';
-import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
 
 import Ninja from '../images/Ninja.webp'
 
@@ -53,9 +50,6 @@ function add_month(month) {
     let number_month = new Date(month * 1e3).getMonth()
     return months[number_month - 1]
 }
-const blueBackground = {
-  backgroundColor: 'var(--accent)'
-};
 export default class Ticket extends React.Component {
     constructor(props) {
         super(props);
@@ -66,7 +60,6 @@ export default class Ticket extends React.Component {
             tiket_send_message: '',
             add_comment: false,
             redaction: false,
-            snackbar: null,
             
 
 
@@ -527,7 +520,7 @@ export default class Ticket extends React.Component {
             <PanelHeader 
                 left={<PanelHeaderBack onClick={() => window.history.back()} />}
             >
-                {this.state.tiket_info ? <span id="animation" onClick={() => this.copy(this.state.tiket_info['id'])}>Вопрос #{this.state.tiket_info['id']}</span> : null}
+                {this.state.tiket_info ? <span id="animation" className='pointer' onClick={() => this.copy(this.state.tiket_info['id'])}>Вопрос #{this.state.tiket_info['id']}</span> : null}
             </PanelHeader>
             {/* MESSAGES */}
             {this.state.tiket_info ? <>
@@ -586,8 +579,6 @@ export default class Ticket extends React.Component {
                         )}) : null}
                         {!((this.state.tiket_info['status'] === 1) || (this.state.tiket_info['status'] === 2)) ? <div style={{marginBottom: '20vh'}}></div> : <div style={{marginBottom: '5vh'}}></div>}
                       </>
-                      {console.log(this.state.snackbar)}
-                      {this.state.snackbar}
             {/* INPUT */}
             {this.state.tiket_info['status'] === 0 || (this.state.redaction === true || this.state.add_comment === true) ? 
                 //  <div id="other" className="other">

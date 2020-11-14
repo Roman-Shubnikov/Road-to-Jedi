@@ -52,7 +52,7 @@ function fix_time(time) {
                 this.setState({other_profile: data.response})
                 this.setPopout(null)
               }else {
-                this.showErrorAlert(data.error.message, () => window.history.back())
+                this.showErrorAlert(data.error.message, () => {window.history.back();this.props.this.setPopout(null)})
               }
             })
             .catch(err => {
@@ -159,7 +159,7 @@ function fix_time(time) {
                     left={
                         <PanelHeaderBack onClick={() => window.history.back()}></PanelHeaderBack>
                     }>
-                        <span onClick={() => this.copy(this.state.other_profile['id'], this.state.other_profile['flash'])}>Профиль</span>
+                        <span className='pointer' onClick={() => this.copy(this.state.other_profile['id'], this.state.other_profile['flash'])}>Профиль</span>
                 </PanelHeader>
                 
                 {this.state.other_profile ? <>

@@ -86,9 +86,9 @@ export default class SchemeChange extends React.Component{
                 <Separator style={{marginTop: 10}} />
                 <FormLayout>
                     <div>
-                    <Radio name="radio" onChange={this.ChangeScheme} value="1" defaultChecked={(this.props.account.scheme === 1) ? true : false}>Светлая тема</Radio>
-                    <Radio name="radio" onChange={this.ChangeScheme} value="2" defaultChecked={(this.props.account.scheme === 2) ? true : false}>Тёмная тема</Radio>
-                    <Radio name="radio" onChange={this.ChangeScheme} value="0" description='Сервис будет использовать тему, установленную в настройках ВКонтакте' defaultChecked={(this.props.account.scheme === 0) ? true : false}>Автоматически</Radio>
+                    <Radio name="radio" className="pointer" onChange={this.ChangeScheme} value="1" defaultChecked={(this.props.account.scheme === 1) ? true : false}>Светлая тема</Radio>
+                    <Radio name="radio" className="pointer" onChange={this.ChangeScheme} value="2" defaultChecked={(this.props.account.scheme === 2) ? true : false}>Тёмная тема</Radio>
+                    <Radio name="radio" className="pointer" onChange={this.ChangeScheme} value="0" description='Сервис будет использовать тему, установленную в настройках ВКонтакте' defaultChecked={(this.props.account.scheme === 0) ? true : false}>Автоматически</Radio>
                     </div>
                 </FormLayout>
             </Panel>

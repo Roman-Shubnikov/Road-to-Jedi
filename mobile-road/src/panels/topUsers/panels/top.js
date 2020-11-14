@@ -69,6 +69,7 @@ import Icon16StarCircleFillYellow from '@vkontakte/icons/dist/16/star_circle_fil
                     <React.Fragment key={result.id}>
                       <Separator/>
                     <SimpleCell
+                    className="pointer"
                       onClick={() => {props.goOtherProfile(result['id'], true);this.setState({top_agents: null});}}
                       description={
                         <div className="top_moderator_desc">

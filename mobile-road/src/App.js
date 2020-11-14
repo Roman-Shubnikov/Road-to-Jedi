@@ -71,29 +71,39 @@ class App extends React.Component {
               if(!isEmpty(this.state.account)){
                 if(Number(this.state.account.scheme) === 0){
                   this.setState({scheme: this.state.default_scheme})
+                  if(this.state.default_scheme === 'bright_light'){
+                    if(platformname){
+                      bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF",'navigation_bar_color': "#FFFFFF"});
+                    }
+                  }
+                  if(this.state.default_scheme === 'space_gray'){
+                    if(platformname){
+                      bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A",'navigation_bar_color': "#19191A"});
+                    }
+                  }
                 }
                 if(Number(this.state.account.scheme) === 1){
                   this.setState({scheme: 'bright_light'})
                   if(platformname){
-                    bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF"});
+                    bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF",'navigation_bar_color': "#FFFFFF"});
                   }
                   
                 }
                 if(Number(this.state.account.scheme) === 2){
                   this.setState({scheme: 'space_gray'})
                   if(platformname){
-                    bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A"});
+                    bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A",'navigation_bar_color': "#19191A"});
                   }
                 }
               }else{
                 this.setState({scheme: data.scheme})
                 if(data.scheme === 'space_gray'){
                   if(platformname){
-                    bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A"});
+                    bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A",'navigation_bar_color': "#19191A"});
                   }
                 }else{
                   if(platformname){
-                    bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF"});
+                    bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF",'navigation_bar_color': "#FFFFFF"});
                   }
                 }
                 }
@@ -171,24 +181,24 @@ class App extends React.Component {
             if(Number(this.state.account.scheme) === 1){
               this.setState({scheme: 'bright_light'})
               if(platformname){
-                bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF"});
+                bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF",'navigation_bar_color': "#FFFFFF"});
               }
             }
             if(Number(this.state.account.scheme) === 2){
               this.setState({scheme: 'space_gray'})
               if(platformname){
-                bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A"});
+                bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A",'navigation_bar_color': "#19191A"});
               }
             }
           }else{
             this.setState({scheme: data.scheme})
             if(data.scheme === 'space_gray'){
               if(platformname){
-                bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A"});
+                bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A",'navigation_bar_color': "#19191A"});
               }
             }else{
               if(platformname){
-                bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF"});
+                bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF",'navigation_bar_color': "#FFFFFF"});
               }
             }
             }
@@ -202,13 +212,13 @@ class App extends React.Component {
               if(Number(this.state.account.scheme) === 1){
                 this.setState({scheme: 'bright_light'})
                 if(platformname){
-                  bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF"});
+                  bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF"});
                 }
               }
               if(Number(this.state.account.scheme) === 2){
                 this.setState({scheme: 'space_gray'})
                 if(platformname){
-                  bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A"});
+                  bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A",'navigation_bar_color': "#19191A"});
                 }
               }
             if(this.state.account.is_first_start){

@@ -50,7 +50,7 @@ class Users {
 		$res = db_get( $sql );
 
 		if ( empty( $res ) ) {
-			Show::error(404);
+			Show::error(40);
 		}
 
 		return $this->_formatType( $res[0] );

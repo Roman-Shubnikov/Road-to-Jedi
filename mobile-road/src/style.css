@@ -48,7 +48,7 @@ a{
 #profile_help {
     --background_page: var(--background_page_my);
 }
-.pointer,button {
+.pointer,button,.Button,.TabbarItem,.CellButton {
     cursor: pointer;
 }
 .animation:active {

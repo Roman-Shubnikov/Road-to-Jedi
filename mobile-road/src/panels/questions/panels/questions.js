@@ -116,6 +116,7 @@ export default class Questions extends React.Component {
                     {this.props.tiket_all ? this.props.tiket_all.length > 0 ? this.props.tiket_all.map((result, i) => 
                     <React.Fragment key={i}>
                         <Cell
+                            className="pointer"
                             onClick={() => {this.setState({tiket_all: null});props.goTiket(result['id'])}}
                             description={result['status'] === 0 ? "На рассмотрении" : result['status'] === 1 ? "Есть ответ" : "Закрыт" } 
                             asideContent={<Avatar src={result['author']['id'] === 526444378 ? "https://cdn3.iconfinder.com/data/icons/avatars-15/64/_Ninja-2-512.png" : result['author']['photo_200']} size={56}/>}

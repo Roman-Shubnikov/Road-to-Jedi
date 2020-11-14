@@ -116,6 +116,7 @@ export default class myQuestions extends React.Component {
                     <React.Fragment key={result.id}> 
                     <Cell
                         key={i}
+                        className='pointer'
                         onClick={() => props.goTiket(result['ticket_id'])}
                         description={new Date(result['time'] * 1e3).getDate() + " " + months[new Date(result['time'] * 1e3).getMonth()] + " " + new Date(result['time'] * 1e3).getFullYear() + " в " 
                         + fix_time(new Date(result['time'] * 1e3).getHours()) + ":" + fix_time(new Date(result['time'] * 1e3).getMinutes())}

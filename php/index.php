@@ -600,7 +600,7 @@ switch ( $method ) {
 	case 'shop.changeId':
 		$id = $_REQUEST['change_id'];
 		$len = mb_strlen($id);
-		if(preg_match("/^[a-zA-ZА-Яа-я0-9_ ]$/i", $id)){
+		if(preg_match("/^[a-zA-ZА-Яа-я0-9_ ]*$/u", $id)){
 			$user_id = $_GET['vk_user_id'];
 			
 			if( $len < 11 && $len > 0 ) {
@@ -629,7 +629,7 @@ switch ( $method ) {
 
 	case 'shop.changeAvatar':
 		$id = $_REQUEST['avatar_id'];
-		if( $id <= 26 && $id > 0 ) {
+		if( $id <= 28 && $id > 0 ) {
 			$balance = getBalance();
 			$user_id = $_GET['vk_user_id'];
 			if( $balance >= 1 ) {

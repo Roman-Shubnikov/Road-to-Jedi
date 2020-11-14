@@ -5,14 +5,10 @@ import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { 
   Alert,
   Avatar,
-  Header,
-  Div,
   View,
   ScreenSpinner,
   ModalRoot,
   ModalCard,
-  ModalPage,
-  ModalPageHeader,
   Input,
   } from '@vkontakte/vkui';
 
@@ -27,8 +23,8 @@ import OtherProfile from '../../components/other_profile'
 //Импортируем модальные карточки
 import ModalPrometay from '../../Modals/Prometay';
 import ModalDonut from '../../Modals/Donut'
+import ModalComment from '../../Modals/Comment';
 
-import Icon24Dismiss from '@vkontakte/icons/dist/24/dismiss';
 
 const queryString = require('query-string');
 // const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
@@ -36,6 +32,7 @@ const queryString = require('query-string');
 const hash = queryString.parse(window.location.hash);
 var ignore_hash = false;
 var ignore_back = false;
+
 
 export default class Main extends React.Component {
     constructor(props) {
@@ -81,9 +78,13 @@ export default class Main extends React.Component {
           .then(res => res.json())
           .then(data => {
             if(data.result) {
-              this.setState({tiket_all: []})
-              if(this.state.tiket_all){
-                  var sliyan = data.response ? this.state.tiket_all.concat(data.response) : this.state.tiket_all;
+              // this.setState({tiket_all: []})
+              var sliyan = [];
+              if(this.state.tiket_all !== null){
+                let tickets = this.state.tiket_all.slice();
+                  sliyan = data.response ? tickets.concat(data.response) : this.state.tiket_all;
+              }else{
+                sliyan = data.response
               }
               
               this.setState({tiket_all: sliyan, tiket_all_helper: data.response})
@@ -127,20 +128,22 @@ export default class Main extends React.Component {
           // this.setPopout(<ScreenSpinner />)
           if(!ignore_back){
             ignore_back = true;
-            console.log('abc')
             const history = this.state.history;
             this.setActiveModal(null);
             if(history.length === 1) {
                 bridge.send("VKWebAppClose", {"status": "success"});
             } else if (history.length > 1) {
                 history.pop()
-                console.log(history)
                 this.setState({activePanel: history[history.length - 1]})
                 // if(history[history.length - 1] === 'ticket'){
                 //   this.changeData('need_epic', false)
                 // } else{
                 //   this.changeData('need_epic', true)
                 // }
+                this.setPopout(<ScreenSpinner />)
+                setTimeout(() => {
+                  this.setPopout(null)
+                }, 500)
             }
             setTimeout(() => {ignore_back = false;}, 500)
             
@@ -203,7 +206,7 @@ export default class Main extends React.Component {
                   mode: 'cancel',
                   action: action,
                   }]}
-                  onClose={() => this.setPopout(null)}
+                  onClose={action ? action : () => this.setPopout(null)}
               >
                 <h2>Ошибка</h2>
                 {error ? <p>{error}</p> : <p>Что-то пошло не так, попробуйте снова!</p>}
@@ -320,21 +323,10 @@ export default class Main extends React.Component {
                 }]}
               >
               </ModalCard>
-              <ModalPage
-                id="comment"
+              <ModalComment
+                id='comment'
                 onClose={this.modalBack}
-                header={
-                  <ModalPageHeader
-                  right={<Header onClick={this.modalBack}><Icon24Dismiss /></Header>}
-                  >
-                    Комментарий
-                  </ModalPageHeader>
-                }
-                >
-                  <Div>
-                    <div style={{whiteSpace: "pre-wrap"}}>{this.state.comment}</div>
-                  </Div>
-                </ModalPage>
+                comment={this.state.comment} />
             </ModalRoot>
         )
         return(

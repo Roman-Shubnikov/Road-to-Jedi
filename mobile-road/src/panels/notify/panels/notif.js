@@ -116,7 +116,6 @@ export default class ReaderNotif extends React.Component {
                     </React.Fragment>
                     ) :
                     <Placeholder 
-                    stretched
                     icon={<Icon56NotificationOutline />}>
                         У Вас нет новых уведомлений
                     </Placeholder>

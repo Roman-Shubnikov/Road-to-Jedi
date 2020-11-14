@@ -3,17 +3,12 @@ import bridge from '@vkontakte/vk-bridge'; // VK Brige
 
 
 import { 
-  Button,
   Alert,
   Avatar,
-  Header,
-  Div,
   View,
   ScreenSpinner,
   ModalRoot,
   ModalCard,
-  ModalPage,
-  ModalPageHeader,
   Input,
   } from '@vkontakte/vkui';
 
@@ -27,9 +22,6 @@ import OtherProfile from '../../components/other_profile';
 import ModalPrometay from '../../Modals/Prometay';
 import ModalDonut from '../../Modals/Donut'
 
-import Icon24Dismiss from '@vkontakte/icons/dist/24/dismiss';
-import Icon20PlaceOutline from '@vkontakte/icons/dist/20/place_outline';
-import Icon20Stars from '@vkontakte/icons/dist/20/stars';
 
 // const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
@@ -245,37 +237,6 @@ export default class Main extends React.Component {
             <ModalRoot
             activeModal={this.state.activeModal}
             >
-              <ModalPage
-                id="settings"
-                onClose={this.modalBack}
-                header={
-                  <ModalPageHeader
-                  right={<Header onClick={this.modalBack}><Icon24Dismiss style={{color: 'var(--placeholder_icon_foreground_primary)'}} /></Header>}
-                  >
-                    Настройки
-                  </ModalPageHeader>
-                }
-                >
-                  <Div style={{display:'flex'}}>
-                    <Button onClick={() => {
-                      this.setActiveModal(null);
-                      this.getRandomTiket();
-
-                    }} 
-                    stretched 
-                    size='l'
-                    // style={{marginRight: '2%'}}
-                    before={<Icon20PlaceOutline />}>Случайный тикет</Button>
-                    <Button onClick={() => {
-                      this.setActiveModal(null);
-                      this.props.this.changeData('scheme',(this.props.this.state.scheme === 'bright_light') ? 'space_gray' : 'bright_light')
-                    }}
-                    stretched 
-                    size='l'
-                    style={{marginLeft: '5%'}}
-                    before={<Icon20Stars />}>Сменить тему</Button>
-                  </Div>
-                </ModalPage>
               <ModalPrometay
               id='prom'
               onClose={() => this.setActiveModal(null)}

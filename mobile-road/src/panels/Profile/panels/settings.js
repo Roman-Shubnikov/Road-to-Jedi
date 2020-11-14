@@ -80,9 +80,12 @@ export default class Settings extends React.Component{
                 <Group>
                   <SimpleCell
                   before={<Icon28PaletteOutline />}
+                  className='pointer'
                   expandable
                   onClick={() => props.goPanel('schemechange')}>Смена темы</SimpleCell>
+
                   <SimpleCell
+                  className='pointer'
                   indicator={this.props.account['verified'] ? 'Присвоен' : null}
                   disabled={this.props.account['verified']}
                   expandable={!this.props.account['verified']}
@@ -93,11 +96,14 @@ export default class Settings extends React.Component{
                 </Group>
                 <Group>
                   <SimpleCell
+                  className='pointer'
                   disabled
                   indicator={<Counter>{this.props.account.balance}</Counter>}
                   before={<Icon28CoinsOutline />}>Баланс</SimpleCell>
                   
-                  {(platform() !== IOS) ? <SimpleCell
+                  {(platform() !== IOS) ? 
+                  <SimpleCell
+                  className='pointer'
                   expandable
                   href="https://vk.com/jedi_road?source=description&w=donut_payment-188280516"
                   target="_blank" rel="noopener noreferrer"
@@ -105,6 +111,7 @@ export default class Settings extends React.Component{
                 </Group>
                 <Group>
                   <SimpleCell
+                  className='pointer'
                   expandable
                   onClick={() => {
                       this.props.this.goPanel("info");

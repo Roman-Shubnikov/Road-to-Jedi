@@ -34,6 +34,7 @@ export default class Info extends React.Component{
                 <Separator />
                 <Group>
                   <SimpleCell
+                  className="pointer"
                   before={<Icon28RadiowavesLeftAndRightCircleFillRed />}
                   href='https://vk.com/jedi_road'
                   target="_blank"
@@ -41,6 +42,7 @@ export default class Info extends React.Component{
                     Официальное сообщество
                   </SimpleCell>
                   <SimpleCell
+                  className="pointer"
                   before={<Icon28MessagesCircleFillYellow />}
                   href='https://vk.me/jedi_road'
                   target="_blank"

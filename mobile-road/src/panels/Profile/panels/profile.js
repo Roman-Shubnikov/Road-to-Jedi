@@ -55,6 +55,7 @@ export default class Profile extends React.Component{
                     <PanelHeaderButton label={this.props.account.notif_count ? <Counter size="s" mode="prominent">{this.props.account.notif_count}</Counter> : null}
                     onClick={() => {
                         this.props.this.changeData("activeStory", 'notif');
+                        window.history.pushState( { panel: 'notif' }, 'notif' );
                     }}>
                         <Icon28Notifications/>
                     </PanelHeaderButton></>}>Профиль</PanelHeader>
@@ -101,6 +102,7 @@ export default class Profile extends React.Component{
                         <Group>
                             <SimpleCell
                                 expandable
+                                className='pointer'
                                 href="https://vk.me/join/zyWQzsgQ9iw6V2YAfbwiGtuO883rnYhXwAY="
                                 target="_blank" rel="noopener noreferrer"
                                 before={<Icon28Messages />}>
@@ -111,12 +113,14 @@ export default class Profile extends React.Component{
                         <Group>
                             <SimpleCell
                             expandable
+                            className='pointer'
                             onClick={() => {
                                 this.props.this.goPanel('qu');
                             }}
                             before={<Icon28PollSquareOutline />}>Мои ответы</SimpleCell>
                             <SimpleCell
                             expandable
+                            className='pointer'
                             onClick={() => {
                                 this.props.this.goPanel('market');
                             }}
