@@ -9,6 +9,10 @@ div,p{
     -ms-user-select: none;       /* Internet Explorer/Edge */
     user-select: none;           
 }
+a{
+    color: var(--accent);
+    text-decoration: none;
+}
 
 
 #other_profile {

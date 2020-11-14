@@ -1,4 +1,5 @@
 import React from 'react'
+import { Anchorme } from 'react-anchorme'
 
 import Icon16Done from '@vkontakte/icons/dist/16/done';
 import Icon16Cancel from '@vkontakte/icons/dist/16/cancel';
@@ -15,7 +16,7 @@ const Message = props => (
                         {props.title} 
                         {/* {props.approved ? '✔️' : ''} */}
                     </p>
-                    <p className="text_message">{props.children}</p>
+                    <p className="text_message"><Anchorme target="_blank" rel="noreferrer noopener">{props.children}</Anchorme></p>
                     
                 </div>
                 {props.is_mark === 1 ? 
@@ -40,7 +41,7 @@ const Message = props => (
         <img className="avatar_message" src={props.avatar} alt={'а'} />
         <div className={props.clickable ? 'pointer message_report animation' : 'message_report'} onClick={() => props.onClick()}>
             <p className="moderator_name_message">{props.title}</p>
-            <p>{props.children}</p>
+            <p><Anchorme target="_blank" rel="noreferrer noopener">{props.children}</Anchorme></p>
             <p className="time_message">{props.time}</p>
         </div>
     </div>

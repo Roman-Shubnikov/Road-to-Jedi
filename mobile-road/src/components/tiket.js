@@ -12,10 +12,14 @@ import {
     ActionSheetItem,
     PanelHeaderBack,
     Textarea,
+    Avatar,
+    Snackbar,
     } from '@vkontakte/vkui';
 
 import Icon24Up from '@vkontakte/icons/dist/24/up';
 import Icon16ReplyOutline from '@vkontakte/icons/dist/16/reply_outline';
+import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
+
 import Ninja from '../images/Ninja.webp'
 
 import Message from './message'
@@ -49,7 +53,9 @@ function add_month(month) {
     let number_month = new Date(month * 1e3).getMonth()
     return months[number_month - 1]
 }
-
+const blueBackground = {
+  backgroundColor: 'var(--accent)'
+};
 export default class Ticket extends React.Component {
     constructor(props) {
         super(props);
@@ -60,6 +66,7 @@ export default class Ticket extends React.Component {
             tiket_send_message: '',
             add_comment: false,
             redaction: false,
+            snackbar: null,
             
 
 
@@ -74,6 +81,9 @@ export default class Ticket extends React.Component {
           var name = event.currentTarget.name;
           var value = event.currentTarget.value;
           this.setState({ [name]: value });
+        }
+        this.setSnack = (value) => {
+          this.setState({snackbar: value})
         }
 
     }
@@ -138,6 +148,20 @@ export default class Ticket extends React.Component {
           .then(data => {
             if(data.result) {
               this.setPopout(null)
+              fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
+                .then(res => res.json())
+                .then(data => {
+                  if(data.result) {
+                    this.setState({tiket_message: data.response, tiket_send_message: "",add_comment: false, redaction: false})
+                    this.setPopout(null)
+                  }else {
+                    this.showErrorAlert(data.error.message)
+                  }
+                })
+                .catch(err => {
+                  this.showErrorAlert(err)
+    
+                })
             } else {
               this.showErrorAlert(data.error.message)
             }
@@ -147,7 +171,7 @@ export default class Ticket extends React.Component {
     
           })
       }
-      Admin(id, author_id, text, comment,avatar=null, mark = -1){
+      Admin(approved, id, author_id, text, comment,avatar=null, mark = -1){
         if(author_id > 0){
           this.props.this.setPopout(
             <ActionSheet onClose={() => this.setPopout(null)}>
@@ -166,7 +190,7 @@ export default class Ticket extends React.Component {
                 Оценить отрицательно
               </ActionSheetItem> 
               : null }
-              { this.props.account.special === true && author_id > 0 ? 
+              { (this.props.account.special === true && author_id > 0 && !approved) ? 
               <ActionSheetItem autoclose onClick={() => this.sendClear(id)}>
                 Одобрить
               </ActionSheetItem> 
@@ -181,7 +205,7 @@ export default class Ticket extends React.Component {
              Редактировать
              </ActionSheetItem>
              : null}
-          {(comment !== null || comment !== undefined) ? null : 
+          {(comment === null || comment === undefined) ? null : 
               <ActionSheetItem autoclose onClick={() => {this.props.this.setState({comment: comment}); this.setActiveModal("comment")}}>
               Просмотреть комментарий
             </ActionSheetItem>}
@@ -194,7 +218,8 @@ export default class Ticket extends React.Component {
             </ActionSheet>
           )
         }else{
-          if(this.state.special){
+          if(this.props.account.special){
+            
             this.props.this.setPopout(
               <ActionSheet onClose={() => this.setPopout(null)}>
                 { (this.props.account.special) ? 
@@ -258,6 +283,18 @@ export default class Ticket extends React.Component {
             </ActionSheetItem>
             {<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}
           </ActionSheet>)
+      }
+      clickable_user_message(author_id){
+        console.log(author_id)
+        let clickable = true;
+        if(author_id < 0){
+          if(!this.props.account.special){
+            if(!Boolean(Number(author_id === this.props.account.id))){
+              clickable = false;
+            }
+          }
+        }
+        return clickable;
       }
       sendNewMessage() {
         if(this.state.tiket_send_message.length >= 5) {
@@ -512,7 +549,7 @@ export default class Ticket extends React.Component {
                                 title_icon={result.moderator_comment !== undefined ? <Icon16ReplyOutline width={10} height={10} style={{display: "inline-block"}}/> : false}
                                 is_mine={is_mine_message === is_mine_ticket}
                                 avatar={avatar}
-                                onClick={() => thisOb.Admin(result['id'], result['author'].first_name ? -result['author']['id'] : result['author']['id'] , result['text'], result.moderator_comment !== undefined ? result['moderator_comment']['text'] : null,avatar, result['mark'])}
+                                onClick={() => thisOb.Admin(result['approved'],result['id'], result['author'].first_name ? -result['author']['id'] : result['author']['id'] , result['text'], result.moderator_comment !== undefined ? result['moderator_comment']['text'] : null,avatar, result['mark'])}
                                 key={i}
                                 is_special={thisOb.props.account.special}
                                 is_mark={result.mark}
@@ -528,14 +565,14 @@ export default class Ticket extends React.Component {
                             
                             :
                             <Message 
-                                clickable={true}
+                                clickable={!thisOb.props.account.special ? false : true}
                                 title={result.author.id === 526444378 ? "Витёк" : result.author.is_moderator ? title_moder : result.author.first_name + " " + result.author.last_name} 
                                 title_icon={result.moderator_comment !== undefined ? <Icon16ReplyOutline width={10} height={10} style={{display: "inline-block"}}/> : false}
                                 is_mine={result.author.is_moderator}
                                 avatar={result.author.id === 526444378 ? Ninja : avatar}
                                 key={i}
                                 time={time}
-                                onClick={() => thisOb.Admin(result['id'], result['author'].first_name ? -result['author']['id'] : result['author']['id'], result['text'], result.moderator_comment !== undefined ? result['moderator_comment']['text'] : null,avatar, result['mark'])}
+                                onClick={() => thisOb.Admin(result['approved'], result['id'], result['author'].first_name ? -result['author']['id'] : result['author']['id'], result['text'], result.moderator_comment !== undefined ? result['moderator_comment']['text'] : null,avatar, result['mark'])}
                                 is_special={thisOb.props.account.special}
                                 is_mark={result.mark}
                                 sendRayt_false={() => thisOb.sendRayt(false, result.id)}
@@ -549,6 +586,8 @@ export default class Ticket extends React.Component {
                         )}) : null}
                         {!((this.state.tiket_info['status'] === 1) || (this.state.tiket_info['status'] === 2)) ? <div style={{marginBottom: '20vh'}}></div> : <div style={{marginBottom: '5vh'}}></div>}
                       </>
+                      {console.log(this.state.snackbar)}
+                      {this.state.snackbar}
             {/* INPUT */}
             {this.state.tiket_info['status'] === 0 || (this.state.redaction === true || this.state.add_comment === true) ? 
                 //  <div id="other" className="other">

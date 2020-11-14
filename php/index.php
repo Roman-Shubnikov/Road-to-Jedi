@@ -599,26 +599,31 @@ switch ( $method ) {
 		Show::response( $notifications->getCount() );
 	case 'shop.changeId':
 		$id = $_REQUEST['change_id'];
-		$user_id = $_GET['vk_user_id'];
 		$len = mb_strlen($id);
-		if( $len < 11 && $len > 0 ) {
-			$balance_profile = getBalance();
-			if( $balance_profile >= 2 ) {
-				$check_id = db_get("SELECT id FROM users WHERE id = $id OR nickname = $id");
-				if( count($check_id) == 0 ) {
-					db_edit(['money' => $balance_profile - 2], "vk_user_id=$user_id", 'users');
-					db_edit(['nickname' => $id], "vk_user_id=$user_id", 'users');
-					Show::response(
-						['balance' => $balance_profile - 2]
-					);
+		if(preg_match("/^[a-zA-ZА-Яа-я0-9_ ]$/i", $id)){
+			$user_id = $_GET['vk_user_id'];
+			
+			if( $len < 11 && $len > 0 ) {
+				$balance_profile = getBalance();
+				if( $balance_profile >= 2 ) {
+					$check_id = db_get("SELECT id FROM users WHERE id = $id OR nickname = $id");
+					if( count($check_id) == 0 ) {
+						db_edit(['money' => $balance_profile - 2], "vk_user_id=$user_id", 'users');
+						db_edit(['nickname' => $id], "vk_user_id=$user_id", 'users');
+						Show::response(
+							['balance' => $balance_profile - 2]
+						);
+					} else {
+						Show::error(1003);
+					}
 				} else {
-					Show::error(1003);
+					Show::error(1002);
 				}
 			} else {
-				Show::error(1002);
+				Show::error(1004);
 			}
-		} else {
-			Show::error(1004);
+		}else{
+			Show::error(1012);
 		}
 		break;
 

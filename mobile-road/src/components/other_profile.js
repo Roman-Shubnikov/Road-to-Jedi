@@ -157,7 +157,7 @@ function fix_time(time) {
                 <Panel id={this.props.id}>
                 <PanelHeader 
                     left={
-                        <PanelHeaderBack onClick={() => {window.history.back();}}></PanelHeaderBack>
+                        <PanelHeaderBack onClick={() => window.history.back()}></PanelHeaderBack>
                     }>
                         <span onClick={() => this.copy(this.state.other_profile['id'], this.state.other_profile['flash'])}>Профиль</span>
                 </PanelHeader>

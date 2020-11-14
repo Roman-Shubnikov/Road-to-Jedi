@@ -35,6 +35,7 @@ const queryString = require('query-string');
 // const parsedHash = queryString.parse(window.location.search.replace('?', ''));
 const hash = queryString.parse(window.location.hash);
 var ignore_hash = false;
+var ignore_back = false;
 
 export default class Main extends React.Component {
     constructor(props) {
@@ -123,19 +124,31 @@ export default class Main extends React.Component {
             this.setActiveModal(this.state.modalHistory[this.state.modalHistory.length - 2]);
         };
         this.goBack = () => {
-          const history = this.state.history;
-          this.setActiveModal(null);
-          if(history.length === 1) {
-              bridge.send("VKWebAppClose", {"status": "success"});
-          } else if (history.length > 1) {
-              history.pop()
-              this.setState({activePanel: history[history.length - 1]})
-              // if(history[history.length - 1] === 'ticket'){
-              //   this.changeData('need_epic', false)
-              // } else{
-              //   this.changeData('need_epic', true)
-              // }
+          // this.setPopout(<ScreenSpinner />)
+          if(!ignore_back){
+            ignore_back = true;
+            console.log('abc')
+            const history = this.state.history;
+            this.setActiveModal(null);
+            if(history.length === 1) {
+                bridge.send("VKWebAppClose", {"status": "success"});
+            } else if (history.length > 1) {
+                history.pop()
+                console.log(history)
+                this.setState({activePanel: history[history.length - 1]})
+                // if(history[history.length - 1] === 'ticket'){
+                //   this.changeData('need_epic', false)
+                // } else{
+                //   this.changeData('need_epic', true)
+                // }
+            }
+            setTimeout(() => {ignore_back = false;}, 500)
+            
+          }else{
+            const history = this.state.history;
+            window.history.pushState( { panel: history[history.length - 1] }, history[history.length - 1] );
           }
+          
       }
         this.goPanel = (panel) => {
           let history = this.state.history.slice();
