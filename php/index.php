@@ -624,7 +624,7 @@ switch ( $method ) {
 
 	case 'shop.changeAvatar':
 		$id = $_REQUEST['avatar_id'];
-		if( $id <= 25 && $id > 0 ) {
+		if( $id <= 26 && $id > 0 ) {
 			$balance = getBalance();
 			$user_id = $_GET['vk_user_id'];
 			if( $balance >= 1 ) {

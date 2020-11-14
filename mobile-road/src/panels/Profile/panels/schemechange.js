@@ -73,11 +73,15 @@ export default class SchemeChange extends React.Component{
                 title='Пользователь'
                 is_mine={false}
                 avatar={avaUser}
-                >О тут можно менять тему</Message>
+                onClick={() => {}}
+                clickable={false}
+                >О, тут можно менять тему</Message>
                 <Message
                 title='Агент Поддержки'
                 is_mine={true}
                 avatar={avaAgent}
+                onClick={() => {}}
+                clickable={false}
                 >Действительно</Message>
                 <Separator style={{marginTop: 10}} />
                 <FormLayout>

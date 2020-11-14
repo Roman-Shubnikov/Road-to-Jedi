@@ -2,7 +2,6 @@ import React from 'react';
 import { 
     Panel,
     PanelHeader,
-    Group,
     Input,
     Avatar,
     Button,
@@ -50,7 +49,7 @@ var avatars = [
     "23.png",
     "24.png",
     "25.png",
-    // "26.png",
+    "26.png",
     // "27.png",
     // "28.png",
 

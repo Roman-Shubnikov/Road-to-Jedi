@@ -34,6 +34,7 @@ const queryString = require('query-string');
 // const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 // const parsedHash = queryString.parse(window.location.search.replace('?', ''));
 const hash = queryString.parse(window.location.hash);
+var ignore_hash = false;
 
 export default class Main extends React.Component {
     constructor(props) {
@@ -233,18 +234,22 @@ export default class Main extends React.Component {
     componentDidMount(){
       window.addEventListener('popstate', this.handlePopstate); 
       this.changeData('need_epic', true)
+      if(!ignore_hash){
         if(hash.ticket_id !== undefined){
           this.goTiket(hash.ticket_id)
-          bridge.send("VKWebAppSetLocation", {"location": ""});
+          // bridge.send("VKWebAppSetLocation", {"location": ""});
         }
         if(hash.agent_id !== undefined) {
           this.goOtherProfile(hash.agent_id);
-          bridge.send("VKWebAppSetLocation", {"location": ""});
+          // bridge.send("VKWebAppSetLocation", {"location": ""});
+      }
+        
         //   if(window.history.pushState) {
         //     window.history.pushState('', '/', window.location.pathname + window.location.search)
         // } else {
         //     window.location.hash = '';
         // }
+        ignore_hash = true;
         }
         this.getQuestions()
       

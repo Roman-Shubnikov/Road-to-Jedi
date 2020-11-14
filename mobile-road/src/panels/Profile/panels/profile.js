@@ -11,7 +11,6 @@ import {
     Counter,
     SimpleCell,
     Div,
-    FixedLayout,
     FormStatus,
     PullToRefresh,
     } from '@vkontakte/vkui';

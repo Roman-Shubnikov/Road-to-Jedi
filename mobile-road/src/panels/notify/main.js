@@ -1,5 +1,4 @@
 import React from 'react'; // React
-import bridge from '@vkontakte/vk-bridge'; // VK Brige
 
 import { 
   Alert,
@@ -93,7 +92,7 @@ export default class Notify extends React.Component {
           const history = this.state.history;
           this.setActiveModal(null);
           if(history.length === 1) {
-              bridge.send("VKWebAppClose", {"status": "success"});
+            this.props.this.changeData("activeStory", 'profile')
           } else if (history.length > 1) {
               history.pop()
               this.setState({activePanel: history[history.length - 1]})

@@ -44,6 +44,12 @@ div,p{
 #profile_help {
     --background_page: var(--background_page_my);
 }
+.pointer,button {
+    cursor: pointer;
+}
+.animation:active {
+    opacity: 0.6;
+}
 .AvaModalPage {
     display: block;
     margin: 20px auto;

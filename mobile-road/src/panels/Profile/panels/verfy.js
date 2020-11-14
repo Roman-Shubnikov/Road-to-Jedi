@@ -1,11 +1,8 @@
 import React from 'react';
-import bridge from '@vkontakte/vk-bridge'; // VK Brige
-
 
 import { 
     Panel,
     PanelHeader,
-    SimpleCell,
     PanelHeaderBack,
     Div,
     FormLayout,
@@ -14,15 +11,13 @@ import {
     Textarea,
     Checkbox,
     Button,
-    FormStatus,
     Link,
     Placeholder,
-    FixedLayout,
     ScreenSpinner,
 
     } from '@vkontakte/vkui';
 
-import Icon28SmartphoneOutline from '@vkontakte/icons/dist/28/smartphone_outline';
+// import Icon28SmartphoneOutline from '@vkontakte/icons/dist/28/smartphone_outline';
 import VerfIcon from '../../../images/verfload.png';
 
 // const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));

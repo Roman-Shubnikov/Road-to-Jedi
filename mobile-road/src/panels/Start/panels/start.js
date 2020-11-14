@@ -4,23 +4,9 @@ import {
     Button,
     Panel,
     PanelHeader,
-    Group,
-    Separator,
-    Header,
-    SimpleCell,
     Div,
-    ScreenSpinner,
-    FormLayout,
-    FormStatus,
-    Slider,
     Placeholder,
     } from '@vkontakte/vkui';
-
-
-import Icon28FavoriteOutline from '@vkontakte/icons/dist/28/favorite_outline';
-import Icon28CoinsOutline from '@vkontakte/icons/dist/28/coins_outline';
-import Icon28BillheadOutline from '@vkontakte/icons/dist/28/billhead_outline';
-import Icon28FireOutline from '@vkontakte/icons/dist/28/fire_outline';
 
 
 import SclidePlaceholder from '../../../images/start_slide_1.png'

@@ -41,7 +41,7 @@ import ModalDonut from '../../Modals/Donut'
 
 import Icon24Dismiss              from '@vkontakte/icons/dist/24/dismiss';
 import Icon24Qr                   from '@vkontakte/icons/dist/24/qr';
-import Icon28MessagesOutline      from '@vkontakte/icons/dist/28/messages_outline';
+// import Icon28MessagesOutline      from '@vkontakte/icons/dist/28/messages_outline';
 import Icon24Linked               from '@vkontakte/icons/dist/24/linked';
 import Icon56MoneyTransferOutline from '@vkontakte/icons/dist/56/money_transfer_outline'
 import Icon20PlaceOutline         from '@vkontakte/icons/dist/20/place_outline';

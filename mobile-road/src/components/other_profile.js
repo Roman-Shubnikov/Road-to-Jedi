@@ -4,11 +4,9 @@ import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { 
     Panel,
     PanelHeader,
-    PanelHeaderButton,
     Group,
     Div,
     FormStatus,
-    FixedLayout,
     Avatar,
     Separator,
     Counter,
@@ -17,13 +15,12 @@ import {
     ScreenSpinner,
     ActionSheet,
     ActionSheetItem,
+    PanelHeaderBack,
     } from '@vkontakte/vkui';
 
 import Icon28RecentOutline from '@vkontakte/icons/dist/28/recent_outline';
 import Icon24DoNotDisturb from '@vkontakte/icons/dist/24/do_not_disturb';
 import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
-import Icon28InfoOutline from '@vkontakte/icons/dist/28/info_outline';
-import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
 import Icon16Fire from '@vkontakte/icons/dist/16/fire';
 import Icon16Verified from '@vkontakte/icons/dist/16/verified';
 import Icon16StarCircleFillYellow from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
@@ -151,6 +148,7 @@ function fix_time(time) {
         componentDidMount(){
             this.setPopout(<ScreenSpinner/>);
             this.PrepareProfile();
+            // console.log(queryString.parse(window.location.hash))
         }
 
         render() {
@@ -159,10 +157,7 @@ function fix_time(time) {
                 <Panel id={this.props.id}>
                 <PanelHeader 
                     left={
-                        <PanelHeaderButton onClick={() => window.history.back()}>
-
-                    <Icon24BrowserBack/>
-                    </PanelHeaderButton>
+                        <PanelHeaderBack onClick={() => {window.history.back();}}></PanelHeaderBack>
                     }>
                         <span onClick={() => this.copy(this.state.other_profile['id'], this.state.other_profile['flash'])}>Профиль</span>
                 </PanelHeader>
@@ -206,12 +201,12 @@ function fix_time(time) {
                         indicator={new Date(this.state.other_profile.registered * 1e3).getDate() + " " + this.please_Month(new Date(this.state.other_profile['registered'] * 1e3).getMonth()) + " " + new Date(this.state.other_profile.registered * 1e3).getFullYear()}>
                             Дата регистрации
                     </SimpleCell>
-                    <SimpleCell 
+                    {/* <SimpleCell 
                         disabled
                         before={<Icon28InfoOutline />}
                         indicator={<Counter mode='primary'>{this.state.other_profile['total_answers']}</Counter>}>
                             Всего ответов
-                    </SimpleCell>
+                    </SimpleCell> */}
                     <SimpleCell 
                         disabled
                         before={<Icon28CheckCircleOutline />}

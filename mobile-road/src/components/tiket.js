@@ -86,11 +86,11 @@ export default class Ticket extends React.Component {
               tiket_message: data.response.messages });
               this.setPopout(null);
           } else {
-            this.showErrorAlert(data.error.message)
+            this.showErrorAlert(data.error.message,() => window.history.back())
           }
         })
         .catch(err => {
-          this.showErrorAlert(err)
+          this.showErrorAlert(err,() => window.history.back())
 
         })
     }
@@ -148,7 +148,7 @@ export default class Ticket extends React.Component {
           })
       }
       Admin(id, author_id, text, comment,avatar=null, mark = -1){
-        if(this.props.account.special){
+        if(author_id > 0){
           this.props.this.setPopout(
             <ActionSheet onClose={() => this.setPopout(null)}>
                {author_id > 0 ?
@@ -171,28 +171,20 @@ export default class Ticket extends React.Component {
                 Одобрить
               </ActionSheetItem> 
               : null }
-              { (this.props.account.special === true && author_id < 0) ? 
-              <ActionSheetItem autoclose onClick={() => {this.props.this.setState({other_profile:{'id':author_id,'avatar': {'url': avatar}}});this.setActiveModal('ban_user');}}>
-                Забанить пользователя
-              </ActionSheetItem> 
-              : null }
-              { this.props.account.special === true && author_id > 0 ? 
-              comment === null || comment === undefined? 
+              {(this.props.account.special === true && (comment === null || comment === undefined)) ? 
               <ActionSheetItem autoclose onClick={() => this.setState({add_comment: true, message_id_add: id})}>
               Добавить комментарий
               </ActionSheetItem> 
-              : null
               : null }
               {Number(author_id === this.props.account.id) ? 
              <ActionSheetItem autoclose onClick={() => this.setState({redaction: true, message_id_redac: id, tiket_send_message: text})}>
              Редактировать
              </ActionSheetItem>
              : null}
-          {comment === null || comment === undefined ? null : 
+          {(comment !== null || comment !== undefined) ? null : 
               <ActionSheetItem autoclose onClick={() => {this.props.this.setState({comment: comment}); this.setActiveModal("comment")}}>
               Просмотреть комментарий
-            </ActionSheetItem>
-              }
+            </ActionSheetItem>}
               {Number(author_id) === Number(this.props.account.id) || this.props.account.special === true ? 
               <ActionSheetItem autoclose onClick={() => this.deleteMessage(id)}>
                 Удалить сообщение
@@ -201,12 +193,45 @@ export default class Ticket extends React.Component {
               {<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}
             </ActionSheet>
           )
+        }else{
+          if(this.state.special){
+            this.props.this.setPopout(
+              <ActionSheet onClose={() => this.setPopout(null)}>
+                { (this.props.account.special) ? 
+                <ActionSheetItem autoclose onClick={() => {this.props.this.setState({other_profile:{'id':author_id,'avatar': {'url': avatar}}});this.setActiveModal('ban_user');}}>
+                  Забанить пользователя
+                </ActionSheetItem> 
+                : null }
+                {Number(author_id === this.props.account.id) ? 
+               <ActionSheetItem autoclose onClick={() => this.setState({redaction: true, message_id_redac: id, tiket_send_message: text})}>
+               Редактировать
+               </ActionSheetItem>
+               : null}
+              {<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}
+              </ActionSheet>
+            )
+          }else{
+            if(Number(author_id === this.props.account.id)){
+              this.props.this.setPopout(
+                <ActionSheet onClose={() => this.setPopout(null)}>
+                  {Number(author_id === this.props.account.id) ? 
+                 <ActionSheetItem autoclose onClick={() => this.setState({redaction: true, message_id_redac: id, tiket_send_message: text})}>
+                 Редактировать
+                 </ActionSheetItem>
+                 : null}
+                {<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}
+                </ActionSheet>
+              )
+            }
+            
+          }
+          
         }
         
       }
       copy(id) {
-        this.setPopout(
-          <ActionSheet onClose={() => this.setState({ popout: null })}>
+        this.props.this.setPopout(
+          <ActionSheet onClose={() => this.setPopout(null)}>
             {Number(this.state.tiket_info['author']['id']) === Number(parsedHash.vk_user_id) ? 
             this.state.tiket_info['status'] === 0 ||  this.state.tiket_info['status'] === 1 ?
             <ActionSheetItem autoclose onClick={() => this.deleteTicket()}>
@@ -482,6 +507,7 @@ export default class Ticket extends React.Component {
                         return (
                             Number(thisOb.state.tiket_info.author['id']) === Number(parsedHash.vk_user_id) ?
                             <Message 
+                                clickable={true}
                                 title={result.author.id === 526444378 ? "Витёк" : result.author.is_moderator ? title_moder : result.author.first_name + " " + result.author.last_name} 
                                 title_icon={result.moderator_comment !== undefined ? <Icon16ReplyOutline width={10} height={10} style={{display: "inline-block"}}/> : false}
                                 is_mine={is_mine_message === is_mine_ticket}
@@ -502,6 +528,7 @@ export default class Ticket extends React.Component {
                             
                             :
                             <Message 
+                                clickable={true}
                                 title={result.author.id === 526444378 ? "Витёк" : result.author.is_moderator ? title_moder : result.author.first_name + " " + result.author.last_name} 
                                 title_icon={result.moderator_comment !== undefined ? <Icon16ReplyOutline width={10} height={10} style={{display: "inline-block"}}/> : false}
                                 is_mine={result.author.is_moderator}
@@ -549,7 +576,7 @@ export default class Ticket extends React.Component {
                     placeholder={this.state.add_comment ? "Ваш комментарий..." : "Ваше сообщение..."} 
                     className="textarea"
                     style={{width: platformname ? '80%' : '85%'}}></textarea> */}
-                    <div className="send_text"
+                    <div className={(this.state.tiket_send_message.trim().length > 5) ? "send_text pointer animation" : "send_text"}
                     onClick={() => {(this.state.tiket_send_message.trim().length > 5) ? this.state.redaction !== true && this.state.add_comment !== true ? this.sendNewMessage() : this.state.redaction ? this.sendNewMessageRedact() : this.sendNewMessageComment() : this.nofinc()}}
                     style={{background: (this.state.tiket_send_message.trim().length > 5) ? "var(--button_send)" : "#98A0AD"}} >
                         <Icon24Up width={30} height={30} />
