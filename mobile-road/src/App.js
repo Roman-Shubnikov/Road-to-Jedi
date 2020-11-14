@@ -57,6 +57,7 @@ class App extends React.Component {
             snackbar: null,
             switchKeys: false,
             need_epic: true,
+            first_start: false
 
         };
         this.changeData = (name,value) => {
@@ -208,7 +209,7 @@ class App extends React.Component {
         .then(res => res.json())
         .then(data => {
           if(data.result) {
-            this.setState({account: data.response, popout: null, switchKeys: data.response.noti})
+            this.setState({account: data.response, popout: null, switchKeys: data.response.noti, first_start: data.response.is_first_start})
               if(Number(this.state.account.scheme) === 1){
                 this.setState({scheme: 'bright_light'})
                 if(platformname){
@@ -337,6 +338,7 @@ class App extends React.Component {
                 scheme={this.state.scheme}
                 reloadProfile={this.LoadProfile}
                 account={this.state.account}
+                first_start={this.state.first_start}
                 popout={this.state.popout} />
 
                 <Top 

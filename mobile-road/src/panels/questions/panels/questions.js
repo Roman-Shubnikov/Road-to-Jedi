@@ -82,8 +82,7 @@ export default class Questions extends React.Component {
                 >
                 Вопросы
                 </PanelHeader>
-
-                {this.state.ShowBanner && this.props.account.is_first_start ? <><Banner
+                {(this.state.ShowBanner && this.props.first_start) ? <><Banner
                 mode="image"
                 size="m"
                 onDismiss={() => {

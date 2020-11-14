@@ -528,8 +528,6 @@ export default class Ticket extends React.Component {
             <div className="title_tiket" style={{marginTop: "10px", width: "95%", marginLeft: "10px"}}>Пользователь обратился с вопросом  «{this.state.tiket_info['title']}»</div>
                     <>{this.state.tiket_message ? this.state.tiket_message.map(function(result, i) {
                         var is_mine_ticket = Number(thisOb.state.tiket_info.author['id']) === Number(parsedHash.vk_user_id) ? true : false
-
-
                         var is_mine_message = Number(result['author']['id']) === Number(parsedHash.vk_user_id) ? true : false
                         var avatar = result.author.is_moderator ? result['author']['avatar']['url'] : result.author.photo_200
                         var time = fix_time(new Date(result.time * 1e3).getHours()) + ":" + fix_time(new Date(result.time * 1e3).getMinutes())

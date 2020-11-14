@@ -18,7 +18,7 @@ import {
     } from '@vkontakte/vkui';
 
 // import Icon28SmartphoneOutline from '@vkontakte/icons/dist/28/smartphone_outline';
-import VerfIcon from '../../../images/verfload.png';
+import VerfIcon from '../../../images/verfload.svg';
 
 // const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
@@ -126,7 +126,7 @@ export default class Verfy extends React.Component{
                     Верификация
                 </PanelHeader>
                 {(this.state.verfstatus !== -1) ? (this.state.verfstatus === 2) ? <><Placeholder 
-                icon={<img src={VerfIcon} alt='Ожидайте рассмотрения' />}
+                icon={<img src={VerfIcon} alt='Ожидайте рассмотрения' style={{width: 250, height: 200}} />}
                 // action={<Div>
                 //   <Button size="xl" onClick={() => {window.history.back()}}>Вернуться к настройкам</Button>
                 // </Div>}

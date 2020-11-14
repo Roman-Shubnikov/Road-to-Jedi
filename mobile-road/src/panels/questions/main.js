@@ -82,7 +82,11 @@ export default class Main extends React.Component {
               var sliyan = [];
               if(this.state.tiket_all !== null){
                 let tickets = this.state.tiket_all.slice();
+                if(!need_offset){
+                  sliyan = data.response;
+                }else{
                   sliyan = data.response ? tickets.concat(data.response) : this.state.tiket_all;
+                }
               }else{
                 sliyan = data.response
               }
@@ -206,7 +210,7 @@ export default class Main extends React.Component {
                   mode: 'cancel',
                   action: action,
                   }]}
-                  onClose={action ? action : () => this.setPopout(null)}
+                  onClose={() => this.setPopout(null)}
               >
                 <h2>Ошибка</h2>
                 {error ? <p>{error}</p> : <p>Что-то пошло не так, попробуйте снова!</p>}
@@ -337,7 +341,12 @@ export default class Main extends React.Component {
             popout={this.state.popout}
             onSwipeBack={this.goBack}
             >
-              <Questions id='questions' this={this} account={this.props.account} tiket_all={this.state.tiket_all} tiket_all_helper={this.state.tiket_all_helper} />
+              <Questions id='questions' 
+              this={this} 
+              account={this.props.account} 
+              tiket_all={this.state.tiket_all} 
+              first_start={this.props.first_start}
+              tiket_all_helper={this.state.tiket_all_helper} />
               <NewTicket id='new_ticket' this={this} account={this.props.account} /> 
               <Tiket id="ticket" this={this} ticket_id={this.state.ticket_id} account={this.props.account} />
               <OtherProfile id="other_profile" this={this} agent_id={this.state.active_other_profile} account={this.props.account}/>

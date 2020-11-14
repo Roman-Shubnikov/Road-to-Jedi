@@ -9,15 +9,13 @@ import {
     } from '@vkontakte/vkui';
 
 
-import SclidePlaceholder from '../../../images/start_slide_1.png'
+import SclidePlaceholder from '../../../images/start_slide_1.svg'
 
 
 export default class Start extends React.Component {
         constructor(props) {
             super(props);
             this.state = {
-                api_url: "https://xelene.ru/road/php/index.php?",
-                AgeUser: 0,
 
             }
             var propsbi = this.props.this;
@@ -34,7 +32,7 @@ export default class Start extends React.Component {
                 </PanelHeader>
                 
                 <Placeholder 
-                icon={<img style={{width: 200, height: 130}} src={SclidePlaceholder} alt='Тут была иконка... Press F to pay respect...' />}
+                icon={<img style={{width: 250, height: 130}} src={SclidePlaceholder} alt='Тут была иконка... Press F to pay respect...' />}
                 header='Отвечайте на разные вопросы пользователей ВКонтакте'>
                   Вам присвоен номер #{this.props.account.id !== undefined ? this.props.account.id : "undefined"}
                   <br/><br/>Помните, отвечать нужно вдумчиво. После

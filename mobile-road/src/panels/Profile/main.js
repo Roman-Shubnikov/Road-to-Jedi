@@ -115,6 +115,7 @@ export default withPlatform(class Main extends React.Component {
                 this.setState({myQuestions: data.response})
                 setTimeout(() => {
                     this.setState({fetching: false});
+                    this.setPopout(null);
               }, 500)
                 
               }

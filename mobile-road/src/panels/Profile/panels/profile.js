@@ -26,7 +26,13 @@ import Icon28ShareExternalOutline from '@vkontakte/icons/dist/28/share_external_
 import Icon16StarCircleFillYellow from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
 import Icon28Messages from '@vkontakte/icons/dist/28/messages';
 
-
+function isEmpty(obj) {
+    for (let key in obj) {
+      // если тело цикла начнет выполняться - значит в объекте есть свойства
+      return false;
+    }
+    return true;
+  }
 
 export default class Profile extends React.Component{
     constructor(props) {
@@ -46,6 +52,7 @@ export default class Profile extends React.Component{
         var props = this.props.this;
         return(
             <Panel id={this.props.id}>
+                {!isEmpty(this.props.account) ? <>
                 <PanelHeader
                 left={<><PanelHeaderButton onClick={() => {
                     this.setActiveModal("share");
@@ -162,6 +169,7 @@ export default class Profile extends React.Component{
                         </Group> */}
                     </PullToRefresh>
                 {this.props.this.state.snackbar}
+                </> : null}
             </Panel>
         )
     }
