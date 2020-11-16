@@ -1,6 +1,7 @@
 import React from 'react';
 import { 
-    ModalCard
+    ModalCard,
+
   } from '@vkontakte/vkui';
 import Icon56FireOutline from '@vkontakte/icons/dist/56/fire_outline';
 

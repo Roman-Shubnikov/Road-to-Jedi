@@ -40,7 +40,7 @@ class Tickets {
 	}
 	public function getByModeratorAnswers( int $offset = 0, int $count = null, int $id ) {
 		$author = $this->user->id;
-		$sql = "SELECT id,text,ticket_id,mark,time FROM messages WHERE (mark = 1 or mark = 0) and author_id > 0 and author_id=$author ORDER BY time desc";
+		$sql = "SELECT id,text,ticket_id,mark,time FROM messages WHERE author_id > 0 and author_id=$author ORDER BY time desc";
 		$res = db_get( $sql );
 		$ans = [];
 		foreach ( $res as $message ) {
@@ -242,7 +242,18 @@ class Tickets {
 			'message_id' => $id
 		];
 	}
-
+	public function isLimitReach( int $ticket_id) {
+		$viewer = $this->user->id;
+		$special_time = time() - 7200;
+		$sql = "SELECT id
+			    FROM messages 
+				WHERE ticket_id=$ticket_id and author_id=$viewer and time > '$special_time'";
+		$res = db_get( $sql );
+		if(count($res) > 3){
+			return true;
+		}
+		return false;
+	}
 	public function getMessages( int $ticket_id, int $offset = 0, int $count = null ) {
 		$viewer = $this->user->id;
 		if ( $count === null ) {

@@ -376,8 +376,8 @@ export default withPlatform(class Main extends React.Component {
                 onClose={this.modalBack}
                 header={
                   <ModalPageHeader
-                  right={platform === ANDROID && <Header onClick={this.modalBack}><Icon24Dismiss /></Header>}
-                  left={platform === IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
+                  right={platform === IOS && <Header onClick={this.modalBack}><Icon24Dismiss /></Header>}
+                  left={platform === ANDROID && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
                   >
                     Поделиться
                   </ModalPageHeader>
@@ -401,8 +401,8 @@ export default withPlatform(class Main extends React.Component {
                 header={
                   <ModalPageHeader
                   // right={<Header onClick={this.modalBack}><Icon24Dismiss style={{color: 'var(--placeholder_icon_foreground_primary)'}} /></Header>}
-                  right={platform === ANDROID && <Header onClick={this.modalBack}><Icon24Dismiss /></Header>}
-                  left={platform === IOS && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
+                  right={platform === IOS && <Header onClick={this.modalBack}><Icon24Dismiss /></Header>}
+                  left={platform === ANDROID && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
                   >
                     QR
                   </ModalPageHeader>

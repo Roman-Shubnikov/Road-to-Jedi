@@ -56,8 +56,12 @@ export default class myQuestions extends React.Component {
         getFiltresQuestions(questions){
             if(this.state.activeTab === 'positive'){
                 return questions.filter(({mark}) => mark === 1);
-            }else{
+            }
+            if(this.state.activeTab === 'negative'){
                 return questions.filter(({mark}) => mark === 0);
+            }
+            if(this.state.activeTab === 'moderation'){
+                return questions.filter(({mark}) => mark === -1);
             }
         }
         getFilterSearch(questions) {
@@ -106,6 +110,12 @@ export default class myQuestions extends React.Component {
                     selected={this.state.activeTab === 'negative'}
                 >
                     Отрицательные
+                </TabsItem>
+                <TabsItem
+                    onClick={() => this.setState({ activeTab: 'moderation' })}
+                    selected={this.state.activeTab === 'moderation'}
+                >
+                    На модерации
                 </TabsItem>
                 </Tabs>
                 <PullToRefresh onRefresh={() => {this.setState({fetching: true});this.prepare_questions()}} isFetching={this.state.fetching}>

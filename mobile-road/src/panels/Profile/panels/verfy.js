@@ -51,8 +51,8 @@ export default class Verfy extends React.Component{
     handleForm(){
       this.setPopout(<ScreenSpinner />);
       fetch(this.state.api_url + 
-      "method=account.sendRequestVerf&title=" + encodeURIComponent(this.state.title) + 
-      "&description=" + encodeURIComponent(this.state.description) + 
+      "method=account.sendRequestVerf&title=" + encodeURIComponent(this.state.title.trim()) + 
+      "&description=" + encodeURIComponent(this.state.description.trim()) + 
       // "&phone_number=" + this.state.number + 
       // "&phone_sign=" + this.state.sign_number + 
       "&cond1=1&" + window.location.search.replace('?', ''))
@@ -141,18 +141,18 @@ export default class Verfy extends React.Component{
                   {/* {this.state.numberstatus ? null : <FormStatus header='Некорректное заполнение формы' mode='error'>
                     Вы должны указать номер телефона. Если этого не сделать, то пройти процедуру верефикации не получится
                   </FormStatus>} */}
-                  <FormLayoutGroup top="Общая информация" bottom={this.validateTitle(this.state.title)[1]}>
+                  <FormLayoutGroup top="Общая информация" bottom={this.validateTitle(this.state.title.trim())[1]}>
                     <Input 
                     maxLength="2000" 
                     onChange={this.onChange}
                     name='title'
-                    status={this.validateTitle(this.state.title)[0]}
+                    status={this.validateTitle(this.state.title.trim())[0]}
                     placeholder='Введите свой текст...' />
                   </FormLayoutGroup>
-                  <FormLayoutGroup top="Почему вы решили верифицировать профиль" bottom={this.validateDesc(this.state.description)[1]}>
+                  <FormLayoutGroup top="Почему вы решили верифицировать профиль" bottom={this.validateDesc(this.state.description.trim())[1]}>
                     <Textarea 
                     maxLength="2000" 
-                    status={this.validateDesc(this.state.description)[0]}
+                    status={this.validateDesc(this.state.description.trim())[0]}
                     name='description'
                     onChange={this.onChange}
                     placeholder='Введите свой текст...' />
@@ -185,8 +185,8 @@ export default class Verfy extends React.Component{
                   stretched
                   disabled={
                     !this.state.check1 || 
-                    !(this.validateTitle(this.state.title)[0] === 'valid') ||
-                    !(this.validateDesc(this.state.description)[0] === 'valid')
+                    !(this.validateTitle(this.state.title.trim())[0] === 'valid') ||
+                    !(this.validateDesc(this.state.description.trim())[0] === 'valid')
                     // !this.state.number
                   }
                   onClick={() => this.handleForm()}

@@ -12,7 +12,10 @@ import {
     Separator,
     Text,
     SimpleCell,
-    PanelHeaderButton
+    PanelHeaderButton,
+    // FormStatus,
+    Alert,
+    FormLayout,
     } from '@vkontakte/vkui';
 
 import Icon24Repeat from '@vkontakte/icons/dist/24/repeat';
@@ -22,6 +25,7 @@ import Icon28MoneyHistoryBackwardOutline from '@vkontakte/icons/dist/28/money_hi
 import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
 import Icon20CancelCircleFillRed from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
 import Icon28InfoCircleOutline from '@vkontakte/icons/dist/28/info_circle_outline';
+import Icon24BlockOutline from '@vkontakte/icons/dist/24/block_outline';
 
 var avatars = [
     "1.png",
@@ -52,6 +56,10 @@ var avatars = [
     "26.png",
     "27.png",
     "28.png",
+    "29.png",
+    "30.png",
+    "31.png",
+    "32.png",
 
 ]
 
@@ -165,7 +173,7 @@ export default class Market extends React.Component{
                   onClose={() => this.props.this.setSnack(null)}
                   before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
                 >
-                  id Агента успешно сменен
+                  Вы успешно сменили ник
                 </Snackbar>
               )
               setTimeout(() => {
@@ -192,9 +200,41 @@ export default class Market extends React.Component{
             onClose={() => this.props.this.setSnack(null)}
             before={<Icon20CancelCircleFillRed width={24} height={24} />}
           >
-            Вы не указали желаемый id
+            Вы не указали желаемый ник
           </Snackbar>);
         }
+      }
+      ResetId() {
+          fetch(this.state.api_url + "method=shop.resetId&" + window.location.search.replace('?', ''))
+          .then(res => res.json())
+          .then(data => {
+            if(data.result) {
+                this.props.this.setSnack(
+                <Snackbar
+                  layout="vertical"
+                  onClose={() => this.props.this.setSnack(null)}
+                  before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                >
+                  Вы успешно удалили ник
+                </Snackbar>
+              )
+              setTimeout(() => {
+                this.props.this.ReloadProfile();
+              }, 4000)
+            } else {
+              this.props.this.setSnack(
+                <Snackbar
+                layout="vertical"
+                onClose={() => this.props.this.setSnack(null)}
+                before={<Icon20CancelCircleFillRed width={24} height={24} />}
+              >
+                {data.error.message}
+              </Snackbar>);
+            }
+          })
+          .catch(err => {
+            this.showErrorAlert(err)
+          })
       }
 
     render() {
@@ -216,6 +256,11 @@ export default class Market extends React.Component{
                 </Div>
                 <SimpleCell disabled indicator={this.props.account.balance}>Ваш баланс</SimpleCell>
                 <Separator />
+                {/* <Div>
+                  <FormStatus >
+                    Скидки для тестеровщиков
+                  </FormStatus>
+                </Div> */}
                 <Header>Сменить аватар</Header>
                 <div className="scrollImages">
                     {this.images()}
@@ -230,15 +275,42 @@ export default class Market extends React.Component{
                 </Div>
                 <Separator />
                 <Header>Сменить свой ник</Header>
-                <Div>
-                    <Input placeholder="Введите желаемый ник (макс. 10 символов)" onChange={(e) => this.onChange(e)} value={this.state.changed_id} maxLength="10" name="changed_id"/>
-                    <br/>
+                <FormLayout>
+                  <Input placeholder="Введите желаемый ник (макс. 10 символов)" onChange={(e) => this.onChange(e)} value={this.state.changed_id} maxLength="10" name="changed_id"/>
+                </FormLayout>
+                <Div style={{display: 'flex'}}>
                     <Button onClick={() => {this.ChangeId(this.state.changed_id)}} 
-                    before={<Icon24Repeat width={28} height={28} style={{marginRight: "5px"}}/>}
-                    size="xl" 
-                    mode="secondary"
-                    disabled={(this.state.changed_id <= 0) ? true : false}>Сменить за 2 монетки</Button>
+                      style={{marginRight: 8}}
+                      before={<Icon24Repeat width={28} height={28} />}
+                      stretched
+                      size="l" 
+                      mode="secondary"
+                      disabled={(this.state.changed_id <= 0) ? true : false}>Сменить за 2 монетки</Button>
+                    <Button 
+                    stretched
+                    onClick={() => this.setPopout(<Alert
+                      actionsLayout='vertical'
+                      actions={[{
+                        title: 'Удалить ник',
+                        autoclose: true,
+                        mode: 'destructive',
+                        action: () => this.ResetId(),
+                      },{
+                        title: 'Нет, я нажал сюда случайно',
+                        autoclose: true,
+                        style: 'cancel'
+                      },]}
+                      onClose={() => this.setPopout(null)}
+                    >
+                      <h2>Осторожно!</h2>
+                      <p>Если вы удалите ник, то, возможно, его сможет забрать кто-то другой.<br />После удаления ника у вас будет отображён начальный id</p>
+                  </Alert>)}
+                    before={<Icon24BlockOutline width={28} height={28} />}
+                    size="l" 
+                    mode='destructive'>Удалить ник</Button>
                 </Div>
+                    
+                
                 {/* <Group separator="hide" header={<Header>Сброс статистики</Header>}>
                     <Div>
                         <Button onClick={() => props.this.deleteStats()} before={<Icon28GridSquareOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Сбросить за 150 монеток</Button>

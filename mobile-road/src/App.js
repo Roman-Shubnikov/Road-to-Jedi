@@ -17,22 +17,26 @@ import {
 import '@vkontakte/vkui/dist/vkui.css';
 import './style.css'
 // Импортируем панели
-import Questions from './panels/questions/main'
-import Top from './panels/topUsers/main'
-import Notification from './panels/notify/main'
-import Profile from './panels/Profile/main'
-import Start from './panels/Start/main'
+import Questions      from './panels/questions/main';
+import Top            from './panels/topUsers/main';
+import Notification   from './panels/notify/main';
+import Profile        from './panels/Profile/main';
+import Start          from './panels/Start/main';
+import Banned         from './panels/Banned/main';
+import LoadingScreen  from './panels/Loading/main';
+import Unsupport      from './panels/Unsupport/main';
 
-import Icon28Profile from '@vkontakte/icons/dist/28/profile';
-import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
-import Icon28ArticleOutline from '@vkontakte/icons/dist/28/article_outline';
-import Icon28FavoriteOutline from '@vkontakte/icons/dist/28/favorite_outline';
+
+import Icon28Profile          from '@vkontakte/icons/dist/28/profile';
+import Icon16CheckCircle      from '@vkontakte/icons/dist/16/check_circle';
+import Icon28ArticleOutline   from '@vkontakte/icons/dist/28/article_outline';
+import Icon28FavoriteOutline  from '@vkontakte/icons/dist/28/favorite_outline';
+
 
 // const queryString = require('query-string');
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 // const parsedHash = queryString.parse(window.location.search.replace('?', ''));
 // const hash = queryString.parse(window.location.hash);
-
 
 const blueBackground = {
   backgroundColor: 'var(--accent)'
@@ -49,7 +53,7 @@ class App extends React.Component {
         super(props);
         this.state = {
             account:[],
-            activeStory: 'questions',
+            activeStory: 'loading',
             scheme: "bright_light",
             default_scheme: "bright_light",
             api_url: "https://xelene.ru/road/php/index.php?",
@@ -57,7 +61,9 @@ class App extends React.Component {
             snackbar: null,
             switchKeys: false,
             need_epic: true,
-            first_start: false
+            first_start: false,
+            LoadWebView: false,
+            BanReason: null,
 
         };
         this.changeData = (name,value) => {
@@ -139,8 +145,23 @@ class App extends React.Component {
             this.setState({paused: this.audio.paused})
           }
     }
-    
     componentDidMount() {
+      // if(/Mac|Macintosh|iPhone|iPad|iPod/i.test(navigator.userAgent)){
+      //   this.setState({activeStory: 'unsupport', LoadWebView: true});
+      //   return
+      // }
+      this.setState({
+        account:[],
+          activeStory: 'loading',
+          scheme: "bright_light",
+          default_scheme: "bright_light",
+          popout: <ScreenSpinner/>,
+          snackbar: null,
+          switchKeys: false,
+          need_epic: true,
+          first_start: false,
+          BanReason: null,
+      })
       this.audio = new Audio(music)
       this.audio.load()
       this.audio.loop = true;
@@ -171,6 +192,9 @@ class App extends React.Component {
         }
         if(type === 'VKWebAppViewHide') {
           console.log('closing...')
+        }
+        if(type === 'VKWebAppViewRestore') {
+          this.componentDidMount()
         }
 			  if (type === 'VKWebAppUpdateConfig') {
           // console.log(data)
@@ -223,21 +247,27 @@ class App extends React.Component {
                 }
               }
             if(this.state.account.is_first_start){
-              this.setState({activeStory: 'start'});
+              this.setState({activeStory: 'start', LoadWebView: true});
+            }else{
+              this.setState({activeStory: 'questions', LoadWebView: true})
             }
           } else {
-            this.setPopout(
-              <Alert
-        actions={[{
-          title: 'Повторить',
-          autoclose: true,
-          action: () => this.componentDidMount()
-        }]}
-        onClose={() => {this.setPopout(null);this.componentDidMount()}}
-      >
-        <h2>Ошибка</h2>
-        <p>{data.error.message}</p>
-            </Alert>)
+            if(data.error.error_code !== 5){
+                this.setPopout(
+                  <Alert
+                    actions={[{
+                      title: 'Повторить',
+                      autoclose: true,
+                      action: () => this.componentDidMount()
+                    }]}
+                    onClose={() => {this.setPopout(null);this.componentDidMount()}}
+                  >
+                    <h2>Ошибка</h2>
+                    <p>{data.error.message}</p>
+                        </Alert>)
+            }else{
+              this.setState({BanReason: data.error.error_obj.reason, activeStory: 'banned', LoadWebView: true})
+            }
           }
         })
         .catch(err => {
@@ -307,7 +337,13 @@ class App extends React.Component {
     
     render() {
         return(
-            <ConfigProvider isWebView={platformname} scheme={this.state.scheme}> 
+        <>{!this.state.LoadWebView ? <div style={{width: '100vw', height: '100vh', backgroundColor: 'var(--background_page_my)', zIndex: 20, position: 'absolute', textAlign:'center'}}>
+            <h1 style={{margin: '50vh 0'}}>Загрузка...</h1>
+            </div> : null}
+          <webview 
+          onLoad={() => {this.setState({LoadWebView: true});document.body.style.overflow = "auto"}}
+          >
+              <ConfigProvider scheme={this.state.scheme}> 
               <Epic activeStory={this.state.activeStory}
               tabbar={
                   this.state.need_epic &&
@@ -373,8 +409,27 @@ class App extends React.Component {
                 scheme={this.state.scheme}
                 account={this.state.account}
                 popout={this.state.popout} />
+
+                <Banned 
+                id="banned"
+                this={this}
+                reloadProfile={this.LoadProfile}
+                scheme={this.state.scheme}
+                account={this.state.account}
+                reason={this.state.BanReason}
+                popout={this.state.popout} />
+                <Unsupport 
+                id="unsupport"
+                this={this}
+                reloadProfile={this.LoadProfile}
+                reason={this.state.BanReason} />
+                <LoadingScreen 
+                id="load"
+                this={this} />
               </Epic>
             </ConfigProvider>
+          </webview></>
+            
         );
     }
 }

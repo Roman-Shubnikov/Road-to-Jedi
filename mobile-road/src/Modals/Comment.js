@@ -25,8 +25,8 @@ export default withPlatform(class Donut extends React.Component {
                 onClose={this.props.onClose}
                 header={
                   <ModalPageHeader
-                  right={platform === ANDROID && <Header onClick={this.props.onClose}><Icon24Dismiss /></Header>}
-                  left={platform === IOS && <PanelHeaderButton onClick={this.props.onClose}><Icon24Dismiss /></PanelHeaderButton>}
+                  right={platform === IOS && <Header onClick={this.props.onClose}><Icon24Dismiss /></Header>}
+                  left={platform === ANDROID && <PanelHeaderButton onClick={this.props.onClose}><Icon24Dismiss /></PanelHeaderButton>}
                   >
                     Комментарий
                   </ModalPageHeader>

@@ -45,7 +45,7 @@ session_start();
 function getBalance() {
     $user_id = $_GET['vk_user_id'];
 
-    return db_get("SELECT money FROM users WHERE vk_user_id = $user_id")[0]['money'];
+    return db_get("SELECT money FROM users WHERE vk_user_id = '$user_id'")[0]['money'];
 }
 function exceptionerror( $ex ) {
 	$code = $ex->getCode();
@@ -354,11 +354,11 @@ $params = [
 	],
 	'transfers.send' => [
 		'send_to' => [
-			'type' => 'int',
+			'type' => 'intorstr',
 			'required' => true
 		],
 		'summa' => [
-			'type' => 'int',
+			'type' => 'string',
 			'required' => true
 		]
 	],
@@ -374,6 +374,7 @@ $params = [
 			'required' => true
 		] 
 	],
+	'shop.resetId' => [],
 	'transfers.send' => [
 		'send_to' => [
 			'type' => 'int',
@@ -440,22 +441,26 @@ switch ( $method ) {
 		Show::response( $account->getVerfStatus() );
 
 	case 'account.sendRequestVerf':
-		$title = (string) $_REQUEST['title'];
-		$desc = (string) $_REQUEST['description'];
+		$title = trim((string) $_REQUEST['title']);
+		$desc = trim((string) $_REQUEST['description']);
 		// $number = (int) $_REQUEST['phone_number'];
 		// $sign_number = (string) $_REQUEST['phone_sign'];
-		$conditions = (bool)$_REQUEST['cond1'];
-		if(mb_strlen($title) > 5 && mb_strlen($desc) > 10 && mb_strlen($title) <= 2000 && mb_strlen($desc) <= 2000){
-			if($conditions){
-				// $sign_num_construct = CONFIG::APP_ID . CONFIG::SECRET_KEY . $user_id . 'phone_number' . $number;
-				// $shasignature = rtrim(strtr(base64_encode(hash('sha256', $sign_num_construct, true)), '+/', '-_'), '=');
-				// if($sign_number === $shasignature){
-					Show::response( $account->NewRequestVerf($title, $desc) );
-				// }else{
-				// 	Show::error(1102);
-				// }
+		if(preg_match(CONFIG::REGEXP_VALID_TEXT, $title) && preg_match(CONFIG::REGEXP_VALID_TEXT, $desc)){
+			$conditions = (bool)$_REQUEST['cond1'];
+			if(mb_strlen($title) > 5 && mb_strlen($desc) > 10 && mb_strlen($title) <= 2000 && mb_strlen($desc) <= 2000){
+				if($conditions){
+					// $sign_num_construct = CONFIG::APP_ID . CONFIG::SECRET_KEY . $user_id . 'phone_number' . $number;
+					// $shasignature = rtrim(strtr(base64_encode(hash('sha256', $sign_num_construct, true)), '+/', '-_'), '=');
+					// if($sign_number === $shasignature){
+						Show::response( $account->NewRequestVerf($title, $desc) );
+					// }else{
+					// 	Show::error(1102);
+					// }
+				}else{
+					Show::error(1101);
+				}
 			}else{
-				Show::error(1101);
+				Show::error(1100);
 			}
 		}else{
 			Show::error(1100);
@@ -475,7 +480,11 @@ switch ( $method ) {
 		Show::response( $users->getRandom() );
 
 	case 'ticket.getRandom':
-		Show::response( $tickets->getRandom() );
+		$res = $tickets->getRandom();
+		if($res){
+			Show::response( $res );
+		}
+		Show::error(36);
 
 	case 'tickets.getMy':
 		$offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
@@ -501,11 +510,14 @@ switch ( $method ) {
 		$offset = 0;
 		$count = 1000;
 
-		Show::response( $tickets->getMessages( $id, $offset, $count ) );
+		Show::response( ['messages' => $tickets->getMessages( $id, $offset, $count ), 'limitReach' => $tickets->isLimitReach($id)] );
 
 	case 'ticket.sendMessage':
 		$id = isset( $_POST['ticket_id'] ) ? $_POST['ticket_id'] : $_GET['ticket_id'];
 		$text = trim($_REQUEST['text']);
+		if($tickets->isLimitReach($id)){
+			Show::error(35);
+		}
 
 		Show::response( $tickets->sendMessage( $id, $text ) );
 
@@ -549,7 +561,8 @@ switch ( $method ) {
 			Show::response( 
 				[
 				'info' => $tickets->getById( $id ),
-				'messages' => $tickets->getMessages( $id, $offset, $count )
+				'messages' => $tickets->getMessages( $id, $offset, $count ),
+				'limitReach' => $tickets->isLimitReach($id)
 				]
 			);
 		} else {
@@ -600,13 +613,16 @@ switch ( $method ) {
 	case 'shop.changeId':
 		$id = $_REQUEST['change_id'];
 		$len = mb_strlen($id);
-		if(preg_match("/^[a-zA-ZА-Яа-я0-9_ ]*$/u", $id)){
+		if(is_numeric($id)){
+			Show::error(1013);
+		}
+		if(preg_match(CONFIG::REGEXP_VALID_NAME, $id)){
 			$user_id = $_GET['vk_user_id'];
 			
 			if( $len < 11 && $len > 0 ) {
 				$balance_profile = getBalance();
 				if( $balance_profile >= 2 ) {
-					$check_id = db_get("SELECT id FROM users WHERE id = $id OR nickname = $id");
+					$check_id = db_get("SELECT id FROM users WHERE id = '$id' OR nickname = '$id'");
 					if( count($check_id) == 0 ) {
 						db_edit(['money' => $balance_profile - 2], "vk_user_id=$user_id", 'users');
 						db_edit(['nickname' => $id], "vk_user_id=$user_id", 'users');
@@ -626,10 +642,14 @@ switch ( $method ) {
 			Show::error(1012);
 		}
 		break;
+	case 'shop.resetId':
+		$user_id = $_GET['vk_user_id'];
+		db_edit(['nickname' => null], "vk_user_id=$user_id", 'users');
+		Show::response();
 
 	case 'shop.changeAvatar':
 		$id = $_REQUEST['avatar_id'];
-		if( $id <= 28 && $id > 0 ) {
+		if( $id <= CONFIG::AVATARS_COUNT && $id > 0 ) {
 			$balance = getBalance();
 			$user_id = $_GET['vk_user_id'];
 			if( $balance >= 1 ) {
@@ -646,21 +666,21 @@ switch ( $method ) {
 		}
 	break;
 	case 'transfers.send':
-		$summa = $_REQUEST['summa'];
+		$summa = (int) $_REQUEST['summa'];
 		$send_to = $_REQUEST['send_to'];
 		$balance_profile = getBalance();
 		$id = $_GET['vk_user_id'];
 		if( $summa > 0 && $summa !== 0 ) {
 			if( $balance_profile >= $summa ) {
-				$balanceTo = db_get("SELECT * FROM users WHERE id = $send_to OR nickname = $send_to")[0];
+				$balanceTo = db_get("SELECT * FROM users WHERE id = '$send_to' OR nickname = '$send_to'")[0];
 				if( $balanceTo ) {
 					$idTo = $balanceTo['id'];
 					$avatarTo = $balanceTo['avatar_id'];
-					$userInfo = db_get("SELECT * FROM users WHERE vk_user_id = $id")[0];
+					$userInfo = db_get("SELECT * FROM users WHERE vk_user_id = '$id'")[0];
 					$idWhoSend = $userInfo['id'];
 					$avatarIdWhoSend = $userInfo['avatar_id'];
-					$avatar = CONFIG::AVATAR_PATH.'/'.db_get("SELECT * FROM avatars WHERE id = $avatarIdWhoSend")[0]['name'];
-					$avatarTo = CONFIG::AVATAR_PATH.'/'.db_get("SELECT * FROM avatars WHERE id = $avatarTo")[0]['name'];
+					$avatar = CONFIG::AVATAR_PATH.'/'.db_get("SELECT * FROM avatars WHERE id = '$avatarIdWhoSend'")[0]['name'];
+					$avatarTo = CONFIG::AVATAR_PATH.'/'.db_get("SELECT * FROM avatars WHERE id = '$avatarTo'")[0]['name'];
 					if( $balanceTo['vk_user_id'] !== $id ) {
 						$help = db_edit([
 							'money' => $balanceTo['money'] + $summa

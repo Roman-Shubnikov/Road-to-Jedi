@@ -186,8 +186,8 @@ function fix_time(time) {
                     </div>
                     : null}
                     {this.state.other_profile['verified'] === true ?
-                    <div className="profile_moderator_name_icon">
-                        <Icon16Verified width={12} height={12} style={{color: "var(--dynamic_blue)"}} />  
+                    <div className="profile_moderator_name_icon_ver">
+                        <Icon16Verified style={{color: "var(--dynamic_blue)"}} />  
                     </div>
                     : null}
                   </div>

@@ -24,7 +24,7 @@ class Users {
 		$this->id = $this->info['id'];
 
 		if ( $this->info['banned'] ) {
-			Show::customError(CONFIG::ERRORS[5] . $this->info['ban_reason']);
+			Show::error(5, ['reason' => $this->info['ban_reason']]);
 			// throw new Exception( ERRORS[5] . $this->info['ban_reason'], 5 );
 		}
 	}

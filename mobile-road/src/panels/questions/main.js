@@ -89,6 +89,7 @@ export default class Main extends React.Component {
                 }
               }else{
                 sliyan = data.response
+
               }
               
               this.setState({tiket_all: sliyan, tiket_all_helper: data.response})

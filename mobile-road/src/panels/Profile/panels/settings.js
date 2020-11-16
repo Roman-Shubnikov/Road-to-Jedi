@@ -11,6 +11,8 @@ import {
     SimpleCell,
     PanelHeaderBack,
     CellButton,
+    PromoBanner,
+    ScreenSpinner,
     } from '@vkontakte/vkui';
 
 import {platform, IOS} from '@vkontakte/vkui';
@@ -23,7 +25,7 @@ import Icon28TargetOutline from '@vkontakte/icons/dist/28/target_outline';
 import Icon28InfoOutline from '@vkontakte/icons/dist/28/info_outline';
 import Icon28FavoriteOutline from '@vkontakte/icons/dist/28/favorite_outline';
 
-
+const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 export default class Settings extends React.Component{
     constructor(props){
         super(props)
@@ -59,6 +61,20 @@ export default class Settings extends React.Component{
     }
     nofinc(){
       return
+    }
+    componentDidMount(){
+      setTimeout(() => {
+        this.setPopout(null)
+      },10000)
+      if(platformname){
+        this.setPopout(<ScreenSpinner/>)
+      }
+      bridge.send('VKWebAppGetAds')
+    .then((promoBannerProps) => {
+        this.setState({ promoBannerProps });
+        this.setPopout(null)
+    })
+        
     }
     render() {
         var props = this.props.this;
@@ -96,7 +112,6 @@ export default class Settings extends React.Component{
                 </Group>
                 <Group>
                   <SimpleCell
-                  className='pointer'
                   disabled
                   indicator={<Counter>{this.props.account.balance}</Counter>}
                   before={<Icon28CoinsOutline />}>Баланс</SimpleCell>
@@ -118,7 +133,7 @@ export default class Settings extends React.Component{
                   }}
                   before={<Icon28InfoOutline />}>О приложении</SimpleCell>
                 </Group>
-                <Group>
+                <Group style={{paddingBottom: 5}}>
                   <CellButton 
                   mode="danger"
                   onClick={() => this.setPopout(<Alert
@@ -140,6 +155,7 @@ export default class Settings extends React.Component{
                 </Alert>)}
                   before={<Icon28DeleteOutline />}>Удалить аккаунт</CellButton>
                 </Group>
+                { this.state.promoBannerProps && <PromoBanner isCloseButtonHidden={true} bannerData={ this.state.promoBannerProps } /> }
                 {this.props.this.state.snackbar}
             </Panel>
         )

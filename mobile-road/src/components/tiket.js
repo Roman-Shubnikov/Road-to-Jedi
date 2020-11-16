@@ -11,16 +11,18 @@ import {
     ActionSheet,
     ActionSheetItem,
     PanelHeaderBack,
-    Textarea,
+    Separator,
+    WriteBarIcon,
+    WriteBar,
+    FormStatus,
     } from '@vkontakte/vkui';
 
-import Icon24Up from '@vkontakte/icons/dist/24/up';
 import Icon16ReplyOutline from '@vkontakte/icons/dist/16/reply_outline';
 
-import Ninja from '../images/Ninja.webp'
+// import Ninja from '../images/Ninja.webp'
 
 import Message from './message'
-const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+// const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 const queryString = require('query-string');
 const parsedHash = queryString.parse(window.location.search.replace('?', ''));
 
@@ -60,9 +62,7 @@ export default class Ticket extends React.Component {
             tiket_send_message: '',
             add_comment: false,
             redaction: false,
-            
-
-
+            limitreach: false,
         }
         var propsbi = this.props.this;
         this.setPopout = propsbi.setPopout;
@@ -86,7 +86,7 @@ export default class Ticket extends React.Component {
         .then(data => {
           if(data.result) {
             this.setState({tiket_info: data.response.info,
-              tiket_message: data.response.messages });
+              tiket_message: data.response.messages,limitreach: data.response.limitReach });
               this.setPopout(null);
           } else {
             this.showErrorAlert(data.error.message,() => window.history.back())
@@ -109,21 +109,7 @@ export default class Ticket extends React.Component {
             .then(res => res.json())
             .then(data => {
               if(data.result) {
-          
-                fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
-                  .then(res => res.json())
-                  .then(data => {
-                    if(data.result) {
-                      this.setState({tiket_message: data.response})
-                      this.setActiveModal(null);
-                      this.setPopout(null);
-                    }else {
-                      this.showErrorAlert(data.error.message)
-                    }
-                    })
-                    .catch(err => {
-                      this.showErrorAlert(err)
-                    })
+                this.getMessages()
               }else {
                 this.showErrorAlert(data.error.message)
               }
@@ -140,21 +126,7 @@ export default class Ticket extends React.Component {
           .then(res => res.json())
           .then(data => {
             if(data.result) {
-              this.setPopout(null)
-              fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
-                .then(res => res.json())
-                .then(data => {
-                  if(data.result) {
-                    this.setState({tiket_message: data.response, tiket_send_message: "",add_comment: false, redaction: false})
-                    this.setPopout(null)
-                  }else {
-                    this.showErrorAlert(data.error.message)
-                  }
-                })
-                .catch(err => {
-                  this.showErrorAlert(err)
-    
-                })
+              this.getMessages()
             } else {
               this.showErrorAlert(data.error.message)
             }
@@ -193,7 +165,7 @@ export default class Ticket extends React.Component {
               Добавить комментарий
               </ActionSheetItem> 
               : null }
-              {Number(author_id === this.props.account.id) ? 
+              {(Number(author_id === this.props.account.id) && this.state.tiket_info['status'] === 0) ? 
              <ActionSheetItem autoclose onClick={() => this.setState({redaction: true, message_id_redac: id, tiket_send_message: text})}>
              Редактировать
              </ActionSheetItem>
@@ -220,7 +192,7 @@ export default class Ticket extends React.Component {
                   Забанить пользователя
                 </ActionSheetItem> 
                 : null }
-                {Number(author_id === this.props.account.id) ? 
+                {(Number(author_id === this.props.account.id) && this.state.tiket_info['status'] === 0) ? 
                <ActionSheetItem autoclose onClick={() => this.setState({redaction: true, message_id_redac: id, tiket_send_message: text})}>
                Редактировать
                </ActionSheetItem>
@@ -232,7 +204,7 @@ export default class Ticket extends React.Component {
             if(Number(author_id === this.props.account.id)){
               this.props.this.setPopout(
                 <ActionSheet onClose={() => this.setPopout(null)}>
-                  {Number(author_id === this.props.account.id) ? 
+                  {(Number(author_id === this.props.account.id) && this.state.tiket_info['status'] === 0) ? 
                  <ActionSheetItem autoclose onClick={() => this.setState({redaction: true, message_id_redac: id, tiket_send_message: text})}>
                  Редактировать
                  </ActionSheetItem>
@@ -290,53 +262,20 @@ export default class Ticket extends React.Component {
         return clickable;
       }
       sendNewMessage() {
-        if(this.state.tiket_send_message.length >= 5) {
-          this.setPopout(<ScreenSpinner/>)
-          var url = this.state.api_url + 'method=ticket.sendMessage&' + window.location.search.replace('?', '');
-          var method = 'POST';
-          var async = true;
-      
-          var xhr = new XMLHttpRequest();
-          xhr.open( method, url, async );
-          xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      
-          xhr.onreadystatechange = () => {
-            if(xhr.status === 4) return;
-            if ( xhr.status === 200 ) {
-              setTimeout(() => {
-                fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
-                .then(res => res.json())
-                .then(data => {
-                  if(data.result) {
-                    this.setState({tiket_message: data.response, tiket_send_message: "",add_comment: false, redaction: false})
-                    this.setPopout(null)
-                    setTimeout(() => {
-                      this.setState({tiket_send_message: "."})
-                    }, 1000)
-                    setTimeout(() => {
-                      this.setState({tiket_send_message: ""})
-                    }, 1000)
-                  }else {
-                    this.showErrorAlert(data.error.message)
-                  }
-                })
-                .catch(err => {
-                  this.showErrorAlert(err)
-    
-                })
-              }, 500)
-              
+        this.setPopout(<ScreenSpinner/>)
+          fetch(this.state.api_url + 'method=ticket.sendMessage&ticket_id=' + this.state.tiket_info['id'] + '&text=' + encodeURIComponent(this.state.tiket_send_message.trim()) + "&" + window.location.search.replace('?', ''))
+          .then(res => res.json())
+          .then(data => {
+            if(data.result) {
+              this.getMessages()
+            }else {
+              this.showErrorAlert(data.error.message)
             }
-          }
-          
-          xhr.send( 'ticket_id=' + this.state.tiket_info['id'] + '&text=' + encodeURIComponent(this.state.tiket_send_message.trim()));
-      
-          xhr.onerror = ( error ) => {
-            this.showErrorAlert(error)
-          }
-        } else {
-            // this.showErrorAlert("Текст сообщения должен быть минимум из 5 символов.")
-        }
+          })
+          .catch(err => {
+            this.showErrorAlert(err)
+
+          })
       }
       deleteMessage(message_id) {
         this.setPopout(<ScreenSpinner/>)
@@ -344,20 +283,7 @@ export default class Ticket extends React.Component {
             .then(res => res.json())
             .then(data => {
               if(data.result) {
-                fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
-                  .then(res => res.json())
-                  .then(data => {
-                    if(data.result) {
-                      this.setState({tiket_message: data.response})
-                      this.setPopout(null)
-                    }else {
-                      this.showErrorAlert(data.error.message)
-                    }
-                  })
-                  .catch(err => {
-                    this.showErrorAlert(err)
-          
-                  })
+                this.getMessages()
               }else {
                 this.showErrorAlert(data.error.message)
               }
@@ -373,20 +299,7 @@ export default class Ticket extends React.Component {
           .then(res => res.json())
           .then(data => {
             if(data.result) {
-              fetch(this.state.api_url + "method=ticket.getById&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
-              .then(res => res.json())
-               .then(data => {
-              if(data.result) {
-                this.setState({tiket_info: data.response.info})
-                this.setPopout(null)
-              }else {
-                this.showErrorAlert(data.error.message)
-              }
-              })
-              .catch(err => {
-                this.showErrorAlert(err)
-      
-              })
+              this.getMessages()
             }else {
               this.showErrorAlert(data.error.message)
             }
@@ -402,20 +315,7 @@ export default class Ticket extends React.Component {
           .then(res => res.json())
           .then(data => {
             if(data.result) {
-              fetch(this.state.api_url + "method=ticket.getById&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
-              .then(res => res.json())
-               .then(data => {
-              if(data.result) {
-                this.setState({tiket_info: data.response.info})
-                this.setPopout(null)
-              }else {
-                this.showErrorAlert(data.error.message)
-              }
-            })
-          .catch(err => {
-            this.showErrorAlert(err)
-  
-          })
+              this.getMessages()
             }else {
               this.showErrorAlert(data.error.message)
             }
@@ -427,84 +327,53 @@ export default class Ticket extends React.Component {
       }
       sendNewMessageRedact() {
         this.setPopout(<ScreenSpinner/>)
-        if(this.state.tiket_send_message.length >= 5) {
-          var url = this.state.api_url + 'method=ticket.editMessage&' + window.location.search.replace('?', '');
-          var method = 'POST';
-          var async = true;
-      
-          var xhr = new XMLHttpRequest();
-          xhr.open( method, url, async );
-          xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      
-          xhr.onreadystatechange = () => {
-            if(xhr.status === 4) return;
-            if ( xhr.status === 200 ) {
-              fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
-              .then(res => res.json())
-              .then(data => {
-                if(data.result) {
-                  this.setState({tiket_message: data.response, tiket_send_message: " ", add_comment: false, redaction: false})
-                  this.setPopout(null)
-                  this.setState({tiket_send_message: ""})
-                }else {
-                  this.showErrorAlert(data.error.message)
-                }
-              })
-              .catch(err => {
-                console.log(err)
-              })
+        fetch(this.state.api_url + 'method=ticket.editMessage&message_id=' + this.state.message_id_redac + '&text=' + encodeURIComponent(this.state.tiket_send_message.trim()) + "&" + window.location.search.replace('?', ''))
+          .then(res => res.json())
+          .then(data => {
+            if(data.result) {
+              this.getMessages()
+            }else {
+              this.showErrorAlert(data.error.message)
             }
-          }
-          
-          xhr.send('message_id=' + this.state.message_id_redac + '&text=' + encodeURIComponent(this.state.tiket_send_message.trim()));
-      
-          xhr.onerror = ( error ) => {
-            this.showErrorAlert(error)
-          }
-        } else {
-            this.showErrorAlert("Текст сообщения должен быть минимум из 5 символов.")
-        }
+          })
+          .catch(err => {
+            this.showErrorAlert(err)
+
+          })
+        
       }
       sendNewMessageComment() {
         this.setPopout(<ScreenSpinner/>)
-        if(this.state.tiket_send_message.length >= 5) {
-          var url = this.state.api_url + 'method=ticket.commentMessage&' + window.location.search.replace('?', '');
-          var method = 'POST';
-          var async = true;
-      
-          var xhr = new XMLHttpRequest();
-          xhr.open( method, url, async );
-          xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      
-          xhr.onreadystatechange = () => {
-            if(xhr.status === 4) return;
-            if ( xhr.status === 200 ) {
-              fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
-              .then(res => res.json())
-              .then(data => {
-                if(data.result) {
-                  this.setState({tiket_message: data.response, tiket_send_message: " ",add_comment: false, redaction: false})
-                  this.setPopout(null)
-                  this.setState({tiket_send_message: ""})
-                }else{
-                  this.showErrorAlert(data.error.message)
-                }
-              })
-              .catch(err => {
-                this.showErrorAlert(err)
-  
-              })
+        fetch(this.state.api_url + 'method=ticket.commentMessage&message_id=' + this.state.message_id_add + '&text=' + encodeURIComponent(this.state.tiket_send_message.trim()) + "&" + window.location.search.replace('?', ''))
+          .then(res => res.json())
+          .then(data => {
+            if(data.result) {
+              this.getMessages()
+            }else {
+              this.showErrorAlert(data.error.message)
             }
-          }
-          xhr.send('message_id=' + this.state.message_id_add + '&text=' + encodeURIComponent(this.state.tiket_send_message.trim()));
-      
-          xhr.onerror = ( error ) => {
-            this.showErrorAlert(error)
-          }
-        } else {
-          this.showErrorAlert("Текст сообщения должен быть минимум из 5 символов.")
-        }
+          })
+          .catch(err => {
+            this.showErrorAlert(err)
+
+          })
       }
+    getMessages(){
+      fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
+      .then(res => res.json())
+      .then(data => {
+        if(data.result) {
+          this.setState({tiket_message: data.response.messages, tiket_send_message: "",add_comment: false, redaction: false,limitreach: data.response.limitReach})
+          this.setPopout(null)
+        }else {
+          this.showErrorAlert(data.error.message)
+        }
+      })
+      .catch(err => {
+        this.showErrorAlert(err)
+
+      })
+    }
     componentDidMount(){
       this.setPopout(<ScreenSpinner/>)
       this.Prepare_ticket()
@@ -536,7 +405,7 @@ export default class Ticket extends React.Component {
                             Number(thisOb.state.tiket_info.author['id']) === Number(parsedHash.vk_user_id) ?
                             <Message 
                                 clickable={true}
-                                title={result.author.id === 526444378 ? "Витёк" : result.author.is_moderator ? title_moder : result.author.first_name + " " + result.author.last_name} 
+                                title={result.author.is_moderator ? title_moder : result.author.first_name + " " + result.author.last_name} 
                                 title_icon={result.moderator_comment !== undefined ? <Icon16ReplyOutline width={10} height={10} style={{display: "inline-block"}}/> : false}
                                 is_mine={is_mine_message === is_mine_ticket}
                                 avatar={avatar}
@@ -557,10 +426,10 @@ export default class Ticket extends React.Component {
                             :
                             <Message 
                                 clickable={!thisOb.props.account.special ? false : true}
-                                title={result.author.id === 526444378 ? "Витёк" : result.author.is_moderator ? title_moder : result.author.first_name + " " + result.author.last_name} 
+                                title={result.author.is_moderator ? title_moder : result.author.first_name + " " + result.author.last_name} 
                                 title_icon={result.moderator_comment !== undefined ? <Icon16ReplyOutline width={10} height={10} style={{display: "inline-block"}}/> : false}
                                 is_mine={result.author.is_moderator}
-                                avatar={result.author.id === 526444378 ? Ninja : avatar}
+                                avatar={avatar}
                                 key={i}
                                 time={time}
                                 onClick={() => thisOb.Admin(result['approved'], result['id'], result['author'].first_name ? -result['author']['id'] : result['author']['id'], result['text'], result.moderator_comment !== undefined ? result['moderator_comment']['text'] : null,avatar, result['mark'])}
@@ -579,37 +448,32 @@ export default class Ticket extends React.Component {
                       </>
             {/* INPUT */}
             {this.state.tiket_info['status'] === 0 || (this.state.redaction === true || this.state.add_comment === true) ? 
-                //  <div id="other" className="other">
-                //     <div className="down_input_message">
-                //         <textarea maxLength="2020" name="tiket_send_message" value={this.state.tiket_send_message} onChange={(e) => this.onChange(e)} placeholder={this.state.add_comment ? "Комментарий... (Не менее 6 символов)" : "Ответ... (Не менее 6 символов)"} className="textarea"></textarea>
-                //     </div>
-                //     <div className="send_text" onClick={() => {(this.state.tiket_send_message.length > 5) ? this.state.redaction !== true && this.state.add_comment !== true ? this.sendNewMessage() : this.state.redaction ? this.sendNewMessageRedact() : this.sendNewMessageComment() : this.nofinc()}}>
-                //         <Icon24Up style={{color: (this.state.tiket_send_message.length > 5) ? "var(--dynamic_green)" : "var(--dynamic_orange)"}} />
-                //     </div>
-                // </div>
-                <FixedLayout vertical='bottom'>
-                  <Div className="message_sending">
-                  <Textarea 
-                    maxLength="2020" 
-                    value={this.state.tiket_send_message}
-                    grow={false}
-                    name="tiket_send_message"
-                    onChange={(e) => this.onChange(e)} 
-                    placeholder={this.state.add_comment ? "Ваш комментарий..." : "Ваше сообщение..."}
-                    style={{width: platformname ? "82%" : "85%"}}></Textarea>
-                    {/* <textarea maxLength="2020" 
-                    name="tiket_send_message" 
-                    value={this.state.tiket_send_message} 
-                    onChange={(e) => this.onChange(e)} 
-                    placeholder={this.state.add_comment ? "Ваш комментарий..." : "Ваше сообщение..."} 
-                    className="textarea"
-                    style={{width: platformname ? '80%' : '85%'}}></textarea> */}
-                    <div className={(this.state.tiket_send_message.trim().length > 5) ? "send_text pointer animation" : "send_text"}
-                    onClick={() => {(this.state.tiket_send_message.trim().length > 5) ? this.state.redaction !== true && this.state.add_comment !== true ? this.sendNewMessage() : this.state.redaction ? this.sendNewMessageRedact() : this.sendNewMessageComment() : this.nofinc()}}
-                    style={{background: (this.state.tiket_send_message.trim().length > 5) ? "var(--button_send)" : "#98A0AD"}} >
-                        <Icon24Up width={30} height={30} />
-                    </div>
+                (this.state.limitreach && !(this.state.redaction || this.state.add_comment)) ? 
+                <FixedLayout filled vertical='bottom'>
+                  <Div>
+                    <FormStatus header='Внимание!' mode='default'>
+                      Вы исчерпали лимит сообщений в этот тикет.
+                    </FormStatus>
                   </Div>
+                </FixedLayout> :
+                <FixedLayout vertical='bottom'>
+                  <Separator wide />
+                    <WriteBar
+                      after={
+                        <>
+                          <WriteBarIcon mode={this.state.redaction ? 'done' : "send"}
+                          disabled={!(this.state.tiket_send_message.trim().length > 5)}
+                          onClick={() => {(this.state.tiket_send_message.trim().length > 5) ? this.state.redaction !== true && this.state.add_comment !== true ? this.sendNewMessage() : this.state.redaction ? this.sendNewMessageRedact() : this.sendNewMessageComment() : this.nofinc()}}
+                          />
+                          {/* {<WriteBarIcon><Icon20Clear width={34} height={34} /></WriteBarIcon>} */}
+                        </>
+                      }
+                      value={this.state.tiket_send_message}
+                      maxLength="2020"
+                      name="tiket_send_message"
+                      onChange={(e) => this.onChange(e)}
+                      placeholder="Сообщение"
+                    />
                 </FixedLayout>
                 
                  : null}

@@ -76,7 +76,10 @@ export default class Questions extends React.Component {
                 <Panel id={this.props.id}> 
                 <PanelHeader
                 left={<>
-                <PanelHeaderButton onClick={() => this.props.this.getRandomTiket()}><Icon28CubeBoxOutline/></PanelHeaderButton>
+                {(this.props.tiket_all && this.props.tiket_all.length > 0) ? 
+                <PanelHeaderButton onClick={() => this.props.this.getRandomTiket()}>
+                    <Icon28CubeBoxOutline/>
+                </PanelHeaderButton> : null}
                 {/* {platformname ? null : <PanelHeaderButton onClick={() => this.Prepare_questions(false, true)}><Icon28SyncOutline/></PanelHeaderButton>} */}
                 </>}
                 >
@@ -118,7 +121,7 @@ export default class Questions extends React.Component {
                             className="pointer"
                             onClick={() => {this.setState({tiket_all: null});props.goTiket(result['id'])}}
                             description={result['status'] === 0 ? "На рассмотрении" : result['status'] === 1 ? "Есть ответ" : "Закрыт" } 
-                            asideContent={<Avatar src={result['author']['id'] === 526444378 ? "https://cdn3.iconfinder.com/data/icons/avatars-15/64/_Ninja-2-512.png" : result['author']['photo_200']} size={56}/>}
+                            asideContent={<Avatar src={result['author']['photo_200']} size={56}/>}
                         >
                         {result['title']}
 
