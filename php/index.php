@@ -627,7 +627,7 @@ switch ( $method ) {
 	case 'notifications.getCount':
 		Show::response( $notifications->getCount() );
 	case 'shop.changeId':
-		$id = $data['change_id'];
+		$id = trim($data['change_id']);
 		$len = mb_strlen($id);
 		if(is_numeric($id)){
 			Show::error(1013);
@@ -636,7 +636,7 @@ switch ( $method ) {
 			if( $len < 11 && $len > 0 ) {
 				$balance_profile = getBalance();
 				if( $balance_profile >= 2 ) {
-					$check_id = $Connect->db_get("SELECT id FROM users WHERE id = ? OR nickname = ?", [$id, $id]);
+					$check_id = $Connect->db_get("SELECT id FROM users WHERE nickname = ?", [$id, $id]);
 					if( count($check_id) == 0 ) {
 						$Connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$balance_profile - 2,$user_id]);
 						$Connect->query("UPDATE users SET nickname=? WHERE vk_user_id=?", [$id, $user_id]);
@@ -675,8 +675,8 @@ switch ( $method ) {
 		}
 	case 'transfers.send':
 		$summa = (int) $data['summa'];
-		$send_to = $data['send_to'];
-		$comment = $data['comment'] ? $data['comment'] : null;
+		$send_to = trim($data['send_to']);
+		$comment = trim($data['comment']) ? trim($data['comment']) : null;
 		$balance_profile = getBalance();
 		if($comment){
 			$len = mb_strlen($comment);
@@ -686,7 +686,12 @@ switch ( $method ) {
 		}
 		if( $summa > 0 && $summa !== 0 ) {
 			if( $balance_profile >= $summa ) {
-				$balanceTo = $Connect->db_get("SELECT * FROM users WHERE id=? OR nickname=?", [$send_to,$send_to])[0];
+				if(is_numeric($send_to)){
+					$balanceTo = $Connect->db_get("SELECT * FROM users WHERE id=?", [$send_to])[0];
+				}else{
+					$balanceTo = $Connect->db_get("SELECT * FROM users WHERE nickname=?", [$send_to])[0];
+				}
+				
 				if( $balanceTo ) {
 					$idTo = $balanceTo['id'];
 					$avatarTo = $balanceTo['avatar_id'];
@@ -695,7 +700,7 @@ switch ( $method ) {
 					$avatarIdWhoSend = $userInfo['avatar_id'];
 					$avatar = CONFIG::AVATAR_PATH.'/'. $Connect->db_get("SELECT * FROM avatars WHERE id=?", [$avatarIdWhoSend])[0]['name'];
 					$avatarTo = CONFIG::AVATAR_PATH.'/'.$Connect->db_get("SELECT * FROM avatars WHERE id=?", [$avatarTo])[0]['name'];
-					if( $balanceTo['vk_user_id'] !== $user_id ) {
+					if( $balanceTo['vk_user_id'] != $user_id ) {
 
 						$help = $Connect->query("UPDATE users SET money=? WHERE id=?", [$balanceTo['money'] + $summa, $idTo]);
 

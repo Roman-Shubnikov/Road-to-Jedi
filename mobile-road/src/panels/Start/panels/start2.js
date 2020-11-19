@@ -49,7 +49,7 @@ export default class Start extends React.Component {
               }
             })
             .catch(err => {
-              this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
+              this.props.this.changeData('activeStory', 'disconnect')
             })
             
             
@@ -74,7 +74,7 @@ export default class Start extends React.Component {
                 <Separator /> */}
                 <Placeholder 
                 icon={<img style={{width: 200, height: 180}} src={SclidePlaceholder} alt='Тут была иконка... Press F to pay respect...' />}
-                header='Прежде чем начать. Укажите следующие
+                header='Прежде чем начать, укажите следующие
                                     данные, они помогут нам оценивать
                                     Ваши ответы.'></Placeholder>
                 <FormLayout>

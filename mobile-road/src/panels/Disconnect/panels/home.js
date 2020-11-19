@@ -24,7 +24,7 @@ export default class Info extends React.Component{
                 <Placeholder 
                 stretched
                 icon={<Icon56CheckCircleDeviceOutline style={{color: 'var(--dynamic_orange)'}} />}
-                header='Упс, кажется при запросе возникла ошибка'
+                header='Упс, кажется, при запросе возникла ошибка'
                 action={<>
                 <Button size='l' 
                 style={{marginRight: 8}} 

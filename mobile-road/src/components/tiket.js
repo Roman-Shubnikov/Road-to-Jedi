@@ -108,7 +108,7 @@ export default class Ticket extends React.Component {
           }
         })
         .catch(err => {
-          this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
+          this.props.this.changeData('activeStory', 'disconnect')
         })
     }
     sendRayt(mark, message_id) {
@@ -137,7 +137,7 @@ export default class Ticket extends React.Component {
               }
             })
             .catch(err => {
-              this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
+              this.props.this.changeData('activeStory', 'disconnect')
             
             })
         }
@@ -161,7 +161,7 @@ export default class Ticket extends React.Component {
             }
           })
           .catch(err => {
-            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
+            this.props.this.changeData('activeStory', 'disconnect')
     
           })
       }
@@ -319,7 +319,7 @@ export default class Ticket extends React.Component {
             }
           })
           .catch(err => {
-            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
+            this.props.this.changeData('activeStory', 'disconnect')
 
           })
       }
@@ -342,7 +342,7 @@ export default class Ticket extends React.Component {
               }
             })
             .catch(err => {
-              this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
+              this.props.this.changeData('activeStory', 'disconnect')
   
             })
       }
@@ -366,7 +366,7 @@ export default class Ticket extends React.Component {
             }
           })
           .catch(err => {
-            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
+            this.props.this.changeData('activeStory', 'disconnect')
   
           })
       }
@@ -389,7 +389,7 @@ export default class Ticket extends React.Component {
             }
           })
           .catch(err => {
-            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
+            this.props.this.changeData('activeStory', 'disconnect')
   
           })
       }
@@ -413,7 +413,7 @@ export default class Ticket extends React.Component {
             }
           })
           .catch(err => {
-            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
+            this.props.this.changeData('activeStory', 'disconnect')
 
           })
         
@@ -438,7 +438,7 @@ export default class Ticket extends React.Component {
             }
           })
           .catch(err => {
-            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
+            this.props.this.changeData('activeStory', 'disconnect')
 
           })
       }
@@ -461,7 +461,7 @@ export default class Ticket extends React.Component {
         }
       })
       .catch(err => {
-        this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
+        this.props.this.changeData('activeStory', 'disconnect')
 
       })
     }

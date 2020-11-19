@@ -57,7 +57,7 @@ export default class SchemeChange extends React.Component{
                 }
                 })
                 .catch(err => {
-                    this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
+                    this.props.this.changeData('activeStory', 'disconnect')
     
                 })
     

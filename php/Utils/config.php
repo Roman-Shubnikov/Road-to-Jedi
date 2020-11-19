@@ -29,7 +29,7 @@ class CONFIG {
 	const FLOOD_CONTROL_BAN = 60;
 
 	const REGEXP_VALID_NAME = "/^[a-zA-ZА-Яа-я0-9_ ]*$/u";
-	const REGEXP_VALID_TEXT = "/^[a-zA-ZА-Яа-я0-9_ \.,\"'\!\?]*$/u";
+	const REGEXP_VALID_TEXT = "/^[a-zA-ZА-Яа-я0-9_ \.,\"'!?+=-]*$/ui";
 	
 	const ERRORS = [
 		0 => 'Неизвестная ошибка.',

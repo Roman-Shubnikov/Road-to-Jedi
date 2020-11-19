@@ -1,6 +1,7 @@
 import React from 'react'; // React
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import vkQr from '@vkontakte/vk-qr';
+import {svg2png} from 'svg-png-converter'
 
 
 
@@ -55,7 +56,8 @@ import Icon16CheckCircle          from '@vkontakte/icons/dist/16/check_circle';
 
 
 // const queryString = require('query-string');
-// const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+var click_qr = false;
 // const parsedHash = queryString.parse(window.location.search.replace('?', ''));
 // const hash = queryString.parse(window.location.hash);
 function qr(agent_id, sheme) {
@@ -70,7 +72,8 @@ function qr(agent_id, sheme) {
     vkQr.createQR('https://vk.com/app7409818#agent_id=' + agent_id, {
     qrSize: 120,
     isShowLogo: true,
-    foregroundColor: hex
+    foregroundColor: hex,
+    className: 'svgqr'
   })
   )
 }
@@ -78,7 +81,6 @@ const blueBackground = {
   backgroundColor: 'var(--accent)'
 };
 var ignore_back = false;
-
 export default withPlatform(class Main extends React.Component {
     constructor(props) {
         super(props);
@@ -133,7 +135,7 @@ export default withPlatform(class Main extends React.Component {
               }
             })
             .catch(err => {
-              this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
+              this.changeData('activeStory', 'disconnect')
     
             })
         }
@@ -283,7 +285,7 @@ export default withPlatform(class Main extends React.Component {
         }
       })
       .catch(err => {
-        this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
+        this.changeData('activeStory', 'disconnect')
       })
     }
     sendMoney() {
@@ -313,16 +315,16 @@ export default withPlatform(class Main extends React.Component {
         }
       })
       .catch(err => {
-        this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
+        this.changeData('activeStory', 'disconnect')
       })
     }
     validateInputs(title){
       if(title.length > 0){
         let valid = ['error', 'Заполните это поле' ];
-          if(/^[a-zA-ZА-Яа-я0-9_ .,"'!?]*$/ui.test(title)){
+          if(/^[a-zA-ZА-Яа-я0-9_ .,"'!?\-=+]*$/ui.test(title)){
             valid = ['valid', '']
           }else{
-            valid = ['error', 'Ник не должен содержать спец. символы'];
+            valid = ['error', 'Поле не должно содержать спец. символы'];
           }
   
         return valid
@@ -330,7 +332,55 @@ export default withPlatform(class Main extends React.Component {
       return ['default', '']
       
     }
+    // async GenerateFileQr(Qr){
+    //   // if(click_qr){
+    //   //   return
+    //   // }
+    //   // let outputBuffer = await svg2png({ 
+    //   //   input: Qr, 
+    //   //   encoding: 'buffer', 
+    //   //   format: 'png',
+    //   // })
+    //   // let hr = new Blob([outputBuffer], {
+    //   //   type: 'image/png'
+    //   // });
+    //   // hr = URL.createObjectURL(hr);
+    //   // console.log(hr)
+    //   // let el = document.getElementsByClassName('qrdown')[0];
+    //   // el.href = hr;
+    //   // el.click();
+    //   // bridge.send("VKWebAppDownloadFile", {"url": hr, "filename": "test.svg"})
+    //   // click_qr = true
+    //   // берём любое изображение
+      
+    //   let img = document.querySelector('svgqr');
+
+    //   // создаём <canvas> того же размера
+    //   let canvas = document.createElement('canvas');
+    //   canvas.width = 128;
+    //   canvas.height = 128;
+
+    //   let context = canvas.getContext('2d');
+
+    //   // копируем изображение в  canvas (метод позволяет вырезать часть изображения)
+    //   context.drawImage(img, 0, 0);
+    //   // мы можем вращать изображение при помощи context.rotate() и делать множество других преобразований
+
+    //   // toBlob является асинхронной операцией, для которой callback-функция вызывается при завершении
+    //   canvas.toBlob(function(blob) {
+    //     // после того, как Blob создан, загружаем его
+    //     let link = document.createElement('a');
+    //     link.download = 'example.png';
+
+    //     link.href = URL.createObjectURL(blob);
+    //     link.click();
+
+    //     // удаляем внутреннюю ссылку на Blob, что позволит браузеру очистить память
+    //     URL.revokeObjectURL(link.href);
+    //   }, 'image/png');
+    // }
     componentDidMount(){
+
       bridge.send('VKWebAppEnableSwipeBack');
       window.addEventListener('popstate', this.handlePopstate); 
       this.myQuestions();
@@ -340,6 +390,10 @@ export default withPlatform(class Main extends React.Component {
       window.removeEventListener('popstate', this.handlePopstate)
     }
     render() {
+      // var QR = new Blob([qr(this.props.account['id'], this.props.this.state.scheme)], {
+      //   type: 'image/png'
+      // });
+      // var hrefqr = URL.createObjectURL(QR);
       const { platform } = this.props;
         const modal = (
             <ModalRoot
@@ -393,15 +447,15 @@ export default withPlatform(class Main extends React.Component {
                   name="money_transfer_count" 
                   onChange={(e) => this.onChange(e)} 
                   placeholder="Введите кол-во монеток" 
-                  value={this.state.money_transfer_count} 
-                  status={this.validateInputs(this.state.money_transfer_count)[0]}
-                  bottom={this.validateInputs(this.state.money_transfer_count)[1]} />
+                  value={this.state.money_transfer_count} />
                   <Input 
                   maxLength="100" 
                   name="money_transfer_comment" 
                   onChange={(e) => this.onChange(e)} 
                   placeholder="Введите комментарий к переводу" 
-                  value={this.state.money_transfer_comment} />
+                  value={this.state.money_transfer_comment}
+                  status={this.validateInputs(this.state.money_transfer_comment)[0]}
+                  bottom={this.validateInputs(this.state.money_transfer_comment)[1]} />
                 </FormLayout>
                 
                 <Div>
@@ -413,6 +467,7 @@ export default withPlatform(class Main extends React.Component {
                   stretched
                   mode='secondary'
                   onClick={() => {
+                    this.setActiveModal(null)
                     this.sendMoney();
                   }}>Отправить</Button>
                 </Div>
@@ -490,8 +545,14 @@ export default withPlatform(class Main extends React.Component {
                 >
                  {<div className="qr" dangerouslySetInnerHTML={{__html: qr(this.props.account['id'], this.props.this.state.scheme)}}/>}
                  <br/>
-                 <div className="qr">Отсканируйте камерой ВКонтакте!</div>
+                 <div className="qr" >Отсканируйте камерой ВКонтакте!</div>
                  <br/>
+                 {/* <div className="qr">или</div>
+                 <br/>
+                 <Div>
+                   <Button className='qrdown' onClick={() => {platformname ? 
+                    this.GenerateFileQr(QR) : this.GenerateFileQr(QR);console.log('click') }} download='QR.svg'>Скачать svg</Button>
+                 </Div> */}
                 </ModalPage>
                 <ModalComment
                   id='comment'

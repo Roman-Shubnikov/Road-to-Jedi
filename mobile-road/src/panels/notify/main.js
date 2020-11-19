@@ -210,7 +210,7 @@ export default class Notify extends React.Component {
         }
       })
       .catch(err => {
-        this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
+        this.changeData('activeStory', 'disconnect')
       })
     }
     componentDidMount(){

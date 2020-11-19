@@ -170,7 +170,7 @@ export default class Market extends React.Component{
                 }
             })
             .catch(err => {
-              this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
+              this.props.this.changeData('activeStory', 'disconnect')
         })
         
     }
@@ -181,7 +181,7 @@ export default class Market extends React.Component{
                 headers: {"Content-type": "application/json; charset=UTF-8"},
                     // signal: controllertime.signal,
                 body: JSON.stringify({
-                    'change_id': this.state.changed_id,
+                    'change_id': this.state.changed_id.trim(),
                 })
           })
           .then(res => res.json())
@@ -211,7 +211,7 @@ export default class Market extends React.Component{
             }
           })
           .catch(err => {
-            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
+            this.props.this.changeData('activeStory', 'disconnect')
           })
         } else {
           this.props.this.setSnack(
@@ -253,7 +253,7 @@ export default class Market extends React.Component{
             }
           })
           .catch(err => {
-            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
+            this.props.this.changeData('activeStory', 'disconnect')
           })
       }
 

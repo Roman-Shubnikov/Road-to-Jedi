@@ -45,7 +45,14 @@ function fix_time(time) {
             this.setActiveModal = propsbi.setActiveModal;
         }
         PrepareProfile(is_change=false){
-            fetch(this.state.api_url + "method=user.getById&id=" + this.props.agent_id + "&" + window.location.search.replace('?', ''))
+            fetch(this.state.api_url + "method=user.getById&" + window.location.search.replace('?', ''),
+            {method: 'post',
+                headers: {"Content-type": "application/json; charset=UTF-8"},
+                 // signal: controllertime.signal,
+                body: JSON.stringify({
+                'id': this.props.agent_id,
+            })
+            })
             .then(res => res.json())
             .then(data => {
               if(data.result) {
@@ -56,13 +63,22 @@ function fix_time(time) {
               }
             })
             .catch(err => {
-                this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
+                this.props.this.changeData('activeStory', 'disconnect')
+                // this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
     
             })
         }
         Prom(id, give=true) {
             this.setState({popout: <ScreenSpinner/>})
-            fetch(this.state.api_url + "method=account.Flash&agent_id=" + id + '&give=' + Number(give) + "&" + window.location.search.replace('?', ''))
+            fetch(this.state.api_url + "method=account.Flash&" + window.location.search.replace('?', ''),
+            {method: 'post',
+                headers: {"Content-type": "application/json; charset=UTF-8"},
+                 // signal: controllertime.signal,
+                body: JSON.stringify({
+                'agent_id': id,
+                'give': Number(give),
+            })
+            })
               .then(res => res.json())
               .then(data => {
                 if(data.result) {
@@ -78,7 +94,7 @@ function fix_time(time) {
                   }
               })
               .catch(err => {
-                this.showErrorAlert(err)
+                this.props.this.changeData('activeStory', 'disconnect')
               })
           }
         copy(id, prometey) {

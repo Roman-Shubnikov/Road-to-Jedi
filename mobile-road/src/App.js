@@ -158,7 +158,6 @@ class App extends React.Component {
       this.setState({
           snackbar: null,
           switchKeys: false,
-          need_epic: true,
           first_start: false,
           BanReason: null,
       })
@@ -250,7 +249,7 @@ class App extends React.Component {
               this.setState({activeStory: 'start', LoadWebView: true});
             }else{
               if(this.state.activeStory === 'loading' || this.state.activeStory === 'disconnect'){
-                this.setState({activeStory: 'questions', LoadWebView: true})
+                this.setState({activeStory: 'questions', LoadWebView: true, need_epic: true})
               }
             }
           } else {
@@ -273,7 +272,8 @@ class App extends React.Component {
           }
         })
         .catch(err => {
-          this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => { this.setState({activeStory: 'disconnect'}) })
+          this.setState({activeStory: 'disconnect', need_epic: false})
+          this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже')
         })
     }
 

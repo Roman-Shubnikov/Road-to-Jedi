@@ -61,7 +61,7 @@ export default class ReaderNotif extends React.Component {
                   }
                 })
                 .catch(err => {
-                this.props.this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
+                    this.props.this.changeData('activeStory', 'disconnect')
 
                 })
             }
@@ -78,7 +78,7 @@ export default class ReaderNotif extends React.Component {
                   }
                 })
                 .catch(err => {
-                this.props.this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
+                    this.props.this.changeData('activeStory', 'disconnect')
 
                 })
             }
