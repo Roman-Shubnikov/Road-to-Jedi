@@ -101,7 +101,7 @@ class Tickets {
 			return false;
 		}
 		// Сохраняем оценку в бд
-		$result = $this->Connect->query("UPDATE messages SET mark=?,approve_author_id=? WHERE id=?",[(int) $mark,(int) $_GET['vk_user_id'],$message_id]);
+		$result = $this->Connect->query("UPDATE messages SET mark=?,approve_author_id=? WHERE id=?",[(int) $mark,(int) $this->user->vk_id,$message_id]);
 
 		// Увеличиваем счетчик оцененных ответов
 		$auid = $res['author_id'];
@@ -391,7 +391,7 @@ class Tickets {
 		}
 
 		$auid = $this->user->id;
-		$notification = substr( $_POST['text'], 0, 150 ).'...';
+		$notification = substr( $text, 0, 150 ).'...';
 		$data = [
 			'comment' => $text,
 			'comment_author_id' => $auid

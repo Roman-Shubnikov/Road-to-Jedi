@@ -57,6 +57,7 @@ export default class Main extends React.Component {
             offset: 0,
             tiket_all: null,
             tiket_all_helper: null,
+            snackbar: null,
 
 
         
@@ -70,11 +71,20 @@ export default class Main extends React.Component {
         //   this.setState({history: [...this.state.history, panel]})
         // }
         this.getQuestions = (need_offset=false) => {
-          let url = need_offset ? "method=tickets.get&count=20&unanswered=1&offset=" + this.state.offset : "method=tickets.get&count=20&unanswered=1";
+          let offset = need_offset ? this.state.need_offset : 0;
           if(!need_offset){
               this.setState({ offset: 20})
           }
-          fetch(this.state.api_url + url + "&" + window.location.search.replace('?', ''))
+          fetch(this.state.api_url + "method=tickets.get&" + window.location.search.replace('?', ''), 
+          {method: 'post',
+          headers: {"Content-type": "application/json; charset=UTF-8"},
+              // signal: controllertime.signal,
+          body: JSON.stringify({
+            'count': 20,
+            'unanswered': 1,
+            'offset': offset,
+          })
+        })
           .then(res => res.json())
           .then(data => {
             if(data.result) {
@@ -144,7 +154,7 @@ export default class Main extends React.Component {
                 bridge.send("VKWebAppClose", {"status": "success"});
             } else if (history.length > 1) {
                 history.pop()
-                if (this.state.activePanel === 'main') {
+                if(this.state.activePanel === 'questions') {
                   bridge.send('VKWebAppDisableSwipeBack');
                 }
                 this.setState({activePanel: history[history.length - 1]})
@@ -235,7 +245,16 @@ export default class Main extends React.Component {
     
     userBan(user_id, text) {
       this.setPopout(<ScreenSpinner/>)
-      fetch(this.state.api_url + "method=account.ban&agent_id=" + user_id + "&banned=true&reason=" + text + "&" + window.location.search.replace('?', ''))
+      fetch(this.state.api_url + "method=account.ban&" + window.location.search.replace('?', ''),
+      {method: 'post',
+          headers: {"Content-type": "application/json; charset=UTF-8"},
+              // signal: controllertime.signal,
+          body: JSON.stringify({
+            'agent_id': user_id,
+            'banned': true,
+            'reason': text,
+          })
+        })
       .then(res => res.json())
       .then(data => {
         if(data.result) {
@@ -355,8 +374,8 @@ export default class Main extends React.Component {
             activePanel={this.state.activePanel}
             modal={modal}
             history={this.state.history}
-            popout={this.state.popout}
             onSwipeBack={() => window.history.back()}
+            popout={this.state.popout}
             >
               <Questions id='questions' 
               this={this} 
@@ -365,7 +384,7 @@ export default class Main extends React.Component {
               first_start={this.props.first_start}
               tiket_all_helper={this.state.tiket_all_helper} />
               <NewTicket id='new_ticket' this={this} account={this.props.account} /> 
-              <Tiket id="ticket" this={this} ticket_id={this.state.ticket_id} account={this.props.account} />
+              <Tiket id="ticket" this={this} ticket_id={this.state.ticket_id} account={this.props.account} snackbar={this.state.snackbar} />
               <OtherProfile id="other_profile" this={this} agent_id={this.state.active_other_profile} account={this.props.account}/>
             </View>  
         )

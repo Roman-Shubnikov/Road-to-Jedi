@@ -109,6 +109,9 @@ export default class Main extends React.Component {
               bridge.send("VKWebAppClose", {"status": "success"});
           } else if (history.length > 1) {
               history.pop()
+              if(this.state.activePanel === 'top') {
+                bridge.send('VKWebAppDisableSwipeBack');
+              }
               this.setState({activePanel: history[history.length - 1]})
               // if(history[history.length - 1] === 'ticket'){
               //   this.changeData('need_epic', false)
@@ -121,6 +124,9 @@ export default class Main extends React.Component {
           let history = this.state.history.slice();
           history.push(panel)
           window.history.pushState( { panel: panel }, panel );
+          if(panel === 'top') {
+            bridge.send('VKWebAppEnableSwipeBack');
+          }
           this.setState({history: history, activePanel: panel})
           // if(panel === 'ticket'){
           //   this.changeData('need_epic', false)
@@ -181,7 +187,17 @@ export default class Main extends React.Component {
 
     userBan(user_id, text) {
       this.setPopout(<ScreenSpinner/>)
-      fetch(this.state.api_url + "method=account.ban&agent_id=" + user_id + "&banned=true&reason=" + text + "&" + window.location.search.replace('?', ''))
+      fetch(this.state.api_url + "method=account.ban&" + window.location.search.replace('?', ''),
+      {method: 'post',
+      headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+      body: JSON.stringify({
+        'agent_id': user_id,
+        'banned': true,
+        'reason': text,
+
+    })
+      })
       .then(res => res.json())
       .then(data => {
         if(data.result) {
@@ -213,10 +229,12 @@ export default class Main extends React.Component {
     }
     
     componentDidMount(){
+      bridge.send('VKWebAppEnableSwipeBack');
       window.addEventListener('popstate', this.handlePopstate); 
       this.getTopUsers()
     }
     componentWillUnmount(){
+      bridge.send('VKWebAppDisableSwipeBack');
       window.removeEventListener('popstate', this.handlePopstate)
     }
     render() {
@@ -277,7 +295,8 @@ export default class Main extends React.Component {
             activePanel={this.state.activePanel}
             modal={modal}
             popout={this.state.popout}
-            onSwipeBack={this.goBack}
+            history={this.state.history}
+            onSwipeBack={() => window.history.back()}
             >
               <Top id="top" this={this} account={this.props.account} top_agents={this.state.top_agents} />
               <OtherProfile id="other_profile" this={this} agent_id={this.state.active_other_profile} account={this.props.account}/>

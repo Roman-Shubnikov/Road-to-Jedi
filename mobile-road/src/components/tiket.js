@@ -15,9 +15,12 @@ import {
     WriteBarIcon,
     WriteBar,
     FormStatus,
+    Snackbar,
+    Avatar,
     } from '@vkontakte/vkui';
 
 import Icon16ReplyOutline from '@vkontakte/icons/dist/16/reply_outline';
+import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
 
 // import Ninja from '../images/Ninja.webp'
 
@@ -52,6 +55,9 @@ function add_month(month) {
     let number_month = new Date(month * 1e3).getMonth()
     return months[number_month - 1]
 }
+const blueBackground = {
+  backgroundColor: 'var(--accent)'
+};
 export default class Ticket extends React.Component {
     constructor(props) {
         super(props);
@@ -63,6 +69,7 @@ export default class Ticket extends React.Component {
             add_comment: false,
             redaction: false,
             limitreach: false,
+            snackbar: null,
         }
         var propsbi = this.props.this;
         this.setPopout = propsbi.setPopout;
@@ -81,7 +88,15 @@ export default class Ticket extends React.Component {
 
     }
     Prepare_ticket(){
-        fetch(this.state.api_url + "method=ticket.getById&ticket_id=" + this.props.ticket_id + "&" + window.location.search.replace('?', ''))
+        fetch(this.state.api_url + "method=ticket.getById&" + window.location.search.replace('?', ''),
+        {method: 'post',
+      headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+      body: JSON.stringify({
+        'ticket_id': this.props.ticket_id,
+
+    })
+      })
         .then(res => res.json())
         .then(data => {
           if(data.result) {
@@ -104,7 +119,15 @@ export default class Ticket extends React.Component {
           reyt = 0;
         }
         if(reyt < 2) {
-          fetch(this.state.api_url + "method=ticket.markMessage&message_id=" + message_id + "&mark=" + reyt + "&" + window.location.search.replace('?', ''))
+          fetch(this.state.api_url + "method=ticket.markMessage&" + window.location.search.replace('?', ''),
+          {method: 'post',
+          headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+          body: JSON.stringify({
+            'message_id': message_id,
+            'mark': reyt,
+          })
+            })
             .then(res => res.json())
             .then(data => {
               if(data.result) {
@@ -121,7 +144,14 @@ export default class Ticket extends React.Component {
       }
       sendClear(id) {
         this.setPopout(<ScreenSpinner/>)
-        fetch(this.state.api_url + "method=ticket.approveReply&message_id=" + id + "&" + window.location.search.replace('?', ''))
+        fetch(this.state.api_url + "method=ticket.approveReply&" + window.location.search.replace('?', ''),
+        {method: 'post',
+          headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+          body: JSON.stringify({
+            'message_id': id,
+          })
+            })
           .then(res => res.json())
           .then(data => {
             if(data.result) {
@@ -243,7 +273,15 @@ export default class Ticket extends React.Component {
             </ActionSheetItem>
             : null
           }
-            <ActionSheetItem autoclose onClick={() => bridge.send("VKWebAppCopyText", {text: "https://vk.com/app7409818#ticket_id=" + id})}>
+            <ActionSheetItem autoclose onClick={() => {
+              bridge.send("VKWebAppCopyText", {text: "https://vk.com/app7409818#ticket_id=" + id});
+              this.setSnack(<Snackbar
+                layout="vertical"
+                before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                onClose={() => this.setSnack(null)}>
+                  Ссылка скопирована
+                </Snackbar>)
+          }}>
               Скопировать ссылку
             </ActionSheetItem>
             {<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}
@@ -263,7 +301,15 @@ export default class Ticket extends React.Component {
       }
       sendNewMessage() {
         this.setPopout(<ScreenSpinner/>)
-          fetch(this.state.api_url + 'method=ticket.sendMessage&ticket_id=' + this.state.tiket_info['id'] + '&text=' + encodeURIComponent(this.state.tiket_send_message.trim()) + "&" + window.location.search.replace('?', ''))
+          fetch(this.state.api_url + 'method=ticket.sendMessage&' + window.location.search.replace('?', ''),
+          {method: 'post',
+          headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+          body: JSON.stringify({
+            'ticket_id': this.state.tiket_info['id'],
+            'text': this.state.tiket_send_message.trim(),
+          })
+            })
           .then(res => res.json())
           .then(data => {
             if(data.result) {
@@ -279,7 +325,14 @@ export default class Ticket extends React.Component {
       }
       deleteMessage(message_id) {
         this.setPopout(<ScreenSpinner/>)
-          fetch(this.state.api_url + "method=ticket.deleteMessage&message_id=" + message_id + "&" + window.location.search.replace('?', ''))
+          fetch(this.state.api_url + "method=ticket.deleteMessage&" + window.location.search.replace('?', ''),
+          {method: 'post',
+          headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+          body: JSON.stringify({
+            'message_id': message_id,
+          })
+            })
             .then(res => res.json())
             .then(data => {
               if(data.result) {
@@ -295,7 +348,15 @@ export default class Ticket extends React.Component {
       }
       deleteTicket() {
         this.setPopout(<ScreenSpinner/>)
-        fetch(this.state.api_url + "method=ticket.close&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
+        fetch(this.state.api_url + "method=ticket.close&" + window.location.search.replace('?', ''),
+        {method: 'post',
+          headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+          body: JSON.stringify({
+            'ticket_id': this.state.tiket_info['id'],
+
+          })
+            })
           .then(res => res.json())
           .then(data => {
             if(data.result) {
@@ -311,7 +372,14 @@ export default class Ticket extends React.Component {
       }
       openTicket() {
         this.setPopout(<ScreenSpinner/>)
-        fetch(this.state.api_url + "method=ticket.open&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
+        fetch(this.state.api_url + "method=ticket.open&" + window.location.search.replace('?', ''),
+        {method: 'post',
+          headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+          body: JSON.stringify({
+            'ticket_id': this.state.tiket_info['id'],
+          })
+            })
           .then(res => res.json())
           .then(data => {
             if(data.result) {
@@ -327,7 +395,15 @@ export default class Ticket extends React.Component {
       }
       sendNewMessageRedact() {
         this.setPopout(<ScreenSpinner/>)
-        fetch(this.state.api_url + 'method=ticket.editMessage&message_id=' + this.state.message_id_redac + '&text=' + encodeURIComponent(this.state.tiket_send_message.trim()) + "&" + window.location.search.replace('?', ''))
+        fetch(this.state.api_url + 'method=ticket.editMessage&' + window.location.search.replace('?', ''),
+        {method: 'post',
+          headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+          body: JSON.stringify({
+            'message_id': this.state.message_id_redac,
+            'text': this.state.tiket_send_message.trim(),
+          })
+            })
           .then(res => res.json())
           .then(data => {
             if(data.result) {
@@ -344,7 +420,15 @@ export default class Ticket extends React.Component {
       }
       sendNewMessageComment() {
         this.setPopout(<ScreenSpinner/>)
-        fetch(this.state.api_url + 'method=ticket.commentMessage&message_id=' + this.state.message_id_add + '&text=' + encodeURIComponent(this.state.tiket_send_message.trim()) + "&" + window.location.search.replace('?', ''))
+        fetch(this.state.api_url + 'method=ticket.commentMessage&' + window.location.search.replace('?', ''),
+        {method: 'post',
+          headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+          body: JSON.stringify({
+            'message_id': this.state.message_id_add,
+            'text': this.state.tiket_send_message.trim(),
+          })
+            })
           .then(res => res.json())
           .then(data => {
             if(data.result) {
@@ -359,7 +443,14 @@ export default class Ticket extends React.Component {
           })
       }
     getMessages(){
-      fetch(this.state.api_url + "method=ticket.getMessages&ticket_id=" + this.state.tiket_info['id'] + "&" + window.location.search.replace('?', ''))
+      fetch(this.state.api_url + "method=ticket.getMessages&" + window.location.search.replace('?', ''),
+      {method: 'post',
+          headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+          body: JSON.stringify({
+            'ticket_id': this.state.tiket_info['id'],
+          })
+            })
       .then(res => res.json())
       .then(data => {
         if(data.result) {
@@ -489,7 +580,9 @@ export default class Ticket extends React.Component {
                         
                     </div>
                 : null
-            : null}</> : null}
+            : null}
+            {this.state.snackbar}
+            </> : null}
             </Panel>
         )
     }

@@ -54,6 +54,9 @@ export default class Start extends React.Component {
                 bridge.send("VKWebAppClose", {"status": "success"});
             } else if (history.length > 1) {
                 history.pop()
+                if(this.state.activePanel === 'load') {
+                  bridge.send('VKWebAppDisableSwipeBack');
+                }
                 this.setState({activePanel: history[history.length - 1]})
                 // if(history[history.length - 1] === 'ticket'){
                 //   this.changeData('need_epic', false)
@@ -76,6 +79,9 @@ export default class Start extends React.Component {
           let history = this.state.history.slice();
           history.push(panel)
           window.history.pushState( { panel: panel }, panel );
+          if(panel === 'load') {
+            bridge.send('VKWebAppEnableSwipeBack');
+          }
           this.setState({history: history, activePanel: panel})
           // if(panel === 'ticket'){
           //   this.changeData('need_epic', false)
@@ -117,11 +123,12 @@ export default class Start extends React.Component {
         }
     }
     componentDidMount(){
+      bridge.send('VKWebAppEnableSwipeBack');
       window.addEventListener('popstate', this.handlePopstate); 
       this.changeData('need_epic', false)
-      console.log('abbab')
     }
     componentWillUnmount(){
+      bridge.send('VKWebAppDisableSwipeBack');
       window.removeEventListener('popstate', this.handlePopstate)
     }
     render() {
@@ -130,7 +137,8 @@ export default class Start extends React.Component {
             id={this.props.id}
             activePanel={this.state.activePanel}
             popout={this.state.popout}
-            onSwipeBack={this.goBack}
+            history={this.state.history}
+            onSwipeBack={() => window.history.back()}
             >
               <Startov id='load' account={this.props.account} this={this} />
               {/* <Startov2 id='start2' account={this.props.account} this={this} /> */}

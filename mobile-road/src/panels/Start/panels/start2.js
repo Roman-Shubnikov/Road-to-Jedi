@@ -30,7 +30,12 @@ export default class Start extends React.Component {
         }
         ChangeAge(age) {
             this.setPopout(<ScreenSpinner/>)
-            fetch(this.state.api_url + "method=account.setAge&age=" + age + "&" + window.location.search.replace('?', ''))
+            fetch(this.state.api_url + "method=account.setAge&" + window.location.search.replace('?', ''), 
+              {method: 'post',
+              headers: {"Content-type": "application/json; charset=UTF-8"},
+                  // signal: controllertime.signal,
+              body: JSON.stringify({'age': age })
+            })
             .then(res => res.json())
             .then(data => {
               if(data.result) {

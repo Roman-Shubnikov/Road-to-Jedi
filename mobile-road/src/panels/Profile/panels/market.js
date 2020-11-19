@@ -127,7 +127,14 @@ export default class Market extends React.Component{
     
   }
     changeAvatar(last_selected) {
-        fetch(this.state.api_url + "method=shop.changeAvatar&avatar_id=" + last_selected + "&" + window.location.search.replace('?', ''))
+        fetch(this.state.api_url + "method=shop.changeAvatar&" + window.location.search.replace('?', ''),
+        {method: 'post',
+        headers: {"Content-type": "application/json; charset=UTF-8"},
+            // signal: controllertime.signal,
+        body: JSON.stringify({
+            'avatar_id': last_selected,
+        })
+        })
         .then(data => data.json())
         .then(data => {
           if(last_selected){
@@ -169,7 +176,14 @@ export default class Market extends React.Component{
     }
     ChangeId() {
         if(this.state.changed_id){ 
-          fetch(this.state.api_url + "method=shop.changeId&change_id=" + this.state.changed_id + "&" + window.location.search.replace('?', ''))
+          fetch(this.state.api_url + "method=shop.changeId&" + window.location.search.replace('?', ''),
+          {method: 'post',
+                headers: {"Content-type": "application/json; charset=UTF-8"},
+                    // signal: controllertime.signal,
+                body: JSON.stringify({
+                    'change_id': this.state.changed_id,
+                })
+          })
           .then(res => res.json())
           .then(data => {
             if(data.result) {

@@ -2,9 +2,9 @@ import 'core-js/es/map';
 import 'core-js/es/set';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import connect from '@vkontakte/vk-bridge';
-import * as Sentry from "@sentry/react";
-import { Integrations } from "@sentry/tracing";
+import bridge from '@vkontakte/vk-bridge'; // VK Brige
+// import * as Sentry from "@sentry/react";
+// import { Integrations } from "@sentry/tracing";
 import App from './App.js';
 import mVKMiniAppsScrollHelper from '@vkontakte/mvk-mini-apps-scroll-helper';
 import {platform, IOS} from '@vkontakte/vkui';
@@ -18,7 +18,7 @@ import {platform, IOS} from '@vkontakte/vkui';
 //     tracesSampleRate: 2.0,
 //   });
 
-connect.send('VKWebAppInit', {});
+bridge.send('VKWebAppInit', {});
 const root = document.getElementById('root');
 if(platform() === IOS) {
     mVKMiniAppsScrollHelper(root); 

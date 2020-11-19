@@ -150,9 +150,6 @@ export default class Questions extends React.Component {
                     Упс, кажется вопросы закончились
                 </Placeholder>
                 : null : <PanelSpinner />} */}
-                <Separator/>
-                <Separator/>
-                <Separator/>
             </PullToRefresh>
             </Panel>
             )

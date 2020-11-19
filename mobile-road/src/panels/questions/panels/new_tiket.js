@@ -23,6 +23,7 @@ export default class NewTicket extends React.Component {
                 title_new_tiket: '',
                 text_new_tiket: '',
             }
+            this.sendNewTiket = this.sendNewTiket.bind(this);
             this.onChange = (event) => {
                 var name = event.currentTarget.name;
                 var value = event.currentTarget.value;
@@ -33,63 +34,64 @@ export default class NewTicket extends React.Component {
             return Math.floor(Math.random() * (max - min + 1)) + min;
           }
         sendNewTiket() {
-        this.setState({popout: <ScreenSpinner/>})
-        var global = this;
-        if(this.state.text_new_tiket.length > 5 || this.state.title_new_tiket.length > 5) {
-            var url = this.state.api_url + 'method=ticket.add&' + window.location.search.replace('?', '');
-            var method = 'POST';
-            var async = true;
-        
-            var xhr = new XMLHttpRequest();
-            xhr.open( method, url, async );
-            //.then(response => response.json())
-            
-            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        
-            xhr.onreadystatechange = function() {//Вызывает функцию при смене состояния.
-            if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                if(xhr.responseText) {
-                let text = (JSON.parse(xhr.responseText));
-                global.props.this.goTiket(text.response.ticket_id)
-                fetch(global.state.api_url + "method=tickets.get&unanswered=1&" + window.location.search.replace('?', ''))
+            this.setState({popout: <ScreenSpinner/>})
+            if(this.state.text_new_tiket.length > 5 || this.state.title_new_tiket.length > 5) {
+                fetch(this.state.api_url + "method=ticket.add&" + window.location.search.replace('?', ''), 
+                {method: 'post',
+                headers: {"Content-type": "application/json; charset=UTF-8"},
+                    // signal: controllertime.signal,
+                body: JSON.stringify({
+                    'title': this.state.title_new_tiket,
+                    'text': this.state.text_new_tiket,
+                    'user': this.getRandomInRange(501, 624429367),
+                })
+                })
                 .then(res => res.json())
                 .then(data => {
                     if(data.result) {
-                        global.setState({tiket_all: data.response, popout: null, title_new_tiket: "", text_new_tiket: ""})
+                        fetch(this.state.api_url + "method=tickets.get&" + window.location.search.replace('?', ''),
+                        {method: 'post',
+                        headers: {"Content-type": "application/json; charset=UTF-8"},
+                            // signal: controllertime.signal,
+                        body: JSON.stringify({
+                            'unanswered': 1,
+                        })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if(data.result) {
+                                this.setState({tiket_all: data.response, popout: null, title_new_tiket: "", text_new_tiket: ""})
+                            }else{
+                                this.showErrorAlert(data.error.message)
+                            }
+                        })
+                        .catch(err => {
+                            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
+        
+                        })
                     }else{
-                        this.showErrorAlert(data.error.message)
-                    }
+                    this.showErrorAlert(data.error.message)
+                }
                 })
                 .catch(err => {
-                    this.showErrorAlert()
-
+                    this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
                 })
-                }
+            }else{
+                this.setState({
+                    popout: 
+                    <Alert
+                    actions={[{
+                    title: 'Отмена',
+                    autoclose: true,
+                    style: 'cancel'
+                    }]}
+                    onClose={this.closePopout}
+                >
+                    <h2>Ошибка</h2>
+                    <p>Заголовок или текст проблемы должен быть больше 5 символов.</p>
+                </Alert>
+                    })
             }
-        }
-            
-            xhr.send( 'title=' + this.state.title_new_tiket + '&text=' + this.state.text_new_tiket + '&user=' + this.getRandomInRange(501, 624429367) );
-            xhr.onerror = ( error ) => {
-            this.showErrorAlert()
-
-            console.error( error );
-            }
-        } else {
-            this.setState({
-            popout: 
-            <Alert
-            actions={[{
-            title: 'Отмена',
-            autoclose: true,
-            style: 'cancel'
-            }]}
-            onClose={this.closePopout}
-        >
-            <h2>Ошибка</h2>
-            <p>Заголовок или текст проблемы должен быть больше 5 символов.</p>
-        </Alert>
-            })
-        }
         }
 
         render() {

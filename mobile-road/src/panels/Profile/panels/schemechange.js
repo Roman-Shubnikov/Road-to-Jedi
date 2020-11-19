@@ -37,7 +37,14 @@ export default class SchemeChange extends React.Component{
             if(value === 0){
                 this.props.this.changeData('scheme', this.props.default_scheme)
             }
-            fetch(this.state.api_url + "method=account.changeScheme&scheme=" + value + "&" + window.location.search.replace('?', ''))
+            fetch(this.state.api_url + "method=account.changeScheme&" + window.location.search.replace('?', ''),
+            {method: 'post',
+                headers: {"Content-type": "application/json; charset=UTF-8"},
+                    // signal: controllertime.signal,
+                body: JSON.stringify({
+                    'scheme': value,
+                })
+                })
                 .then(res => res.json())
                 .then(data => {
                 if(data.result) {

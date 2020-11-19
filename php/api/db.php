@@ -4,7 +4,10 @@ class DB {
 
     public function __construct() {
 		try{
-			$this->mysql = new PDO('mysql:dbname=' . CONFIG::DB_NAME . ';host=' . CONFIG::DB_HOST, CONFIG::DB_USER, CONFIG::DB_PASS, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+            $this->mysql = new PDO('mysql:dbname=' . CONFIG::DB_NAME . ';host=' . CONFIG::DB_HOST, 
+            CONFIG::DB_USER, 
+            CONFIG::DB_PASS, 
+            array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8mb4'"));
 		} catch (PDOException $e) {
 			Show::error(6,['message' => $e->getMessage()]);
 		}

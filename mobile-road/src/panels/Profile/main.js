@@ -25,7 +25,6 @@ import {
   FormLayout,
   Button,
   Div,
-  Placeholder,
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
@@ -102,6 +101,7 @@ export default withPlatform(class Main extends React.Component {
             moneys: null,
             money_transfer_send: '',
             money_transfer_count: '',
+            money_transfer_comment: '',
             AgeUser: 0,
             snackbar: null,
             myQuestions:[],
@@ -163,15 +163,16 @@ export default withPlatform(class Main extends React.Component {
             this.setActiveModal(this.state.modalHistory[this.state.modalHistory.length - 2]);
         };
         this.goBack = () => {
-          // this.setPopout(<ScreenSpinner />)
           if(!ignore_back){
             ignore_back = true;
             const history = this.state.history;
-            this.setActiveModal(null);
             if(history.length === 1) {
                 bridge.send("VKWebAppClose", {"status": "success"});
             } else if (history.length > 1) {
                 history.pop()
+                if(this.state.activePanel === 'profile') {
+                  bridge.send('VKWebAppDisableSwipeBack');
+                }
                 this.setState({activePanel: history[history.length - 1]})
                 // if(history[history.length - 1] === 'ticket'){
                 //   this.changeData('need_epic', false)
@@ -189,12 +190,14 @@ export default withPlatform(class Main extends React.Component {
             const history = this.state.history;
             window.history.pushState( { panel: history[history.length - 1] }, history[history.length - 1] );
           }
-          
       }
         this.goPanel = (panel) => {
           let history = this.state.history.slice();
           history.push(panel)
           window.history.pushState( { panel: panel }, panel );
+          if(panel === 'profile') {
+            bridge.send('VKWebAppEnableSwipeBack');
+          }
           this.setState({history: history, activePanel: panel, snackbar: null})
           // if(panel === 'ticket'){
           //   this.changeData('need_epic', false)
@@ -256,26 +259,19 @@ export default withPlatform(class Main extends React.Component {
           )
         }
     }
-    ChangeAge(age) {
-      this.setState({popout: <ScreenSpinner/>})
-      fetch(this.state.api_url + "method=account.setAge&age=" + age + "&" + window.location.search.replace('?', ''))
-      .then(res => res.json())
-      .then(data => {
-        if(data.result) {
-          this.setState({popout: null})
-          // setTimeout(() => {
-          //   this.playAudio()
-          // }, 5000)
-          
-        }
-      })
-      .catch(err => {
-        this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
-      })
-    }
     userBan(user_id, text) {
       this.setPopout(<ScreenSpinner/>)
-      fetch(this.state.api_url + "method=account.ban&agent_id=" + user_id + "&banned=true&reason=" + text + "&" + window.location.search.replace('?', ''))
+      fetch(this.state.api_url + "method=account.ban&" + window.location.search.replace('?', ''),
+      {method: 'post',
+      headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+      body: JSON.stringify({
+        'agent_id': user_id,
+        'banned': true,
+        'reason': text,
+
+    })
+      })
       .then(res => res.json())
       .then(data => {
         if(data.result) {
@@ -292,14 +288,23 @@ export default withPlatform(class Main extends React.Component {
     }
     sendMoney() {
       this.setPopout(<ScreenSpinner />)
-      fetch(this.state.api_url + 'method=transfers.send&summa=' +  this.state.money_transfer_count + '&send_to=' + this.state.money_transfer_send + "&" + window.location.search.replace('?', ''))
+      fetch(this.state.api_url + 'method=transfers.send&' + window.location.search.replace('?', ''),
+      {method: 'post',
+      headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+      body: JSON.stringify({
+        'summa': this.state.money_transfer_count,
+        'send_to': this.state.money_transfer_send,
+        'comment': this.state.money_transfer_comment,
+    })
+      })
       .then(data => data.json())
       .then(data => {
         if(data.result) {
           setTimeout(() => {
             this.ReloadProfile();
             this.setPopout(null)
-            this.setState({moneys: data.response})
+            this.setState({moneys: data.response, money_transfer_comment: '', money_transfer_count: '', money_transfer_send: ''})
             this.setActiveModal("moneys")
           }, 4000)
           
@@ -326,10 +331,12 @@ export default withPlatform(class Main extends React.Component {
       
     }
     componentDidMount(){
+      bridge.send('VKWebAppEnableSwipeBack');
       window.addEventListener('popstate', this.handlePopstate); 
       this.myQuestions();
     }
     componentWillUnmount(){
+      bridge.send('VKWebAppDisableSwipeBack');
       window.removeEventListener('popstate', this.handlePopstate)
     }
     render() {
@@ -367,20 +374,12 @@ export default withPlatform(class Main extends React.Component {
                 <Input maxLength="100" name="ban_reason" onChange={(e) => this.onChange(e)} placeholder="Введите причину бана" value={this.state.ban_reason} />
                 
               </ModalCard>
-              <ModalPage
+              <ModalCard
                 id='send'
                 onClose={() => this.setActiveModal(null)}
-                dynamicContentHeight
-                header={<ModalPageHeader
-                  right={platform === IOS && <Header onClick={this.modalBack}><Icon24Dismiss /></Header>}
-                  left={platform === ANDROID && <PanelHeaderButton onClick={this.modalBack}>
-                  <Icon24Dismiss />
-                </PanelHeaderButton>}
-                >Переводы</ModalPageHeader>}
+                icon={<Icon56MoneyTransferOutline />}
+                header="Отправляйте монетки друзьям"
               >
-                <Placeholder icon={<Icon56MoneyTransferOutline style={{color: 'var(--dynamic_blue)'}} />}>
-                Здесь Вы можете переводить монетки друзьям. Они точно обрадуются.
-                  </Placeholder>
                 <FormLayout>
                   <Input maxLength="15" 
                   onChange={(e) => this.onChange(e)} 
@@ -397,7 +396,14 @@ export default withPlatform(class Main extends React.Component {
                   value={this.state.money_transfer_count} 
                   status={this.validateInputs(this.state.money_transfer_count)[0]}
                   bottom={this.validateInputs(this.state.money_transfer_count)[1]} />
+                  <Input 
+                  maxLength="100" 
+                  name="money_transfer_comment" 
+                  onChange={(e) => this.onChange(e)} 
+                  placeholder="Введите комментарий к переводу" 
+                  value={this.state.money_transfer_comment} />
                 </FormLayout>
+                
                 <Div>
                   <Button 
                   disabled={
@@ -411,11 +417,7 @@ export default withPlatform(class Main extends React.Component {
                   }}>Отправить</Button>
                 </Div>
                 
-                
-                {/* <br/>
-                <Input maxLength="100" name="money_transfer_comment" onChange={(e) => this.onChange(e)} placeholder="Введите комментарий к переводу" value={this.state.money_transfer_comment} /> */}
-                
-              </ModalPage>
+              </ModalCard>
               <ModalCard
                 id='moneys'
                 onClose={() => this.setActiveModal(null)}
@@ -471,6 +473,7 @@ export default withPlatform(class Main extends React.Component {
                   </Snackbar>);}} before={<Icon24Linked width={28} height={28}/>}>Скопировать ссылку</Cell>
                   </List>
                 </ModalPage>
+
                 <ModalPage
                 id="qr"
                 onClose={this.modalBack}
@@ -502,7 +505,8 @@ export default withPlatform(class Main extends React.Component {
             activePanel={this.state.activePanel}
             modal={modal}
             popout={this.state.popout}
-            onSwipeBack={this.goBack}
+            history={this.state.history}
+            onSwipeBack={() => window.history.back()}
             >
 
               <Prof id="profile" this={this} account={this.props.account} />

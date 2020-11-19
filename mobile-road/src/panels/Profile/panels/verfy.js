@@ -51,11 +51,18 @@ export default class Verfy extends React.Component{
     handleForm(){
       this.setPopout(<ScreenSpinner />);
       fetch(this.state.api_url + 
-      "method=account.sendRequestVerf&title=" + encodeURIComponent(this.state.title.trim()) + 
-      "&description=" + encodeURIComponent(this.state.description.trim()) + 
-      // "&phone_number=" + this.state.number + 
-      // "&phone_sign=" + this.state.sign_number + 
-      "&cond1=1&" + window.location.search.replace('?', ''))
+      "method=account.sendRequestVerf&" + window.location.search.replace('?', ''),
+      {method: 'post',
+      headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+      body: JSON.stringify({
+        'title': this.state.title.trim(),
+        'description': this.state.description.trim(),
+        'cond1': true,
+        // 'phone_number': this.state.number,
+        // 'phone_sign': this.state.sign_number,
+    })
+      })
       .then(res => res.json())
       .then(data => {
       if(data.result) {

@@ -9,7 +9,7 @@ class SystemNotifications {
 		$this->Connect = $Connect;
 	}
 
-	public function send( int $owner_id, string $text, string $image, array $object ) {
+	public function send( int $owner_id, string $text, string $image, array $object, string $comment=null ) {
 		$data = [
 			'owner_id' => $owner_id,
 			'text' => $text,
@@ -18,7 +18,7 @@ class SystemNotifications {
 			'object_type' => $object['type'],
 			'object' => $object['object']
 		];
-		$res = $this->Connect->query("INSERT INTO notifications (owner_id,text,image,time,object_type,object) VALUES (?,?,?,?,?,?)", [$owner_id,$text,$image,time(),$object['type'],$object['object']]);
+		$res = $this->Connect->query("INSERT INTO notifications (owner_id,text,image,time,object_type,object, comment) VALUES (?,?,?,?,?,?,?)", [$owner_id,$text,$image,time(),$object['type'],$object['object'],$comment]);
 
 		$sql = "SELECT * FROM users WHERE id=?";
 		$user = $this->Connect->db_get( $sql, [$owner_id] )[0];

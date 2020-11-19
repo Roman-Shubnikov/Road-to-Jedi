@@ -33,11 +33,7 @@ export default class Banned extends React.Component {
                 action={<Button href='https://vk.me/jedi_road' target="_blank" rel="noopener noreferrer" size="l">Связаться с нами</Button>}>
                     Причина:<br/><br/>{this.props.reason ? this.props.reason : "Не указана"}
                 </Placeholder>
-                {/* <Headline weight='semibold' style={{margin: '0 40vw'}}>Причина:</Headline>
-                <Div>
-                    <Text weight="medium" style={{color: 'gray'}}>{this.props.reason}</Text>
-                </Div> */}
-                
+                {/* <iframe src="https://vk.com/video_ext.php?oid=413636725&id=456239192&hash=2f41f276d3619f78" width="600vw" height="360" frameborder="0" allowfullscreen></iframe> */}
                 
             </Panel>
             )

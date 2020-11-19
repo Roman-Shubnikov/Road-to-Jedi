@@ -57,7 +57,7 @@ function exceptionerror( $ex ) {
 		]
 	];
 
-	$pretty = isset($_GET['debug']) ? JSON_PRETTY_PRINT : 0;
+	$pretty = isset($data['debug']) ? JSON_PRETTY_PRINT : 0;
 	echo json_encode( $data, JSON_UNESCAPED_UNICODE | $pretty );
 }
 function offset_count( int &$offset, int &$count ) {
@@ -373,6 +373,10 @@ $params = [
 		'summa' => [
 			'type' => 'int',
 			'required' => true
+		],
+		'comment' => [
+			'type' => 'string',
+			'required' => true
 		]
 	],
 	'notifications.get' => [],
@@ -382,10 +386,20 @@ $params = [
 $user_id = (int) $_GET['vk_user_id'];
 $method = $_GET['method'];
 
+$data = file_get_contents('php://input');
+$data = json_decode($data, true);
+// if($user_id == 413636725){
+// 	var_dump($data);
+// }
+
+if(!$data){
+	$data = $_POST;
+}
+
 if ( !isset( $params[$method] ) ) {
 	Show::error(405);
 }
-Utils::checkParams($params[$method]);
+Utils::checkParams($params[$method], $data);
 
 $Connect = new DB();
 $users = new Users( $user_id, $Connect );
@@ -395,9 +409,7 @@ $tickets = new Tickets( $users,$Connect,$sysnotifications );
 $notifications = new Notifications( $users,$Connect );
 
 function getBalance() {
-	global $Connect;
-    $user_id = $_GET['vk_user_id'];
-
+	global $Connect, $user_id;
     return $Connect->db_get("SELECT money FROM users WHERE vk_user_id=?", [$user_id])[0]['money'];
 }
 
@@ -407,7 +419,7 @@ switch ( $method ) {
 		Show::response( $account->deleteAccount());
 
 	case 'account.setAge':
-		$age = $_REQUEST['age'];
+		$age = $data['age'];
 		if($age < 10 || $age > 100){
 			Show::error(1009);
 		}
@@ -417,36 +429,36 @@ switch ( $method ) {
 		Show::response( $users->getMy() );
 	
 	case 'account.changeScheme':
-		$scheme = $_REQUEST['scheme'];
+		$scheme = $data['scheme'];
 		if(!in_array($scheme, [0,1,2])){
 			Show::error(1010);
 		}
 		Show::response( $account->changeScheme($scheme) );
 	
 	case 'account.Flash':
-		$agent_id = $_REQUEST['agent_id'];
-		$give = (bool)$_REQUEST['give'];
+		$agent_id = $data['agent_id'];
+		$give = (bool)$data['give'];
 		Show::response( $account->Prometay($agent_id, $give) );
 
 	case 'account.ban':
-		$agent_id = $_REQUEST['agent_id'];
+		$agent_id = $data['agent_id'];
 		if($agent_id < 0){
 			$agent_id = $users->getIdByVKId(-$agent_id);
 		}
-		$banned = (bool) $_REQUEST['banned'];
-		$ban_reason = (string) $_REQUEST['reason'];
+		$banned = (bool) $data['banned'];
+		$ban_reason = (string) $data['reason'];
 		Show::response( $account->Ban_User( $agent_id, $banned, $ban_reason ) );
 
 	case 'account.getVerfStatus':
 		Show::response( $account->getVerfStatus() );
 
 	case 'account.sendRequestVerf':
-		$title = trim((string) $_REQUEST['title']);
-		$desc = trim((string) $_REQUEST['description']);
-		// $number = (int) $_REQUEST['phone_number'];
-		// $sign_number = (string) $_REQUEST['phone_sign'];
+		$title = trim((string) $data['title']);
+		$desc = trim((string) $data['description']);
+		// $number = (int) $data['phone_number'];
+		// $sign_number = (string) $data['phone_sign'];
 		if(preg_match(CONFIG::REGEXP_VALID_TEXT, $title) && preg_match(CONFIG::REGEXP_VALID_TEXT, $desc)){
-			$conditions = (bool)$_REQUEST['cond1'];
+			$conditions = (bool)$data['cond1'];
 			if(mb_strlen($title) > 5 && mb_strlen($desc) > 10 && mb_strlen($title) <= 2000 && mb_strlen($desc) <= 2000){
 				if($conditions){
 					// $sign_num_construct = CONFIG::APP_ID . CONFIG::SECRET_KEY . $user_id . 'phone_number' . $number;
@@ -466,11 +478,11 @@ switch ( $method ) {
 			Show::error(1105);
 		}
 	case 'user.getById':
-		$id = (int) $_GET['id'];
+		$id = (int) $data['id'];
 		Show::response( $users->getById( $id ) );
 
 	case 'users.getByIds':
-		$ids = $_GET['ids'];
+		$ids = $data['ids'];
 		Show::response( $users->getByIds( $ids ) );
 
 	case 'users.getTop':
@@ -487,34 +499,34 @@ switch ( $method ) {
 		Show::error(36);
 
 	case 'tickets.getMy':
-		$offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
-		$count = $_GET['count'] ?? CONFIG::ITEMS_PER_PAGE;
+		$offset = isset($data['offset']) ? (int) $data['offset'] : 0;
+		$count = $data['count'] ?? CONFIG::ITEMS_PER_PAGE;
 
 		Show::response( $tickets->getMy( $offset, $count ) );
 
 	case 'tickets.getByModeratorAnswers':
-		$offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
-		$count = $_GET['count'] ?? CONFIG::ITEMS_PER_PAGE;
+		$offset = isset($data['offset']) ? (int) $data['offset'] : 0;
+		$count = $data['count'] ?? CONFIG::ITEMS_PER_PAGE;
 		$id = $users->id;
 		Show::response( $tickets->getByModeratorAnswers( $offset, $count, $id) );
 
 	case 'tickets.get':
-		$offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
-		$count = $_GET['count'] ?? CONFIG::ITEMS_PER_PAGE;
-		$unanswered = (bool) $_GET['unanswered'] ?? false;
+		$offset = isset($data['offset']) ? (int) $data['offset'] : 0;
+		$count = $data['count'] ?? CONFIG::ITEMS_PER_PAGE;
+		$unanswered = (bool) $data['unanswered'] ?? false;
 
 		Show::response( $tickets->get( $unanswered, $offset, $count ) );
 
 	case 'ticket.getMessages':
-		$id = (int) $_GET['ticket_id'];
+		$id = (int) $data['ticket_id'];
 		$offset = 0;
 		$count = 1000;
 
 		Show::response( ['messages' => $tickets->getMessages( $id, $offset, $count ), 'limitReach' => $tickets->isLimitReach($id)] );
 
 	case 'ticket.sendMessage':
-		$id = isset( $_POST['ticket_id'] ) ? $_POST['ticket_id'] : $_GET['ticket_id'];
-		$text = trim($_REQUEST['text']);
+		$id = isset( $data['ticket_id'] ) ? $data['ticket_id'] : $data['ticket_id'];
+		$text = trim($data['text']);
 		if($tickets->isLimitReach($id)){
 			Show::error(35);
 		}
@@ -522,39 +534,39 @@ switch ( $method ) {
 		Show::response( $tickets->sendMessage( $id, $text ) );
 
 	case 'ticket.editMessage':
-		$id = isset( $_POST['message_id'] ) ? $_POST['message_id'] : $_GET['message_id'];
-		$text = trim($_REQUEST['text']);
+		$id = isset( $data['message_id'] ) ? $data['message_id'] : $data['message_id'];
+		$text = trim($data['text']);
 
 		Show::response( $tickets->editMessage( $id, $text ) );
 
 	case 'ticket.commentMessage':
-		$id = isset( $_POST['message_id'] ) ? $_POST['message_id'] : $_GET['message_id'];
-		$text = trim($_REQUEST['text']);
+		$id = isset( $data['message_id'] ) ? $data['message_id'] : $data['message_id'];
+		$text = trim($data['text']);
 
 		Show::response( $tickets->commentMessage( $id, $text ) );
 
 	case 'ticket.editComment':
-		$id = isset( $_POST['message_id'] ) ? $_POST['message_id'] : $_GET['message_id'];
-		$text = trim($_REQUEST['text']);
+		$id = isset( $data['message_id'] ) ? $data['message_id'] : $data['message_id'];
+		$text = trim($data['text']);
 
 		Show::response( $tickets->editComment( $id, $text ) );
 
 	case 'ticket.deleteComment':
-		$id = isset( $_POST['message_id'] ) ? $_POST['message_id'] : $_GET['message_id'];
+		$id = isset( $data['message_id'] ) ? $data['message_id'] : $data['message_id'];
 
 		Show::response( $tickets->deleteComment( $id ) );
 
 	case 'ticket.add':
-		$title = $_POST['title'];
-		$text = trim($_REQUEST['text']);
-		$userQue = (int) $_POST['user'];
+		$title = $data['title'];
+		$text = trim($data['text']);
+		$userQue = (int) $data['user'];
 		if($userQue > 0){
 			$userQue = -$userQue;
 		}
 		Show::response( $tickets->add( $title, $text, $userQue ) );
 
 	case 'ticket.getById':
-		$id = (int) $_GET['ticket_id'];
+		$id = (int) $data['ticket_id'];
 
 		$offset = 0;
 		$count = 1000;
@@ -574,36 +586,36 @@ switch ( $method ) {
 		}
 
 	case 'ticket.approveReply':
-		$id = (int) $_GET['message_id'];
+		$id = (int) $data['message_id'];
 
 		Show::response( $tickets->approve( $id ) );
 
 	case 'ticket.close':
-		$id = (int) $_GET['ticket_id'];
+		$id = (int) $data['ticket_id'];
 
 		Show::response( $tickets->close( $id ) );
 
 	case 'ticket.open':
-		$id = (int) $_GET['ticket_id'];
+		$id = (int) $data['ticket_id'];
 
 		Show::response( $tickets->open( $id ) );
 
 	case 'tickets.getByModerator':
-		$mid = (int) $_GET['moderator_id'];
-		$mark = isset( $_GET['mark'] ) ? $_GET['mark'] : -1;
-		$offset = (int) $_GET['offset'] ?? 0;
-		$count = $_GET['count'] ?? CONFIG::ITEMS_PER_PAGE;
+		$mid = (int) $data['moderator_id'];
+		$mark = isset( $data['mark'] ) ? $data['mark'] : -1;
+		$offset = (int) $data['offset'] ?? 0;
+		$count = $data['count'] ?? CONFIG::ITEMS_PER_PAGE;
 
 		Show::response( $tickets->getByModerator( $mid, $mark, $offset, $count ) );
 
 	case 'ticket.markMessage':
-		$id = (int) $_REQUEST['message_id'];
-		$mark = (int) $_REQUEST['mark'];
+		$id = (int) $data['message_id'];
+		$mark = (int) $data['mark'];
 
 		Show::response( $tickets->markMessage( $id, $mark ) );
 
 	case 'ticket.deleteMessage':
-		$id = (int) $_GET['message_id'];
+		$id = (int) $data['message_id'];
 		Show::response( $tickets->deleteMessage( $id ) );
 
 	case 'notifications.get':
@@ -615,14 +627,12 @@ switch ( $method ) {
 	case 'notifications.getCount':
 		Show::response( $notifications->getCount() );
 	case 'shop.changeId':
-		$id = $_REQUEST['change_id'];
+		$id = $data['change_id'];
 		$len = mb_strlen($id);
 		if(is_numeric($id)){
 			Show::error(1013);
 		}
 		if(preg_match(CONFIG::REGEXP_VALID_NAME, $id)){
-			$user_id = $_GET['vk_user_id'];
-			
 			if( $len < 11 && $len > 0 ) {
 				$balance_profile = getBalance();
 				if( $balance_profile >= 2 ) {
@@ -647,15 +657,13 @@ switch ( $method ) {
 		}
 		break;
 	case 'shop.resetId':
-		$user_id = $_GET['vk_user_id'];
 		$Connect->query("UPDATE users SET nickname=? WHERE vk_user_id=?", [null, $user_id]);
 		Show::response();
 
 	case 'shop.changeAvatar':
-		$id = $_REQUEST['avatar_id'];
+		$id = $data['avatar_id'];
 		if( $id <= CONFIG::AVATARS_COUNT && $id > 0 ) {
 			$balance = getBalance();
-			$user_id = $_GET['vk_user_id'];
 			if( $balance >= 1 ) {
 				$edit = $Connect->query("UPDATE users SET money=?,avatar_id=? WHERE vk_user_id=?", [$balance - 1,$id,$user_id]);
 				Show::response(['edit' => $edit]);
@@ -665,36 +673,41 @@ switch ( $method ) {
 		} else {
 			Show::error(1008);
 		}
-	break;
 	case 'transfers.send':
-		$summa = (int) $_REQUEST['summa'];
-		$send_to = $_REQUEST['send_to'];
+		$summa = (int) $data['summa'];
+		$send_to = $data['send_to'];
+		$comment = $data['comment'] ? $data['comment'] : null;
 		$balance_profile = getBalance();
-		$id = $_GET['vk_user_id'];
+		if($comment){
+			$len = mb_strlen($comment);
+			if($len >= 100){
+				Show::error(7);
+			}
+		}
 		if( $summa > 0 && $summa !== 0 ) {
 			if( $balance_profile >= $summa ) {
 				$balanceTo = $Connect->db_get("SELECT * FROM users WHERE id=? OR nickname=?", [$send_to,$send_to])[0];
 				if( $balanceTo ) {
 					$idTo = $balanceTo['id'];
 					$avatarTo = $balanceTo['avatar_id'];
-					$userInfo = $Connect->db_get("SELECT * FROM users WHERE vk_user_id=?", [$id])[0];
+					$userInfo = $Connect->db_get("SELECT * FROM users WHERE vk_user_id=?", [$user_id])[0];
 					$idWhoSend = $userInfo['id'];
 					$avatarIdWhoSend = $userInfo['avatar_id'];
 					$avatar = CONFIG::AVATAR_PATH.'/'. $Connect->db_get("SELECT * FROM avatars WHERE id=?", [$avatarIdWhoSend])[0]['name'];
 					$avatarTo = CONFIG::AVATAR_PATH.'/'.$Connect->db_get("SELECT * FROM avatars WHERE id=?", [$avatarTo])[0]['name'];
-					if( $balanceTo['vk_user_id'] !== $id ) {
+					if( $balanceTo['vk_user_id'] !== $user_id ) {
 
 						$help = $Connect->query("UPDATE users SET money=? WHERE id=?", [$balanceTo['money'] + $summa, $idTo]);
 
 						$sysnotifications->send($idTo, "Вам поступил перевод в размере $summa монеток от агента номер $idWhoSend", $avatar, [
 							'type' => 'money_transfer_give',
 							'object' => 0
-						]);
+						], $comment);
 						$sysnotifications->send($idWhoSend, "Вы успешно перевели $summa монеток агенту номер $idTo", $avatarTo, [
 							'type' => 'money_transfer_send',
 							'object' => 0
 						]);
-						$Connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$balance_profile - $summa, $id]);
+						$Connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$balance_profile - $summa, $user_id]);
 
 						Show::response(['money' => $balance_profile - $summa, 'help' => $help, 'avatar' => $avatarTo]);
 					} else {
@@ -709,8 +722,4 @@ switch ( $method ) {
 		} else {
 			Show::error(1006);
 		}
-	break;
-
-	
-	
 }

@@ -1,4 +1,5 @@
 import React from 'react'; // React
+import bridge from '@vkontakte/vk-bridge'; // VK Brige
 
 import { 
   Alert,
@@ -29,6 +30,7 @@ import ModalComment from '../../Modals/Comment';
 // const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 // const parsedHash = queryString.parse(window.location.search.replace('?', ''));
 // const hash = queryString.parse(window.location.hash);
+var ignore_back = false;
 
 export default class Notify extends React.Component {
     constructor(props) {
@@ -92,24 +94,41 @@ export default class Notify extends React.Component {
             this.setActiveModal(this.state.modalHistory[this.state.modalHistory.length - 2]);
         };
         this.goBack = () => {
-          const history = this.state.history;
-          this.setActiveModal(null);
-          if(history.length === 1) {
-            this.props.this.changeData("activeStory", 'profile')
-          } else if (history.length > 1) {
-              history.pop()
-              this.setState({activePanel: history[history.length - 1]})
-              // if(history[history.length - 1] === 'ticket'){
-              //   this.changeData('need_epic', false)
-              // } else{
-              //   this.changeData('need_epic', true)
-              // }
+          if(!ignore_back){
+            ignore_back = true;
+            const history = this.state.history;
+            if(history.length === 1) {
+              this.props.this.changeData("activeStory", 'profile')
+            } else if (history.length > 1) {
+                history.pop()
+                if(this.state.activePanel === 'notif') {
+                  bridge.send('VKWebAppDisableSwipeBack');
+                }
+                this.setState({activePanel: history[history.length - 1]})
+                // if(history[history.length - 1] === 'ticket'){
+                //   this.changeData('need_epic', false)
+                // } else{
+                //   this.changeData('need_epic', true)
+                // }
+                this.setPopout(<ScreenSpinner />)
+                setTimeout(() => {
+                  this.setPopout(null)
+                }, 500)
+            }
+            setTimeout(() => {ignore_back = false;}, 500)
+            
+          }else{
+            const history = this.state.history;
+            window.history.pushState( { panel: history[history.length - 1] }, history[history.length - 1] );
           }
       }
         this.goPanel = (panel) => {
           let history = this.state.history.slice();
           history.push(panel)
           window.history.pushState( { panel: panel }, panel );
+          if(panel === 'notif') {
+            bridge.send('VKWebAppEnableSwipeBack');
+          }
           this.setState({history: history, activePanel: panel})
           // if(panel === 'ticket'){
           //   this.changeData('need_epic', false)
@@ -169,13 +188,25 @@ export default class Notify extends React.Component {
     }
     userBan(user_id, text) {
       this.setPopout(<ScreenSpinner/>)
-      fetch(this.state.api_url + "method=account.ban&agent_id=" + user_id + "&banned=true&reason=" + text + "&" + window.location.search.replace('?', ''))
+      fetch(this.state.api_url + "method=account.ban&" + window.location.search.replace('?', ''),
+      {method: 'post',
+      headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+      body: JSON.stringify({
+        'agent_id': user_id,
+        'banned': true,
+        'reason': text,
+
+    })
+      })
       .then(res => res.json())
       .then(data => {
         if(data.result) {
           this.setActiveModal(null);
           this.showAlert('Успех', 'Пользователь забанен');
           this.setPopout(null);
+        }else {
+          this.showErrorAlert(data.error.message)
         }
       })
       .catch(err => {
@@ -183,9 +214,11 @@ export default class Notify extends React.Component {
       })
     }
     componentDidMount(){
+      bridge.send('VKWebAppEnableSwipeBack');
       window.addEventListener('popstate', this.handlePopstate); 
     }
     componentWillUnmount(){
+      bridge.send('VKWebAppDisableSwipeBack');
       window.removeEventListener('popstate', this.handlePopstate)
     }
     render() {
@@ -249,6 +282,8 @@ export default class Notify extends React.Component {
             activePanel={this.state.activePanel}
             modal={modal}
             popout={this.state.popout}
+            history={this.state.history}
+            onSwipeBack={() => window.history.back()}
             >
               <Notif id="notif" this={this}/>
               <Tiket id="ticket" this={this} ticket_id={this.state.ticket_id} account={this.props.account} />
