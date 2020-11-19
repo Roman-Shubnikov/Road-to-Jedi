@@ -93,8 +93,7 @@ export default class Ticket extends React.Component {
           }
         })
         .catch(err => {
-          this.showErrorAlert(err,() => window.history.back())
-
+          this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
         })
     }
     sendRayt(mark, message_id) {
@@ -115,7 +114,7 @@ export default class Ticket extends React.Component {
               }
             })
             .catch(err => {
-                this.showErrorAlert(err)
+              this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
             
             })
         }
@@ -132,7 +131,7 @@ export default class Ticket extends React.Component {
             }
           })
           .catch(err => {
-            this.showErrorAlert(err)
+            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
     
           })
       }
@@ -165,7 +164,7 @@ export default class Ticket extends React.Component {
               Добавить комментарий
               </ActionSheetItem> 
               : null }
-              {(Number(author_id === this.props.account.id) && this.state.tiket_info['status'] === 0) ? 
+              {(Number(author_id === this.props.account.id) && this.state.tiket_info['status'] === 0 && mark === -1 && !approved) ? 
              <ActionSheetItem autoclose onClick={() => this.setState({redaction: true, message_id_redac: id, tiket_send_message: text})}>
              Редактировать
              </ActionSheetItem>
@@ -187,11 +186,12 @@ export default class Ticket extends React.Component {
             
             this.props.this.setPopout(
               <ActionSheet onClose={() => this.setPopout(null)}>
-                { (this.props.account.special) ? 
+                <ActionSheetItem autoclose onClick={() => this.deleteMessage(id)}>
+                  Удалить сообщение
+                </ActionSheetItem>
                 <ActionSheetItem autoclose onClick={() => {this.props.this.setState({other_profile:{'id':author_id,'avatar': {'url': avatar}}});this.setActiveModal('ban_user');}}>
                   Забанить пользователя
                 </ActionSheetItem> 
-                : null }
                 {(Number(author_id === this.props.account.id) && this.state.tiket_info['status'] === 0) ? 
                <ActionSheetItem autoclose onClick={() => this.setState({redaction: true, message_id_redac: id, tiket_send_message: text})}>
                Редактировать
@@ -273,7 +273,7 @@ export default class Ticket extends React.Component {
             }
           })
           .catch(err => {
-            this.showErrorAlert(err)
+            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
 
           })
       }
@@ -289,7 +289,7 @@ export default class Ticket extends React.Component {
               }
             })
             .catch(err => {
-                this.showErrorAlert(err)
+              this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
   
             })
       }
@@ -305,7 +305,7 @@ export default class Ticket extends React.Component {
             }
           })
           .catch(err => {
-            this.showErrorAlert(err)
+            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
   
           })
       }
@@ -321,7 +321,7 @@ export default class Ticket extends React.Component {
             }
           })
           .catch(err => {
-            this.showErrorAlert(err)
+            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
   
           })
       }
@@ -337,7 +337,7 @@ export default class Ticket extends React.Component {
             }
           })
           .catch(err => {
-            this.showErrorAlert(err)
+            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
 
           })
         
@@ -354,7 +354,7 @@ export default class Ticket extends React.Component {
             }
           })
           .catch(err => {
-            this.showErrorAlert(err)
+            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
 
           })
       }
@@ -370,7 +370,7 @@ export default class Ticket extends React.Component {
         }
       })
       .catch(err => {
-        this.showErrorAlert(err)
+        this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
 
       })
     }
@@ -462,8 +462,8 @@ export default class Ticket extends React.Component {
                       after={
                         <>
                           <WriteBarIcon mode={this.state.redaction ? 'done' : "send"}
-                          disabled={!(this.state.tiket_send_message.trim().length > 5)}
-                          onClick={() => {(this.state.tiket_send_message.trim().length > 5) ? this.state.redaction !== true && this.state.add_comment !== true ? this.sendNewMessage() : this.state.redaction ? this.sendNewMessageRedact() : this.sendNewMessageComment() : this.nofinc()}}
+                          disabled={!(this.state.tiket_send_message.trim().length >= 5)}
+                          onClick={() => {(this.state.tiket_send_message.trim().length >= 5) ? this.state.redaction !== true && this.state.add_comment !== true ? this.sendNewMessage() : this.state.redaction ? this.sendNewMessageRedact() : this.sendNewMessageComment() : this.nofinc()}}
                           />
                           {/* {<WriteBarIcon><Icon20Clear width={34} height={34} /></WriteBarIcon>} */}
                         </>

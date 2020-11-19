@@ -65,7 +65,7 @@ export default class Verfy extends React.Component{
       }
       })
       .catch(err => {
-          this.showErrorAlert(err)
+        this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
 
       })
 
@@ -83,7 +83,7 @@ export default class Verfy extends React.Component{
         }
         })
         .catch(err => {
-            this.showErrorAlert(err)
+          this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
 
         })
     }
@@ -91,7 +91,11 @@ export default class Verfy extends React.Component{
       if(title.length > 0){
         let valid = ['error', 'Текст должен быть не больше 2000 и не меньше 6 символов' ];
         if(title.length <= 2000 && title.length > 5){
-          valid = ['valid', '']
+          if(/^[a-zA-ZА-Яа-я0-9_ .,"'!?]*$/ui.test(title)){
+            valid = ['valid', '']
+          }else{
+            valid = ['error', 'Текст не должен содержать спец. символы'];
+          }
         }
   
         return valid
@@ -103,7 +107,11 @@ export default class Verfy extends React.Component{
       if(title.length > 0){
         let valid = ['error', 'Текст должен быть не больше 2000 и не меньше 11 символов'];
         if(title.length <= 2000 && title.length > 10){
-          valid = ['valid', '']
+          if(/^[a-zA-ZА-Яа-я0-9_ .,"'!?]*$/ui.test(title)){
+            valid = ['valid', '']
+          }else{
+            valid = ['error', 'Текст не должен содержать спец. символы'];
+          }
         }
   
         return valid

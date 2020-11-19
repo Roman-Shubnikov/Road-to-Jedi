@@ -25,6 +25,7 @@ import Start          from './panels/Start/main';
 import Banned         from './panels/Banned/main';
 import LoadingScreen  from './panels/Loading/main';
 import Unsupport      from './panels/Unsupport/main';
+import Disconnect     from './panels/Disconnect/main';
 
 
 import Icon28Profile          from '@vkontakte/icons/dist/28/profile';
@@ -66,6 +67,7 @@ class App extends React.Component {
             BanReason: null,
 
         };
+        this.componentDidMount = this.componentDidMount.bind(this);
         this.changeData = (name,value) => {
           this.setState({ [name]: value });
         }
@@ -75,6 +77,9 @@ class App extends React.Component {
           .then(data => {
           if(data.result) {
               this.setState({account: data.response,popout: null, switchKeys: data.response.noti})
+              if(this.state.activeStory === 'disconnect'){
+                this.setState({activeStory: 'questions', LoadWebView: true})
+              }
               if(!isEmpty(this.state.account)){
                 if(Number(this.state.account.scheme) === 0){
                   this.setState({scheme: this.state.default_scheme})
@@ -116,7 +121,7 @@ class App extends React.Component {
                 }
             }})
           .catch(err => {
-            this.showErrorAlert(err)
+            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
     
           })
         }
@@ -151,11 +156,6 @@ class App extends React.Component {
       //   return
       // }
       this.setState({
-        account:[],
-          activeStory: 'loading',
-          scheme: "bright_light",
-          default_scheme: "bright_light",
-          popout: <ScreenSpinner/>,
           snackbar: null,
           switchKeys: false,
           need_epic: true,
@@ -166,30 +166,30 @@ class App extends React.Component {
       this.audio.load()
       this.audio.loop = true;
       bridge.subscribe(({ detail: { type, data }}) => { 
-        if(type === 'VKWebAppAllowMessagesFromGroupResult') {
-          fetch(this.state.api_url + "method=notifications.swift&swift=on&" + window.location.search.replace('?', ''))
-            .then(res => res.json())
-            .then(data => {
-              if(data) {
-                this.setState({switchKeys: true})
-              }
-            })
-            .catch(err => {
-              this.showErrorAlert()
-            })
-        }
-        if(type === 'VKWebAppAllowMessagesFromGroupFailed') {
-          fetch(this.state.api_url + "method=notifications.swift&swift=off&" + window.location.search.replace('?', ''))
-            .then(res => res.json())
-            .then(data => {
-              if(data) {
-                this.setState({switchKeys: false})
-              }
-            })
-            .catch(err => {
-              this.showErrorAlert()
-            })
-        }
+        // if(type === 'VKWebAppAllowMessagesFromGroupResult') {
+        //   fetch(this.state.api_url + "method=notifications.swift&swift=on&" + window.location.search.replace('?', ''))
+        //     .then(res => res.json())
+        //     .then(data => {
+        //       if(data) {
+        //         this.setState({switchKeys: true})
+        //       }
+        //     })
+        //     .catch(err => {
+        //       this.showErrorAlert()
+        //     })
+        // }
+        // if(type === 'VKWebAppAllowMessagesFromGroupFailed') {
+        //   fetch(this.state.api_url + "method=notifications.swift&swift=off&" + window.location.search.replace('?', ''))
+        //     .then(res => res.json())
+        //     .then(data => {
+        //       if(data) {
+        //         this.setState({switchKeys: false})
+        //       }
+        //     })
+        //     .catch(err => {
+        //       this.showErrorAlert()
+        //     })
+        // }
         if(type === 'VKWebAppViewHide') {
           console.log('closing...')
         }
@@ -249,7 +249,9 @@ class App extends React.Component {
             if(this.state.account.is_first_start){
               this.setState({activeStory: 'start', LoadWebView: true});
             }else{
-              this.setState({activeStory: 'questions', LoadWebView: true})
+              if(this.state.activeStory === 'loading' || this.state.activeStory === 'disconnect'){
+                this.setState({activeStory: 'questions', LoadWebView: true})
+              }
             }
           } else {
             if(data.error.error_code !== 5){
@@ -271,7 +273,7 @@ class App extends React.Component {
           }
         })
         .catch(err => {
-          this.showErrorAlert(err)
+          this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => { this.setState({activeStory: 'disconnect'}) })
         })
     }
 
@@ -318,13 +320,14 @@ class App extends React.Component {
         this.showErrorAlert()
       })
     }
-    showErrorAlert(error=null){
+    showErrorAlert = (error=null, action=null) => {
       this.setPopout(
         <Alert
             actions={[{
             title: 'Отмена',
             autoclose: true,
-            mode: 'cancel'
+            mode: 'cancel',
+            action: action,
             }]}
             onClose={() => this.setPopout(null)}
         >
@@ -421,8 +424,14 @@ class App extends React.Component {
                 <Unsupport 
                 id="unsupport"
                 this={this}
-                reloadProfile={this.LoadProfile}
-                reason={this.state.BanReason} />
+                reloadProfile={this.LoadProfile} />
+
+                <Disconnect
+                id="disconnect"
+                this={this}
+                compdid={this.componentDidMount}
+                popout={this.state.popout}
+                reloadProfile={this.LoadProfile} />
                 <LoadingScreen 
                 id="load"
                 this={this} />

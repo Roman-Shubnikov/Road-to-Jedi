@@ -101,11 +101,16 @@ export default class Main extends React.Component {
           }
           })
           .catch(err => {
-            this.showErrorAlert(err)
+            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
           })
         }
         this.setPopout = (value) => {
           this.setState({popout: value})
+          if(value && value.type.name === 'ScreenSpinner'){
+            ignore_back = true;
+          }else{
+            ignore_back = false;
+          }
         }
         this.handlePopstate = (e) => {
           e.preventDefault();
@@ -139,7 +144,11 @@ export default class Main extends React.Component {
                 bridge.send("VKWebAppClose", {"status": "success"});
             } else if (history.length > 1) {
                 history.pop()
+                if (this.state.activePanel === 'main') {
+                  bridge.send('VKWebAppDisableSwipeBack');
+                }
                 this.setState({activePanel: history[history.length - 1]})
+                
                 // if(history[history.length - 1] === 'ticket'){
                 //   this.changeData('need_epic', false)
                 // } else{
@@ -162,7 +171,11 @@ export default class Main extends React.Component {
           let history = this.state.history.slice();
           history.push(panel)
           window.history.pushState( { panel: panel }, panel );
+          if(panel === 'questions') {
+            bridge.send('VKWebAppEnableSwipeBack');
+          }
           this.setState({history: history, activePanel: panel})
+          
           // if(panel === 'ticket'){
           //   this.changeData('need_epic', false)
           // } else{
@@ -234,7 +247,7 @@ export default class Main extends React.Component {
         }
       })
       .catch(err => {
-        this.showErrorAlert(err)
+        this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
       })
     }
     getRandomTiket() {
@@ -248,11 +261,12 @@ export default class Main extends React.Component {
           }
         })
         .catch(err => {
-          this.showErrorAlert(err)
+          this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
 
         })
     }
     componentDidMount(){
+      bridge.send('VKWebAppEnableSwipeBack');
       window.addEventListener('popstate', this.handlePopstate); 
       this.changeData('need_epic', true)
       if(!ignore_hash){
@@ -276,6 +290,7 @@ export default class Main extends React.Component {
       
     }
     componentWillUnmount(){
+      bridge.send('VKWebAppDisableSwipeBack');
       window.removeEventListener('popstate', this.handlePopstate)
     }
     render() {
@@ -339,8 +354,9 @@ export default class Main extends React.Component {
             id={this.props.id}
             activePanel={this.state.activePanel}
             modal={modal}
+            history={this.state.history}
             popout={this.state.popout}
-            onSwipeBack={this.goBack}
+            onSwipeBack={() => window.history.back()}
             >
               <Questions id='questions' 
               this={this} 

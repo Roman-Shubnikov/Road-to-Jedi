@@ -42,11 +42,7 @@ require 'api/api/notifications.php';
 session_id( $_GET['vk_user_id'] );
 session_start();
 
-function getBalance() {
-    $user_id = $_GET['vk_user_id'];
 
-    return db_get("SELECT money FROM users WHERE vk_user_id = '$user_id'")[0]['money'];
-}
 function exceptionerror( $ex ) {
 	$code = $ex->getCode();
 	$msg = $ex->getMessage();
@@ -221,6 +217,10 @@ $params = [
 		'text' => [
 			'type' => 'string',
 			'required' => true
+		],
+		'user' => [
+			'type' => 'int',
+			'required' => true,
 		]
 	],
 
@@ -352,16 +352,6 @@ $params = [
 			'required' => true
 		]
 	],
-	'transfers.send' => [
-		'send_to' => [
-			'type' => 'intorstr',
-			'required' => true
-		],
-		'summa' => [
-			'type' => 'string',
-			'required' => true
-		]
-	],
 	'shop.changeAvatar' => [
 		'avatar_id' => [
 			'type' => 'int',
@@ -377,7 +367,7 @@ $params = [
 	'shop.resetId' => [],
 	'transfers.send' => [
 		'send_to' => [
-			'type' => 'int',
+			'type' => 'intorstr',
 			'required' => true
 		],
 		'summa' => [
@@ -397,10 +387,20 @@ if ( !isset( $params[$method] ) ) {
 }
 Utils::checkParams($params[$method]);
 
-$users = new Users( $user_id );
-$account = new Account( $users );
-$tickets = new Tickets( $users );
-$notifications = new Notifications( $users );
+$Connect = new DB();
+$users = new Users( $user_id, $Connect );
+$account = new Account( $users,$Connect );
+$sysnotifications = new SystemNotifications($Connect );
+$tickets = new Tickets( $users,$Connect,$sysnotifications );
+$notifications = new Notifications( $users,$Connect );
+
+function getBalance() {
+	global $Connect;
+    $user_id = $_GET['vk_user_id'];
+
+    return $Connect->db_get("SELECT money FROM users WHERE vk_user_id=?", [$user_id])[0]['money'];
+}
+
 
 switch ( $method ) {
 	case 'account.delete':
@@ -463,7 +463,7 @@ switch ( $method ) {
 				Show::error(1100);
 			}
 		}else{
-			Show::error(1100);
+			Show::error(1105);
 		}
 	case 'user.getById':
 		$id = (int) $_GET['id'];
@@ -547,21 +547,25 @@ switch ( $method ) {
 	case 'ticket.add':
 		$title = $_POST['title'];
 		$text = trim($_REQUEST['text']);
-
-		Show::response( $tickets->add( $title, $text ) );
+		$userQue = (int) $_POST['user'];
+		if($userQue > 0){
+			$userQue = -$userQue;
+		}
+		Show::response( $tickets->add( $title, $text, $userQue ) );
 
 	case 'ticket.getById':
 		$id = (int) $_GET['ticket_id'];
 
 		$offset = 0;
 		$count = 1000;
-		$info = $tickets->getById( $id );
 		$messages = $tickets->getMessages( $id, $offset, $count );
+		$info = $tickets->getById( $id );
+		
 		if($info) {
 			Show::response( 
 				[
-				'info' => $tickets->getById( $id ),
-				'messages' => $tickets->getMessages( $id, $offset, $count ),
+				'info' => $info,
+				'messages' => $messages,
 				'limitReach' => $tickets->isLimitReach($id)
 				]
 			);
@@ -622,10 +626,10 @@ switch ( $method ) {
 			if( $len < 11 && $len > 0 ) {
 				$balance_profile = getBalance();
 				if( $balance_profile >= 2 ) {
-					$check_id = db_get("SELECT id FROM users WHERE id = '$id' OR nickname = '$id'");
+					$check_id = $Connect->db_get("SELECT id FROM users WHERE id = ? OR nickname = ?", [$id, $id]);
 					if( count($check_id) == 0 ) {
-						db_edit(['money' => $balance_profile - 2], "vk_user_id=$user_id", 'users');
-						db_edit(['nickname' => $id], "vk_user_id=$user_id", 'users');
+						$Connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$balance_profile - 2,$user_id]);
+						$Connect->query("UPDATE users SET nickname=? WHERE vk_user_id=?", [$id, $user_id]);
 						Show::response(
 							['balance' => $balance_profile - 2]
 						);
@@ -644,7 +648,7 @@ switch ( $method ) {
 		break;
 	case 'shop.resetId':
 		$user_id = $_GET['vk_user_id'];
-		db_edit(['nickname' => null], "vk_user_id=$user_id", 'users');
+		$Connect->query("UPDATE users SET nickname=? WHERE vk_user_id=?", [null, $user_id]);
 		Show::response();
 
 	case 'shop.changeAvatar':
@@ -653,10 +657,7 @@ switch ( $method ) {
 			$balance = getBalance();
 			$user_id = $_GET['vk_user_id'];
 			if( $balance >= 1 ) {
-				$edit = db_edit([
-					'money' => $balance - 1,
-					'avatar_id' => $id
-				], "vk_user_id=$user_id", 'users');
+				$edit = $Connect->query("UPDATE users SET money=?,avatar_id=? WHERE vk_user_id=?", [$balance - 1,$id,$user_id]);
 				Show::response(['edit' => $edit]);
 			} else {
 				Show::error(1002);
@@ -672,30 +673,29 @@ switch ( $method ) {
 		$id = $_GET['vk_user_id'];
 		if( $summa > 0 && $summa !== 0 ) {
 			if( $balance_profile >= $summa ) {
-				$balanceTo = db_get("SELECT * FROM users WHERE id = '$send_to' OR nickname = '$send_to'")[0];
+				$balanceTo = $Connect->db_get("SELECT * FROM users WHERE id=? OR nickname=?", [$send_to,$send_to])[0];
 				if( $balanceTo ) {
 					$idTo = $balanceTo['id'];
 					$avatarTo = $balanceTo['avatar_id'];
-					$userInfo = db_get("SELECT * FROM users WHERE vk_user_id = '$id'")[0];
+					$userInfo = $Connect->db_get("SELECT * FROM users WHERE vk_user_id=?", [$id])[0];
 					$idWhoSend = $userInfo['id'];
 					$avatarIdWhoSend = $userInfo['avatar_id'];
-					$avatar = CONFIG::AVATAR_PATH.'/'.db_get("SELECT * FROM avatars WHERE id = '$avatarIdWhoSend'")[0]['name'];
-					$avatarTo = CONFIG::AVATAR_PATH.'/'.db_get("SELECT * FROM avatars WHERE id = '$avatarTo'")[0]['name'];
+					$avatar = CONFIG::AVATAR_PATH.'/'. $Connect->db_get("SELECT * FROM avatars WHERE id=?", [$avatarIdWhoSend])[0]['name'];
+					$avatarTo = CONFIG::AVATAR_PATH.'/'.$Connect->db_get("SELECT * FROM avatars WHERE id=?", [$avatarTo])[0]['name'];
 					if( $balanceTo['vk_user_id'] !== $id ) {
-						$help = db_edit([
-							'money' => $balanceTo['money'] + $summa
-						], "id=$idTo", 'users');
-						SystemNotifications::send($idTo, "Вам поступил перевод в размере $summa монеток от агента номер $idWhoSend", $avatar, [
+
+						$help = $Connect->query("UPDATE users SET money=? WHERE id=?", [$balanceTo['money'] + $summa, $idTo]);
+
+						$sysnotifications->send($idTo, "Вам поступил перевод в размере $summa монеток от агента номер $idWhoSend", $avatar, [
 							'type' => 'money_transfer_give',
 							'object' => 0
 						]);
-						SystemNotifications::send($idWhoSend, "Вы успешно перевели $summa монеток агенту номер $idTo", $avatarTo, [
+						$sysnotifications->send($idWhoSend, "Вы успешно перевели $summa монеток агенту номер $idTo", $avatarTo, [
 							'type' => 'money_transfer_send',
 							'object' => 0
 						]);
-						db_edit([
-							'money' => $balance_profile - $summa
-						], "vk_user_id=$id", 'users');
+						$Connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$balance_profile - $summa, $id]);
+
 						Show::response(['money' => $balance_profile - $summa, 'help' => $help, 'avatar' => $avatarTo]);
 					} else {
 						Show::error(1007);

@@ -22,6 +22,10 @@ import {
   ANDROID,
   IOS,
   withPlatform,
+  FormLayout,
+  Button,
+  Div,
+  Placeholder,
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
@@ -74,6 +78,8 @@ function qr(agent_id, sheme) {
 const blueBackground = {
   backgroundColor: 'var(--accent)'
 };
+var ignore_back = false;
+
 export default withPlatform(class Main extends React.Component {
     constructor(props) {
         super(props);
@@ -82,7 +88,7 @@ export default withPlatform(class Main extends React.Component {
             activePanel: 'profile',
             activeModal: null,
             modalHistory: [],
-            popout: this.props.popout,
+            popout: null,
             ticket_id: null,
             history: ['profile'],
             active_other_profile: 0,
@@ -103,9 +109,13 @@ export default withPlatform(class Main extends React.Component {
         this.changeData = this.props.this.changeData;
         this.playAudio = this.props.this.playAudio;
         this.ReloadProfile = this.props.reloadProfile;
-        this.ChangeData = this.props.this.changeData;
         this.setPopout = (value) => {
           this.setState({popout: value})
+          if(value && value.type.name === 'ScreenSpinner'){
+            ignore_back = true;
+          }else{
+            ignore_back = false;
+          }
         }
         this.myQuestions = () => {
           fetch(this.state.api_url + "method=tickets.getByModeratorAnswers&" + window.location.search.replace('?', ''))
@@ -116,12 +126,14 @@ export default withPlatform(class Main extends React.Component {
                 setTimeout(() => {
                     this.setState({fetching: false});
                     this.setPopout(null);
-              }, 500)
+                }, 500)
                 
+              }else{
+                this.showErrorAlert(data.error.message)
               }
             })
             .catch(err => {
-              this.props.this.showErrorAlert(err)
+              this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
     
             })
         }
@@ -151,19 +163,33 @@ export default withPlatform(class Main extends React.Component {
             this.setActiveModal(this.state.modalHistory[this.state.modalHistory.length - 2]);
         };
         this.goBack = () => {
-          const history = this.state.history;
-          this.setActiveModal(null);
-          if(history.length === 1) {
-              bridge.send("VKWebAppClose", {"status": "success"});
-          } else if (history.length > 1) {
-              history.pop()
-              this.setState({activePanel: history[history.length - 1], snackbar: null})
-              // if(history[history.length - 1] === 'ticket'){
-              //   this.changeData('need_epic', false)
-              // } else{
-              //   this.changeData('need_epic', true)
-              // }
+          // this.setPopout(<ScreenSpinner />)
+          if(!ignore_back){
+            ignore_back = true;
+            const history = this.state.history;
+            this.setActiveModal(null);
+            if(history.length === 1) {
+                bridge.send("VKWebAppClose", {"status": "success"});
+            } else if (history.length > 1) {
+                history.pop()
+                this.setState({activePanel: history[history.length - 1]})
+                // if(history[history.length - 1] === 'ticket'){
+                //   this.changeData('need_epic', false)
+                // } else{
+                //   this.changeData('need_epic', true)
+                // }
+                this.setPopout(<ScreenSpinner />)
+                setTimeout(() => {
+                  this.setPopout(null)
+                }, 500)
+            }
+            setTimeout(() => {ignore_back = false;}, 500)
+            
+          }else{
+            const history = this.state.history;
+            window.history.pushState( { panel: history[history.length - 1] }, history[history.length - 1] );
           }
+          
       }
         this.goPanel = (panel) => {
           let history = this.state.history.slice();
@@ -177,6 +203,7 @@ export default withPlatform(class Main extends React.Component {
           // }
         }
         this.setActiveModal = (activeModal) => {
+          ignore_back = true
             activeModal = activeModal || null;
             let modalHistory = this.state.modalHistory ? [...this.state.modalHistory] : [];
         
@@ -187,11 +214,14 @@ export default withPlatform(class Main extends React.Component {
             } else {
               modalHistory.push(activeModal);
             }
-        
+            
             this.setState({
               activeModal: activeModal,
               modalHistory: modalHistory
             });
+            setTimeout(() => {
+              ignore_back = false
+            }, 500)
           };
           this.showAlert = (title, text) => {
             this.setState({
@@ -209,13 +239,14 @@ export default withPlatform(class Main extends React.Component {
               </Alert>
             })
           }
-          this.showErrorAlert = (error=null) => {
+          this.showErrorAlert = (error=null, action=null) => {
             this.setPopout(
               <Alert
                   actions={[{
                   title: 'Отмена',
                   autoclose: true,
-                  mode: 'cancel'
+                  mode: 'cancel',
+                  action: action,
                   }]}
                   onClose={() => this.setPopout(null)}
               >
@@ -239,7 +270,7 @@ export default withPlatform(class Main extends React.Component {
         }
       })
       .catch(err => {
-        this.showErrorAlert(err)
+        this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
       })
     }
     userBan(user_id, text) {
@@ -256,7 +287,7 @@ export default withPlatform(class Main extends React.Component {
         }
       })
       .catch(err => {
-        this.showErrorAlert(err)
+        this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
       })
     }
     sendMoney() {
@@ -276,6 +307,23 @@ export default withPlatform(class Main extends React.Component {
           this.showErrorAlert(data.error.message)
         }
       })
+      .catch(err => {
+        this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
+      })
+    }
+    validateInputs(title){
+      if(title.length > 0){
+        let valid = ['error', 'Заполните это поле' ];
+          if(/^[a-zA-ZА-Яа-я0-9_ .,"'!?]*$/ui.test(title)){
+            valid = ['valid', '']
+          }else{
+            valid = ['error', 'Ник не должен содержать спец. символы'];
+          }
+  
+        return valid
+      }
+      return ['default', '']
+      
     }
     componentDidMount(){
       window.addEventListener('popstate', this.handlePopstate); 
@@ -319,27 +367,55 @@ export default withPlatform(class Main extends React.Component {
                 <Input maxLength="100" name="ban_reason" onChange={(e) => this.onChange(e)} placeholder="Введите причину бана" value={this.state.ban_reason} />
                 
               </ModalCard>
-              <ModalCard
+              <ModalPage
                 id='send'
                 onClose={() => this.setActiveModal(null)}
-                icon={<Icon56MoneyTransferOutline />}
-                header="Отправляйте монетки друзьям"
-                actions={[{
-                  title: 'Отправить',
-                  mode: 'secondary',
-                  disabled: true,
-                  action: () => {
-                    this.sendMoney();
-                  }
-                }]}
+                dynamicContentHeight
+                header={<ModalPageHeader
+                  right={platform === IOS && <Header onClick={this.modalBack}><Icon24Dismiss /></Header>}
+                  left={platform === ANDROID && <PanelHeaderButton onClick={this.modalBack}>
+                  <Icon24Dismiss />
+                </PanelHeaderButton>}
+                >Переводы</ModalPageHeader>}
               >
-                <Input maxLength="5" onChange={(e) => this.onChange(e)} placeholder="Введите id агента" name="money_transfer_send" value={this.state.money_transfer_send}/>
-                <br/>
-                <Input maxLength="5" name="money_transfer_count" onChange={(e) => this.onChange(e)} placeholder="Введите кол-во монеток" value={this.state.money_transfer_count} />
+                <Placeholder icon={<Icon56MoneyTransferOutline style={{color: 'var(--dynamic_blue)'}} />}>
+                Здесь Вы можете переводить монетки друзьям. Они точно обрадуются.
+                  </Placeholder>
+                <FormLayout>
+                  <Input maxLength="15" 
+                  onChange={(e) => this.onChange(e)} 
+                  placeholder="Введите id или ник агента" 
+                  name="money_transfer_send" 
+                  value={this.state.money_transfer_send} 
+                  status={this.validateInputs(this.state.money_transfer_send)[0]}
+                  bottom={this.validateInputs(this.state.money_transfer_send)[1]} />
+                  <Input maxLength="5" 
+                  type='number' 
+                  name="money_transfer_count" 
+                  onChange={(e) => this.onChange(e)} 
+                  placeholder="Введите кол-во монеток" 
+                  value={this.state.money_transfer_count} 
+                  status={this.validateInputs(this.state.money_transfer_count)[0]}
+                  bottom={this.validateInputs(this.state.money_transfer_count)[1]} />
+                </FormLayout>
+                <Div>
+                  <Button 
+                  disabled={
+                    !this.state.money_transfer_send || !this.state.money_transfer_count
+                  }
+                  size='xl'
+                  stretched
+                  mode='secondary'
+                  onClick={() => {
+                    this.sendMoney();
+                  }}>Отправить</Button>
+                </Div>
+                
+                
                 {/* <br/>
                 <Input maxLength="100" name="money_transfer_comment" onChange={(e) => this.onChange(e)} placeholder="Введите комментарий к переводу" value={this.state.money_transfer_comment} /> */}
                 
-              </ModalCard>
+              </ModalPage>
               <ModalCard
                 id='moneys'
                 onClose={() => this.setActiveModal(null)}
@@ -398,6 +474,7 @@ export default withPlatform(class Main extends React.Component {
                 <ModalPage
                 id="qr"
                 onClose={this.modalBack}
+                dynamicContentHeight
                 header={
                   <ModalPageHeader
                   // right={<Header onClick={this.modalBack}><Icon24Dismiss style={{color: 'var(--placeholder_icon_foreground_primary)'}} /></Header>}
@@ -432,7 +509,7 @@ export default withPlatform(class Main extends React.Component {
               <MYQuest id="qu" this={this} account={this.props.account} myQuestions={this.state.myQuestions} /> 
               <Market id="market" this={this} account={this.props.account} />
               <Achievements id="achievements" this={this} account={this.props.account} />
-              <Settings id="settings" this={this} account={this.props.account} />
+              <Settings id="settings" this={this} account={this.props.account} popout={this.state.popout} />
               <SchemeChange id="schemechange" this={this} default_scheme={this.props.default_scheme} account={this.props.account} />
               <Info id='info' this={this} />
               <Verfy id='verf' this={this} account={this.props.account} />

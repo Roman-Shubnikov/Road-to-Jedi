@@ -150,13 +150,14 @@ export default class Notify extends React.Component {
               </Alert>
             })
           }
-          this.showErrorAlert = (error=null) => {
+          this.showErrorAlert = (error=null, action=null) => {
             this.setPopout(
               <Alert
                   actions={[{
                   title: 'Отмена',
                   autoclose: true,
-                  mode: 'cancel'
+                  mode: 'cancel',
+                  action: action,
                   }]}
                   onClose={() => this.setPopout(null)}
               >
@@ -178,7 +179,7 @@ export default class Notify extends React.Component {
         }
       })
       .catch(err => {
-        this.showErrorAlert()
+        this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
       })
     }
     componentDidMount(){

@@ -12,7 +12,7 @@ import {
     PanelHeaderBack,
     CellButton,
     PromoBanner,
-    ScreenSpinner,
+    FixedLayout,
     } from '@vkontakte/vkui';
 
 import {platform, IOS} from '@vkontakte/vkui';
@@ -31,6 +31,7 @@ export default class Settings extends React.Component{
         super(props)
         this.state = {
             api_url: "https://xelene.ru/road/php/index.php?",
+            ShowBanner: true
 
         }
         var propsbi = this.props.this;
@@ -55,7 +56,7 @@ export default class Settings extends React.Component{
       }
       })
       .catch(err => {
-          this.showErrorAlert(err)
+        this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
 
       })
     }
@@ -63,16 +64,18 @@ export default class Settings extends React.Component{
       return
     }
     componentDidMount(){
-      setTimeout(() => {
-        this.setPopout(null)
-      },10000)
-      if(platformname){
-        this.setPopout(<ScreenSpinner/>)
-      }
+      // if(platformname){
+      //   this.setPopout(<ScreenSpinner/>)
+      // }
+      // setTimeout(() => {
+      //   if(this.props.popout && this.props.popout.type.name === "ScreenSpinner"){
+      //     this.setPopout(null)
+      //   }
+      // },5000)
+
       bridge.send('VKWebAppGetAds')
     .then((promoBannerProps) => {
         this.setState({ promoBannerProps });
-        this.setPopout(null)
     })
         
     }
@@ -116,13 +119,13 @@ export default class Settings extends React.Component{
                   indicator={<Counter>{this.props.account.balance}</Counter>}
                   before={<Icon28CoinsOutline />}>Баланс</SimpleCell>
                   
-                  {(platform() !== IOS) ? 
+                  {(platform() === IOS && platformname) ? null :
                   <SimpleCell
                   className='pointer'
                   expandable
                   href="https://vk.com/jedi_road?source=description&w=donut_payment-188280516"
                   target="_blank" rel="noopener noreferrer"
-                  before={<Icon28FavoriteOutline/>}>VK Donut</SimpleCell> : null}
+                  before={<Icon28FavoriteOutline/>}>VK Donut</SimpleCell>}
                 </Group>
                 <Group>
                   <SimpleCell
@@ -133,7 +136,7 @@ export default class Settings extends React.Component{
                   }}
                   before={<Icon28InfoOutline />}>О приложении</SimpleCell>
                 </Group>
-                <Group style={{paddingBottom: 5}}>
+                <Group style={{paddingBottom: 30}}>
                   <CellButton 
                   mode="danger"
                   onClick={() => this.setPopout(<Alert
@@ -146,7 +149,7 @@ export default class Settings extends React.Component{
                     },{
                       title: 'Нет, я нажал сюда случайно',
                       autoclose: true,
-                      style: 'cancel'
+                      mode: 'cancel'
                     },]}
                     onClose={() => this.setPopout(null)}
                   >
@@ -155,7 +158,11 @@ export default class Settings extends React.Component{
                 </Alert>)}
                   before={<Icon28DeleteOutline />}>Удалить аккаунт</CellButton>
                 </Group>
-                { this.state.promoBannerProps && <PromoBanner isCloseButtonHidden={true} bannerData={ this.state.promoBannerProps } /> }
+                
+                { this.state.promoBannerProps && this.state.ShowBanner && 
+                <FixedLayout vertical='bottom'>
+                  <PromoBanner onClose={() => {this.setState({ShowBanner: false})}} bannerData={ this.state.promoBannerProps } />
+                </FixedLayout> }
                 {this.props.this.state.snackbar}
             </Panel>
         )

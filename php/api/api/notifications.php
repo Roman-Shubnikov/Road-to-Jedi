@@ -1,9 +1,15 @@
 <?php
 
 class SystemNotifications {
-	function __construct() {}
+	
+	protected $Connect;
 
-	public static function send( int $owner_id, string $text, string $image, array $object ) {
+
+	function __construct(DB $Connect ) {
+		$this->Connect = $Connect;
+	}
+
+	public function send( int $owner_id, string $text, string $image, array $object ) {
 		$data = [
 			'owner_id' => $owner_id,
 			'text' => $text,
@@ -12,11 +18,10 @@ class SystemNotifications {
 			'object_type' => $object['type'],
 			'object' => $object['object']
 		];
+		$res = $this->Connect->query("INSERT INTO notifications (owner_id,text,image,time,object_type,object) VALUES (?,?,?,?,?,?)", [$owner_id,$text,$image,time(),$object['type'],$object['object']]);
 
-		$res = db_add( $data, 'notifications' );
-
-		$sql = "SELECT * FROM users WHERE id = $owner_id";
-		$user = db_get( $sql )[0];
+		$sql = "SELECT * FROM users WHERE id=?";
+		$user = $this->Connect->db_get( $sql, [$owner_id] )[0];
 		$ticket_id = $object['object'];
 		$object_lol = $ticket_id != 0 ? "https://vk.com/app7409818#ticket_id={$ticket_id}" : '';
 
@@ -34,8 +39,7 @@ class SystemNotifications {
 			file_get_contents( $url );
 		}
 
-		global $mysqli;
-		$id = $mysqli->insert_id;
+		$id = $res[1];
 
 		return [
 			'notification_id' => $id
@@ -47,15 +51,16 @@ class SystemNotifications {
 class Notifications {
 	protected $user = [];
 
-	function __construct( Users $user ) {
+	function __construct( Users $user,DB $Connect ) {
 		$this->user = $user;
+		$this->Connect = $Connect;
 	}
 
 	public function getCount() {
 		$id = $this->user->id;
 
-		$sql = "SELECT COUNT( id ) as count FROM notifications WHERE owner_id = $id AND delivered = 0";
-		$res = db_get( $sql )[0];
+		$sql = "SELECT COUNT( id ) as count FROM notifications WHERE owner_id=? AND delivered = 0";
+		$res = $this->Connect->db_get( $sql, [$id] )[0];
 
 		return (int) $res['count'];
 	}
@@ -63,8 +68,8 @@ class Notifications {
 	public function get() {
 		$uid = $this->user->id;
 
-		$sql = "SELECT * FROM notifications WHERE owner_id = $uid ORDER BY id DESC";
-		$res = db_get( $sql );
+		$sql = "SELECT * FROM notifications WHERE owner_id=? ORDER BY id DESC";
+		$res = $this->Connect->db_get( $sql, [$uid] );
 
 		$result = [];
 
@@ -76,14 +81,8 @@ class Notifications {
 	}
 
 	public function markAsViewed() {
-
 		$uid = $this->user->id;
-
-		$data = [
-			'delivered' => 1
-		];
-
-		return db_edit( $data, "owner_id = $uid", 'notifications' );
+		return $this->Connect->query("UPDATE notifications SET delivered=1 WHERE owner_id=?", [$uid])[0];
 	}
 
 	private function _formateType( array $data ) {

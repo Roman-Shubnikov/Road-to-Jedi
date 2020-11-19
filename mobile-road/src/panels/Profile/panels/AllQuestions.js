@@ -13,6 +13,7 @@ import {
     Tabs,
     TabsItem,
     Search,
+    HorizontalScroll,
     } from '@vkontakte/vkui';
 
 import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
@@ -99,24 +100,26 @@ export default class myQuestions extends React.Component {
                         this.setState({search: e.target.value})
                     }} />
                 <Tabs>
-                <TabsItem
-                    onClick={() => this.setState({ activeTab: 'positive' })}
-                    selected={this.state.activeTab === 'positive'}
-                >
-                    Положительные
-                </TabsItem>
-                <TabsItem
-                    onClick={() => this.setState({ activeTab: 'negative' })}
-                    selected={this.state.activeTab === 'negative'}
-                >
-                    Отрицательные
-                </TabsItem>
-                <TabsItem
-                    onClick={() => this.setState({ activeTab: 'moderation' })}
-                    selected={this.state.activeTab === 'moderation'}
-                >
-                    На модерации
-                </TabsItem>
+                <HorizontalScroll>
+                    <TabsItem
+                        onClick={() => this.setState({ activeTab: 'positive' })}
+                        selected={this.state.activeTab === 'positive'}
+                    >
+                        Положительные
+                    </TabsItem>
+                    <TabsItem
+                        onClick={() => this.setState({ activeTab: 'negative' })}
+                        selected={this.state.activeTab === 'negative'}
+                    >
+                        Отрицательные
+                    </TabsItem>
+                    <TabsItem
+                        onClick={() => this.setState({ activeTab: 'moderation' })}
+                        selected={this.state.activeTab === 'moderation'}
+                    >
+                        На модерации
+                    </TabsItem>
+                </HorizontalScroll>
                 </Tabs>
                 <PullToRefresh onRefresh={() => {this.setState({fetching: true});this.prepare_questions()}} isFetching={this.state.fetching}>
                     {questions.length > 0 ?
@@ -135,7 +138,7 @@ export default class myQuestions extends React.Component {
                     >
                         {result['text']}
                     </Cell>
-                    <Separator style={{width: "90%"}} />
+                    <Separator />
                     </React.Fragment>
                     )}
                     {(limiter_search < searched) ? 

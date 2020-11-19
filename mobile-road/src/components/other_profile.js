@@ -56,7 +56,7 @@ function fix_time(time) {
               }
             })
             .catch(err => {
-              this.showErrorAlert(err, () => window.history.back())
+                this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
     
             })
         }

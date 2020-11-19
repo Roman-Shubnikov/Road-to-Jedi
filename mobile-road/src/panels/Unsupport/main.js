@@ -99,13 +99,14 @@ export default class Unsupport extends React.Component {
               </Alert>
             })
           }
-          this.showErrorAlert = (error=null) => {
+          this.showErrorAlert = (error=null, action=null) => {
             this.setPopout(
               <Alert
                   actions={[{
                   title: 'Отмена',
                   autoclose: true,
-                  mode: 'cancel'
+                  mode: 'cancel',
+                  action: action,
                   }]}
                   onClose={() => this.setPopout(null)}
               >

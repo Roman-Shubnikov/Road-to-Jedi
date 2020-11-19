@@ -68,10 +68,12 @@ export default class Main extends React.Component {
             if(data.result) {
               this.setState({top_agents: data.response});
               this.setPopout(null);
+            }else{
+              this.showErrorAlert(data.error.message)
             }
           })
           .catch(err => {
-            this.showErrorAlert(err)
+            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
 
           })
         }
@@ -159,13 +161,14 @@ export default class Main extends React.Component {
               </Alert>
             })
           }
-          this.showErrorAlert = (error=null) => {
+          this.showErrorAlert = (error=null, action=null) => {
             this.setPopout(
               <Alert
                   actions={[{
                   title: 'Отмена',
                   autoclose: true,
-                  mode: 'cancel'
+                  mode: 'cancel',
+                  action: action,
                   }]}
                   onClose={() => this.setPopout(null)}
               >
@@ -175,23 +178,7 @@ export default class Main extends React.Component {
           )
         }
     }
-    ChangeAge(age) {
-      this.setState({popout: <ScreenSpinner/>})
-      fetch(this.state.api_url + "method=account.setAge&age=" + age + "&" + window.location.search.replace('?', ''))
-      .then(res => res.json())
-      .then(data => {
-        if(data.result) {
-          this.setState({popout: null})
-          // setTimeout(() => {
-          //   this.playAudio()
-          // }, 5000)
-          
-        }
-      })
-      .catch(err => {
-        this.showErrorAlert()
-      })
-    }
+
     userBan(user_id, text) {
       this.setPopout(<ScreenSpinner/>)
       fetch(this.state.api_url + "method=account.ban&agent_id=" + user_id + "&banned=true&reason=" + text + "&" + window.location.search.replace('?', ''))
@@ -206,7 +193,7 @@ export default class Main extends React.Component {
         }
       })
       .catch(err => {
-        this.showErrorAlert(err)
+        this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
       })
     }
     getRandomTiket() {
@@ -220,7 +207,7 @@ export default class Main extends React.Component {
           }
         })
         .catch(err => {
-          this.showErrorAlert(err)
+          this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.changeData('activeStory', 'disconnect')})
 
         })
     }

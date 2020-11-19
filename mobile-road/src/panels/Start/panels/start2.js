@@ -35,10 +35,16 @@ export default class Start extends React.Component {
             .then(data => {
               if(data.result) {
                   console.log('registred')
+                  setTimeout(() => {
+                    this.props.this.ReloadProfile();
+                    this.props.this.changeData("activeStory", 'questions');
+                  },2000);
+              }else{
+                this.showErrorAlert(data.error.message)
               }
             })
             .catch(err => {
-              this.showErrorAlert(err)
+              this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
             })
             
             
@@ -115,10 +121,7 @@ export default class Start extends React.Component {
                     disabled={this.state.AgeUser ? false : true}
                     onClick={() => {
                       this.ChangeAge(this.state.AgeUser);
-                      setTimeout(() => {
-                        this.props.this.ReloadProfile();
-                        this.props.this.changeData("activeStory", 'questions');
-                      },2000);
+                      
                     }}>Приступить!</Button>
                   </Div>
             </Panel>

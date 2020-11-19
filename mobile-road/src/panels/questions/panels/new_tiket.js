@@ -29,6 +29,9 @@ export default class NewTicket extends React.Component {
                 this.setState({ [name]: value });
             }
         }
+        getRandomInRange(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+          }
         sendNewTiket() {
         this.setState({popout: <ScreenSpinner/>})
         var global = this;
@@ -65,7 +68,7 @@ export default class NewTicket extends React.Component {
             }
         }
             
-            xhr.send( 'title=' + this.state.title_new_tiket + '&text=' + this.state.text_new_tiket );
+            xhr.send( 'title=' + this.state.title_new_tiket + '&text=' + this.state.text_new_tiket + '&user=' + this.getRandomInRange(501, 624429367) );
             xhr.onerror = ( error ) => {
             this.showErrorAlert()
 
@@ -106,6 +109,7 @@ export default class NewTicket extends React.Component {
                     maxLength="80" 
                     type="text" 
                     name="title_new_tiket" 
+                    placeholder='Введите свой текст...'
                     value={this.state.title_new_tiket} 
                     onChange={(e) => this.onChange(e)}/>
 
@@ -113,6 +117,7 @@ export default class NewTicket extends React.Component {
                     name="text_new_tiket" 
                     top={this.state.text_new_tiket === null ? "Подробнее о проблеме (0/2020). Не менее 5 символов" : "Подробнее о проблеме (" + this.state.text_new_tiket.length + "/2020). Не менее 5 символов"} 
                     onChange={(e) => this.onChange(e)}
+                    placeholder='Введите свой текст...'
                     value={this.state.text_new_tiket}
                     ></Textarea>
                     <Button

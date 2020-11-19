@@ -35,7 +35,7 @@ export default class SchemeChange extends React.Component{
             this.setPopout(<ScreenSpinner />)
             let value = e.currentTarget.value;
             if(value === 0){
-                this.props.this.ChangeData('scheme', this.props.default_scheme)
+                this.props.this.changeData('scheme', this.props.default_scheme)
             }
             fetch(this.state.api_url + "method=account.changeScheme&scheme=" + value + "&" + window.location.search.replace('?', ''))
                 .then(res => res.json())
@@ -50,7 +50,7 @@ export default class SchemeChange extends React.Component{
                 }
                 })
                 .catch(err => {
-                    this.showErrorAlert(err)
+                    this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
     
                 })
     

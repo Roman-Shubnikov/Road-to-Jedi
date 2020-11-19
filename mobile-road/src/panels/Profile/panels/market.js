@@ -116,9 +116,15 @@ export default class Market extends React.Component{
       last_image.className = "changes_avatars pointer"
     }
     let image = document.getElementById(number);
+    // eslint-disable-next-line
+    if(number != this.state.last_selected){
+      image.className = "changes_avatars select_avatar"
+      this.setState({last_selected: Number(number)});
+    }else{
+      this.setState({last_selected: null});
+      image.className = "changes_avatars pointer"
+    }
     
-    image.className = "changes_avatars select_avatar"
-    this.setState({last_selected: Number(number)});
   }
     changeAvatar(last_selected) {
         fetch(this.state.api_url + "method=shop.changeAvatar&avatar_id=" + last_selected + "&" + window.location.search.replace('?', ''))
@@ -157,7 +163,7 @@ export default class Market extends React.Component{
                 }
             })
             .catch(err => {
-                this.showErrorAlert(err)
+              this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
         })
         
     }
@@ -191,7 +197,7 @@ export default class Market extends React.Component{
             }
           })
           .catch(err => {
-            this.showErrorAlert(err)
+            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
           })
         } else {
           this.props.this.setSnack(
@@ -233,7 +239,7 @@ export default class Market extends React.Component{
             }
           })
           .catch(err => {
-            this.showErrorAlert(err)
+            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
           })
       }
 
@@ -276,7 +282,12 @@ export default class Market extends React.Component{
                 <Separator />
                 <Header>Сменить свой ник</Header>
                 <FormLayout>
-                  <Input placeholder="Введите желаемый ник (макс. 10 символов)" onChange={(e) => this.onChange(e)} value={this.state.changed_id} maxLength="10" name="changed_id"/>
+                  <Input placeholder="Введите желаемый ник" 
+                  bottom='Макс. 10 символов'
+                  onChange={(e) => this.onChange(e)} 
+                  value={this.state.changed_id} 
+                  maxLength="10" 
+                  name="changed_id"/>
                 </FormLayout>
                 <Div style={{display: 'flex'}}>
                     <Button onClick={() => {this.ChangeId(this.state.changed_id)}} 

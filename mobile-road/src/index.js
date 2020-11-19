@@ -9,14 +9,14 @@ import App from './App.js';
 import mVKMiniAppsScrollHelper from '@vkontakte/mvk-mini-apps-scroll-helper';
 import {platform, IOS} from '@vkontakte/vkui';
 
-Sentry.init({
-    dsn: "https://0045161b140249dcbc378fe70d966605@o461731.ingest.sentry.io/5465956",
-    integrations: [
-      new Integrations.BrowserTracing(),
-    ],
+// Sentry.init({
+//     dsn: "https://0045161b140249dcbc378fe70d966605@o461731.ingest.sentry.io/5465956",
+//     integrations: [
+//       new Integrations.BrowserTracing(),
+//     ],
 
-    tracesSampleRate: 1.0,
-  });
+//     tracesSampleRate: 2.0,
+//   });
 
 connect.send('VKWebAppInit', {});
 const root = document.getElementById('root');
