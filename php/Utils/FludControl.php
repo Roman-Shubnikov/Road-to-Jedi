@@ -51,6 +51,8 @@ class FludControl {
     }
 
     private static function error( $time ) {
-        Show::customError("Вы превысили лимит запросов, осталось подождать: $time", []);
+        http_response_code(509);
+        exit("Вы превысили лимит запросов, осталось подождать: $time");
+        // Show::customError("Вы превысили лимит запросов, осталось подождать: $time", []);
     }
 }

@@ -1,7 +1,7 @@
 import React from 'react'; // React
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import vkQr from '@vkontakte/vk-qr';
-import {svg2png} from 'svg-png-converter'
+// import {svg2png} from 'svg-png-converter'
 
 
 
@@ -56,8 +56,8 @@ import Icon16CheckCircle          from '@vkontakte/icons/dist/16/check_circle';
 
 
 // const queryString = require('query-string');
-const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
-var click_qr = false;
+// const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+// var click_qr = false;
 // const parsedHash = queryString.parse(window.location.search.replace('?', ''));
 // const hash = queryString.parse(window.location.hash);
 function qr(agent_id, sheme) {
@@ -172,6 +172,7 @@ export default withPlatform(class Main extends React.Component {
                 bridge.send("VKWebAppClose", {"status": "success"});
             } else if (history.length > 1) {
                 history.pop()
+                this.setActiveModal(null);
                 if(this.state.activePanel === 'profile') {
                   bridge.send('VKWebAppDisableSwipeBack');
                 }

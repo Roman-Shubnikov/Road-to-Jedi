@@ -98,7 +98,7 @@ $params = [
 		// 	'required' => true
 		// ],
 		'cond1' => [
-			'type' => 'int',
+			'type' => 'bool',
 			'required' => true
 		],
 		// 'cond2' => [

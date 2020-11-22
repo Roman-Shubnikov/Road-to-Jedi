@@ -25,7 +25,7 @@ class CONFIG {
 	const SECRET_KEY = 'g3MXdwsVrz7J3vVw6pk4';
 	const VK_APP_TOKEN = '6ad515826ad515826ad51582306aa4051866ad56ad51582344086bf623d0b12c9fea49a';
 	
-	const FLOOD_CONTROL = 13;
+	const FLOOD_CONTROL = 15;
 	const FLOOD_CONTROL_BAN = 60;
 
 	const REGEXP_VALID_NAME = "/^[a-zA-ZА-Яа-я0-9_ ]*$/u";

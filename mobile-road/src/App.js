@@ -121,7 +121,7 @@ class App extends React.Component {
                 }
             }})
           .catch(err => {
-            this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
+            this.changeData('activeStory', 'disconnect')
     
           })
         }
@@ -273,7 +273,7 @@ class App extends React.Component {
         })
         .catch(err => {
           this.setState({activeStory: 'disconnect', need_epic: false})
-          this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже')
+          this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже. Возможно, вы попали на флуд-контроль.')
         })
     }
 

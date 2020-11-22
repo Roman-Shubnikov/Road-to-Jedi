@@ -8,6 +8,7 @@ import {
     PanelHeaderBack,
     Radio,
     FormLayout,
+    Div,
     } from '@vkontakte/vkui';
 
 import Message from '../../../components/message'
@@ -76,20 +77,22 @@ export default class SchemeChange extends React.Component{
                 </PanelHeader>
                 <Header mode='secondary'>Предпросмотр</Header>
                 <Separator /> 
-                <Message
-                title='Пользователь'
-                is_mine={false}
-                avatar={avaUser}
-                onClick={() => {}}
-                clickable={false}
-                >О, тут можно менять тему</Message>
-                <Message
-                title='Агент Поддержки'
-                is_mine={true}
-                avatar={avaAgent}
-                onClick={() => {}}
-                clickable={false}
-                >Действительно</Message>
+                <Div>
+                    <Message
+                    title='Пользователь'
+                    is_mine={false}
+                    avatar={avaUser}
+                    onClick={() => {}}
+                    clickable={false}
+                    >О, тут можно менять тему</Message>
+                    <Message
+                    title='Агент Поддержки'
+                    is_mine={true}
+                    avatar={avaAgent}
+                    onClick={() => {}}
+                    clickable={false}
+                    >Действительно</Message>
+                </Div>
                 <Separator style={{marginTop: 10}} />
                 <FormLayout>
                     <div>
