@@ -71,10 +71,10 @@ export default class Main extends React.Component {
         //   this.setState({history: [...this.state.history, panel]})
         // }
         this.getQuestions = (need_offset=false) => {
-          let offset = need_offset ? this.state.need_offset : 0;
           if(!need_offset){
               this.setState({ offset: 20})
           }
+          let offset = need_offset ? this.state.offset : 0;
           fetch(this.state.api_url + "method=tickets.get&" + window.location.search.replace('?', ''), 
           {method: 'post',
           headers: {"Content-type": "application/json; charset=UTF-8"},

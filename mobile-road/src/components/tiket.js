@@ -22,7 +22,7 @@ import {
 import Icon16ReplyOutline from '@vkontakte/icons/dist/16/reply_outline';
 import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
 
-// import Ninja from '../images/Ninja.webp'
+// import Moderator_img from '../images/10007.png'
 
 import Message from './message'
 // const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
@@ -67,6 +67,7 @@ export default class Ticket extends React.Component {
             tiket_message: [],
             tiket_send_message: '',
             add_comment: false,
+            edit_comment: false,
             redaction: false,
             limitreach: false,
             snackbar: null,
@@ -112,36 +113,50 @@ export default class Ticket extends React.Component {
         })
     }
     sendRayt(mark, message_id) {
-        let reyt = 1;
-        if(mark === true) {
-          reyt = 1;
-        } else {
-          reyt = 0;
-        }
-        if(reyt < 2) {
-          fetch(this.state.api_url + "method=ticket.markMessage&" + window.location.search.replace('?', ''),
-          {method: 'post',
-          headers: {"Content-type": "application/json; charset=UTF-8"},
-          // signal: controllertime.signal,
-          body: JSON.stringify({
-            'message_id': message_id,
-            'mark': reyt,
-          })
-            })
-            .then(res => res.json())
-            .then(data => {
-              if(data.result) {
-                this.getMessages()
-              }else {
-                this.showErrorAlert(data.error.message)
-              }
-            })
-            .catch(err => {
-              this.props.this.changeData('activeStory', 'disconnect')
-            
-            })
-        }
+      fetch(this.state.api_url + "method=ticket.markMessage&" + window.location.search.replace('?', ''),
+      {method: 'post',
+      headers: {"Content-type": "application/json; charset=UTF-8"},
+      // signal: controllertime.signal,
+      body: JSON.stringify({
+        'message_id': message_id,
+        'mark': mark,
+      })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.result) {
+            this.getMessages()
+          }else {
+            this.showErrorAlert(data.error.message)
+          }
+        })
+        .catch(err => {
+          this.props.this.changeData('activeStory', 'disconnect')
+        
+        })
       }
+      unsendRayt(message_id) {
+        fetch(this.state.api_url + "method=ticket.unmarkMessage&" + window.location.search.replace('?', ''),
+        {method: 'post',
+        headers: {"Content-type": "application/json; charset=UTF-8"},
+        // signal: controllertime.signal,
+        body: JSON.stringify({
+          'message_id': message_id,
+        })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if(data.result) {
+              this.getMessages()
+            }else {
+              this.showErrorAlert(data.error.message)
+            }
+          })
+          .catch(err => {
+            this.props.this.changeData('activeStory', 'disconnect')
+          
+          })
+        }
       sendClear(id) {
         this.setPopout(<ScreenSpinner/>)
         fetch(this.state.api_url + "method=ticket.approveReply&" + window.location.search.replace('?', ''),
@@ -174,35 +189,50 @@ export default class Ticket extends React.Component {
                 Профиль
               </ActionSheetItem>
               : null}
-             { this.props.account.special && mark !== 0 && mark !== 1 && author_id > 0 ? 
-              <ActionSheetItem autoclose onClick={() => this.sendRayt(true, id)}>
+             { this.props.account.special && mark === -1 && author_id > 0 ? 
+              <ActionSheetItem autoclose onClick={() => this.sendRayt(1, id)}>
                 Оценить положительно
               </ActionSheetItem> 
               : null}
-              { this.props.account.special && mark !== 0 && mark !== 1 && author_id > 0 ? 
-              <ActionSheetItem autoclose onClick={() => this.sendRayt(false, id)}>
+              { this.props.account.special && mark === -1 && author_id > 0 && !(comment === null || comment === undefined) ? 
+              <ActionSheetItem autoclose onClick={() => this.sendRayt(0, id)}>
                 Оценить отрицательно
               </ActionSheetItem> 
               : null }
-              { (this.props.account.special === true && author_id > 0 && !approved) ? 
+              { this.props.account.special && mark !== -1 && author_id > 0 ? 
+              <ActionSheetItem autoclose onClick={() => this.unsendRayt(id)}>
+                Удалить оценку
+              </ActionSheetItem> 
+              : null }
+              { (this.props.account.special && author_id > 0 && !approved) ? 
               <ActionSheetItem autoclose onClick={() => this.sendClear(id)}>
                 Одобрить
               </ActionSheetItem> 
               : null }
-              {(this.props.account.special === true && (comment === null || comment === undefined)) ? 
+              {(this.props.account.special && (comment === null || comment === undefined)) ? 
               <ActionSheetItem autoclose onClick={() => this.setState({add_comment: true, message_id_add: id})}>
               Добавить комментарий
               </ActionSheetItem> 
               : null }
+              {(this.props.account.special && !(comment === null || comment === undefined)) ? 
+              <ActionSheetItem autoclose onClick={() => this.setState({edit_comment: true, message_id_redac: id,tiket_send_message: comment})}>
+              Редактировать комментарий
+              </ActionSheetItem> 
+              : null }
+              {(this.props.account.special && !(comment === null || comment === undefined)) ? 
+              <ActionSheetItem autoclose onClick={() => this.deleteComment(id)}>
+                Удалить комментарий
+              </ActionSheetItem>
+              : null}
               {(Number(author_id === this.props.account.id) && this.state.tiket_info['status'] === 0 && mark === -1 && !approved) ? 
              <ActionSheetItem autoclose onClick={() => this.setState({redaction: true, message_id_redac: id, tiket_send_message: text})}>
              Редактировать
              </ActionSheetItem>
              : null}
-          {(comment === null || comment === undefined) ? null : 
+          {/* {(comment === null || comment === undefined) ? null : 
               <ActionSheetItem autoclose onClick={() => {this.props.this.setState({comment: comment}); this.setActiveModal("comment")}}>
               Просмотреть комментарий
-            </ActionSheetItem>}
+            </ActionSheetItem>} */}
               {Number(author_id) === Number(this.props.account.id) || this.props.account.special === true ? 
               <ActionSheetItem autoclose onClick={() => this.deleteMessage(id)}>
                 Удалить сообщение
@@ -337,6 +367,12 @@ export default class Ticket extends React.Component {
             .then(data => {
               if(data.result) {
                 this.getMessages()
+                this.setSnack(<Snackbar
+                  layout="vertical"
+                  before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                  onClose={() => this.setSnack(null)}>
+                    Сообщение удалено
+                  </Snackbar>)
               }else {
                 this.showErrorAlert(data.error.message)
               }
@@ -361,6 +397,12 @@ export default class Ticket extends React.Component {
           .then(data => {
             if(data.result) {
               this.getMessages()
+              this.setSnack(<Snackbar
+                layout="vertical"
+                before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                onClose={() => this.setSnack(null)}>
+                  Тикет удалён
+                </Snackbar>)
             }else {
               this.showErrorAlert(data.error.message)
             }
@@ -384,6 +426,12 @@ export default class Ticket extends React.Component {
           .then(data => {
             if(data.result) {
               this.getMessages()
+              this.setSnack(<Snackbar
+                layout="vertical"
+                before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                onClose={() => this.setSnack(null)}>
+                  Тикет открыт
+                </Snackbar>)
             }else {
               this.showErrorAlert(data.error.message)
             }
@@ -408,6 +456,12 @@ export default class Ticket extends React.Component {
           .then(data => {
             if(data.result) {
               this.getMessages()
+              this.setSnack(<Snackbar
+                layout="vertical"
+                before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                onClose={() => this.setSnack(null)}>
+                  Сообщение отредактировано
+                </Snackbar>)
             }else {
               this.showErrorAlert(data.error.message)
             }
@@ -416,7 +470,65 @@ export default class Ticket extends React.Component {
             this.props.this.changeData('activeStory', 'disconnect')
 
           })
-        
+      }
+      editComment(){
+        this.setPopout(<ScreenSpinner/>)
+        fetch(this.state.api_url + 'method=ticket.editComment&' + window.location.search.replace('?', ''),
+        {method: 'post',
+          headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+          body: JSON.stringify({
+            'message_id': this.state.message_id_redac,
+            'text': this.state.tiket_send_message.trim(),
+          })
+            })
+          .then(res => res.json())
+          .then(data => {
+            if(data.result) {
+              this.getMessages()
+              this.setSnack(<Snackbar
+                layout="vertical"
+                before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                onClose={() => this.setSnack(null)}>
+                  Комментарий отредактирован
+                </Snackbar>)
+            }else {
+              this.showErrorAlert(data.error.message)
+            }
+          })
+          .catch(err => {
+            this.props.this.changeData('activeStory', 'disconnect')
+
+          })
+      }
+      deleteComment(message_id){
+        this.setPopout(<ScreenSpinner/>)
+        fetch(this.state.api_url + 'method=ticket.deleteComment&' + window.location.search.replace('?', ''),
+        {method: 'post',
+          headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+          body: JSON.stringify({
+            'message_id': message_id
+          })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if(data.result) {
+              this.getMessages()
+              this.setSnack(<Snackbar
+                layout="vertical"
+                before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                onClose={() => this.setSnack(null)}>
+                  Комментарий удалён
+                </Snackbar>)
+            }else {
+              this.showErrorAlert(data.error.message)
+            }
+          })
+          .catch(err => {
+            this.props.this.changeData('activeStory', 'disconnect')
+
+          })
       }
       sendNewMessageComment() {
         this.setPopout(<ScreenSpinner/>)
@@ -433,6 +545,12 @@ export default class Ticket extends React.Component {
           .then(data => {
             if(data.result) {
               this.getMessages()
+              this.setSnack(<Snackbar
+                layout="vertical"
+                before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                onClose={() => this.setSnack(null)}>
+                  Комментарий отправлен
+                </Snackbar>)
             }else {
               this.showErrorAlert(data.error.message)
             }
@@ -468,6 +586,25 @@ export default class Ticket extends React.Component {
     componentDidMount(){
       this.setPopout(<ScreenSpinner/>)
       this.Prepare_ticket()
+    }
+    detectFunction(){
+      this.setState({tiket_send_message: "",add_comment: false, redaction: false,edit_comment: false})
+      if(this.state.redaction){
+        this.sendNewMessageRedact();
+      }else if(this.state.add_comment){
+        this.sendNewMessageComment();
+      }else if(this.state.edit_comment){
+        this.editComment();
+      }else{
+        this.sendNewMessage();
+      }
+    }
+    detectPlaceholder(){
+      let placeholder = 'Сообщение';
+      if(this.state.add_comment){
+        placeholder = 'Комментарий'
+      }
+      return placeholder;
     }
     nofinc(){
       return 1
@@ -505,8 +642,10 @@ export default class Ticket extends React.Component {
                                 is_special={thisOb.props.account.special}
                                 is_mark={result.mark}
                                 time={time}
-                                sendRayt_false={() => thisOb.sendRayt(false, result.id)}
-                                sendRayt_true={() => thisOb.sendRayt(true, result.id)}
+                                commentclick={() => {thisOb.props.this.setState({comment: result.moderator_comment !== undefined ? result['moderator_comment']['text'] : null}); thisOb.setActiveModal("comment")}}
+                                comment={result.moderator_comment !== undefined}
+                                sendRayt_false={() => thisOb.sendRayt(0, result.id)}
+                                sendRayt_true={() => thisOb.sendRayt(1, result.id)}
                                 approved={result.approved ? true : false}
                                 CanselApp={() => props.this.showAlert('Информация', 'Этот ответ оценен отрицательно')}
                                 DoneApp={() => props.this.showAlert('Информация', 'Этот ответ оценен положительно')}
@@ -515,6 +654,7 @@ export default class Ticket extends React.Component {
                             </Message>
                             
                             :
+                            <>
                             <Message 
                                 clickable={!thisOb.props.account.special ? false : true}
                                 title={result.author.is_moderator ? title_moder : result.author.first_name + " " + result.author.last_name} 
@@ -526,14 +666,29 @@ export default class Ticket extends React.Component {
                                 onClick={() => thisOb.Admin(result['approved'], result['id'], result['author'].first_name ? -result['author']['id'] : result['author']['id'], result['text'], result.moderator_comment !== undefined ? result['moderator_comment']['text'] : null,avatar, result['mark'])}
                                 is_special={thisOb.props.account.special}
                                 is_mark={result.mark}
-                                sendRayt_false={() => thisOb.sendRayt(false, result.id)}
-                                sendRayt_true={() => thisOb.sendRayt(true, result.id)}
+                                sendRayt_false={() => thisOb.sendRayt(0, result.id)}
+                                sendRayt_true={() => thisOb.sendRayt(1, result.id)}
+                                commentclick={() => {thisOb.props.this.setState({comment: result.moderator_comment !== undefined ? result['moderator_comment']['text'] : null}); thisOb.setActiveModal("comment")}}
+                                comment={result.moderator_comment !== undefined}
                                 approved={result.approved ? true : false}
                                 CanselApp={() => props.this.showAlert('Информация', 'Этот ответ оценен отрицательно')}
                                 DoneApp={() => props.this.showAlert('Информация', 'Этот ответ оценен положительно')}
                             >
                                 {result.text}
                             </Message>
+                            {/* {((result.moderator_comment !== undefined) && (result['author']['id'] === thisOb.props.account['id'])) ? <Message 
+                                clickable={false}
+                                title={"Модератор"} 
+                                is_mine={false}
+                                avatar={Moderator_img}
+                                key={i}
+                                time={time}
+                                onClick={() => {}}
+
+                            >
+                                {result['moderator_comment']['text']}
+                            </Message> : null} */}
+                            </>
                         )}) : null}
                         {!((this.state.tiket_info['status'] === 1) || (this.state.tiket_info['status'] === 2)) ? <div style={{marginBottom: '20vh'}}></div> : <div style={{marginBottom: '5vh'}}></div>}
                       </>
@@ -552,18 +707,18 @@ export default class Ticket extends React.Component {
                     <WriteBar
                       after={
                         <>
-                          <WriteBarIcon mode={this.state.redaction ? 'done' : "send"}
+                          <WriteBarIcon mode={(this.state.redaction || this.state.edit_comment) ? 'done' : "send"}
                           disabled={!(this.state.tiket_send_message.trim().length >= 5)}
-                          onClick={() => {(this.state.tiket_send_message.trim().length >= 5) ? this.state.redaction !== true && this.state.add_comment !== true ? this.sendNewMessage() : this.state.redaction ? this.sendNewMessageRedact() : this.sendNewMessageComment() : this.nofinc()}}
+                          onClick={() => {this.detectFunction()}}
                           />
                           {/* {<WriteBarIcon><Icon20Clear width={34} height={34} /></WriteBarIcon>} */}
                         </>
                       }
                       value={this.state.tiket_send_message}
-                      maxLength="2020"
+                      maxLength="4040"
                       name="tiket_send_message"
                       onChange={(e) => this.onChange(e)}
-                      placeholder="Сообщение"
+                      placeholder={this.detectPlaceholder()}
                     />
                 </FixedLayout>
                 

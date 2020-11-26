@@ -35,6 +35,9 @@ export default withPlatform(class Donut extends React.Component {
                   <Div>
                     <div style={{whiteSpace: "pre-wrap"}}><Anchorme target="_blank" rel="noreferrer noopener">{this.props.comment}</Anchorme></div>
                   </Div>
+                  <br />
+                  <br />
+                  <br />
             </ModalPage>
         )
     }

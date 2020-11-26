@@ -42,9 +42,9 @@ class Users {
 	}
 
 	public function getById( int $id ) {
-		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,
-						users.bad_answers, users.total_answers, users.avatar_id,  users.noti, users.money,users.age,users.scheme,
-						avatars.name as avatar_name, users.flash, users.verified, users.donut, users.nickname, users.banned, users.ban_reason
+		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, 
+				users.bad_answers, users.avatar_id, avatars.name as avatar_name, users.flash, users.verified, users.donut, users.nickname, users.banned, users.ban_reason, 
+				users.money, users.age, users.scheme, users.vk_user_id
 				FROM users
 				LEFT JOIN avatars
 				ON users.avatar_id = avatars.id
@@ -73,7 +73,7 @@ class Users {
 		$s_ids = implode( ',', $ids );
 		$result = [];
 
-		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,
+		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, 
 						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme,
 						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.nickname, users.banned, users.ban_reason
 				FROM users
@@ -89,11 +89,10 @@ class Users {
 		return $result;
 	}
 
-	public function getTop() {
+	public function getTop($staff) {
 		$count = CONFIG::MAX_ITEMS_COUNT;
-
-		$sql = "SELECT id FROM users ORDER BY good_answers DESC LIMIT 0, $count";
-		$ids = $this->Connect->db_get( $sql );
+		$sql = "SELECT id FROM users where special=? ORDER BY good_answers DESC LIMIT 0, $count";
+		$ids = $this->Connect->db_get( $sql, [$staff ? 1 : 0] );
 
 		$a_ids = [];
 
@@ -154,7 +153,7 @@ class Users {
 			return [];
 		}
 
-		if( $data['banned'] !== 1 ) {
+		if( !(bool)$data['banned'] || !$data['special']) {
 			$res = [
 				'id' => (int) $data['id'],
 				'online' => [
@@ -167,22 +166,19 @@ class Users {
 				],
 				'good_answers' => (int) $data['good_answers'],
 				'bad_answers' => (int) $data['bad_answers'],
-				'total_answers' => (int) $data['total_answers'],
 				'registered' => (int) $data['registered'],
 				'flash' => (bool) $data['flash'],
 				'verified' => (bool) $data['verified'],
 				'donut' => (bool) $data['donut'],
-				'balance' => (float) $data['money'],
-				'scheme' => (int) $data['scheme'],
-				'age' => (int) $data['age'],
-				'notif_count' => (int) $data['notifications_count'],
 			];	
 		}
-		 
-		if ( isset( $data['noti'] ) ) {
-			$res['noti'] = (bool) $data['noti'];
- 		}
-
+		if ( $this->info['special']) { 
+			if(isset($data['vk_user_id'])){
+				$res['vk_id'] = (int)$data['vk_user_id'];
+			}
+			$res['marked'] = (int) $data['good_answers'];
+			
+		}
 
 		if ( isset( $data['is_first_start'] ) ) {
 			$res['is_first_start'] = (bool) $data['is_first_start'];
@@ -193,9 +189,14 @@ class Users {
 		if ( isset( $data['special'] ) ) {
 			$res['special'] = (bool) $data['special'];
 		}
-
+		if((int) $data['id'] == $this->id || $this->info['special']){
+			$res['noti'] = (bool)$data['noti'];
+			$res['balance'] = (int)$data['money'];
+			$res['age'] = (int)$data['age'];
+			$res['scheme'] = (int)$data['scheme'];
+		}
 		if ( isset( $data['notifications_count'] ) ) {
-			$res['notifications_count'] = (int) $data['notifications_count'];
+			$res['notif_count'] = (int) $data['notifications_count'];
 		}
 
 		return $res;

@@ -1,21 +1,28 @@
 {
   "files": {
-    "main.css": "/road/static/css/main.0c63852c.chunk.css",
-    "main.js": "/road/static/js/main.27b38890.chunk.js",
-    "main.js.map": "/road/static/js/main.27b38890.chunk.js.map",
+    "main.css": "/road/static/css/main.ca49f612.chunk.css",
+    "main.js": "/road/static/js/main.1780a118.chunk.js",
+    "main.js.map": "/road/static/js/main.1780a118.chunk.js.map",
     "runtime-main.js": "/road/static/js/runtime-main.394b0f17.js",
     "runtime-main.js.map": "/road/static/js/runtime-main.394b0f17.js.map",
     "static/css/2.8cdfe4cf.chunk.css": "/road/static/css/2.8cdfe4cf.chunk.css",
-    "static/js/2.e8c79ed5.chunk.js": "/road/static/js/2.e8c79ed5.chunk.js",
-    "static/js/2.e8c79ed5.chunk.js.map": "/road/static/js/2.e8c79ed5.chunk.js.map",
+    "static/js/2.0e82594a.chunk.js": "/road/static/js/2.0e82594a.chunk.js",
+    "static/js/2.0e82594a.chunk.js.map": "/road/static/js/2.0e82594a.chunk.js.map",
     "index.html": "/road/index.html",
-    "precache-manifest.772fefb56ebeac83d9628c4a158cb211.js": "/road/precache-manifest.772fefb56ebeac83d9628c4a158cb211.js",
+    "precache-manifest.a1a06f8c928e012bafb37cc137807f8d.js": "/road/precache-manifest.a1a06f8c928e012bafb37cc137807f8d.js",
     "service-worker.js": "/road/service-worker.js",
     "static/css/2.8cdfe4cf.chunk.css.map": "/road/static/css/2.8cdfe4cf.chunk.css.map",
-    "static/css/main.0c63852c.chunk.css.map": "/road/static/css/main.0c63852c.chunk.css.map",
-    "static/js/2.e8c79ed5.chunk.js.LICENSE.txt": "/road/static/js/2.e8c79ed5.chunk.js.LICENSE.txt",
+    "static/css/main.ca49f612.chunk.css.map": "/road/static/css/main.ca49f612.chunk.css.map",
+    "static/js/2.0e82594a.chunk.js.LICENSE.txt": "/road/static/js/2.0e82594a.chunk.js.LICENSE.txt",
     "static/media/Soloriver.mp3": "/road/static/media/Soloriver.57a77e9b.mp3",
     "static/media/jedi.svg": "/road/static/media/jedi.7c18eb66.svg",
+    "static/media/notify_approve.png": "/road/static/media/notify_approve.29be4adc.png",
+    "static/media/notify_comment.png": "/road/static/media/notify_comment.29032d6b.png",
+    "static/media/notify_destructive.png": "/road/static/media/notify_destructive.7149bd24.png",
+    "static/media/notify_done.png": "/road/static/media/notify_done.c2382483.png",
+    "static/media/notify_donut.png": "/road/static/media/notify_donut.a5abcbdf.png",
+    "static/media/notify_info.png": "/road/static/media/notify_info.845141bc.png",
+    "static/media/notify_paycard.png": "/road/static/media/notify_paycard.a440a40c.png",
     "static/media/question_banner_mobile.png": "/road/static/media/question_banner_mobile.14c5ae38.png",
     "static/media/question_banner_pc.jpg": "/road/static/media/question_banner_pc.b2b8189b.jpg",
     "static/media/schemeagent.jpg": "/road/static/media/schemeagent.e2c15877.jpg",
@@ -27,8 +34,8 @@
   "entrypoints": [
     "static/js/runtime-main.394b0f17.js",
     "static/css/2.8cdfe4cf.chunk.css",
-    "static/js/2.e8c79ed5.chunk.js",
-    "static/css/main.0c63852c.chunk.css",
-    "static/js/main.27b38890.chunk.js"
+    "static/js/2.0e82594a.chunk.js",
+    "static/css/main.ca49f612.chunk.css",
+    "static/js/main.1780a118.chunk.js"
   ]
 }

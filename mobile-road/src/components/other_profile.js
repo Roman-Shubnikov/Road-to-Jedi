@@ -24,6 +24,13 @@ import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outl
 import Icon16Fire from '@vkontakte/icons/dist/16/fire';
 import Icon16Verified from '@vkontakte/icons/dist/16/verified';
 import Icon16StarCircleFillYellow from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
+import Icon28LogoVkOutline from '@vkontakte/icons/dist/28/logo_vk_outline';
+import Icon28WalletOutline from '@vkontakte/icons/dist/28/wallet_outline';
+import Icon28PaletteOutline from '@vkontakte/icons/dist/28/palette_outline';
+import Icon28NameTagOutline from '@vkontakte/icons/dist/28/name_tag_outline';
+import Icon28InfoOutline from '@vkontakte/icons/dist/28/info_outline';
+import Icon28Notifications from '@vkontakte/icons/dist/28/notifications';
+
 
 function fix_time(time) {
     if(time < 10) {
@@ -32,6 +39,26 @@ function fix_time(time) {
         return time
     }
   }
+function recog_number(num){
+    let out = ""
+    if (num > 999999) {
+      out = Math.floor(num / 1000000 * 10) / 10 + "M"
+    } else if (num > 999) {
+      out = Math.floor(num / 1000 * 10) / 10 + "K"
+    } else {
+      out = num
+    }
+    return out;
+  };
+const SCHEMES = [
+    'Автоматическая',
+    'Light',
+    'Dark',
+]
+const NOTI = [
+    'Выключены',
+    'Включены'
+]
     class Reader extends React.Component {
         constructor(props) {
             super(props);
@@ -209,7 +236,7 @@ function fix_time(time) {
                   </div>
                   </Cell>
                   <Separator />
-                  {this.state.other_profile['nickname'] === 'Специальный Агент' || this.state.other_profile['banned'] ? <div style={{marginTop: "20px"}} className="help_title_profile">{this.state.other_profile['banned'] ? 'Этот профиль забанен' : 'Вы не можете просматривать этот профиль'}</div> :
+                  {this.state.other_profile['special'] || this.state.other_profile['banned'] ? <div style={{marginTop: 20, marginBottom: 20}} className="help_title_profile">{this.state.other_profile['banned'] ? 'Этот профиль забанен' : 'Вы не можете просматривать этот профиль'}</div> :
                     <Group>
                     <SimpleCell 
                         disabled
@@ -217,31 +244,67 @@ function fix_time(time) {
                         indicator={new Date(this.state.other_profile.registered * 1e3).getDate() + " " + this.please_Month(new Date(this.state.other_profile['registered'] * 1e3).getMonth()) + " " + new Date(this.state.other_profile.registered * 1e3).getFullYear()}>
                             Дата регистрации
                     </SimpleCell>
-                    {/* <SimpleCell 
+                    <SimpleCell 
                         disabled
                         before={<Icon28InfoOutline />}
-                        indicator={<Counter mode='primary'>{this.state.other_profile['total_answers']}</Counter>}>
+                        indicator={<Counter mode='primary'>{recog_number(this.state.other_profile['good_answers'] + this.state.other_profile['bad_answers'])}</Counter>}>
                             Всего ответов
-                    </SimpleCell> */}
+                    </SimpleCell>
                     <SimpleCell 
                         disabled
                         before={<Icon28CheckCircleOutline />}
-                        indicator={<Counter mode='primary'>{this.state.other_profile['good_answers']}</Counter>}>
+                        indicator={<Counter mode='primary'>{recog_number(this.state.other_profile['good_answers'])}</Counter>}>
                             Положительные ответы
                     </SimpleCell>
                     <SimpleCell 
                         disabled
                         before={<Icon24DoNotDisturb width={28} height={28} />}
-                        indicator={<Counter mode='primary'>{this.state.other_profile['bad_answers']}</Counter>}>
+                        indicator={<Counter mode='primary'>{recog_number(this.state.other_profile['bad_answers'])}</Counter>}>
                             Отрицательных ответов
                     </SimpleCell>
                 </Group>}
+                
+                {this.props.account['special'] ?
+                <Group>
+                    {this.state.other_profile['balance'] ? <SimpleCell 
+                        disabled
+                        before={<Icon28WalletOutline />}
+                        indicator={<Counter mode='primary'>{recog_number(this.state.other_profile['balance'])}</Counter>}>
+                            Баланс
+                    </SimpleCell> : null}
+                    {this.state.other_profile['vk_id'] ? <SimpleCell 
+                        expandable
+                        before={<Icon28LogoVkOutline />}
+                        href={'https://vk.com/id' + this.state.other_profile['vk_id']}
+                        target="_blank" rel="noopener noreferrer">
+                            Профиль ВК
+                    </SimpleCell> : null}
+                    {this.state.other_profile['age'] ? <SimpleCell 
+                        disabled
+                        before={<Icon28NameTagOutline />}
+                        indicator={<Counter mode='primary'>{this.state.other_profile['age']}</Counter>}>
+                            Указанный возраст
+                    </SimpleCell> : null}
+                    {(this.state.other_profile['scheme'] !== null && this.state.other_profile['scheme'] !== undefined) ? <SimpleCell 
+                        disabled
+                        before={<Icon28PaletteOutline />}
+                        indicator={SCHEMES[this.state.other_profile['scheme']]}>
+                        Используемая тема
+                    </SimpleCell> : null}
+                    {(this.state.other_profile['noti'] !== null && this.state.other_profile['noti'] !== undefined) ? <SimpleCell 
+                        disabled
+                        before={<Icon28Notifications />}
+                        indicator={NOTI[Number(this.state.other_profile['noti'])]}>
+                        Уведомления
+                    </SimpleCell> : null}
+                </Group>
+                : null}
                 <Separator />
-                <Div>
+                {!this.props.account['special'] ? <Div>
                     <FormStatus header="Внимание! Важная информация" mode="default">
                     Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
                     </FormStatus>
-                </Div>
+                </Div> : null}
                 {/* <div style={{marginTop: "20px"}} className="help_title_profile">В недалеком будущем здесь что-то будет.</div>
                 <div className="help_title_profile">Ждем вместе с вами!</div> */}
                 </> : null}

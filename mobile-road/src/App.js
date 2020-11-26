@@ -34,7 +34,7 @@ import Icon28ArticleOutline   from '@vkontakte/icons/dist/28/article_outline';
 import Icon28FavoriteOutline  from '@vkontakte/icons/dist/28/favorite_outline';
 
 
-// const queryString = require('query-string');
+const queryString = require('query-string');
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 // const parsedHash = queryString.parse(window.location.search.replace('?', ''));
 // const hash = queryString.parse(window.location.hash);
@@ -232,6 +232,7 @@ class App extends React.Component {
         .then(res => res.json())
         .then(data => {
           if(data.result) {
+            var account_new = data.response;
             this.setState({account: data.response, popout: null, switchKeys: data.response.noti, first_start: data.response.is_first_start})
               if(Number(this.state.account.scheme) === 1){
                 this.setState({scheme: 'bright_light'})
@@ -252,6 +253,37 @@ class App extends React.Component {
                 this.setState({activeStory: 'questions', LoadWebView: true, need_epic: true})
               }
             }
+            // let QuePar = queryString.parse(window.location.search.replace('?', ''));
+            
+            // if(!this.state.account.noti){
+            //   if(+QuePar.vk_are_notifications_enabled){
+            //     fetch(this.state.api_url + "method=notifications.approve&" + window.location.search.replace('?', '')).then(res => res.json()).then(data => {
+            //     if(data.result) {
+            //     }else{
+            //         this.showErrorAlert(data.error.message)
+            //     }
+            //     })
+            //     .catch(err => {
+            //       this.changeData('activeStory', 'disconnect')
+
+            //     })
+            //   }
+            // }else{
+            //   if(!+QuePar.vk_are_notifications_enabled){
+            //     fetch(this.state.api_url + "method=notifications.demiss&" + window.location.search.replace('?', '')).then(res => res.json()).then(data => {
+            //       if(data.result) {
+            //       }else{
+            //           this.showErrorAlert(data.error.message)
+            //       }
+            //       })
+            //       .catch(err => {
+            //         this.changeData('activeStory', 'disconnect')
+  
+            //       })
+            //   }
+            // }
+            // account_new.noti = Boolean(+QuePar.vk_are_notifications_enabled);
+            // this.setState({account: account_new})
           } else {
             if(data.error.error_code !== 5){
                 this.setPopout(

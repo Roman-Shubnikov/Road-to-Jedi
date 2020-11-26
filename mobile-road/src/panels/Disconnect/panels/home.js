@@ -27,9 +27,9 @@ export default class Info extends React.Component{
                 header='Упс, кажется, при запросе возникла ошибка'
                 action={<>
                 <Button size='l' 
-                style={{marginRight: 8}} 
+                style={{marginRight: 8, marginBottom:8}} 
                 href='https://vk.me/jedi_road' 
-                target="_blank" 
+                target="_blank"
                 rel="noopener noreferrer">Связаться с нами</Button>
                 <Button 
                 size='l' 

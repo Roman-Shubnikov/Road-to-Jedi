@@ -19,7 +19,7 @@ import {
     } from '@vkontakte/vkui';
 
 import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
-import Icon28CubeBoxOutline from '@vkontakte/icons/dist/28/cube_box_outline';
+import Icon28WriteSquareOutline from '@vkontakte/icons/dist/28/write_square_outline';
 // import Icon28SyncOutline from '@vkontakte/icons/dist/28/sync_outline';
 import Icon24Spinner from '@vkontakte/icons/dist/24/spinner';
 
@@ -28,7 +28,12 @@ import BannerAvatarMobile from '../../../images/question_banner_mobile.png'
 
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
-
+function enumerate (num, dec) {
+    if (num > 100) num = num % 100;
+    if (num <= 20 && num >= 10) return dec[2];
+    if (num > 20) num = num % 10;
+    return num === 1 ? dec[0] : num > 1 && num < 5 ? dec[1] : dec[2];
+  }
 export default class Questions extends React.Component {
         constructor(props) {
             super(props);
@@ -78,7 +83,7 @@ export default class Questions extends React.Component {
                 left={<>
                 {(this.props.tiket_all && this.props.tiket_all.length > 0) ? 
                 <PanelHeaderButton onClick={() => this.props.this.getRandomTiket()}>
-                    <Icon28CubeBoxOutline/>
+                    <Icon28WriteSquareOutline/>
                 </PanelHeaderButton> : null}
                 {/* {platformname ? null : <PanelHeaderButton onClick={() => this.Prepare_questions(false, true)}><Icon28SyncOutline/></PanelHeaderButton>} */}
                 </>}
@@ -141,7 +146,7 @@ export default class Questions extends React.Component {
                     onClick={() => {this.setState({ fetching: true });this.Prepare_questions(true)}}>Загрузить ещё</Button>
                 </Div>
                 : this.props.tiket_all ?
-                (this.props.tiket_all.length === 0) ? null : <Footer>{this.props.tiket_all.length} вопрос(а) всего</Footer>
+                (this.props.tiket_all.length === 0) ? null : <Footer>{this.props.tiket_all.length} {enumerate(this.props.tiket_all.length, [' вопрос', ' вопроса', ' вопросов'])} всего</Footer>
                  : null :
                 null}
                 {/* {this.state.tiket_all ? this.state.tiket_all.length === 0 ? 

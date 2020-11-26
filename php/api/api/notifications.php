@@ -5,11 +5,29 @@ class SystemNotifications {
 	protected $Connect;
 
 
-	function __construct(DB $Connect ) {
+	function __construct( DB $Connect ) {
 		$this->Connect = $Connect;
 	}
 
-	public function send( int $owner_id, string $text, string $image, array $object, string $comment=null ) {
+	public function send( int $owner_id, string $text, $image=null, array $object, string $comment=null ) {
+		// Types
+		// В object обязательно нужно передать массив где 2 поля "object" и "type" 
+		// В "object" передать номер тикета (по смыслу уведомления)
+		// В "type" передать одно на выбор приведённое ниже
+
+		// add_good_answer - ответ оценён положительно
+		// add_bad_answer - ответ оценён отрицательно
+		// money_transfer_send - Вы отдали монетки пользователю
+		// money_transfer_give - Монетки переведены пользователю
+		// reply_approve - ответ одобрен
+		// comment_add - к ответу добавлен комментарий
+		// donut_add - выдан донат
+		// donut_del - забрали донат
+		// verification_send - подал заявку на верификацию
+		// verification_approve - заявка на верификацию одобрена
+		// verification_demiss - заявка на верификацию отклонена
+		
+		
 		$data = [
 			'owner_id' => $owner_id,
 			'text' => $text,
@@ -24,12 +42,15 @@ class SystemNotifications {
 		$user = $this->Connect->db_get( $sql, [$owner_id] )[0];
 		$ticket_id = $object['object'];
 		$object_lol = $ticket_id != 0 ? "https://vk.com/app7409818#ticket_id={$ticket_id}" : '';
+		
+		
 
 		if( $user['noti'] ) {
 			$data = [
 				'user_id' => $user['vk_user_id'],
 				'random_id' => 0,
 				'message' => "$text\n$object_lol",
+				'dont_parse_links' => 1,
 				'access_token' =>'9e1740c170fe79333a5512e6513f6036ba361fcc0dead0588f0a320e53831679b9bc7adc80208f370e11a',
 				'v' => '5.120'
 			];
@@ -37,6 +58,10 @@ class SystemNotifications {
 			$query = http_build_query( $data );
 			$url = "https://api.vk.com/method/messages.send?{$query}";
 			file_get_contents( $url );
+
+
+			$vkapi = new VKApi();
+			// $apireq = $vkapi->sendNotification( [$user['vk_user_id']], $text, $object_lol);
 		}
 
 		$id = $res[1];
@@ -55,7 +80,12 @@ class Notifications {
 		$this->user = $user;
 		$this->Connect = $Connect;
 	}
-
+	public function approve() {
+		return $this->Connect->query("UPDATE users SET noti=1 WHERE vk_user_id=?", [$this->user->vk_id])[0];
+	}
+	public function demiss() {
+		return $this->Connect->query("UPDATE users SET noti=0 WHERE vk_user_id=?", [$this->user->vk_id])[0];
+	}
 	public function getCount() {
 		$id = $this->user->id;
 

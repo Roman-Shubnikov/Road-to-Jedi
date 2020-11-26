@@ -77,7 +77,7 @@ class Tickets {
 	public function markMessage( int $message_id, int $mark ) {
 		if ( $mark < 0 || $mark > 1 ) return false;
 
-		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.mark, messages.time, messages.text,
+		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.mark, messages.time, messages.text, messages.comment,
 					   users.avatar_id, users.nickname, users.money, avatars.name as avatar_name, messages.approved
 			    FROM messages 
 				LEFT JOIN users
@@ -98,9 +98,13 @@ class Tickets {
 		}
 
 		if ( $res['mark'] != -1 ) {
-			return false;
+			Show::error(38);
+		}
+		if($mark != 1 && !(bool)$res['comment']){
+			Show::error(37);
 		}
 		// Сохраняем оценку в бд
+		$this->Connect->query("UPDATE users SET good_answers=good_answers+1 WHERE id=?",[(int) $this->user->id]);
 		$result = $this->Connect->query("UPDATE messages SET mark=?,approve_author_id=? WHERE id=?",[(int) $mark,(int) $this->user->vk_id,$message_id]);
 
 		// Увеличиваем счетчик оцененных ответов
@@ -130,19 +134,19 @@ class Tickets {
 		$title = trim( $title );
 		$text = trim( $text );
 
-		if ( mb_strlen( $title ) > CONFIG::MAX_TICKETS_TITLE_LEN ) {
+		if ( mb_strlen( $title ) >= CONFIG::MAX_TICKETS_TITLE_LEN ) {
 			Show::error(20);
 		}
 
-		if ( mb_strlen( $text ) > CONFIG::MAX_TICKETS_TEXT_LEN ) {
+		if ( mb_strlen( $text ) >= CONFIG::MAX_TICKETS_TEXT_LEN ) {
 			Show::error(21);
 		}
 
-		if ( mb_strlen( $title ) < CONFIG::MIN_MESSAGE_LEN ) {
+		if ( mb_strlen( $title ) <= CONFIG::MIN_MESSAGE_LEN ) {
 			Show::error(24);
 		}
 
-		if ( mb_strlen( $text ) < CONFIG::MIN_MESSAGE_LEN ) {
+		if ( mb_strlen( $text ) <= CONFIG::MIN_MESSAGE_LEN ) {
 			Show::error(23);
 		}
 		// -$this->user->vk_id
@@ -168,11 +172,11 @@ class Tickets {
 			Show::error(30);
 		}
 
-		if ( mb_strlen( $text ) > CONFIG::MAX_TICKETS_TEXT_LEN ) {
+		if ( mb_strlen( $text ) >= CONFIG::MAX_TICKETS_TEXT_LEN ) {
 			Show::error(21);
 		}
 
-		if ( mb_strlen( $text ) < CONFIG::MIN_MESSAGE_LEN ) {
+		if ( mb_strlen( $text ) <= CONFIG::MIN_MESSAGE_LEN ) {
 			Show::error(23);
 		}
 
@@ -256,7 +260,8 @@ class Tickets {
 			if(!$this->user->info['special']){
 				$cond = "AND (messages.author_id = $author_ticket OR messages.author_id = $viewer OR messages.approved = 1)";
 			}else{
-				$cond = "AND (messages.mark=-1 or messages.mark=1 or messages.author_id = $viewer)";
+				// $cond = "AND (messages.mark=-1 or messages.mark=1 or messages.author_id = $viewer)";
+				$cond = "AND (messages.mark=-1 or messages.mark=1 or messages.author_id = $viewer) OR (messages.mark=0 AND comment=null)";
 			}
 			
 		}
@@ -284,7 +289,7 @@ class Tickets {
 					'nickname' => $message['nickname'],
 					'avatar' => [
 						'id' => (int) $message['avatar_id'],
-						'url' => $message['avatar_name'] ? CONFIG::AVATAR_PATH . '/' . $message['avatar_name'] : CONFIG::AVATAR_PATH . '/' . rand(1, CONFIG::AVATARS_COUNT) . '.png',
+						'url' => $message['avatar_name'] ? CONFIG::AVATAR_PATH . '/' . $message['avatar_name'] : CONFIG::AVATAR_PATH . '/10007.png',
 					],
 					'is_moderator' => true,
 					'is_special' => (bool) $message['special'],
@@ -381,22 +386,21 @@ class Tickets {
 			Show::error(25);
 		}
 
+		$len = mb_strlen($text);
 
-		if ( mb_strlen( $text ) > CONFIG::MAX_TICKETS_TEXT_LEN ) {
+		if ( $len > CONFIG::MAX_TICKETS_TEXT_LEN ) {
 			Show::error(21);
 		}
 
-		if ( mb_strlen( $text ) < CONFIG::MIN_MESSAGE_LEN ) {
+		if ($len < CONFIG::MIN_MESSAGE_LEN ) {
 			Show::error(23);
 		}
-
 		$auid = $this->user->id;
-		$notification = substr( $text, 0, 150 ).'...';
-		$data = [
-			'comment' => $text,
-			'comment_author_id' => $auid
-		];
-
+		// $notification = substr( $text, 0, 150 );
+		// if($len > 150){
+		// 	$notification .= '...';
+		// }
+		$notification = "Администрация оставила комментарий к вашему ответу";
 		$object = [
 			'type' => 'comment_add',
 			'object' => $res['ticket_id']
@@ -433,10 +437,6 @@ class Tickets {
 		}
 
 		$auid = $this->user->id;
-		$data = [
-			'comment' => $new_text,
-			'comment_author_id' => $auid
-		];
 		$res = $this->Connect->query("UPDATE messages SET comment=?, comment_author_id=? WHERE id=?", [$new_text,$auid,$message_id]);
 		return $res[0];
 	}
@@ -458,11 +458,6 @@ class Tickets {
 		if ( $res['comment_author_id'] !== $this->user->id ) {
 			Show::error(403);
 		}
-
-		$data = [
-			'comment' => '',
-			'comment_author_id' => 0
-		];
 		$res = $this->Connect->query("UPDATE messages SET comment='', comment_author_id=0 WHERE id=?", [$message_id]);
 		return $res[0];
 	}

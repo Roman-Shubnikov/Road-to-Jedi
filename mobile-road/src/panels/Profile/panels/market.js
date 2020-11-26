@@ -291,7 +291,7 @@ export default class Market extends React.Component{
                     style={{marginRight: "5px"}}/>} 
                     size="xl" 
                     mode="secondary"
-                    disabled={(this.state.last_selected !== null) ? false : true}>Сменить за 1 монетку</Button>
+                    disabled={(this.state.last_selected !== null) ? false : true}>Сменить за 700 монеток</Button>
                 </Div>
                 <Separator />
                 <Header>Сменить свой ник</Header>
@@ -310,7 +310,7 @@ export default class Market extends React.Component{
                       stretched
                       size="l" 
                       mode="secondary"
-                      disabled={(this.state.changed_id <= 0) ? true : false}>Сменить за 2 монетки</Button>
+                      disabled={(this.state.changed_id <= 0) ? true : false}>Сменить за 1500 монеток</Button>
                     <Button 
                     stretched
                     onClick={() => this.setPopout(<Alert

@@ -3,9 +3,10 @@ class Account {
 	protected $user = null;
 	protected $Connect;
 
-	function __construct( Users $user,DB $Connect ) {
+	function __construct( Users $user,DB $Connect,SystemNotifications $SYSNotif ) {
 		$this->user = $user;
 		$this->Connect = $Connect;
+		$this->SYSNOTIF = $SYSNotif;
     }
 
     public function ChangeAge($age) {
@@ -57,8 +58,11 @@ class Account {
             'time' => time(),
 		];
 		
-		// global $mysqli;
-		// return $mysqli->error;
+		$notification = 'Вы подали заявку на верификацию';
+		$object = [
+			'type' => 'verification_send'
+		];
+		$this->SYSNOTIF->send( $aid, $notification, null, $object );
 		return $this->Connect->query("INSERT INTO request_verification (aid,title,descverf,time) VALUES (?,?,?,?)", [$aid,$title,$desc,time()])[0];
 	}
 	public function getVerfStatus(){

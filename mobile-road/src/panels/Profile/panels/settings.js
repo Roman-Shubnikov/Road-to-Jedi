@@ -13,6 +13,8 @@ import {
     CellButton,
     PromoBanner,
     FixedLayout,
+    Switch,
+    ScreenSpinner,
     } from '@vkontakte/vkui';
 
 import {platform, IOS} from '@vkontakte/vkui';
@@ -24,6 +26,7 @@ import Icon28PaletteOutline from '@vkontakte/icons/dist/28/palette_outline';
 import Icon28TargetOutline from '@vkontakte/icons/dist/28/target_outline';
 import Icon28InfoOutline from '@vkontakte/icons/dist/28/info_outline';
 import Icon28FavoriteOutline from '@vkontakte/icons/dist/28/favorite_outline';
+import Icon28Notifications from '@vkontakte/icons/dist/28/notifications';
 
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 export default class Settings extends React.Component{
@@ -31,7 +34,8 @@ export default class Settings extends React.Component{
         super(props)
         this.state = {
             api_url: "https://xelene.ru/road/php/index.php?",
-            ShowBanner: true
+            ShowBanner: true,
+            noti: this.props.account ? this.props.account.noti : null,
 
         }
         var propsbi = this.props.this;
@@ -63,16 +67,104 @@ export default class Settings extends React.Component{
     nofinc(){
       return
     }
-    componentDidMount(){
-      // if(platformname){
-      //   this.setPopout(<ScreenSpinner/>)
-      // }
-      // setTimeout(() => {
-      //   if(this.props.popout && this.props.popout.type.name === "ScreenSpinner"){
-      //     this.setPopout(null)
-      //   }
-      // },5000)
+    demissNotif(){
+      fetch(this.state.api_url + "method=notifications.demiss&" + window.location.search.replace('?', ''))
+      .then(res => res.json())
+      .then(data => {
+      if(data.result) {
+        this.setState({noti: false})
+        this.setPopout(null)
+      }else{
+          this.showErrorAlert(data.error.message)
+      }
+      })
+      .catch(err => {
+        this.props.this.changeData('activeStory', 'disconnect')
 
+      })
+    }
+    approveNotif(){
+      fetch(this.state.api_url + "method=notifications.approve&" + window.location.search.replace('?', ''))
+      .then(res => res.json())
+      .then(data => {
+      if(data.result) {
+        this.setState({noti: true})
+        this.setPopout(null)
+      }else{
+          this.showErrorAlert(data.error.message)
+      }
+      })
+      .catch(err => {
+        this.props.this.changeData('activeStory', 'disconnect')
+
+      })
+    }
+    changeNotifStatus(notif){
+      notif = notif.currentTarget.checked;
+      this.setPopout(<ScreenSpinner />)
+      if(notif){
+        fetch(this.state.api_url + "method=notifications.approve&" + window.location.search.replace('?', ''))
+        .then(res => res.json())
+        .then(data => {
+        if(data.result) {
+          this.setState({noti: notif})
+          this.setPopout(<Alert
+            actionsLayout='vertical'
+            actions={[{
+              title: 'Разрешить',
+              autoclose: true,
+              mode: 'default',
+              action: () => {
+                bridge.send("VKWebAppAllowMessagesFromGroup", {"group_id": 188280516})
+                .then(data => {
+                  // bridge.send("VKWebAppAllowNotifications")
+                  // .then(data => {})
+                  // .catch(() => {this.demissNotif()})
+                  setTimeout(() => {
+                    this.props.ReloadProfile()
+                  }, 1000)
+                  
+                })
+                .catch(() => {this.demissNotif()})
+            },
+            },{
+              title: 'Нет, спасибо',
+              autoclose: true,
+              mode: 'cancel',
+              action: () => {this.demissNotif()},
+              
+            },]}
+            onClose={() => this.setPopout(null)}
+          >
+            <h2>Внимание!</h2>
+            <p>Включая уведомления, Вы соглашаетесь что они могут приходить вам неограниченное кол-во раз, в неогранниченный промежуток времени (по возможности и в соответствии с вашими действиями в приложении), но для этого нам нужен доступ к ним. 
+              Если вы не согласны с данным условием, то не включайте их.
+              <br />
+              Вы всегда можете их отключить. 
+              Хотите получать уведомления, а так же уведомления в лс?</p>
+        </Alert>)
+        }else{
+            this.showErrorAlert(data.error.message)
+        }
+        })
+        .catch(err => {
+          this.props.this.changeData('activeStory', 'disconnect')
+
+        })
+      }else{
+        bridge.send("VKWebAppDenyNotifications")
+        .then(data => {
+          this.demissNotif()
+          setTimeout(() => {
+            this.props.ReloadProfile()
+          }, 1000)
+        }).catch(() => {
+          this.approveNotif();
+        })
+        
+      }
+    }
+    componentDidMount(){
       bridge.send('VKWebAppGetAds')
     .then((promoBannerProps) => {
         this.setState({ promoBannerProps });
@@ -111,7 +203,15 @@ export default class Settings extends React.Component{
                   onClick={!this.props.account['verified'] ? () => props.goPanel('verf') : () => this.nofinc()}
                   before={<Icon28DoneOutline />}>Верификация</SimpleCell>
 
-                  
+                  <SimpleCell
+                    before={<Icon28Notifications />}
+                    disabled 
+                    after={
+                    <Switch 
+                      className='pointer'
+                      checked={this.state.noti}
+                      onChange={(e) => this.changeNotifStatus(e)} />
+                    }>Получать уведомления</SimpleCell>
                 </Group>
                 <Group>
                   <SimpleCell
@@ -128,6 +228,7 @@ export default class Settings extends React.Component{
                   before={<Icon28FavoriteOutline/>}>VK Donut</SimpleCell>}
                 </Group>
                 <Group>
+                  
                   <SimpleCell
                   className='pointer'
                   expandable

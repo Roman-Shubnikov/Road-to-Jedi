@@ -13,6 +13,8 @@ import {
     Div,
     FormStatus,
     PullToRefresh,
+    Progress,
+    InfoRow,
     } from '@vkontakte/vkui';
 
 import Icon12Fire from '@vkontakte/icons/dist/12/fire';
@@ -33,6 +35,12 @@ function isEmpty(obj) {
     }
     return true;
   }
+function enumerate (num, dec) {
+    if (num > 100) num = num % 100;
+    if (num <= 20 && num >= 10) return dec[2];
+    if (num > 20) num = num % 10;
+    return num === 1 ? dec[0] : num > 1 && num < 5 ? dec[1] : dec[2];
+}
 
 export default class Profile extends React.Component{
     constructor(props) {
@@ -95,6 +103,18 @@ export default class Profile extends React.Component{
                             </div>
                             
                         </SimpleCell>
+                        {(this.props.account['marked'] !== null && this.props.account['marked'] !== undefined) ? <Div>
+                            <FormStatus onClick={() => this.setActiveModal('answers')}>
+                                <div style={{textAlign: 'center', color: "var(--text_profile)", marginBottom: 15}}>
+                                    Вы оценили <span style={{fontWeight: 700, color:'var(--header_text)'}}>{this.props.account['marked']} {enumerate(this.props.account['marked'], ['ответ', 'ответа', 'ответов'])}</span> Агентов Поддержки
+                                </div>
+                                <InfoRow>
+                                    <Progress 
+                                    value={this.props.account['marked'] ? Math.floor(this.props.account['marked'] / 1000 * 100) : 0} />
+                                    <div style={{textAlign: 'right', color: "var(--text_profile)", marginTop: 10, fontSize: 13}}>1000</div>
+                                </InfoRow>
+                            </FormStatus>
+                        </Div> : null}
                         <Separator />
                         <Div>
                             <Button
@@ -104,7 +124,6 @@ export default class Profile extends React.Component{
                             onClick={() => this.props.this.goPanel('settings')}
                             >Настройки</Button>
                         </Div>
-                        
                         <Separator />
                         <Group>
                             <SimpleCell
@@ -118,13 +137,13 @@ export default class Profile extends React.Component{
 
                         </Group>
                         <Group>
-                            <SimpleCell
+                            {this.props.account['special'] || <SimpleCell
                             expandable
                             className='pointer'
                             onClick={() => {
                                 this.props.this.goPanel('qu');
                             }}
-                            before={<Icon28PollSquareOutline />}>Мои ответы</SimpleCell>
+                            before={<Icon28PollSquareOutline />}>Мои ответы</SimpleCell>}
                             <SimpleCell
                             expandable
                             className='pointer'
@@ -132,7 +151,8 @@ export default class Profile extends React.Component{
                                 this.props.this.goPanel('market');
                             }}
                             before={<Icon28MarketOutline />}>Магазин</SimpleCell>
-                            {/* props.this.state.profile['balance'] Вынести отдельно в магазин */}
+                            
+                            
                             {/* 
                             <SimpleCell
                             expandable
@@ -154,11 +174,11 @@ export default class Profile extends React.Component{
                             before={<Icon24ShareOutline />}>Поделиться профилем</SimpleCell> */}
                             
                         </Group>
-                        <Div>
+                        {!this.props.account['special'] ? <Div>
                             <FormStatus header="Внимание! Важная информация" mode="default">
                             Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
                             </FormStatus>
-                        </Div>
+                        </Div> : null}
                         {/* <Group>
                             <SimpleCell
                             onClick={() => {

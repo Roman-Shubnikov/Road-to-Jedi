@@ -77,4 +77,13 @@ class VKApi {
 
 		return $this->_request( 'groups.isMember', $data );
 	}
+
+	public function sendNotification(array $user_ids, $message, $fragment=null){
+		$data = [
+			'message' => $message,
+			'user_ids' => $user_ids,
+			'fragment' => $fragment,
+		];
+		return $this->_request( 'notifications.sendMessage', $data );
+	}
 }

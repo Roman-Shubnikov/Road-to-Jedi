@@ -61,8 +61,15 @@ export default class Main extends React.Component {
         // this.recordHistory = (panel) => {
         //   this.setState({history: [...this.state.history, panel]})
         // }
-        this.getTopUsers = () => {
-          fetch(this.state.api_url + "method=users.getTop&" + window.location.search.replace('?', ''))
+        this.getTopUsers = (staff=false) => {
+          fetch(this.state.api_url + "method=users.getTop&" + window.location.search.replace('?', ''),
+          {method: 'post',
+            headers: {"Content-type": "application/json; charset=UTF-8"},
+                // signal: controllertime.signal,
+            body: JSON.stringify({
+              'staff': staff
+          })
+            })
           .then(res => res.json())
           .then(data => {
             if(data.result) {

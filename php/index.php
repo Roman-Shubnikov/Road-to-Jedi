@@ -1,6 +1,6 @@
 <?php
 
-// ini_set('error_reporting', E_ALL);
+// ini_set('error_reporting', E_ERROR);
 // ini_set('display_errors', 1);
 // ini_set('display_startup_errors', 1);
 // mysqli_report(MYSQLI_REPORT_STRICT); 
@@ -153,7 +153,12 @@ $params = [
 		]
 	],
 	'users.getRandom' => [],
-	'users.getTop' => [],
+	'users.getTop' => [
+		'staff' => [
+			'type' => 'bool',
+			'required' => false
+		]
+	],
 	'ticket.getRandom' => [],
 
 	'tickets.getMy' => [
@@ -206,6 +211,12 @@ $params = [
 			'type' => 'int',
 			'required' => true
 		]
+	],
+	'ticket.unmarkMessage' => [
+		'message_id' => [
+			'type' => 'int',
+			'required' => true
+		],
 	],
 
 	'ticket.add' => [
@@ -382,6 +393,20 @@ $params = [
 	'notifications.get' => [],
 	'notifications.markAsViewed' => [],
 	'notifications.getCount' => [],
+	'notifications.approve' => [],
+	'notifications.demiss' => [],
+
+	
+	'special.getAllMessages' => [
+		'offset' => [
+			'type' => 'intorstr',
+			'required' => true
+		],
+		'count' => [
+			'type' => 'int',
+			'required' => true
+		],
+	],
 ];
 $user_id = (int) $_GET['vk_user_id'];
 $method = $_GET['method'];
@@ -403,10 +428,11 @@ Utils::checkParams($params[$method], $data);
 
 $Connect = new DB();
 $users = new Users( $user_id, $Connect );
-$account = new Account( $users,$Connect );
-$sysnotifications = new SystemNotifications($Connect );
-$tickets = new Tickets( $users,$Connect,$sysnotifications );
 $notifications = new Notifications( $users,$Connect );
+$sysnotifications = new SystemNotifications( $Connect );
+$account = new Account( $users,$Connect,$sysnotifications );
+$tickets = new Tickets( $users,$Connect,$sysnotifications );
+
 
 function getBalance() {
 	global $Connect, $user_id;
@@ -486,7 +512,13 @@ switch ( $method ) {
 		Show::response( $users->getByIds( $ids ) );
 
 	case 'users.getTop':
-		Show::response( $users->getTop() );
+		$staff = ($data['staff'] != null) ? (int) $data['staff'] : false;
+		if($staff){
+			if ( !$users->info['special'] ) {
+				$staff = false;
+			}
+		}
+		Show::response( $users->getTop($staff) );
 	
 	case 'users.getRandom':
 		Show::response( $users->getRandom() );
@@ -614,6 +646,35 @@ switch ( $method ) {
 
 		Show::response( $tickets->markMessage( $id, $mark ) );
 
+	case 'ticket.unmarkMessage':
+		$id = (int) $data['message_id'];
+		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.mark, messages.time, messages.text,
+					   users.avatar_id, users.nickname, users.money, avatars.name as avatar_name, messages.approved
+			    FROM messages 
+				LEFT JOIN users
+				ON messages.author_id > 0 AND messages.author_id = users.id
+				LEFT JOIN avatars
+				ON users.avatar_id = avatars.id
+				WHERE messages.id=?";
+		$res = $Connect->db_get( $sql,[$id] )[0];
+		if ( !$users->info['special'] ) {
+			Show::error(32);
+		}
+		if( $res['author_id'] < 0) {
+			Show::error(33);
+		}
+		if ( $res['mark'] == -1 ) {
+			Show::error(39);
+		}
+		$mark = $res['mark'];
+		$auid = $res['author_id'];
+		$good_or_bad = $mark == 1 ? 'good_answers' : 'bad_answers';
+		$money = $mark == 1 ? 'money=money-10' : 'money=money';
+		$sql = "UPDATE users SET $good_or_bad = $good_or_bad - 1, $money WHERE id=?";
+		$Connect->query( $sql,[$auid]);
+
+		Show::response( $Connect->query("UPDATE messages SET mark=-1, approve_author_id=null WHERE id=?", [$id]));
+
 	case 'ticket.deleteMessage':
 		$id = (int) $data['message_id'];
 		Show::response( $tickets->deleteMessage( $id ) );
@@ -626,6 +687,13 @@ switch ( $method ) {
 
 	case 'notifications.getCount':
 		Show::response( $notifications->getCount() );
+
+	case 'notifications.approve':
+		Show::response( $notifications->approve() );
+
+	case 'notifications.demiss':
+		Show::response( $notifications->demiss() );
+
 	case 'shop.changeId':
 		$id = trim($data['change_id']);
 		$len = mb_strlen($id);
@@ -635,10 +703,10 @@ switch ( $method ) {
 		if(preg_match(CONFIG::REGEXP_VALID_NAME, $id)){
 			if( $len < 11 && $len > 0 ) {
 				$balance_profile = getBalance();
-				if( $balance_profile >= 2 ) {
+				if( $balance_profile >= CONFIG::NICKNAME_CHANGE_PRICE ) {
 					$check_id = $Connect->db_get("SELECT id FROM users WHERE nickname = ?", [$id, $id]);
 					if( count($check_id) == 0 ) {
-						$Connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$balance_profile - 2,$user_id]);
+						$Connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$balance_profile - CONFIG::NICKNAME_CHANGE_PRICE,$user_id]);
 						$Connect->query("UPDATE users SET nickname=? WHERE vk_user_id=?", [$id, $user_id]);
 						Show::response(
 							['balance' => $balance_profile - 2]
@@ -664,8 +732,8 @@ switch ( $method ) {
 		$id = $data['avatar_id'];
 		if( $id <= CONFIG::AVATARS_COUNT && $id > 0 ) {
 			$balance = getBalance();
-			if( $balance >= 1 ) {
-				$edit = $Connect->query("UPDATE users SET money=?,avatar_id=? WHERE vk_user_id=?", [$balance - 1,$id,$user_id]);
+			if( $balance >= CONFIG::AVATAR_PRICE ) {
+				$edit = $Connect->query("UPDATE users SET money=?,avatar_id=? WHERE vk_user_id=?", [$balance - CONFIG::AVATAR_PRICE,$id,$user_id]);
 				Show::response(['edit' => $edit]);
 			} else {
 				Show::error(1002);
@@ -704,11 +772,11 @@ switch ( $method ) {
 
 						$help = $Connect->query("UPDATE users SET money=? WHERE id=?", [$balanceTo['money'] + $summa, $idTo]);
 
-						$sysnotifications->send($idTo, "Вам поступил перевод в размере $summa монеток от агента номер $idWhoSend", $avatar, [
+						$sysnotifications->send($idTo, "Вам поступил перевод в размере $summa монеток от агента #$idWhoSend", $avatar, [
 							'type' => 'money_transfer_give',
 							'object' => 0
 						], $comment);
-						$sysnotifications->send($idWhoSend, "Вы успешно перевели $summa монеток агенту номер $idTo", $avatarTo, [
+						$sysnotifications->send($idWhoSend, "Вы успешно перевели $summa монеток агенту #$idTo", $avatarTo, [
 							'type' => 'money_transfer_send',
 							'object' => 0
 						]);
@@ -727,4 +795,12 @@ switch ( $method ) {
 		} else {
 			Show::error(1006);
 		}
+
+	case 'special.getAllMessages':
+		$count = (int) $data['count'];
+		$offset = (int) $data['offset'];
+		if ( !$users->info['special'] ) {
+			Show::error(403);
+		}
+		Show::response( $Connect->query("SELECT * FROM messages order by id asc LIMIT $offset, $count"));
 }
