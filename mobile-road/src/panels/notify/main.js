@@ -8,7 +8,6 @@ import {
   ScreenSpinner,
   ModalRoot,
   ModalCard,
-  Input,
 
   } from '@vkontakte/vkui';
 
@@ -23,6 +22,7 @@ import OtherProfile from '../../components/other_profile'
 import ModalPrometay from '../../Modals/Prometay';
 import ModalDonut from '../../Modals/Donut'
 import ModalComment from '../../Modals/Comment';
+import ModalBan from '../../Modals/Ban';
 
 
 
@@ -235,25 +235,12 @@ export default class Notify extends React.Component {
               id='donut'
               onClose={() => this.setActiveModal(null)}
               action={() => this.setActiveModal(null)} />
-              <ModalCard
-                id='ban_user'
-                onClose={() => this.setActiveModal(null)}
-                icon={<Avatar src={this.state.other_profile ? this.state.other_profile['avatar']['url'] : null} size={72} />}
-                header="Забанить пользователя"
-                actions={[{
-                  title: 'Забанить! 🤬',
-                  mode: 'secondary',
-                  action: () => {
-                    this.userBan(this.state.other_profile ? this.state.other_profile['id'] : 0, this.state.ban_reason);
-                    console.log(this.state.other_profile['id'])
-                  }
-                }]}
-              >
-                <Input disabled value={this.state.other_profile ? (this.state.other_profile['id'] < 0) ? -this.state.other_profile['id'] : this.state.other_profile['id'] : null}/>
-                <br/>
-                <Input maxLength="100" name="ban_reason" onChange={(e) => this.onChange(e)} placeholder="Введите причину бана" value={this.state.ban_reason} />
-                
-              </ModalCard>
+              <ModalBan 
+              id='ban_user'
+              onClose={() => this.setActiveModal(null)}
+              other_profile={this.state.other_profile}
+              this={this}
+              />
               
               <ModalCard
                 id='transfer'

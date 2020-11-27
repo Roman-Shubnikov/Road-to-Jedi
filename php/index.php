@@ -128,10 +128,9 @@ $params = [
 			'type' => 'int',
 			'required' => true
 		],
-		'banned' => [
-			'type' => 'bool',
-			'required' => false,
-			'default' => FALSE
+		'timeban' => [
+			'type' => 'int',
+			'required' => true,
 		],
 		'reason' => [
 			'type' => 'string',
@@ -471,9 +470,9 @@ switch ( $method ) {
 		if($agent_id < 0){
 			$agent_id = $users->getIdByVKId(-$agent_id);
 		}
-		$banned = (bool) $data['banned'];
 		$ban_reason = (string) $data['reason'];
-		Show::response( $account->Ban_User( $agent_id, $banned, $ban_reason ) );
+		$timeban = (int) $data['timeban'];
+		Show::response( $account->Ban_User( $agent_id,$ban_reason, $timeban ) );
 
 	case 'account.getVerfStatus':
 		Show::response( $account->getVerfStatus() );
@@ -566,25 +565,25 @@ switch ( $method ) {
 		Show::response( $tickets->sendMessage( $id, $text ) );
 
 	case 'ticket.editMessage':
-		$id = isset( $data['message_id'] ) ? $data['message_id'] : $data['message_id'];
+		$id = $data['message_id'];
 		$text = trim($data['text']);
 
 		Show::response( $tickets->editMessage( $id, $text ) );
 
 	case 'ticket.commentMessage':
-		$id = isset( $data['message_id'] ) ? $data['message_id'] : $data['message_id'];
+		$id = $data['message_id'];
 		$text = trim($data['text']);
 
 		Show::response( $tickets->commentMessage( $id, $text ) );
 
 	case 'ticket.editComment':
-		$id = isset( $data['message_id'] ) ? $data['message_id'] : $data['message_id'];
+		$id = $data['message_id'];
 		$text = trim($data['text']);
 
 		Show::response( $tickets->editComment( $id, $text ) );
 
 	case 'ticket.deleteComment':
-		$id = isset( $data['message_id'] ) ? $data['message_id'] : $data['message_id'];
+		$id = $data['message_id'];
 
 		Show::response( $tickets->deleteComment( $id ) );
 
@@ -802,5 +801,5 @@ switch ( $method ) {
 		if ( !$users->info['special'] ) {
 			Show::error(403);
 		}
-		Show::response( $Connect->query("SELECT * FROM messages order by id asc LIMIT $offset, $count"));
+		Show::response( $Connect->db_get("SELECT * FROM messages WHERE author_id>0 order by id asc LIMIT $offset, $count"));
 }

@@ -1,2 +1,3 @@
-mobile-road/build
-mobile-road/node_modules
+mobile-road/build/
+mobile-road/node_modules/
+.vscode/

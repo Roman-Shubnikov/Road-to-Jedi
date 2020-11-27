@@ -354,11 +354,10 @@ a{
     width: 15px;
     background: var(--message_icon_moder);
     border: solid var(--message_icon_moder) 1px;
-    z-index: 0;
     margin-top: -35px;
     margin: 2% 2% 2% 0;
     right: 69%;
-    z-index: 5;
+    z-index: 1;
     padding: 8px 10px 10px 10px;
     border-radius: 50%;
     box-shadow: 0px 0px 1px 0px var(--message_icon_moder);

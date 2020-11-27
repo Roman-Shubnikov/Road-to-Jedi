@@ -16,6 +16,7 @@ import {
     ActionSheet,
     ActionSheetItem,
     PanelHeaderBack,
+    Placeholder,
     } from '@vkontakte/vkui';
 
 import Icon28RecentOutline from '@vkontakte/icons/dist/28/recent_outline';
@@ -30,6 +31,7 @@ import Icon28PaletteOutline from '@vkontakte/icons/dist/28/palette_outline';
 import Icon28NameTagOutline from '@vkontakte/icons/dist/28/name_tag_outline';
 import Icon28InfoOutline from '@vkontakte/icons/dist/28/info_outline';
 import Icon28Notifications from '@vkontakte/icons/dist/28/notifications';
+import Icon56DurationOutline from '@vkontakte/icons/dist/56/duration_outline';
 
 
 function fix_time(time) {
@@ -70,6 +72,25 @@ const NOTI = [
             this.setPopout = propsbi.setPopout;
             this.showErrorAlert = propsbi.showErrorAlert;
             this.setActiveModal = propsbi.setActiveModal;
+        }
+        convertStandartDate(num){
+            let out = '';
+            if(num < 10){
+                out = "0" + num;
+            }else{
+                out = num;
+            }
+            return out;
+        }
+        convertTime(timei){
+            let out = '';
+            let time = new Date(timei * 1000);
+            out = this.convertStandartDate(time.getDate()) + 
+            '.' + (this.convertStandartDate(time.getMonth() + 1)) + 
+            '.' + time.getFullYear() + 
+            ' ' + this.convertStandartDate(time.getHours()) + 
+            ':' + this.convertStandartDate(time.getMinutes())
+            return out;
         }
         PrepareProfile(is_change=false){
             fetch(this.state.api_url + "method=user.getById&" + window.location.search.replace('?', ''),
@@ -205,7 +226,7 @@ const NOTI = [
                         <span className='pointer' onClick={() => this.copy(this.state.other_profile['id'], this.state.other_profile['flash'])}>Профиль</span>
                 </PanelHeader>
                 
-                {this.state.other_profile ? <>
+                {this.state.other_profile && !this.state.other_profile['banned'] ? <>
                 <Cell
                   description={
                       <div className="description_other_profile">
@@ -307,7 +328,24 @@ const NOTI = [
                 </Div> : null}
                 {/* <div style={{marginTop: "20px"}} className="help_title_profile">В недалеком будущем здесь что-то будет.</div>
                 <div className="help_title_profile">Ждем вместе с вами!</div> */}
-                </> : null}
+                </> : 
+                this.state.other_profile ?
+                (this.state.other_profile['banned']['time_end'] === 0) ?
+                <Placeholder 
+                stretched
+                icon={<Icon56DurationOutline style={{color: 'var(--dynamic_red)'}} />}>
+                    Этот аккаунт был заблокирован навсегда<br/>
+                    {this.state.other_profile['banned']['reason'] ? "Причина: " + this.state.other_profile['banned']['reason'] : null}
+                </Placeholder>
+                :
+                <Placeholder 
+                stretched
+                icon={<Icon56DurationOutline style={{color: 'var(--dynamic_red)'}} />}>
+                    Этот аккаунт был временно заблокирован<br/>
+                    До: {this.convertTime(this.state.other_profile.banned.time_end)}<br />
+                    {this.state.other_profile['banned']['reason'] ? "Причина: " + this.state.other_profile['banned']['reason'] : null}
+                </Placeholder> 
+                : null}
             </Panel>
             )
             }

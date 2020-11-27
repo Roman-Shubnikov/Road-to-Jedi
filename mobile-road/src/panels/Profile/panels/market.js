@@ -60,7 +60,7 @@ var avatars = [
     "30.png",
     "31.png",
     "32.png",
-
+    "33.png",
 ]
 
 const blueBackground = {

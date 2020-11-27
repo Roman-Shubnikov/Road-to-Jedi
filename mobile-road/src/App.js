@@ -34,7 +34,7 @@ import Icon28ArticleOutline   from '@vkontakte/icons/dist/28/article_outline';
 import Icon28FavoriteOutline  from '@vkontakte/icons/dist/28/favorite_outline';
 
 
-const queryString = require('query-string');
+// const queryString = require('query-string');
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 // const parsedHash = queryString.parse(window.location.search.replace('?', ''));
 // const hash = queryString.parse(window.location.hash);
@@ -64,7 +64,7 @@ class App extends React.Component {
             need_epic: true,
             first_start: false,
             LoadWebView: false,
-            BanReason: null,
+            BanObject: null,
 
         };
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -159,7 +159,7 @@ class App extends React.Component {
           snackbar: null,
           switchKeys: false,
           first_start: false,
-          BanReason: null,
+          BanObject: null,
       })
       this.audio = new Audio(music)
       this.audio.load()
@@ -232,7 +232,7 @@ class App extends React.Component {
         .then(res => res.json())
         .then(data => {
           if(data.result) {
-            var account_new = data.response;
+            // var account_new = data.response;
             this.setState({account: data.response, popout: null, switchKeys: data.response.noti, first_start: data.response.is_first_start})
               if(Number(this.state.account.scheme) === 1){
                 this.setState({scheme: 'bright_light'})
@@ -299,7 +299,7 @@ class App extends React.Component {
                     <p>{data.error.message}</p>
                         </Alert>)
             }else{
-              this.setState({BanReason: data.error.error_obj.reason, activeStory: 'banned', LoadWebView: true})
+              this.setState({BanObject: data.error.error_obj, activeStory: 'banned', LoadWebView: true})
             }
           }
         })
@@ -451,7 +451,7 @@ class App extends React.Component {
                 reloadProfile={this.LoadProfile}
                 scheme={this.state.scheme}
                 account={this.state.account}
-                reason={this.state.BanReason}
+                BanObject={this.state.BanObject}
                 popout={this.state.popout} />
                 <Unsupport 
                 id="unsupport"

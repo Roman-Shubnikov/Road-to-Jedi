@@ -26,7 +26,8 @@ class Users {
 		$this->id = $this->info['id'];
 
 		if ( $this->info['banned'] ) {
-			Show::error(5, ['reason' => $this->info['ban_reason']]);
+			$ban = $this->info['banned'];
+			Show::error(5, ['reason' => $ban['reason'], 'time_end' => (int)$ban['time_end']]);
 			// throw new Exception( ERRORS[5] . $this->info['ban_reason'], 5 );
 		}
 	}
@@ -40,10 +41,39 @@ class Users {
 
 		return $this->_formatType( $info );
 	}
+	public function checkBanned(int $vk_id, bool $all=false, $inactive=false){
+		if($inactive){
+			$sql = "SELECT reason, time_end FROM banned WHERE vk_user_id=? ORDER BY time_end DESC";
+		}else{
+			$sql = "SELECT reason, time_end FROM banned WHERE vk_user_id=? AND (time_end>? AND time_end != 0) ORDER BY time_end DESC";
+		}
+		if(!$all){
+			$sql .= " LIMIT 1";
+		}
+		if($inactive){
+			$banned = $this->Connect->db_get($sql, [$vk_id]);
+		}else{
+			$banned = $this->Connect->db_get($sql, [$vk_id, time()]);
+		}
+		if(empty($banned)){
+			return false;
+		}else{
+			if(count($banned) == 1){
+				$res = $banned;
+			}else{
+				$res = [];
+				foreach($banned as $val) {
+					$res[] = ['reason' => $val['reason'], 'time_end' => $val['time_end']];
+				}
+			}
+		}
+		
+		return $res;
+	}
 
 	public function getById( int $id ) {
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, 
-				users.bad_answers, users.avatar_id, avatars.name as avatar_name, users.flash, users.verified, users.donut, users.nickname, users.banned, users.ban_reason, 
+				users.bad_answers, users.avatar_id, avatars.name as avatar_name, users.flash, users.verified, users.donut, users.nickname,
 				users.money, users.age, users.scheme, users.vk_user_id
 				FROM users
 				LEFT JOIN avatars
@@ -54,8 +84,13 @@ class Users {
 		if ( empty( $res ) ) {
 			Show::error(40);
 		}
-
-		return $this->_formatType( $res[0] );
+		$res = $res[0];
+		$ban = $this->checkBanned($res['vk_user_id']);
+		if($ban){
+			$res['banned'] = $ban[0];
+		}
+		
+		return $this->_formatType( $res );
 	}
 
 	public function getByIds( string $ids, $order = '' ) {
@@ -75,12 +110,12 @@ class Users {
 
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, 
 						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme,
-						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.nickname, users.banned, users.ban_reason
+						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.nickname
 				FROM users
 				LEFT JOIN avatars
 				ON users.avatar_id = avatars.id
-				WHERE users.id IN ( $s_ids ) $order";
-		$res = $this->Connect->db_get( $sql );
+				WHERE users.id IN ( $s_ids ) AND users.vk_user_id NOT IN (SELECT vk_user_id FROM banned where time_end>?) $order";
+		$res = $this->Connect->db_get( $sql, [time()] );
 
 		foreach ( $res as $item ) {
 			$result[] = $this->_formatType( $item );
@@ -121,18 +156,22 @@ class Users {
 		$time = time();
 		$user_id = $this->vk_id;
 		$this->Connect->query("UPDATE users SET last_activity=? WHERE vk_user_id=?", [$time,$user_id]);
-		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,users.age,
-						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.banned, users.noti, users.scheme,
-						users.special, users.banned, users.ban_reason, users.flash, users.verified,users.donut,users.nickname,avatars.name as avatar_name
+		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,users.age,users.vk_user_id,
+						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.noti, users.scheme,
+						users.special, users.flash, users.verified,users.donut,users.nickname,avatars.name as avatar_name
 				FROM users
 				LEFT JOIN avatars
 				ON users.avatar_id = avatars.id
 				WHERE users.vk_user_id=?";
 		$res = $this->Connect->db_get( $sql, [$user_id] )[0];
-
+		$ban = $this->checkBanned($res['vk_user_id']);
+		if($ban){
+			$res['banned'] = $ban[0];
+		}
 		if ( !$res['special'] ) {
 			unset( $res['special'] );
 		}
+		
 
 		$this->info = $res ?? [];
 	}
@@ -152,8 +191,7 @@ class Users {
 		if ( !$data['id'] ) {
 			return [];
 		}
-
-		if( !(bool)$data['banned'] || !$data['special']) {
+		if( empty($data['banned']) || !$data['special']) {
 			$res = [
 				'id' => (int) $data['id'],
 				'online' => [
@@ -171,6 +209,9 @@ class Users {
 				'verified' => (bool) $data['verified'],
 				'donut' => (bool) $data['donut'],
 			];	
+		}
+		if(!empty($data['banned'])){
+			$res['banned'] = $data['banned'];
 		}
 		if ( $this->info['special']) { 
 			if(isset($data['vk_user_id'])){

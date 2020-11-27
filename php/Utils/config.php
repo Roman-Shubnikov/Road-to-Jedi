@@ -14,7 +14,7 @@ class CONFIG {
 	const MAX_ITEMS_COUNT = 30;
 	
 	const AVATAR_PATH = 'https://xelene.ru/road/php/images/avatars';
-	const AVATARS_COUNT = 32;
+	const AVATARS_COUNT = 33;
 	
 	const MAX_TICKETS_TITLE_LEN = 80;
 	const MAX_TICKETS_TEXT_LEN = 4040;
@@ -24,7 +24,7 @@ class CONFIG {
 	const SECRET_KEY = 'g3MXdwsVrz7J3vVw6pk4';
 	const VK_APP_TOKEN = '6ad515826ad515826ad51582306aa4051866ad56ad51582344086bf623d0b12c9fea49a';
 	
-	const FLOOD_CONTROL = 15;
+	const FLOOD_CONTROL = 25;
 	const FLOOD_CONTROL_BAN = 60;
 
 	const REGEXP_VALID_NAME = "/^[a-zA-ZА-Яа-я0-9_ ]*$/u";
@@ -39,6 +39,7 @@ class CONFIG {
 		5 => 'Ваш аккаунт заблокирован :-(.',
 		6 => 'Ошибка работы с базой. Попробуйте позже.',
 		7 => 'нельзя оставить коментарий больше 100 символов',
+		8 => 'У пользователя уже есть активная блокировка',
 	
 		20 => 'Длина темы должна быть не более 80 символов.',
 		21 => 'Длина сообщения должна быть не более 4040 символов.',

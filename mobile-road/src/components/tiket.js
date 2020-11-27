@@ -695,14 +695,14 @@ export default class Ticket extends React.Component {
             {/* INPUT */}
             {this.state.tiket_info['status'] === 0 || (this.state.redaction === true || this.state.add_comment === true) ? 
                 (this.state.limitreach && !(this.state.redaction || this.state.add_comment)) ? 
-                <FixedLayout filled vertical='bottom'>
+                <FixedLayout filled vertical='bottom' style={{zIndex: 20}}>
                   <Div>
                     <FormStatus header='Внимание!' mode='default'>
                       Вы исчерпали лимит сообщений в этот тикет.
                     </FormStatus>
                   </Div>
                 </FixedLayout> :
-                <FixedLayout vertical='bottom'>
+                <FixedLayout filled vertical='bottom' style={{zIndex: 2}}>
                   <Separator wide />
                     <WriteBar
                       after={
@@ -726,7 +726,7 @@ export default class Ticket extends React.Component {
             {this.state.tiket_info['status'] === 1 ? 
                 Number(this.state.tiket_info['author']['id']) === Number(parsedHash.vk_user_id) ?
                     <div>
-                      <FixedLayout vertical="bottom">
+                      <FixedLayout vertical="bottom" style={{zIndex: 20}} filled>
                         <Div style={{display: "flex"}}>
                           <Button size="l" style={{marginRight: "5%"}} stretched onClick={() => this.deleteTicket()}>Проблема решена</Button>
                           <Button size="l" stretched mode="secondary" onClick={() => this.openTicket()}>Проблема не решена</Button>

@@ -46,6 +46,7 @@ import OtherProfile from '../../components/other_profile'
 import ModalPrometay from '../../Modals/Prometay';
 import ModalDonut from '../../Modals/Donut'
 import ModalComment from '../../Modals/Comment';
+import ModalBan from '../../Modals/Ban';
 
 import Icon24Dismiss              from '@vkontakte/icons/dist/24/dismiss';
 import Icon24Qr                   from '@vkontakte/icons/dist/24/qr';
@@ -271,33 +272,7 @@ export default withPlatform(class Main extends React.Component {
           )
         }
     }
-    userBan(user_id, text) {
-      this.setPopout(<ScreenSpinner/>)
-      fetch(this.state.api_url + "method=account.ban&" + window.location.search.replace('?', ''),
-      {method: 'post',
-      headers: {"Content-type": "application/json; charset=UTF-8"},
-          // signal: controllertime.signal,
-      body: JSON.stringify({
-        'agent_id': user_id,
-        'banned': true,
-        'reason': text,
 
-    })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if(data.result) {
-          this.setActiveModal(null);
-          this.showAlert('Успех', 'Пользователь забанен');
-          this.setPopout(null);
-        }else {
-          this.showErrorAlert(data.error.message)
-        }
-      })
-      .catch(err => {
-        this.changeData('activeStory', 'disconnect')
-      })
-    }
     sendMoney() {
       this.setPopout(<ScreenSpinner />)
       fetch(this.state.api_url + 'method=transfers.send&' + window.location.search.replace('?', ''),
@@ -433,24 +408,13 @@ export default withPlatform(class Main extends React.Component {
               ]}>
               </ModalCard>
 
-              <ModalCard
-                id='ban_user'
-                onClose={() => this.setActiveModal(null)}
-                icon={<Avatar src={this.state.other_profile ? this.state.other_profile['avatar']['url'] : null} size={72} />}
-                header="Забанить пользователя"
-                actions={[{
-                  title: 'Забанить! 🤬',
-                  mode: 'secondary',
-                  action: () => {
-                    this.userBan(this.state.other_profile ? this.state.other_profile['id'] : 0, this.state.ban_reason);
-                  }
-                }]}
-              >
-                <Input disabled value={this.state.other_profile ? (this.state.other_profile['id'] < 0) ? -this.state.other_profile['id'] : this.state.other_profile['id'] : null}/>
-                <br/>
-                <Input maxLength="100" name="ban_reason" onChange={(e) => this.onChange(e)} placeholder="Введите причину бана" value={this.state.ban_reason} />
-                
-              </ModalCard>
+              <ModalBan 
+              id='ban_user'
+              onClose={() => this.setActiveModal(null)}
+              other_profile={this.state.other_profile}
+              this={this}
+              />
+
               <ModalCard
                 id='send'
                 onClose={() => this.setActiveModal(null)}

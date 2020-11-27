@@ -22,15 +22,19 @@ class Account {
 		$aid = $this->user->id;
 		return $this->Connect->query("DELETE FROM users WHERE id=?", [$aid])[0];
 	}
-	public function Ban_User($agent_id, $ban=FALSE, $ban_reason=NULL){
+	public function Ban_User($agent_id, $ban_reason=NULL, $timeban=0){
+		$moderator_id = $this->user->vk_id;
 		if ( !$this->user->info['special'] ) {
 			Show::error(403);
 		}
-		$data = [
-			'banned' => (int) $ban,
-			'ban_reason' => (string)$ban_reason,
-		];
-		return $this->Connect->query("UPDATE users SET banned=?,ban_reason=? WHERE id=?", [$ban, (string)$ban_reason, $agent_id])[0];
+		$shortInfo = $this->user->getById($agent_id);
+		if(!empty($shortInfo['banned'])){
+			Show::error(8);
+		}
+		if($timeban){
+			$timeban = time() + $timeban;
+		}
+		return $this->Connect->query("INSERT INTO banned (vk_user_id,reason,time_end,moderator_vk_id) VALUES (?,?,?,?)", [$shortInfo['vk_id'], (string)$ban_reason, $timeban, $moderator_id])[0];
 	}
 	public function Prometay($agent_id, $give=TRUE){
 		if ( !$this->user->info['special'] ) {

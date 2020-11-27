@@ -140,7 +140,7 @@ export default class Start extends React.Component {
             history={this.state.history}
             onSwipeBack={() => window.history.back()}
             >
-              <Startov id='start' account={this.props.account} this={this} reason={this.props.reason} />
+              <Startov id='start' account={this.props.account} this={this} BanObject={this.props.BanObject} />
               {/* <Startov2 id='start2' account={this.props.account} this={this} /> */}
             </View>   
         )
