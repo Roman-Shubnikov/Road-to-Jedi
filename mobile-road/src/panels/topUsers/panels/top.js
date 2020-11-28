@@ -22,8 +22,9 @@ import Icon16Verified             from '@vkontakte/icons/dist/16/verified';
 import Icon16StarCircleFillYellow from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
 import Icon16Dropdown             from '@vkontakte/icons/dist/16/dropdown';
 import Icon24Done                 from '@vkontakte/icons/dist/24/done';
-import Icon24UserOutline          from '@vkontakte/icons/dist/24/user_outline';
-import Icon20WorkOutline          from '@vkontakte/icons/dist/20/work_outline';
+import Icon28UserOutline          from '@vkontakte/icons/dist/28/user_outline';
+import Icon28EmployeeOutline      from '@vkontakte/icons/dist/28/employee_outline';
+import Icon28DiamondOutline       from '@vkontakte/icons/dist/28/diamond_outline';
 
 // import Icon28SyncOutline from '@vkontakte/icons/dist/28/sync_outline';
 
@@ -88,16 +89,16 @@ function enumerate (num, dec) {
                     aside={<Icon16Dropdown style={{ transition: '0.3s',transform: `rotate(${this.state.contextOpened ? '180deg' : '0'})` }} />}
                     onClick={this.toggleContext}
                   >
-                    Топ
+                    Пантеон
                   </PanelHeaderContent> 
                   :
-                    <span>Топ</span> }
+                    <span>Пантеон</span> }
                 
                 </PanelHeader>
                 <PanelHeaderContext opened={this.state.contextOpened} onClose={this.toggleContext}>
                   <List>
                     <Cell
-                      before={<Icon24UserOutline />}
+                      before={<Icon28UserOutline />}
                       asideContent={!this.state.mode ? <Icon24Done fill="var(--accent)" /> : null}
                       onClick={this.select}
                       data-mode={0}
@@ -105,7 +106,7 @@ function enumerate (num, dec) {
                       Пользователи
                     </Cell>
                     <Cell
-                      before={<Icon20WorkOutline width={24} height={24} />}
+                      before={<Icon28EmployeeOutline />}
                       asideContent={this.state.mode ? <Icon24Done fill="var(--accent)" /> : null}
                       onClick={this.select}
                       data-mode={1}
@@ -138,15 +139,18 @@ function enumerate (num, dec) {
                         </div>
                       }
                       size="l"
-                      before={<Avatar src={result['avatar']['url']}/>}
+                      before={result.diamond ?
+                      <div style={{position:'relative', marginRight: 10}}><Avatar src={result['avatar']['url']} style={{position: 'relative'}} />
+                      <Icon28DiamondOutline width={16} height={16} className='Diamond_top' />
+                      </div> : <Avatar src={result['avatar']['url']} style={{position: 'relative'}} /> }
                     >
                   <div className="top_moderator_name">
                   {isFinite(result['nickname']) ? `Агент Поддержки #${result['nickname']}` : result['nickname'] ? result['nickname'] : `Агент Поддержки #${result['id']}`}
                     <div className="top_moderator_name_icon">
-                      {result['flash'] === true ? <Icon16Fire width={12} height={12} onClick={() => this.setActiveModal('prom')} className="top_moderator_name_icon"/> : null}
+                      {result['flash'] === true ? <Icon16Fire width={12} height={12} className="top_moderator_name_icon"/> : null}
                     </div>
                     <div className="top_moderator_name_icon">
-                      {result['donut'] === true ? <Icon16StarCircleFillYellow width={12} height={12} className="top_moderator_name_icon" onClick={() => this.setActiveModal('donut')} /> : null}
+                      {result['donut'] === true ? <Icon16StarCircleFillYellow width={12} height={12} className="top_moderator_name_icon" /> : null}
                     </div>
                     <div className="top_moderator_name_icon_ver">
                       {result['verified'] === true ? <Icon16Verified className="top_moderator_name_icon_ver"/>  : null }

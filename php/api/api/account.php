@@ -44,7 +44,7 @@ class Account {
 		if ($give) {
 			return $this->Connect->query("UPDATE users SET flash=1,flashtime=? WHERE id=?", [time(),$agent_id])[0];
 		}
-		return $this->Connect->query("UPDATE users SET flash=0,flashtime=0 WHERE id=?", [time(),$agent_id])[0];
+		return $this->Connect->query("UPDATE users SET flash=0,flashtime=0 WHERE id=?", [$agent_id])[0];
     }
     public function NewRequestVerf($title, $desc){
 		$aid = $this->user->id;

@@ -229,10 +229,17 @@ export default class Ticket extends React.Component {
              Редактировать
              </ActionSheetItem>
              : null}
-          {/* {(comment === null || comment === undefined) ? null : 
-              <ActionSheetItem autoclose onClick={() => {this.props.this.setState({comment: comment}); this.setActiveModal("comment")}}>
-              Просмотреть комментарий
-            </ActionSheetItem>} */}
+              <ActionSheetItem autoclose onClick={() => {
+                  bridge.send("VKWebAppCopyText", {text: text});
+                  this.setSnack(<Snackbar
+                    layout="vertical"
+                    before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                    onClose={() => this.setSnack(null)}>
+                      Текст скопирован
+                    </Snackbar>)
+              }}>
+                  Скопировать текст
+                </ActionSheetItem>
               {Number(author_id) === Number(this.props.account.id) || this.props.account.special === true ? 
               <ActionSheetItem autoclose onClick={() => this.deleteMessage(id)}>
                 Удалить сообщение
@@ -258,6 +265,17 @@ export default class Ticket extends React.Component {
                </ActionSheetItem>
                : null}
               {<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}
+              <ActionSheetItem autoclose onClick={() => {
+              bridge.send("VKWebAppCopyText", {text: text});
+              this.setSnack(<Snackbar
+                layout="vertical"
+                before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                onClose={() => this.setSnack(null)}>
+                  Текст скопирован
+                </Snackbar>)
+              }}>
+              Скопировать текст
+            </ActionSheetItem>
               </ActionSheet>
             )
           }else{
@@ -270,6 +288,17 @@ export default class Ticket extends React.Component {
                  </ActionSheetItem>
                  : null}
                 {<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}
+                <ActionSheetItem autoclose onClick={() => {
+                  bridge.send("VKWebAppCopyText", {text: text});
+                  this.setSnack(<Snackbar
+                    layout="vertical"
+                    before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                    onClose={() => this.setSnack(null)}>
+                      Текст скопирован
+                    </Snackbar>)
+              }}>
+                  Скопировать текст
+                </ActionSheetItem>
                 </ActionSheet>
               )
             }

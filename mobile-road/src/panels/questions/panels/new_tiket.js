@@ -3,17 +3,14 @@ import React from 'react';
 import { 
     Panel,
     PanelHeader,
-    PanelHeaderButton,
     Button,
     Alert,
     ScreenSpinner,
     Input,
     FormLayout,
     Textarea,
+    PanelHeaderBack,
     } from '@vkontakte/vkui';
-
-
-import Icon24BrowserBack from '@vkontakte/icons/dist/24/browser_back';
 
 export default class NewTicket extends React.Component {
         constructor(props) {
@@ -98,11 +95,7 @@ export default class NewTicket extends React.Component {
             return (
                 <Panel id={this.props.id}>
                 <PanelHeader 
-                    left={
-                    <PanelHeaderButton onClick={() => window.history.back()}> 
-                    <Icon24BrowserBack/>
-                    </PanelHeaderButton>
-                    }>
+                    left={<PanelHeaderBack onClick={() => window.history.back()} />}>
                 Новый вопрос
                 </PanelHeader>
                 <FormLayout>

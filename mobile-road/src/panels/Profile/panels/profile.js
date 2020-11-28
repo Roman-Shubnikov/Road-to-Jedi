@@ -13,20 +13,19 @@ import {
     Div,
     FormStatus,
     PullToRefresh,
-    Progress,
-    InfoRow,
     } from '@vkontakte/vkui';
 
-import Icon12Fire from '@vkontakte/icons/dist/12/fire';
-import Icon16Verified from '@vkontakte/icons/dist/16/verified';
-import Icon28PollSquareOutline from '@vkontakte/icons/dist/28/poll_square_outline';
-import Icon28MarketOutline from '@vkontakte/icons/dist/28/market_outline';
+import Icon12Fire                   from '@vkontakte/icons/dist/12/fire';
+import Icon16Verified               from '@vkontakte/icons/dist/16/verified';
+import Icon28PollSquareOutline      from '@vkontakte/icons/dist/28/poll_square_outline';
+import Icon28MarketOutline          from '@vkontakte/icons/dist/28/market_outline';
 // import Icon28PaletteOutline from '@vkontakte/icons/dist/28/palette_outline';
-import Icon28Notifications from '@vkontakte/icons/dist/28/notifications';
+import Icon28Notifications          from '@vkontakte/icons/dist/28/notifications';
 // import Icon24NotificationSubtractOutline from '@vkontakte/icons/dist/24/notification_subtract_outline';
-import Icon28ShareExternalOutline from '@vkontakte/icons/dist/28/share_external_outline';
-import Icon16StarCircleFillYellow from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
-import Icon28Messages from '@vkontakte/icons/dist/28/messages';
+import Icon28ShareExternalOutline   from '@vkontakte/icons/dist/28/share_external_outline';
+import Icon16StarCircleFillYellow   from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
+import Icon28Messages               from '@vkontakte/icons/dist/28/messages';
+import Icon28DiamondOutline         from '@vkontakte/icons/dist/28/diamond_outline';
 
 function isEmpty(obj) {
     for (let key in obj) {
@@ -35,13 +34,6 @@ function isEmpty(obj) {
     }
     return true;
   }
-function enumerate (num, dec) {
-    if (num > 100) num = num % 100;
-    if (num <= 20 && num >= 10) return dec[2];
-    if (num > 20) num = num % 10;
-    return num === 1 ? dec[0] : num > 1 && num < 5 ? dec[1] : dec[2];
-}
-
 export default class Profile extends React.Component{
     constructor(props) {
         super(props);
@@ -77,7 +69,11 @@ export default class Profile extends React.Component{
                     <PullToRefresh onRefresh={() => {this.setState({fetching: true});this.props.this.ReloadProfile();setTimeout(() => {this.setState({fetching: false});}, 1000)}} isFetching={this.state.fetching}>
                         <SimpleCell
                         disabled
-                        before={<Avatar src={this.props.account ? this.props.account['avatar']['url'] : null} size={72} />}
+                        // before={<Avatar src={this.props.account ? this.props.account['avatar']['url'] : null} size={72} />}
+                        before={this.props.account.diamond ?
+                            <div style={{position:'relative', margin: 10}}><Avatar src={this.props.account['avatar']['url']} size={72} style={{position: 'relative'}} />
+                            <Icon28DiamondOutline width={25} height={25} className='Diamond_profile' />
+                            </div> : <Avatar size={72} src={this.props.account['avatar']['url']} />}
                         size="l"
                         description={isFinite(this.props.account['nickname']) ? `#${this.props.account['nickname']}` : this.props.account['nickname'] ? '' : `#${this.props.account['id']}`}
                         >
@@ -103,18 +99,7 @@ export default class Profile extends React.Component{
                             </div>
                             
                         </SimpleCell>
-                        {(this.props.account['marked'] !== null && this.props.account['marked'] !== undefined) ? <Div>
-                            <FormStatus onClick={() => this.setActiveModal('answers')}>
-                                <div style={{textAlign: 'center', color: "var(--text_profile)", marginBottom: 15}}>
-                                    Вы оценили <span style={{fontWeight: 700, color:'var(--header_text)'}}>{this.props.account['marked']} {enumerate(this.props.account['marked'], ['ответ', 'ответа', 'ответов'])}</span> Агентов Поддержки
-                                </div>
-                                <InfoRow>
-                                    <Progress 
-                                    value={this.props.account['marked'] ? Math.floor(this.props.account['marked'] / 1000 * 100) : 0} />
-                                    <div style={{textAlign: 'right', color: "var(--text_profile)", marginTop: 10, fontSize: 13}}>1000</div>
-                                </InfoRow>
-                            </FormStatus>
-                        </Div> : null}
+                        
                         <Separator />
                         <Div>
                             <Button

@@ -22,7 +22,7 @@
     "@sentry/node": "^5.26.0",
     "@sentry/react": "^5.26.0",
     "@sentry/tracing": "^5.26.0",
-    "@vkontakte/icons": "^1.54.0",
+    "@vkontakte/icons": "^1.59.0",
     "@vkontakte/mvk-mini-apps-scroll-helper": "^1.2.0",
     "@vkontakte/vk-bridge": "^2.3.0",
     "@vkontakte/vk-miniapps-deploy": "0.0.17",

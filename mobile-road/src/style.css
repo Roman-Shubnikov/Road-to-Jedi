@@ -1,6 +1,17 @@
 @import './space_gray.css';
 @import './bright_light.css';
 
+.blink2 {
+    -webkit-animation: blink2 1s linear infinite;
+    animation: blink2 1s linear infinite;
+  }
+  @-webkit-keyframes blink2 {
+    100% { color: rgba(34, 34, 34, 0); }
+  }
+  @keyframes blink2 {
+    100% { color: rgba(34, 34, 34, 0); }
+  }
+
 div,p{
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none;   /* Chrome/Safari/Opera */
@@ -543,4 +554,26 @@ a{
 
 .Achives_Block img{
     width: 100%;
+}
+.Diamond_top{
+    color: #792EC0;
+    padding: 2px;
+    border-radius: 50%; 
+    position: absolute;
+    display: block;
+    z-index: 2;
+    top: 26px;
+    left: 27px;
+    background: var(--message_icon_moder);
+}
+.Diamond_profile{
+    color: #792EC0;
+    padding: 2px;
+    border-radius: 50%; 
+    position: absolute;
+    display: block;
+    z-index: 2;
+    top: 40px;
+    left: 40px;
+    background: var(--message_icon_moder);
 }

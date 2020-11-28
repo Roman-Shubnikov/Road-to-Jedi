@@ -54,7 +54,7 @@ import Icon24Qr                   from '@vkontakte/icons/dist/24/qr';
 import Icon24Linked               from '@vkontakte/icons/dist/24/linked';
 import Icon56MoneyTransferOutline from '@vkontakte/icons/dist/56/money_transfer_outline'
 import Icon16CheckCircle          from '@vkontakte/icons/dist/16/check_circle';
-import Icon28SortOutline          from '@vkontakte/icons/dist/28/sort_outline';
+
 
 
 // const queryString = require('query-string');
@@ -62,13 +62,6 @@ import Icon28SortOutline          from '@vkontakte/icons/dist/28/sort_outline';
 // var click_qr = false;
 // const parsedHash = queryString.parse(window.location.search.replace('?', ''));
 // const hash = queryString.parse(window.location.hash);
-function enumerate (num, dec) {
-  if (num > 100) num = num % 100;
-  if (num <= 20 && num >= 10) return dec[2];
-  if (num > 20) num = num % 10;
-  return num === 1 ? dec[0] : num > 1 && num < 5 ? dec[1] : dec[2];
-}
-
 
 function qr(agent_id, sheme) {
   let hex = "foregroundColor"
@@ -394,19 +387,8 @@ export default withPlatform(class Main extends React.Component {
               id='donut'
               onClose={() => this.setActiveModal(null)}
               action={() => this.setActiveModal(null)} />
-              <ModalCard 
-              id='answers'
-              onClose={() => this.setActiveModal(null)}
-              icon={<Icon28SortOutline width={56} height={56} />}
-              header={'Вы оценили ' + this.props.account['marked'] + " " + enumerate(this.props.account['marked'], ['ответ', 'ответа', 'ответов'])}
-              caption={"Для преодоления порога необходимо оценить ещё " + (1000 - this.props.account['marked']) + " " + enumerate(this.props.account['marked'], ['ответ', 'ответа', 'ответов']) + " за неделю"}
-              actions={[{
-                title: 'Понятно',
-                mode: 'primary',
-                action: () => this.setActiveModal(null)
-              }
-              ]}>
-              </ModalCard>
+
+              
 
               <ModalBan 
               id='ban_user'

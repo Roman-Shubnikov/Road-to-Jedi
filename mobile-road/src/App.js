@@ -26,12 +26,14 @@ import Banned         from './panels/Banned/main';
 import LoadingScreen  from './panels/Loading/main';
 import Unsupport      from './panels/Unsupport/main';
 import Disconnect     from './panels/Disconnect/main';
+import Moderation     from './panels/Moderation/main';
 
 
 import Icon28Profile          from '@vkontakte/icons/dist/28/profile';
 import Icon16CheckCircle      from '@vkontakte/icons/dist/16/check_circle';
 import Icon28ArticleOutline   from '@vkontakte/icons/dist/28/article_outline';
 import Icon28FavoriteOutline  from '@vkontakte/icons/dist/28/favorite_outline';
+import Icon28MagicWandOutline from '@vkontakte/icons/dist/28/magic_wand_outline';
 
 
 // const queryString = require('query-string');
@@ -393,14 +395,21 @@ class App extends React.Component {
                       onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
                       selected={this.state.activeStory === 'top'}
                       data-story="top"
-                      text='Топ'
+                      text='Пантеон'
                     ><Icon28FavoriteOutline /></TabbarItem>
+                    {this.state.account.special ? <TabbarItem
+                      onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
+                      selected={this.state.activeStory === 'moderation'}
+                      data-story="moderation"
+                      text='Модерация'
+                    ><Icon28MagicWandOutline /></TabbarItem> : null}
                     <TabbarItem
                       onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
                       selected={this.state.activeStory === 'profile'}
                       data-story="profile"
                       text='Профиль'
                     ><Icon28Profile /></TabbarItem>
+                    
                   </Tabbar>
                 }>
                 <Questions 
@@ -436,6 +445,13 @@ class App extends React.Component {
                 default_scheme={this.state.default_scheme}
                 account={this.state.account}
                 popout={this.state.popout} />
+
+                <Moderation 
+                id="moderation"
+                this={this}
+                reloadProfile={this.LoadProfile}
+                account={this.state.account}
+                />
                 
                 <Start 
                 id="start"

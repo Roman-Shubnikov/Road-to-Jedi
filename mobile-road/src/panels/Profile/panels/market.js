@@ -16,16 +16,22 @@ import {
     // FormStatus,
     Alert,
     FormLayout,
+    CellButton,
     } from '@vkontakte/vkui';
 
 import Icon24Repeat from '@vkontakte/icons/dist/24/repeat';
 import Icon28MoneyCircleOutline from '@vkontakte/icons/dist/28/money_circle_outline';
 
 import Icon28MoneyHistoryBackwardOutline from '@vkontakte/icons/dist/28/money_history_backward_outline';
-import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
-import Icon20CancelCircleFillRed from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
-import Icon28InfoCircleOutline from '@vkontakte/icons/dist/28/info_circle_outline';
-import Icon24BlockOutline from '@vkontakte/icons/dist/24/block_outline';
+import Icon16CheckCircle          from '@vkontakte/icons/dist/16/check_circle';
+import Icon20CancelCircleFillRed  from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
+import Icon28InfoCircleOutline    from '@vkontakte/icons/dist/28/info_circle_outline';
+import Icon24BlockOutline         from '@vkontakte/icons/dist/24/block_outline';
+import Icon28DiamondOutline       from '@vkontakte/icons/dist/28/diamond_outline';
+import Icon16Fire                 from '@vkontakte/icons/dist/16/fire';
+import Icon16Verified             from '@vkontakte/icons/dist/16/verified';
+import Icon16StarCircleFillYellow from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
+
 
 var avatars = [
     "1.png",
@@ -66,6 +72,13 @@ var avatars = [
 const blueBackground = {
     backgroundColor: 'var(--accent)'
   };
+
+  function enumerate (num, dec) {
+    if (num > 100) num = num % 100;
+    if (num <= 20 && num >= 10) return dec[2];
+    if (num > 20) num = num % 10;
+    return num === 1 ? dec[0] : num > 1 && num < 5 ? dec[1] : dec[2];
+  }
 export default class Market extends React.Component{
     constructor(props){
         super(props)
@@ -257,6 +270,39 @@ export default class Market extends React.Component{
           })
       }
 
+      buyDiamond() {
+        fetch(this.state.api_url + "method=shop.buyDiamond&" + window.location.search.replace('?', ''))
+        .then(res => res.json())
+        .then(data => {
+          if(data.result) {
+              this.props.this.setSnack(
+              <Snackbar
+                layout="vertical"
+                onClose={() => this.props.this.setSnack(null)}
+                before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+              >
+                Вы успешно купили алмаз
+              </Snackbar>
+            )
+            setTimeout(() => {
+              this.props.this.ReloadProfile();
+            }, 4000)
+          } else {
+            this.props.this.setSnack(
+              <Snackbar
+              layout="vertical"
+              onClose={() => this.props.this.setSnack(null)}
+              before={<Icon20CancelCircleFillRed width={24} height={24} />}
+            >
+              {data.error.message}
+            </Snackbar>);
+          }
+        })
+        .catch(err => {
+          this.props.this.changeData('activeStory', 'disconnect')
+        })
+    }
+
     render() {
         return(
             <Panel id={this.props.id}>
@@ -275,6 +321,7 @@ export default class Market extends React.Component{
                   <Text weight='medium'>Монетки — это универсальная условная единица для приобретения различных товаров в магазине</Text>
                 </Div>
                 <SimpleCell disabled indicator={this.props.account.balance}>Ваш баланс</SimpleCell>
+                <CellButton>Активировать промокод</CellButton>
                 <Separator />
                 {/* <Div>
                   <FormStatus >
@@ -334,14 +381,55 @@ export default class Market extends React.Component{
                     size="l" 
                     mode='destructive'>Удалить ник</Button>
                 </Div>
-                    
-                
+                <Separator />
+                {this.props.account ? !this.props.account.diamond ? <><Header>Купить алмаз</Header>
+                <Div>
+                  <Text weight='medium'>После преобретения этого товара, около вашей аватарки начнёт светиться фиолетовый алмаз. Это выглядит примерно так:</Text>
+                </Div>
+                <SimpleCell
+                  description={
+                    this.props.account['special'] ? 
+                    <div className="top_moderator_desc">
+                      {this.props.account['good_answers'] + enumerate(this.props.account['good_answers'], [' оценённый ответ', ' оценённых ответа', ' оценённых ответов'])}
+                    </div>
+                    :
+                    <div className="top_moderator_desc">
+                      {this.props.account['good_answers'] + enumerate(this.props.account['good_answers'], [' хороший ответ, ', ' хороших ответа, ', ' хороших ответов, ']) 
+                      + this.props.account['bad_answers'] + enumerate(this.props.account['good_answers'], [' плохой ответ', ' плохих ответа', ' плохих ответов'])}
+                    </div>
+                  }
+                      size="l"
+                      before={
+                      <div style={{position:'relative', margin: 10}}><Avatar src={this.props.account['avatar']['url']} style={{position: 'relative'}} />
+                      <Icon28DiamondOutline width={16} height={16} className='Diamond_top' />
+                      </div>}
+                    >
+                  <div className="top_moderator_name">
+                  {isFinite(this.props.account['nickname']) ? `Агент Поддержки #${this.props.account['nickname']}` : this.props.account['nickname'] 
+                  ? this.props.account['nickname'] : `Агент Поддержки #${this.props.account['id']}`}
+                    <div className="top_moderator_name_icon">
+                      {this.props.account['flash'] === true ? <Icon16Fire width={12} height={12} className="top_moderator_name_icon"/> : null}
+                    </div>
+                    <div className="top_moderator_name_icon">
+                      {this.props.account['donut'] === true ? <Icon16StarCircleFillYellow width={12} height={12} className="top_moderator_name_icon" /> : null}
+                    </div>
+                    <div className="top_moderator_name_icon_ver">
+                      {this.props.account['verified'] === true ? <Icon16Verified className="top_moderator_name_icon_ver"/>  : null }
+                    </div>
+                  </div>
+                  </SimpleCell>
+                  <Div>
+                      <Button 
+                      onClick={() => this.buyDiamond()} 
+                      before={<Icon28MoneyHistoryBackwardOutline 
+                      style={{marginRight: "5px"}}/>} size="xl" mode='destructive'>Купить за 10 000 монеток</Button>
+                    </Div><Separator /></> : null : null}
                 {/* <Group separator="hide" header={<Header>Сброс статистики</Header>}>
                     <Div>
                         <Button onClick={() => props.this.deleteStats()} before={<Icon28GridSquareOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Сбросить за 150 монеток</Button>
                     </Div>
                 </Group> */}
-                <Separator />
+                
                 <Header>Опции</Header>
                     <Div>
                         <Button onClick={() => this.setActiveModal('send')} before={<Icon28MoneyHistoryBackwardOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Перевести</Button>

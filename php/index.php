@@ -375,6 +375,7 @@ $params = [
 		] 
 	],
 	'shop.resetId' => [],
+	'shop.buyDiamond' => [],
 	'transfers.send' => [
 		'send_to' => [
 			'type' => 'intorstr',
@@ -397,6 +398,16 @@ $params = [
 
 	
 	'special.getAllMessages' => [
+		'offset' => [
+			'type' => 'intorstr',
+			'required' => true
+		],
+		'count' => [
+			'type' => 'int',
+			'required' => true
+		],
+	],
+	'special.getNewMessages' => [
 		'offset' => [
 			'type' => 'intorstr',
 			'required' => true
@@ -740,6 +751,18 @@ switch ( $method ) {
 		} else {
 			Show::error(1008);
 		}
+	case 'shop.buyDiamond':
+		if(!$users->info['diamond']){
+			$balance = getBalance();
+			if( $balance >= CONFIG::DIAMOND_PRICE ) {
+				$edit = $Connect->query("UPDATE users SET money=?,diamond=1 WHERE vk_user_id=?", [$balance - CONFIG::DIAMOND_PRICE,$user_id]);
+				Show::response(['edit' => $edit]);
+			} else {
+				Show::error(1002);
+			}
+		}else{
+			Show::error(1014);
+		}
 	case 'transfers.send':
 		$summa = (int) $data['summa'];
 		$send_to = trim($data['send_to']);
@@ -802,4 +825,22 @@ switch ( $method ) {
 			Show::error(403);
 		}
 		Show::response( $Connect->db_get("SELECT * FROM messages WHERE author_id>0 order by id asc LIMIT $offset, $count"));
+	case 'special.getNewMessages':
+		$count = (int) $data['count'];
+		$offset = (int) $data['offset'];
+		if ( !$users->info['special'] ) {
+			Show::error(403);
+		}
+		$res = $Connect->db_get(
+			"SELECT tickets.id, COUNT(messages.id) as count_unmark
+			FROM tickets 
+			LEFT JOIN messages on tickets.id=messages.ticket_id
+			WHERE messages.mark=-1 AND messages.author_id>0
+			GROUP BY tickets.id ORDER BY COUNT(messages.id) DESC LIMIT $offset, $count"
+			);
+		$out = [];
+		foreach($res as $val){
+			$out[] = ['id' => (int)$val['id'], 'count_unmark' => (int)$val['count_unmark']];
+		}
+		Show::response($out);
 }

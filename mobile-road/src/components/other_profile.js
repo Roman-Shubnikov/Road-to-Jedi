@@ -19,19 +19,20 @@ import {
     Placeholder,
     } from '@vkontakte/vkui';
 
-import Icon28RecentOutline from '@vkontakte/icons/dist/28/recent_outline';
-import Icon24DoNotDisturb from '@vkontakte/icons/dist/24/do_not_disturb';
-import Icon28CheckCircleOutline from '@vkontakte/icons/dist/28/check_circle_outline';
-import Icon16Fire from '@vkontakte/icons/dist/16/fire';
-import Icon16Verified from '@vkontakte/icons/dist/16/verified';
-import Icon16StarCircleFillYellow from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
-import Icon28LogoVkOutline from '@vkontakte/icons/dist/28/logo_vk_outline';
-import Icon28WalletOutline from '@vkontakte/icons/dist/28/wallet_outline';
-import Icon28PaletteOutline from '@vkontakte/icons/dist/28/palette_outline';
-import Icon28NameTagOutline from '@vkontakte/icons/dist/28/name_tag_outline';
-import Icon28InfoOutline from '@vkontakte/icons/dist/28/info_outline';
-import Icon28Notifications from '@vkontakte/icons/dist/28/notifications';
-import Icon56DurationOutline from '@vkontakte/icons/dist/56/duration_outline';
+import Icon28RecentOutline          from '@vkontakte/icons/dist/28/recent_outline';
+import Icon24DoNotDisturb           from '@vkontakte/icons/dist/24/do_not_disturb';
+import Icon28CheckCircleOutline     from '@vkontakte/icons/dist/28/check_circle_outline';
+import Icon16Fire                   from '@vkontakte/icons/dist/16/fire';
+import Icon16Verified               from '@vkontakte/icons/dist/16/verified';
+import Icon16StarCircleFillYellow   from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
+import Icon28LogoVkOutline          from '@vkontakte/icons/dist/28/logo_vk_outline';
+import Icon28WalletOutline          from '@vkontakte/icons/dist/28/wallet_outline';
+import Icon28PaletteOutline         from '@vkontakte/icons/dist/28/palette_outline';
+import Icon28NameTagOutline         from '@vkontakte/icons/dist/28/name_tag_outline';
+import Icon28InfoOutline            from '@vkontakte/icons/dist/28/info_outline';
+import Icon28Notifications          from '@vkontakte/icons/dist/28/notifications';
+import Icon56DurationOutline        from '@vkontakte/icons/dist/56/duration_outline';
+import Icon28DiamondOutline         from '@vkontakte/icons/dist/28/diamond_outline';
 
 
 function fix_time(time) {
@@ -235,7 +236,10 @@ const NOTI = [
                   </div>
                 }
                   size="l"
-                  before={<Avatar src={this.state.other_profile['avatar']['url']} size={70}/>}
+                before={this.state.other_profile.diamond ?
+                    <div style={{position:'relative', margin: 10}}><Avatar src={this.state.other_profile['avatar']['url']} size={70} style={{position: 'relative'}} />
+                    <Icon28DiamondOutline width={25} height={25} className='Diamond_profile' />
+                    </div> : <Avatar size={70} src={this.state.other_profile['avatar']['url']} style={{position: 'relative'}} />}
                 >
                   <div className="title_profile">
                   {isFinite(this.state.other_profile['nickname']) ? `Агент Поддержки #${this.state.other_profile['nickname']}` : this.state.other_profile['nickname'] ? this.state.other_profile['nickname'] : `Агент Поддержки #${this.state.other_profile['id']}`}

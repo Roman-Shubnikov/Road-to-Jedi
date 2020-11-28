@@ -345,7 +345,7 @@ export default class Main extends React.Component {
               first_start={this.props.first_start}
               tiket_all_helper={this.state.tiket_all_helper} />
               <NewTicket id='new_ticket' this={this} account={this.props.account} /> 
-              <Tiket id="ticket" this={this} ticket_id={this.state.ticket_id} account={this.props.account} snackbar={this.state.snackbar} />
+              <Tiket id="ticket" this={this} ticket_id={this.state.ticket_id} account={this.props.account} />
               <OtherProfile id="other_profile" this={this} agent_id={this.state.active_other_profile} account={this.props.account}/>
             </View>  
         )
