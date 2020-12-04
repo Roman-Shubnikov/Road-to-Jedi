@@ -17,6 +17,7 @@ import {
     Alert,
     FormLayout,
     CellButton,
+    Group,
     } from '@vkontakte/vkui';
 
 import Icon24Repeat from '@vkontakte/icons/dist/24/repeat';
@@ -317,125 +318,140 @@ export default class Market extends React.Component{
                 }>
                     Магазин
                 </PanelHeader>
-                <Div>
-                  <Text weight='medium'>Монетки — это универсальная условная единица для приобретения различных товаров в магазине</Text>
-                </Div>
-                <SimpleCell disabled indicator={this.props.account.balance}>Ваш баланс</SimpleCell>
-                <CellButton>Активировать промокод</CellButton>
-                <Separator />
+                
+                <Group>
+                  <Div>
+                    <Text weight='medium'>Монетки — это универсальная условная единица для приобретения различных товаров в магазине</Text>
+                  </Div>
+                  <SimpleCell disabled indicator={this.props.account.balance}>Ваш баланс</SimpleCell>
+                  <CellButton onClick={() => this.props.this.goPanel('promocodes')}>Активировать промокод</CellButton>
+                </Group>
+        
                 {/* <Div>
                   <FormStatus >
                     Скидки для тестеровщиков
                   </FormStatus>
                 </Div> */}
-                <Header>Сменить аватар</Header>
-                <div className="scrollImages">
-                    {this.images()}
-                </div>
-                <Div>
-                    <Button onClick={() => {this.changeAvatar(Number(this.state.last_selected) + 1)}} 
-                    before={<Icon28MoneyCircleOutline 
-                    style={{marginRight: "5px"}}/>} 
-                    size="xl" 
-                    mode="secondary"
-                    disabled={(this.state.last_selected !== null) ? false : true}>Сменить за 700 монеток</Button>
-                </Div>
-                <Separator />
-                <Header>Сменить свой ник</Header>
-                <FormLayout>
-                  <Input placeholder="Введите желаемый ник" 
-                  bottom='Макс. 10 символов'
-                  onChange={(e) => this.onChange(e)} 
-                  value={this.state.changed_id} 
-                  maxLength="10" 
-                  name="changed_id"/>
-                </FormLayout>
-                <Div style={{display: 'flex'}}>
-                    <Button onClick={() => {this.ChangeId(this.state.changed_id)}} 
-                      style={{marginRight: 8}}
-                      before={<Icon24Repeat width={28} height={28} />}
-                      stretched
-                      size="l" 
-                      mode="secondary"
-                      disabled={(this.state.changed_id <= 0) ? true : false}>Сменить за 1500 монеток</Button>
-                    <Button 
-                    stretched
-                    onClick={() => this.setPopout(<Alert
-                      actionsLayout='vertical'
-                      actions={[{
-                        title: 'Удалить ник',
-                        autoclose: true,
-                        mode: 'destructive',
-                        action: () => this.ResetId(),
-                      },{
-                        title: 'Нет, я нажал сюда случайно',
-                        autoclose: true,
-                        style: 'cancel'
-                      },]}
-                      onClose={() => this.setPopout(null)}
-                    >
-                      <h2>Осторожно!</h2>
-                      <p>Если вы удалите ник, то, возможно, его сможет забрать кто-то другой.<br />После удаления ника у вас будет отображён начальный id</p>
-                  </Alert>)}
-                    before={<Icon24BlockOutline width={28} height={28} />}
-                    size="l" 
-                    mode='destructive'>Удалить ник</Button>
-                </Div>
-                <Separator />
-                {this.props.account ? !this.props.account.diamond ? <><Header>Купить алмаз</Header>
-                <Div>
-                  <Text weight='medium'>После преобретения этого товара, около вашей аватарки начнёт светиться фиолетовый алмаз. Это выглядит примерно так:</Text>
-                </Div>
-                <SimpleCell
-                  description={
-                    this.props.account['special'] ? 
-                    <div className="top_moderator_desc">
-                      {this.props.account['good_answers'] + enumerate(this.props.account['good_answers'], [' оценённый ответ', ' оценённых ответа', ' оценённых ответов'])}
-                    </div>
-                    :
-                    <div className="top_moderator_desc">
-                      {this.props.account['good_answers'] + enumerate(this.props.account['good_answers'], [' хороший ответ, ', ' хороших ответа, ', ' хороших ответов, ']) 
-                      + this.props.account['bad_answers'] + enumerate(this.props.account['good_answers'], [' плохой ответ', ' плохих ответа', ' плохих ответов'])}
-                    </div>
-                  }
-                      size="l"
-                      before={
-                      <div style={{position:'relative', margin: 10}}><Avatar src={this.props.account['avatar']['url']} style={{position: 'relative'}} />
-                      <Icon28DiamondOutline width={16} height={16} className='Diamond_top' />
-                      </div>}
-                    >
-                  <div className="top_moderator_name">
-                  {isFinite(this.props.account['nickname']) ? `Агент Поддержки #${this.props.account['nickname']}` : this.props.account['nickname'] 
-                  ? this.props.account['nickname'] : `Агент Поддержки #${this.props.account['id']}`}
-                    <div className="top_moderator_name_icon">
-                      {this.props.account['flash'] === true ? <Icon16Fire width={12} height={12} className="top_moderator_name_icon"/> : null}
-                    </div>
-                    <div className="top_moderator_name_icon">
-                      {this.props.account['donut'] === true ? <Icon16StarCircleFillYellow width={12} height={12} className="top_moderator_name_icon" /> : null}
-                    </div>
-                    <div className="top_moderator_name_icon_ver">
-                      {this.props.account['verified'] === true ? <Icon16Verified className="top_moderator_name_icon_ver"/>  : null }
-                    </div>
+                <Group>
+                  <Header>Сменить аватар</Header>
+                  <div className="scrollImages">
+                      {this.images()}
                   </div>
-                  </SimpleCell>
                   <Div>
+                      <Button onClick={() => {this.changeAvatar(Number(this.state.last_selected) + 1)}} 
+                      before={<Icon28MoneyCircleOutline 
+                      style={{marginRight: "5px"}}/>} 
+                      size="xl" 
+                      mode="secondary"
+                      disabled={(this.state.last_selected !== null) ? false : true}>Сменить за 700 монеток</Button>
+                  </Div>
+                </Group>
+
+                <Group>
+                  <Header>Сменить свой ник</Header>
+                  <FormLayout>
+                    <Input placeholder="Введите желаемый ник" 
+                    bottom='Макс. 10 символов'
+                    onChange={(e) => this.onChange(e)} 
+                    value={this.state.changed_id} 
+                    maxLength="10" 
+                    name="changed_id"/>
+                  </FormLayout>
+                  <Div style={{display: 'flex'}}>
+                      <Button onClick={() => {this.ChangeId(this.state.changed_id)}} 
+                        style={{marginRight: 8}}
+                        before={<Icon24Repeat width={28} height={28} />}
+                        stretched
+                        size="l" 
+                        mode="secondary"
+                        disabled={(this.state.changed_id <= 0) ? true : false}>Сменить за 1500 монеток</Button>
                       <Button 
-                      onClick={() => this.buyDiamond()} 
-                      before={<Icon28MoneyHistoryBackwardOutline 
-                      style={{marginRight: "5px"}}/>} size="xl" mode='destructive'>Купить за 10 000 монеток</Button>
-                    </Div><Separator /></> : null : null}
+                      stretched
+                      onClick={() => this.setPopout(<Alert
+                        actionsLayout='vertical'
+                        actions={[{
+                          title: 'Удалить ник',
+                          autoclose: true,
+                          mode: 'destructive',
+                          action: () => this.ResetId(),
+                        },{
+                          title: 'Нет, я нажал сюда случайно',
+                          autoclose: true,
+                          style: 'cancel'
+                        },]}
+                        onClose={() => this.setPopout(null)}
+                      >
+                        <h2>Осторожно!</h2>
+                        <p>Если вы удалите ник, то, возможно, его сможет забрать кто-то другой.<br />После удаления ника у вас будет отображён начальный id</p>
+                    </Alert>)}
+                      before={<Icon24BlockOutline width={28} height={28} />}
+                      size="l" 
+                      mode='destructive'>Удалить ник</Button>
+                  </Div>
+                </Group>
+                
+
+                
+                {this.props.account ? !this.props.account.diamond ? 
+                <Group>
+                  <Header>Купить алмаз</Header>
+                  <Div>
+                    <Text weight='medium'>После приобретения этого товара, около вашей аватарки начнёт светиться фиолетовый алмаз. Это выглядит примерно так:</Text>
+                  </Div>
+                  <SimpleCell
+                    disabled
+                    description={
+                      this.props.account['special'] ? 
+                      <div className="top_moderator_desc">
+                        {this.props.account['good_answers'] + enumerate(this.props.account['good_answers'], [' оценённый ответ', ' оценённых ответа', ' оценённых ответов'])}
+                      </div>
+                      :
+                      <div className="top_moderator_desc">
+                        {this.props.account['good_answers'] + enumerate(this.props.account['good_answers'], [' хороший ответ, ', ' хороших ответа, ', ' хороших ответов, ']) 
+                        + this.props.account['bad_answers'] + enumerate(this.props.account['good_answers'], [' плохой ответ', ' плохих ответа', ' плохих ответов'])}
+                      </div>
+                    }
+                        size="l"
+                        before={
+                        <div style={{position:'relative', margin: 10}}><Avatar src={this.props.account['avatar']['url']} style={{position: 'relative'}} />
+                        <Icon28DiamondOutline width={16} height={16} className='Diamond_top' />
+                        </div>}
+                      >
+                    <div className="top_moderator_name">
+                    {isFinite(this.props.account['nickname']) ? `Агент Поддержки #${this.props.account['nickname']}` : this.props.account['nickname'] 
+                    ? this.props.account['nickname'] : `Агент Поддержки #${this.props.account['id']}`}
+                      <div className="top_moderator_name_icon">
+                        {this.props.account['flash'] === true ? <Icon16Fire width={12} height={12} className="top_moderator_name_icon"/> : null}
+                      </div>
+                      <div className="top_moderator_name_icon">
+                        {this.props.account['donut'] === true ? <Icon16StarCircleFillYellow width={12} height={12} className="top_moderator_name_icon" /> : null}
+                      </div>
+                      <div className="top_moderator_name_icon_ver">
+                        {this.props.account['verified'] === true ? <Icon16Verified className="top_moderator_name_icon_ver"/>  : null }
+                      </div>
+                    </div>
+                    </SimpleCell>
+                    <Div>
+                        <Button 
+                        onClick={() => this.buyDiamond()} 
+                        before={<Icon28MoneyHistoryBackwardOutline 
+                        style={{marginRight: "5px"}}/>} size="xl" mode='destructive'>Купить за 10 000 монеток</Button>
+                      </Div><Separator />
+                </Group> : null : null}
                 {/* <Group separator="hide" header={<Header>Сброс статистики</Header>}>
                     <Div>
                         <Button onClick={() => props.this.deleteStats()} before={<Icon28GridSquareOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Сбросить за 150 монеток</Button>
                     </Div>
                 </Group> */}
+                <Group>
+                  <Header>Опции</Header>
+                  <Div>
+                      <Button onClick={() => this.setActiveModal('send')} before={<Icon28MoneyHistoryBackwardOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Перевести</Button>
+                      {/* <br/>
+                      <Button onClick={() => props.this.goVitas()} before={<Icon28GlobeOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Обучать Витька</Button> */}
+                  </Div>
+                </Group>
                 
-                <Header>Опции</Header>
-                    <Div>
-                        <Button onClick={() => this.setActiveModal('send')} before={<Icon28MoneyHistoryBackwardOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Перевести</Button>
-                        {/* <br/>
-                        <Button onClick={() => props.this.goVitas()} before={<Icon28GlobeOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Обучать Витька</Button> */}
-                    </Div>
                 {this.props.this.state.snackbar}
                 {/* <Group separator="hide" header={<Header>Обнулить статистику</Header>}>
                     <Div>

@@ -1,19 +1,25 @@
 import React from 'react';
 import { 
+  Link,
     ModalCard,
 
   } from '@vkontakte/vkui';
-import Icon56FireOutline from '@vkontakte/icons/dist/56/fire_outline';
+import Icon36Done         from '@vkontakte/icons/dist/36/done';
 
 
-export default class Prometay extends React.Component {
+export default class Verification extends React.Component {
     render() {
         return (
             <ModalCard
                 id={this.props.id}
                 onClose={this.props.onClose}
-                icon={<Icon56FireOutline style={{color: "var(--prom_icon)"}} width={72} height={72} />}
-                caption="Прометей — особенный значок, выдаваемый агентам за хорошее качество ответов."
+                icon={<Icon36Done style={{color: "var(--accent)"}} width={72} height={72} />}
+                caption={<>Этот профиль был верифицирован.<br /><br />
+                <Link 
+                  href='https://vk.com/@jedi_road-chto-takoe-verifikaciya-i-kak-ee-poluchit-galochku'
+                  target="_blank"
+                  rel="noopener noreferrer">Узнайте больше о новой верификации
+                </Link></>}
                 actions={this.props.action2 ? [
                   {
                     title: 'Рассказать',
@@ -37,6 +43,6 @@ export default class Prometay extends React.Component {
         )
     }
 }
-Prometay.defaultProps = {
+Verification.defaultProps = {
   action2: null,
 }

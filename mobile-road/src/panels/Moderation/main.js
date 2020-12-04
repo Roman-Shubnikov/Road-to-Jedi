@@ -257,8 +257,8 @@ export default class Main extends React.Component {
               onClose={() => this.setActiveModal(null)}
               icon={<Icon28SortOutline width={56} height={56} />}
               header={'Вы оценили ' + this.props.account['marked'] + " " + enumerate(this.props.account['marked'], ['ответ', 'ответа', 'ответов'])}
-              caption={"Для преодоления порога необходимо оценить ещё " + 
-              (1000 - this.props.account['marked']) + 
+              caption={(150 - this.props.account['marked'] < 0) ? "Порог достигнут" : "Для преодоления порога необходимо оценить ещё " + 
+              (150 - this.props.account['marked']) + 
               " " + enumerate(this.props.account['marked'], ['ответ', 'ответа', 'ответов']) + " за неделю"}
               actions={[{
                 title: 'Понятно',

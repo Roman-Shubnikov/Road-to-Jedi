@@ -1,25 +1,42 @@
 import React from 'react';
+import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { 
     Panel,
     PanelHeader,
-    ScreenSpinner,
     Separator,
     Header,
     PanelHeaderBack,
-    Radio,
     FormLayout,
     Div,
+    Input,
+    Button,
+    Snackbar,
+    Avatar,
+    PanelHeaderButton
     } from '@vkontakte/vkui';
 
-import Message from '../../../components/message'
-import avaUser from '../../../images/user.jpg'
-import avaAgent from '../../../images/schemeagent.jpg'
 
-export default class SchemeChange extends React.Component{
+import Icon20CancelCircleFillRed    from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
+import Icon16CheckCircle            from '@vkontakte/icons/dist/16/check_circle';
+import Icon28ScanViewfinderOutline  from '@vkontakte/icons/dist/28/scan_viewfinder_outline';
+
+const queryString = require('query-string');
+const hash = queryString.parse(window.location.hash);
+
+const greenBackground = {
+    backgroundColor: 'var(--dynamic_green)'
+  };
+const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+
+var ignore_promo = false;
+export default class Promocodes extends React.Component{
     constructor(props){
         super(props)
         this.state = {
             api_url: "https://xelene.ru/road/php/index.php?",
+            promo: '',
+            snackbar: null,
+
 
         }
         var propsbi = this.props.this;
@@ -32,75 +49,225 @@ export default class SchemeChange extends React.Component{
             var value = event.currentTarget.value;
             this.setState({ [name]: value });
         }
-        this.ChangeScheme = (e) => {
-            this.setPopout(<ScreenSpinner />)
-            let value = e.currentTarget.value;
-            if(value === 0){
-                this.props.this.changeData('scheme', this.props.default_scheme)
+        this.setSnack = (value) => {
+            this.setState({snackbar: value})
+          }
+    }
+    checkPromocode(promo){
+        fetch(this.state.api_url + "method=shop.checkPromo&" + window.location.search.replace('?', ''),
+        {method: 'post',
+        headers: {"Content-type": "application/json; charset=UTF-8"},
+            // signal: controllertime.signal,
+        body: JSON.stringify({
+            'promocode': promo,
+        })
+          })
+        .then(res => res.json())
+        .then(data => {
+          if(data.result) {
+            this.setSnack(
+                <Snackbar
+                  layout="vertical"
+                  onClose={() => this.setSnack(null)}
+                  before={<Avatar size={24} style={greenBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                >
+                  Промокод действителен
+                </Snackbar>
+              )
+            setTimeout(() => {
+              this.props.this.ReloadProfile();
+            }, 4000)
+          } else {
+            this.setSnack(
+                <Snackbar
+                layout="vertical"
+                onClose={() => this.setSnack(null)}
+                before={<Icon20CancelCircleFillRed width={24} height={24} />}
+              >
+                {data.error.message}
+              </Snackbar>)
+          }
+        })
+        .catch(err => {
+          this.props.this.changeData('activeStory', 'disconnect')
+        })
+    }
+    activatePromocode(promo){
+        fetch(this.state.api_url + "method=shop.activatePromo&" + window.location.search.replace('?', ''),
+        {method: 'post',
+        headers: {"Content-type": "application/json; charset=UTF-8"},
+            // signal: controllertime.signal,
+        body: JSON.stringify({
+            'promocode': promo,
+        })
+          })
+        .then(res => res.json())
+        .then(data => {
+          if(data.result) {
+              this.props.setMoneyPromo(data.response.cost)
+              this.setActiveModal('valid_qr');
+            setTimeout(() => {
+              this.props.this.ReloadProfile();
+            }, 4000)
+          } else {
+              if(data.error.error_code === 1015){
+                this.setActiveModal('invalid_qr');
+              }else{
+                this.setSnack(
+                    <Snackbar
+                    layout="vertical"
+                    onClose={() => this.setSnack(null)}
+                    before={<Icon20CancelCircleFillRed width={24} height={24} />}
+                >
+                    {data.error.message}
+                </Snackbar>)
+              }
+          }
+        })
+        .catch(err => {
+          this.props.this.changeData('activeStory', 'disconnect')
+        })
+    }
+    validatePromo(promo){
+        let valid = ['default', '']
+        if(promo.length >= 1){
+            if(/^[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/ui.test(promo)){
+                valid = ['valid', 'Промокод введён верно']
+            }else{
+                valid = ['error', 'Промокод введён неверно']
             }
-            fetch(this.state.api_url + "method=account.changeScheme&" + window.location.search.replace('?', ''),
-            {method: 'post',
-                headers: {"Content-type": "application/json; charset=UTF-8"},
-                    // signal: controllertime.signal,
-                body: JSON.stringify({
-                    'scheme': value,
-                })
-                })
-                .then(res => res.json())
-                .then(data => {
-                if(data.result) {
-                    setTimeout(() => {
-                        this.props.this.ReloadProfile();
-                        this.setPopout(null)
-                      }, 3000)
-                }else{
-                    this.showErrorAlert(data.error.message)
-                }
-                })
-                .catch(err => {
-                    this.props.this.changeData('activeStory', 'disconnect')
-    
-                })
-    
+        }
+        return valid;
+    }
+    componentDidMount(){
+        if(hash.promo && !ignore_promo){
+            if(/^[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/ui.test(hash.promo)){
+                this.setState({promo: hash.promo})
+            }else{
+                this.setSnack(
+                    <Snackbar
+                    layout="vertical"
+                    onClose={() => this.setSnack(null)}
+                    before={<Icon20CancelCircleFillRed width={24} height={24} />}
+                  >
+                    Некорректный QR-код
+                  </Snackbar>)
+            }
         }
     }
-    
 
     render() {
         return(
             <Panel id={this.props.id}>
                 <PanelHeader 
                     left={
-                        <PanelHeaderBack onClick={() => window.history.back()} /> 
+                        <>
+                        <PanelHeaderBack onClick={() => window.history.back()} />
+                        {platformname ? <PanelHeaderButton onClick={() => {
+                            setTimeout(() => {
+                                bridge.send("VKWebAppOpenCodeReader")
+                                .then(data => {
+                                    data = data['code_data']
+                                    if(/vk.com\/jedi_road_app/.test(data) && /#.*/.test(data)){
+                                        let parse = queryString.parse(data.match(/#(.*)/)[1]);
+                                        if(/^[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/ui.test(parse.promo)){
+                                            this.setState({promo: parse.promo})
+                                        }else{
+                                            this.setSnack(
+                                                <Snackbar
+                                                layout="vertical"
+                                                onClose={() => this.setSnack(null)}
+                                                before={<Icon20CancelCircleFillRed width={24} height={24} />}
+                                              >
+                                                Некорректный QR-код
+                                              </Snackbar>)
+                                        }
+                                        
+                                        // this.setState({})
+                                    }else{
+                                        this.setSnack(
+                                            <Snackbar
+                                            layout="vertical"
+                                            onClose={() => this.setSnack(null)}
+                                            before={<Icon20CancelCircleFillRed width={24} height={24} />}
+                                          >
+                                            Некорректный QR-код
+                                          </Snackbar>)
+                                    }
+                                    
+                                })
+                                .catch(err => {
+                                    if(err.error_type){
+                                        this.setSnack(
+                                            <Snackbar
+                                            layout="vertical"
+                                            onClose={() => this.setSnack(null)}
+                                            before={<Icon20CancelCircleFillRed width={24} height={24} />}
+                                          >
+                                            Вначале просканируйте QR-код
+                                          </Snackbar>)
+                                    }else{
+                                    this.setSnack(
+                                        <Snackbar
+                                        layout="vertical"
+                                        onClose={() => this.setSnack(null)}
+                                        before={<Icon20CancelCircleFillRed width={24} height={24} />}
+                                      >
+                                        {err.error_data}
+                                      </Snackbar>)
+                                    }
+                                })
+                            })
+                            
+                        }}><Icon28ScanViewfinderOutline /></PanelHeaderButton> : null}
+                        </>
                 }>
                     Активация
                 </PanelHeader>
-                <Header mode='secondary'>Предпросмотр</Header>
-                <Separator /> 
-                <Div>
-                    <Message
-                    title='Пользователь'
-                    is_mine={false}
-                    avatar={avaUser}
-                    onClick={() => {}}
-                    clickable={false}
-                    >О, тут можно менять тему</Message>
-                    <Message
-                    title='Агент Поддержки'
-                    is_mine={true}
-                    avatar={avaAgent}
-                    onClick={() => {}}
-                    clickable={false}
-                    >Действительно</Message>
-                </Div>
-                <Separator style={{marginTop: 10}} />
+                <Header>Активировать промокод</Header>
                 <FormLayout>
-                    <div>
-                    <Radio name="radio" className="pointer" onChange={this.ChangeScheme} value="1" defaultChecked={(this.props.account.scheme === 1) ? true : false}>Светлая тема</Radio>
-                    <Radio name="radio" className="pointer" onChange={this.ChangeScheme} value="2" defaultChecked={(this.props.account.scheme === 2) ? true : false}>Тёмная тема</Radio>
-                    <Radio name="radio" className="pointer" onChange={this.ChangeScheme} value="0" description='Сервис будет использовать тему, установленную в настройках ВКонтакте' defaultChecked={(this.props.account.scheme === 0) ? true : false}>Автоматически</Radio>
-                    </div>
+                    <Input 
+                    top='Введите промокод и получите монетки, которые можно потратить на товары в магазине.'
+                    maxLength="14" 
+                    name="promo"
+                    status={this.validatePromo(this.state.promo)[0]}
+                    bottom={this.validatePromo(this.state.promo)[1]}
+                    onChange={(e) => this.onChange(e)} 
+                    placeholder="XXXX-XXXX-XXXX" 
+                    value={this.state.promo} />
                 </FormLayout>
+                <Div>
+                    <Button size='xl'
+                    mode='primary'
+                    onClick={() => {
+                        this.activatePromocode(this.state.promo);
+                    }} 
+                    disabled={!(this.validatePromo(this.state.promo)[0] === 'valid')}
+                    stretched>Активировать</Button>
+                </Div>
+                <Separator />
+                <Header>Проверить промокод</Header>
+                <FormLayout>
+                    <Input 
+                    top='Введите промокод и проверьте его. Если он действителен, то любой пользователь может его ввести.'
+                    maxLength="14" 
+                    name="promo"
+                    status={this.validatePromo(this.state.promo)[0]}
+                    bottom={this.validatePromo(this.state.promo)[1]}
+                    onChange={(e) => this.onChange(e)} 
+                    placeholder="XXXX-XXXX-XXXX" 
+                    value={this.state.promo} />
+                </FormLayout>
+                <Div>
+                    <Button size='xl'
+                    mode='secondary'
+                    onClick={() => {
+                        this.checkPromocode(this.state.promo);
+                    }} 
+                    disabled={!(this.validatePromo(this.state.promo)[0] === 'valid')}
+                    stretched>Проверить</Button>
+                </Div>
+                {this.state.snackbar}
             </Panel>
         )
     }

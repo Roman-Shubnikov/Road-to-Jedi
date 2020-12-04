@@ -10,6 +10,11 @@ class SystemNotifications {
 	}
 
 	public function send( int $owner_id, string $text, $image=null, array $object, string $comment=null ) {
+		// $owner_id - id агента НЕ vk_id
+		// $text - Текст в уведомлении который увидит пользователь
+		// $image - Чаще всего требуется для money_transfer_send | money_transfer_give чтобы показать аватарку переводящего
+		// $object - Ниже
+		// $comment - Чаще всего требуется для money_transfer_send | money_transfer_give чтобы показать коментарий к переводу
 		// Types
 		// В object обязательно нужно передать массив где 2 поля "object" и "type" 
 		// В "object" передать номер тикета (по смыслу уведомления)
@@ -60,7 +65,7 @@ class SystemNotifications {
 			file_get_contents( $url );
 
 
-			$vkapi = new VKApi();
+			// $vkapi = new VKApi();
 			// $apireq = $vkapi->sendNotification( [$user['vk_user_id']], $text, $object_lol);
 		}
 

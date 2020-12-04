@@ -93,7 +93,7 @@ export default class Profile extends React.Component{
                                     : null}
                                 {this.props.account['verified'] === true ? 
                                     <div className="profile_icon_ver">
-                                        <Icon16Verified />  
+                                        <Icon16Verified onClick={() => props.setActiveModal('verif')} />  
                                     </div>
                                     : null}
                             </div>

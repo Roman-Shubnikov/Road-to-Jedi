@@ -32,33 +32,34 @@ require 'api/db.php';
 // require 'api/func.php';
 require 'vkapi.php';
 
-// set_exception_handler( 'exceptionerror' );
+set_exception_handler( 'exceptionerror' );
 
 require 'api/api/users.php';
 require 'api/api/account.php';
 require 'api/api/tickets.php';
 require 'api/api/notifications.php';
+require 'api/api/promocodes.php';
 
 session_id( $_GET['vk_user_id'] );
 session_start();
 
 
 function exceptionerror( $ex ) {
-	$code = $ex->getCode();
-	$msg = $ex->getMessage();
+	// $code = $ex->getCode();
+	// $msg = $ex->getMessage();
 
-	if ( $code == 0 ) $msg = CONFIG::ERRORS[0];
+	// if ( $code == 0 ) $msg = CONFIG::ERRORS[0];
+	// $data = [
+	// 	'result' => false,
+	// 	'error' => [
+	// 		'code' => $code,
+	// 		'message' => $msg
+	// 	]
+	// 	];
+	Show::error(0);
 
-	$data = [
-		'result' => false,
-		'error' => [
-			'code' => $code,
-			'message' => $msg
-		]
-	];
-
-	$pretty = isset($data['debug']) ? JSON_PRETTY_PRINT : 0;
-	echo json_encode( $data, JSON_UNESCAPED_UNICODE | $pretty );
+	// $pretty = isset($data['debug']) ? JSON_PRETTY_PRINT : 0;
+	// echo json_encode( $data, JSON_UNESCAPED_UNICODE | $pretty );
 }
 function offset_count( int &$offset, int &$count ) {
 	if ( $offset < 0 ) $offset = 0;
@@ -376,6 +377,18 @@ $params = [
 	],
 	'shop.resetId' => [],
 	'shop.buyDiamond' => [],
+	'shop.checkPromo' => [
+		'promocode' => [
+			'type' => 'string',
+			'required' => true
+		],
+	],
+	'shop.activatePromo' => [
+		'promocode' => [
+			'type' => 'string',
+			'required' => true
+		],
+	],
 	'transfers.send' => [
 		'send_to' => [
 			'type' => 'intorstr',
@@ -442,6 +455,7 @@ $notifications = new Notifications( $users,$Connect );
 $sysnotifications = new SystemNotifications( $Connect );
 $account = new Account( $users,$Connect,$sysnotifications );
 $tickets = new Tickets( $users,$Connect,$sysnotifications );
+$promocodes = new Promocodes($users, $Connect, $sysnotifications);
 
 
 function getBalance() {
@@ -763,6 +777,14 @@ switch ( $method ) {
 		}else{
 			Show::error(1014);
 		}
+	case 'shop.checkPromo':
+		$promo = (string)$data['promocode'];
+		Show::response($promocodes->check($promo));
+
+	case 'shop.activatePromo':
+		$promo = (string)$data['promocode'];
+		Show::response($promocodes->activate($promo));
+
 	case 'transfers.send':
 		$summa = (int) $data['summa'];
 		$send_to = trim($data['send_to']);

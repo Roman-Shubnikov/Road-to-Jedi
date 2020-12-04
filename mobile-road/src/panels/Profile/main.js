@@ -39,14 +39,16 @@ import Settings from './panels/settings';
 import SchemeChange from './panels/schemechange';
 import Info from './panels/info'
 import Verfy from './panels/verfy'
+import Promocodes from './panels/promocode';
 import Tiket from '../../components/tiket';
 import OtherProfile from '../../components/other_profile'
 
 //Импортируем модальные карточки
-import ModalPrometay from '../../Modals/Prometay';
-import ModalDonut from '../../Modals/Donut'
-import ModalComment from '../../Modals/Comment';
-import ModalBan from '../../Modals/Ban';
+import ModalPrometay  from '../../Modals/Prometay';
+import ModalDonut     from '../../Modals/Donut'
+import ModalComment   from '../../Modals/Comment';
+import ModalBan       from '../../Modals/Ban';
+import ModalVerif     from '../../Modals/Verif';
 
 import Icon24Dismiss              from '@vkontakte/icons/dist/24/dismiss';
 import Icon24Qr                   from '@vkontakte/icons/dist/24/qr';
@@ -54,14 +56,19 @@ import Icon24Qr                   from '@vkontakte/icons/dist/24/qr';
 import Icon24Linked               from '@vkontakte/icons/dist/24/linked';
 import Icon56MoneyTransferOutline from '@vkontakte/icons/dist/56/money_transfer_outline'
 import Icon16CheckCircle          from '@vkontakte/icons/dist/16/check_circle';
+import Icon28NewsfeedOutline from '@vkontakte/icons/dist/28/newsfeed_outline';
+import Icon28StoryAddOutline from '@vkontakte/icons/dist/28/story_add_outline';
+
+import InvalidQR from './images/qr_invalid.svg'
+import ValidQR from './images/qr_valid.svg'
 
 
 
-// const queryString = require('query-string');
+const queryString = require('query-string');
 // const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 // var click_qr = false;
 // const parsedHash = queryString.parse(window.location.search.replace('?', ''));
-// const hash = queryString.parse(window.location.hash);
+const hash = queryString.parse(window.location.hash);
 
 function qr(agent_id, sheme) {
   let hex = "foregroundColor"
@@ -83,7 +90,34 @@ function qr(agent_id, sheme) {
 const blueBackground = {
   backgroundColor: 'var(--accent)'
 };
+const POST_TEXTS = {
+  prometay: {
+    text: "Раздаю отличные ответы в [https://vk.com/jedi_road_app|Road to Jedi] по максимуму — это я от усердия теперь горю или мне наконец-то дали значок Прометея в Профиле RtJ? 🎉\n\n#RoadtoJedi #Прометей",
+    image: "photo605436158_457240007"
+  },
+  verif: {
+    text: "Доказал, что достоин, — верифицировал Профиль [https://vk.com/jedi_road_app|Road to Jedi].\n\nА у вас уже есть такая галочка?\n\n#RoadtoJedi #Верификация",
+    image: "photo605436158_457240006"
+  },
+  donut: {
+    text: "Поддерживаю любимое сообщество и приложение [https://vk.com/jedi_road_app|Road to Jedi].\n\nПриятно чувствовать себя агентом и выделяться среди остальных ;)\n\n#RoadtoJedi #VKDonut",
+    image: "photo605436158_457240005"
+  }
+
+}
+const HISTORY_IMAGES = {
+  prometay: {
+    image: "https://sun9-25.userapi.com/impf/y-48TlRZRKfvy6XPPv60iFFHRA1MVPknRFG8TA/ZgjfvgntI3A.jpg?size=607x1080&quality=96&sign=3bbcb679fce21acee714391359f764bd"
+  },
+  verif: {
+    image: "https://sun9-32.userapi.com/impf/GTxLdOv-QScQqakIoBgM9cKQHLMx53ajTEWJrw/lsWE91Rdf4g.jpg?size=454x807&quality=96&sign=238abb9ba7b1fea3e26e2354c16a65dd"
+  },
+  donut: {
+    image: "https://sun9-32.userapi.com/impf/ZSrMdpua6pPTqA6HYVXjEGm1QHkiPerFPVpBlQ/2q3uSkrkrsk.jpg?size=454x807&quality=96&sign=6d7c6695992142447101ae34ff36ff04"
+  }
+}
 var ignore_back = false;
+var ignore_promo = false;
 export default withPlatform(class Main extends React.Component {
     constructor(props) {
         super(props);
@@ -110,6 +144,8 @@ export default withPlatform(class Main extends React.Component {
             AgeUser: 0,
             snackbar: null,
             myQuestions:[],
+            moneyPromo: 0,
+            sharing_type: 'prometay',
         }
         this.changeData = this.props.this.changeData;
         this.playAudio = this.props.this.playAudio;
@@ -121,6 +157,9 @@ export default withPlatform(class Main extends React.Component {
           }else{
             ignore_back = false;
           }
+        }
+        this.setMoneyPromo = (value) => {
+          this.setState({moneyPromo: value})
         }
         this.myQuestions = () => {
           fetch(this.state.api_url + "method=tickets.getByModeratorAnswers&" + window.location.search.replace('?', ''))
@@ -362,6 +401,10 @@ export default withPlatform(class Main extends React.Component {
       bridge.send('VKWebAppEnableSwipeBack');
       window.addEventListener('popstate', this.handlePopstate); 
       this.myQuestions();
+      if(hash.promo !== undefined && !ignore_promo){
+        ignore_promo = true
+        this.goPanel('promocodes');
+      }
     }
     componentWillUnmount(){
       bridge.send('VKWebAppDisableSwipeBack');
@@ -381,14 +424,20 @@ export default withPlatform(class Main extends React.Component {
               <ModalPrometay
               id='prom'
               onClose={() => this.setActiveModal(null)}
-              action={() => this.setActiveModal(null)} />
+              action={() => this.setActiveModal(null)} 
+              action2={() => {this.setState({sharing_type: 'prometay'});this.setActiveModal('share2')}} />
 
               <ModalDonut
               id='donut'
               onClose={() => this.setActiveModal(null)}
-              action={() => this.setActiveModal(null)} />
+              action={() => this.setActiveModal(null)}
+              action2={() => {this.setState({sharing_type: 'donut'});this.setActiveModal('share2')}} />
 
-              
+              <ModalVerif
+              id='verif'
+              onClose={() => this.setActiveModal(null)}
+              action={() => this.setActiveModal(null)}
+              action2={() => {this.setState({sharing_type: 'verif'});this.setActiveModal('share2')}} />
 
               <ModalBan 
               id='ban_user'
@@ -499,6 +548,31 @@ export default withPlatform(class Main extends React.Component {
                 </ModalPage>
 
                 <ModalPage
+                id="share2"
+                onClose={this.modalBack}
+                header={
+                  <ModalPageHeader
+                  right={platform === IOS && <Header onClick={this.modalBack}><Icon24Dismiss /></Header>}
+                  left={platform === ANDROID && <PanelHeaderButton onClick={this.modalBack}><Icon24Dismiss /></PanelHeaderButton>}
+                  >
+                    Рассказать
+                  </ModalPageHeader>
+                }
+                >
+                  <List>
+                    <Cell 
+                    onClick={() => bridge.send("VKWebAppShowWallPostBox", {message: POST_TEXTS[this.state.sharing_type]['text'],attachments: POST_TEXTS[this.state.sharing_type]['image']})} 
+                    before={<Icon28NewsfeedOutline />}>
+                      На стене
+                    </Cell>
+                    <Cell before={<Icon28StoryAddOutline />} 
+                    onClick={() => {bridge.send("VKWebAppShowStoryBox", {background_type: "image", url: HISTORY_IMAGES[this.state.sharing_type]['image']})}}>
+                      В истории
+                    </Cell>
+                  </List>
+                </ModalPage>
+
+                <ModalPage
                 id="qr"
                 onClose={this.modalBack}
                 dynamicContentHeight
@@ -527,6 +601,36 @@ export default withPlatform(class Main extends React.Component {
                   id='comment'
                   onClose={this.modalBack}
                   comment={this.state.comment} />
+                <ModalCard
+                id='invalid_qr'
+                onClose={this.modalBack}
+                icon={<img src={InvalidQR} alt='QR' />}
+                header="Промокод недействительный"
+                caption={
+                <span>
+                  Увы, активировать промокод не получится, так как он использовался ранее или его никогда не существовало.
+                </span>}
+                actions={[{
+                  title: 'Понятно',
+                  mode: 'secondary',
+                  action: this.modalBack
+                }
+                ]}/>
+                  <ModalCard
+                id='valid_qr'
+                onClose={this.modalBack}
+                icon={<img src={ValidQR} alt='QR' />}
+                header="Вы активировали промокод!"
+                caption={
+                <span>
+                  Поздравляем! На Ваш виртуальный счет было начислено {this.state.moneyPromo} монеток.
+                </span>}
+                actions={[{
+                  title: 'Ура!',
+                  mode: 'primary',
+                  action: this.modalBack
+                }
+                ]} />
             </ModalRoot>
         )
         return(
@@ -547,6 +651,7 @@ export default withPlatform(class Main extends React.Component {
               <SchemeChange id="schemechange" this={this} default_scheme={this.props.default_scheme} account={this.props.account} />
               <Info id='info' this={this} />
               <Verfy id='verf' this={this} account={this.props.account} />
+              <Promocodes id='promocodes' this={this} account={this.state.account} setMoneyPromo={this.setMoneyPromo} />
               <Tiket id="ticket" this={this} ticket_id={this.state.ticket_id} account={this.props.account} />
               <OtherProfile id="other_profile" this={this} agent_id={this.state.active_other_profile} account={this.props.account}/>
             </View>   

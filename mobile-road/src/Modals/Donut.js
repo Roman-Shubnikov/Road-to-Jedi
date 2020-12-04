@@ -8,6 +8,7 @@ import Icon28FavoriteCircleFillYellow from '@vkontakte/icons/dist/28/favorite_ci
 export default class Donut extends React.Component {
     render() {
         return (
+          <>
             <ModalCard
                 id={this.props.id}
                 onClose={this.props.onClose}
@@ -16,14 +17,30 @@ export default class Donut extends React.Component {
                         Агенты, которые поддержали проект,
                         получают отметку, на весь период подписки. По
                         истечении данного периода отметка пропадает.</span>}
-                actions={[{
-                  title: 'Понятно',
+                actions={this.props.action2 ? [
+                {
+                  title: 'Рассказать',
                   mode: 'secondary',
+                  action: this.props.action2},
+                {
+                  title: 'Понятно',
+                  mode: 'primary',
                   action: this.props.action
-                }
-                ]}
+                },
+                
+                ]
+                :
+                [{
+                  title: 'Понятно',
+                  mode: 'primary',
+                  action: this.props.action
+                }]}
                 
               />
+              </>
         )
     }
+}
+Donut.defaultProps = {
+    action2: null,
 }

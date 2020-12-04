@@ -44,7 +44,7 @@ export default class Info extends React.Component{
                   <SimpleCell
                   className="pointer"
                   before={<Icon28MessagesCircleFillYellow />}
-                  href='https://vk.me/jedi_road'
+                  href='https://vk.me/id605436158'
                   target="_blank"
                   rel="noopener noreferrer">
                     Напишите нам

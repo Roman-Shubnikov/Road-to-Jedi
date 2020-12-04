@@ -164,7 +164,7 @@ class Users {
 				ON users.avatar_id = avatars.id
 				WHERE users.vk_user_id=?";
 		$res = $this->Connect->db_get( $sql, [$user_id] )[0];
-		$ban = $this->checkBanned($res['vk_user_id']);
+		$ban = $this->checkBanned($user_id);
 		if($ban){
 			$res['banned'] = $ban[0];
 		}

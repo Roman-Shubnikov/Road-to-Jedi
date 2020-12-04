@@ -36,10 +36,10 @@ import Icon28FavoriteOutline  from '@vkontakte/icons/dist/28/favorite_outline';
 import Icon28MagicWandOutline from '@vkontakte/icons/dist/28/magic_wand_outline';
 
 
-// const queryString = require('query-string');
+const queryString = require('query-string');
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 // const parsedHash = queryString.parse(window.location.search.replace('?', ''));
-// const hash = queryString.parse(window.location.hash);
+const hash = queryString.parse(window.location.hash);
 
 const blueBackground = {
   backgroundColor: 'var(--accent)'
@@ -51,6 +51,7 @@ function isEmpty(obj) {
   }
   return true;
 }
+var ignore_promo = false;
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -251,7 +252,10 @@ class App extends React.Component {
             if(this.state.account.is_first_start){
               this.setState({activeStory: 'start', LoadWebView: true});
             }else{
-              if(this.state.activeStory === 'loading' || this.state.activeStory === 'disconnect'){
+              if(hash.promo !== undefined && !ignore_promo){
+                ignore_promo = true;
+                this.setState({activeStory: 'profile', LoadWebView: true, need_epic: true})
+              }else if(this.state.activeStory === 'loading' || this.state.activeStory === 'disconnect'){
                 this.setState({activeStory: 'questions', LoadWebView: true, need_epic: true})
               }
             }
