@@ -56,8 +56,16 @@ export default class Main extends React.Component {
             comment: '',
             questions: null,
             questions_helper:null,
-            offset: 0,
-            count:20,
+            answers: null,
+            answers_helper:null,
+            offseta: 0,
+            counta:20,
+            offsetq: 0,
+            countq:20,
+            offsetv: 0,
+            countv:20,
+            verification: null,
+            verification_helper:null,
 
         
 
@@ -68,18 +76,21 @@ export default class Main extends React.Component {
         // this.recordHistory = (panel) => {
         //   this.setState({history: [...this.state.history, panel]})
         // }
+        this.changeQuest = (name,value) => {
+          this.setState({ [name]: value });
+        }
         this.getQuestions = (need_offset=false) => {
           if(!need_offset){
-            this.setState({ offset: 20})
+            this.setState({ offsetq: 20})
           }
-          let offset = need_offset ? this.state.offset : 0;
+          let offset = need_offset ? this.state.offsetq : 0;
           fetch(this.state.api_url + "method=special.getNewMessages&" + window.location.search.replace('?', ''),
           {method: 'post',
             headers: {"Content-type": "application/json; charset=UTF-8"},
             // signal: controllertime.signal,
             body: JSON.stringify({
               'offset': offset,
-              'count': this.state.count,
+              'count': this.state.countq,
             })
           })
           .then(res => res.json())
@@ -99,7 +110,93 @@ export default class Main extends React.Component {
               
               this.setState({questions: sliyan, questions_helper: data.response})
               if(need_offset){
-                  this.setState({ offset: this.state.offset + 20 })
+                  this.setState({ offsetq: this.state.offsetq + 20 })
+              }
+              this.setPopout(null);
+            }else{
+              this.showErrorAlert(data.error.message)
+            }
+          })
+          .catch(err => {
+            this.changeData('activeStory', 'disconnect')
+
+          })
+        }
+        this.getAnswers = (need_offset=false) => {
+          if(!need_offset){
+            this.setState({ offseta: 20})
+          }
+          let offset = need_offset ? this.state.offseta : 0;
+          fetch(this.state.api_url + "method=special.getNewModerationTickets&" + window.location.search.replace('?', ''),
+          {method: 'post',
+            headers: {"Content-type": "application/json; charset=UTF-8"},
+            // signal: controllertime.signal,
+            body: JSON.stringify({
+              'offset': offset,
+              'count': this.state.counta,
+            })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if(data.result) {
+              var sliyan = [];
+              if(this.state.answers !== null){
+                let tickets = this.state.answers.slice();
+                if(!need_offset){
+                  sliyan = data.response;
+                }else{
+                  sliyan = data.response ? tickets.concat(data.response) : this.state.answers;
+                }
+              }else{
+                sliyan = data.response
+              }
+              
+              this.setState({answers: sliyan, answers_helper: data.response})
+              if(need_offset){
+                  this.setState({ offseta: this.state.offseta + 20 })
+              }
+              this.setPopout(null);
+            }else{
+              this.showErrorAlert(data.error.message)
+            }
+          })
+          .catch(err => {
+            this.changeData('activeStory', 'disconnect')
+
+          })
+        }
+        this.getVerification = (need_offset=false) => {
+          if(!need_offset){
+            this.setState({ offsetv: 20})
+          }
+          let offset = need_offset ? this.state.offsetv : 0;
+          fetch(this.state.api_url + "method=special.getVerificationRequests&" + window.location.search.replace('?', ''),
+          {method: 'post',
+            headers: {"Content-type": "application/json; charset=UTF-8"},
+            // signal: controllertime.signal,
+            body: JSON.stringify({
+              'offset': offset,
+              'count': this.state.countv,
+            })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if(data.result) {
+              var sliyan = [];
+              if(this.state.verification !== null){
+                let tickets = this.state.verification.slice();
+                if(!need_offset){
+                  sliyan = data.response;
+                }else{
+                  sliyan = data.response ? tickets.concat(data.response) : this.state.verification;
+                }
+              }else{
+                sliyan = data.response
+              }
+              
+              this.setState({verification: sliyan, verification_helper: data.response})
+              if(need_offset){
+                  this.setState({ offseta: this.state.offsetv + 20 })
               }
               this.setPopout(null);
             }else{
@@ -225,6 +322,8 @@ export default class Main extends React.Component {
       bridge.send('VKWebAppEnableSwipeBack');
       window.addEventListener('popstate', this.handlePopstate); 
       this.getQuestions()
+      this.getAnswers()
+      this.getVerification()
     }
     componentWillUnmount(){
       bridge.send('VKWebAppDisableSwipeBack');
@@ -282,9 +381,25 @@ export default class Main extends React.Component {
             history={this.state.history}
             onSwipeBack={() => window.history.back()}
             >
-              <Questions id="questions" this={this} account={this.props.account} questions={this.state.questions} questions_helper={this.state.questions_helper} />
-              <OtherProfile id="other_profile" this={this} agent_id={this.state.active_other_profile} account={this.props.account}/>
-              <Tiket id="ticket" this={this} ticket_id={this.state.ticket_id} account={this.props.account} />
+              <Questions id="questions" 
+              this={this} 
+              account={this.props.account} 
+              questions={this.state.questions} 
+              questions_helper={this.state.questions_helper} 
+              answers={this.state.answers} 
+              answers_helper={this.state.answers_helper}
+              verification={this.state.verification}
+              verification_helper={this.state.verification_helper} />
+
+              <OtherProfile id="other_profile" 
+              this={this} 
+              agent_id={this.state.active_other_profile} 
+              account={this.props.account}/>
+
+              <Tiket id="ticket" 
+              this={this} 
+              ticket_id={this.state.ticket_id} 
+              account={this.props.account} />
             </View>   
         )
     }

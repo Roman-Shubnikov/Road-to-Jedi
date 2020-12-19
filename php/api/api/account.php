@@ -42,10 +42,20 @@ class Account {
 		}
 		
 		if ($give) {
-			return $this->Connect->query("UPDATE users SET flash=1,flashtime=? WHERE id=?", [time(),$agent_id])[0];
+			return $this->Connect->query("UPDATE users SET flash=? WHERE id=?", [time(),$agent_id])[0];
 		}
-		return $this->Connect->query("UPDATE users SET flash=0,flashtime=0 WHERE id=?", [$agent_id])[0];
-    }
+		return $this->Connect->query("UPDATE users SET flash=0 WHERE id=?", [$agent_id])[0];
+	}
+	public function Verification($agent_id, $give=TRUE){
+		if ( !$this->user->info['special'] ) {
+			Show::error(403);
+		}
+		
+		if ($give) {
+			return $this->Connect->query("UPDATE users SET verified=? WHERE id=?", [time(),$agent_id])[0];
+		}
+		return $this->Connect->query("UPDATE users SET verified=0 WHERE id=?", [$agent_id])[0];
+	}
     public function NewRequestVerf($title, $desc){
 		$aid = $this->user->id;
 		if($this->user->info['verified']){
@@ -67,7 +77,7 @@ class Account {
 			'type' => 'verification_send'
 		];
 		$this->SYSNOTIF->send( $aid, $notification, null, $object );
-		return $this->Connect->query("INSERT INTO request_verification (aid,title,descverf,time) VALUES (?,?,?,?)", [$aid,$title,$desc,time()])[0];
+		return $this->Connect->query("INSERT INTO request_verification (vk_id,aid,title,descverf,time) VALUES (?,?,?,?,?)", [$this->user->vk_id, $aid,$title,$desc,time()])[0];
 	}
 	public function getVerfStatus(){
 		// 0 - Не верифицирован

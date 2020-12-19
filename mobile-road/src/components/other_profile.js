@@ -261,7 +261,7 @@ const NOTI = [
                   </div>
                   </Cell>
                   <Separator />
-                  {this.state.other_profile['special'] || this.state.other_profile['banned'] ? <div style={{marginTop: 20, marginBottom: 20}} className="help_title_profile">{this.state.other_profile['banned'] ? 'Этот профиль забанен' : 'Вы не можете просматривать этот профиль'}</div> :
+                  {(this.state.other_profile['special'] || this.state.other_profile['generator'] || this.state.other_profile['banned']) ? <div style={{marginTop: 20, marginBottom: 20}} className="help_title_profile">{this.state.other_profile['banned'] ? 'Этот профиль забанен' : 'Вы не можете просматривать этот профиль'}</div> :
                     <Group>
                     <SimpleCell 
                         disabled

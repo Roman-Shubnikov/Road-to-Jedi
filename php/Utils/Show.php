@@ -2,7 +2,10 @@
 
 class Show {
     private static function ok( $object ) {
-        echo json_encode($object, JSON_UNESCAPED_UNICODE);
+        // echo json_encode($object, JSON_UNESCAPED_UNICODE);
+        echo json_encode($object, JSON_PRETTY_PRINT);
+
+        
     }
 
     public static function response( $object = [] ) {

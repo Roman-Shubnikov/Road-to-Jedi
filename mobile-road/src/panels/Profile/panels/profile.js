@@ -1,4 +1,5 @@
 import React from 'react';
+// import bridge from '@vkontakte/vk-bridge'; // VK Brige
 
 import { 
     Panel,
@@ -26,6 +27,7 @@ import Icon28ShareExternalOutline   from '@vkontakte/icons/dist/28/share_externa
 import Icon16StarCircleFillYellow   from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
 import Icon28Messages               from '@vkontakte/icons/dist/28/messages';
 import Icon28DiamondOutline         from '@vkontakte/icons/dist/28/diamond_outline';
+import Icon28BrainOutline from '@vkontakte/icons/dist/28/brain_outline';
 
 function isEmpty(obj) {
     for (let key in obj) {
@@ -40,13 +42,19 @@ export default class Profile extends React.Component{
         this.state = {
             api_url: "https://xelene.ru/road/php/index.php?",
             fetching: false,
-
+            subscribe: false,
         }
         var propsbi = this.props.this;
         this.setPopout = propsbi.setPopout;
         this.showErrorAlert = propsbi.showErrorAlert;
         this.setActiveModal = propsbi.setActiveModal;
 
+    }
+    componentDidMount(){
+        // bridge.send("VKWebAppJoinGroup", {group_id: 188280516})
+        // .then(data => {
+        //     console.log(data)
+        // })
     }
     render(){
         var props = this.props.this;
@@ -69,7 +77,6 @@ export default class Profile extends React.Component{
                     <PullToRefresh onRefresh={() => {this.setState({fetching: true});this.props.this.ReloadProfile();setTimeout(() => {this.setState({fetching: false});}, 1000)}} isFetching={this.state.fetching}>
                         <SimpleCell
                         disabled
-                        // before={<Avatar src={this.props.account ? this.props.account['avatar']['url'] : null} size={72} />}
                         before={this.props.account.diamond ?
                             <div style={{position:'relative', margin: 10}}><Avatar src={this.props.account['avatar']['url']} size={72} style={{position: 'relative'}} />
                             <Icon28DiamondOutline width={25} height={25} className='Diamond_profile' />
@@ -122,7 +129,7 @@ export default class Profile extends React.Component{
 
                         </Group>
                         <Group>
-                            {this.props.account['special'] || <SimpleCell
+                            {(this.props.account['special'] || this.props.account['generator']) || <SimpleCell
                             expandable
                             className='pointer'
                             onClick={() => {
@@ -136,6 +143,14 @@ export default class Profile extends React.Component{
                                 this.props.this.goPanel('market');
                             }}
                             before={<Icon28MarketOutline />}>Магазин</SimpleCell>
+
+                            {this.props.account['generator'] && <SimpleCell
+                            expandable
+                            className='pointer'
+                            onClick={() => {
+                                this.props.this.goPanel('new_ticket');
+                            }}
+                            before={<Icon28BrainOutline />}>Генератор вопросов</SimpleCell>}
                             
                             
                             {/* 

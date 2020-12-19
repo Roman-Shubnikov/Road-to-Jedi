@@ -72,7 +72,7 @@ class Users {
 	}
 
 	public function getById( int $id ) {
-		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, 
+		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator,
 				users.bad_answers, users.avatar_id, avatars.name as avatar_name, users.flash, users.verified, users.donut, users.diamond, users.nickname,
 				users.money, users.age, users.scheme, users.vk_user_id
 				FROM users
@@ -108,7 +108,7 @@ class Users {
 		$s_ids = implode( ',', $ids );
 		$result = [];
 
-		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, 
+		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator,
 						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme,
 						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname
 				FROM users
@@ -158,7 +158,7 @@ class Users {
 		$this->Connect->query("UPDATE users SET last_activity=? WHERE vk_user_id=?", [$time,$user_id]);
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,users.age,users.vk_user_id,
 						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.noti, users.scheme,
-						users.special, users.flash, users.verified,users.donut,users.nickname,users.diamond,avatars.name as avatar_name
+						users.special, users.generator, users.flash, users.verified, users.donut, users.nickname, users.diamond, avatars.name as avatar_name
 				FROM users
 				LEFT JOIN avatars
 				ON users.avatar_id = avatars.id
@@ -209,6 +209,7 @@ class Users {
 				'verified' => (bool) $data['verified'],
 				'donut' => (bool) $data['donut'],
 				'diamond' => (bool) $data['diamond'],
+				'generator' => (bool) $data['generator'],
 			];	
 		}
 		if(!empty($data['banned'])){

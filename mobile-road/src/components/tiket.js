@@ -19,8 +19,9 @@ import {
     Avatar,
     } from '@vkontakte/vkui';
 
-import Icon16ReplyOutline from '@vkontakte/icons/dist/16/reply_outline';
-import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
+import Icon16ReplyOutline           from '@vkontakte/icons/dist/16/reply_outline';
+import Icon16CheckCircle            from '@vkontakte/icons/dist/16/check_circle';
+import Icon16StarCircleFillYellow   from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
 
 // import Moderator_img from '../images/10007.png'
 
@@ -646,7 +647,8 @@ export default class Ticket extends React.Component {
             <PanelHeader 
                 left={<PanelHeaderBack onClick={() => window.history.back()} />}
             >
-                {this.state.tiket_info ? <span id="animation" className='pointer' onClick={() => this.copy(this.state.tiket_info['id'])}>Вопрос #{this.state.tiket_info['id']}</span> : null}
+                {this.state.tiket_info ? <span id="animation" className='pointer' 
+                onClick={() => this.copy(this.state.tiket_info['id'])}>Вопрос #{this.state.tiket_info['id']} {this.state.tiket_info['donut'] ? <Icon16StarCircleFillYellow width={16} height={16} style={{marginTop: '13%', display: 'inline-block'}} /> : null}</span> : null}
             </PanelHeader>
             {/* MESSAGES */}
             {this.state.tiket_info ? <>
@@ -730,7 +732,16 @@ export default class Ticket extends React.Component {
                       Вы исчерпали лимит сообщений в этот тикет.
                     </FormStatus>
                   </Div>
-                </FixedLayout> :
+                </FixedLayout> : 
+                this.props.account.generator ?
+                <FixedLayout filled vertical='bottom' style={{zIndex: 20}}>
+                  <Div>
+                    <FormStatus header='Внимание!' mode='default'>
+                      Вы являетесь генератором. Вам запрещено отвечать на вопросы
+                    </FormStatus>
+                  </Div>
+                </FixedLayout>
+                :
                 <FixedLayout filled vertical='bottom' style={{zIndex: 2}}>
                   <Separator wide />
                     <WriteBar

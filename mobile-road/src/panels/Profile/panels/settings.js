@@ -141,7 +141,7 @@ export default class Settings extends React.Component{
               Если вы не согласны с данным условием, то не включайте их.
               <br />
               Вы всегда можете их отключить. 
-              Хотите получать уведомления, а так же уведомления в лс?</p>
+              Хотите получать уведомления?</p>
         </Alert>)
         }else{
             this.showErrorAlert(data.error.message)

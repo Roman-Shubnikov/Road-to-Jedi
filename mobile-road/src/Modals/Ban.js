@@ -15,7 +15,7 @@ export default class Ban extends React.Component {
         this.state = {
             api_url: "https://xelene.ru/road/php/index.php?",
             time_val: '',
-            time_num: 'min',
+            time_num: 'sec',
             ban_reason: '',
 
         }
@@ -34,16 +34,15 @@ export default class Ban extends React.Component {
     timeConvert(val, num){
         let time = 0;
         if(num === 'sec'){
-            time = val;
+            time = Number(val);
         }else if(num === 'min'){
             time = val * 60;
         }else if(num === 'day'){
-            time = val * 60 * 24;
+            time = val * 24 * 60 * 60;
         }
         return time
     }
     userBan(user_id, text, time) {
-        console.log(time)
         this.setPopout(<ScreenSpinner/>)
         fetch(this.state.api_url + "method=account.ban&" + window.location.search.replace('?', ''),
         {method: 'post',
@@ -96,7 +95,7 @@ export default class Ban extends React.Component {
                         onChange={(e) => this.onChange(e)} placeholder="Число" 
                         value={this.state.time_val} />
                     </div>
-                    <Select onChange={e => { this.setState({time_num: e.currentTarget.value})}}
+                    <Select onChange={e => {console.log(e.currentTarget.value); this.setState({time_num: e.currentTarget.value})}}
                     status={this.state.time_num ? 'valid' : 'error'}
                     bottom={this.state.time_num ? '' : 'А где время'}>
                         <option value="sec">sec</option>

@@ -9,11 +9,9 @@ import {
     Div,
     Snackbar,
     PanelHeaderBack,
-    Separator,
     Text,
     SimpleCell,
     PanelHeaderButton,
-    // FormStatus,
     Alert,
     FormLayout,
     CellButton,
@@ -23,15 +21,15 @@ import {
 import Icon24Repeat from '@vkontakte/icons/dist/24/repeat';
 import Icon28MoneyCircleOutline from '@vkontakte/icons/dist/28/money_circle_outline';
 
-import Icon28MoneyHistoryBackwardOutline from '@vkontakte/icons/dist/28/money_history_backward_outline';
-import Icon16CheckCircle          from '@vkontakte/icons/dist/16/check_circle';
-import Icon20CancelCircleFillRed  from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
-import Icon28InfoCircleOutline    from '@vkontakte/icons/dist/28/info_circle_outline';
-import Icon24BlockOutline         from '@vkontakte/icons/dist/24/block_outline';
-import Icon28DiamondOutline       from '@vkontakte/icons/dist/28/diamond_outline';
-import Icon16Fire                 from '@vkontakte/icons/dist/16/fire';
-import Icon16Verified             from '@vkontakte/icons/dist/16/verified';
-import Icon16StarCircleFillYellow from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
+import Icon28MoneyHistoryBackwardOutline  from '@vkontakte/icons/dist/28/money_history_backward_outline';
+import Icon16CheckCircle                  from '@vkontakte/icons/dist/16/check_circle';
+import Icon20CancelCircleFillRed          from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
+import Icon28InfoCircleOutline            from '@vkontakte/icons/dist/28/info_circle_outline';
+import Icon24BlockOutline                 from '@vkontakte/icons/dist/24/block_outline';
+import Icon28DiamondOutline               from '@vkontakte/icons/dist/28/diamond_outline';
+import Icon16Fire                         from '@vkontakte/icons/dist/16/fire';
+import Icon16Verified                     from '@vkontakte/icons/dist/16/verified';
+import Icon16StarCircleFillYellow         from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
 
 
 var avatars = [
@@ -436,7 +434,7 @@ export default class Market extends React.Component{
                         onClick={() => this.buyDiamond()} 
                         before={<Icon28MoneyHistoryBackwardOutline 
                         style={{marginRight: "5px"}}/>} size="xl" mode='destructive'>Купить за 10 000 монеток</Button>
-                      </Div><Separator />
+                      </Div>
                 </Group> : null : null}
                 {/* <Group separator="hide" header={<Header>Сброс статистики</Header>}>
                     <Div>

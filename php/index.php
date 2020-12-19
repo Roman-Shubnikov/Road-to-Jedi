@@ -232,7 +232,11 @@ $params = [
 		'user' => [
 			'type' => 'int',
 			'required' => true,
-		]
+		],
+		'donut_only' => [
+			'type' => 'bool',
+			'required' => true,
+		],
 	],
 
 	'ticket.sendMessage' => [
@@ -412,7 +416,7 @@ $params = [
 	
 	'special.getAllMessages' => [
 		'offset' => [
-			'type' => 'intorstr',
+			'type' => 'int',
 			'required' => true
 		],
 		'count' => [
@@ -422,10 +426,68 @@ $params = [
 	],
 	'special.getNewMessages' => [
 		'offset' => [
-			'type' => 'intorstr',
+			'type' => 'int',
 			'required' => true
 		],
 		'count' => [
+			'type' => 'int',
+			'required' => true
+		],
+	],
+	'special.getNewModerationTickets' => [
+		'offset' => [
+			'type' => 'int',
+			'required' => true
+		],
+		'count' => [
+			'type' => 'int',
+			'required' => true
+		],
+	],
+	'special.addNewModerationTicket' => [
+		'title' => [
+			'type' => 'string',
+			'required' => true
+		],
+		'text' => [
+			'type' => 'string',
+			'required' => true
+		],
+		'donut_only' => [
+			'type' => 'bool',
+			'required' => true
+		],
+	],
+	'special.delModerationTicket' => [
+		'id_ans' => [
+			'type' => 'int',
+			'required' => true
+		],
+	],
+	'special.approveModerationTicket' => [
+		'id_ans' => [
+			'type' => 'int',
+			'required' => true
+		],
+	],
+	'special.getVerificationRequests' => [
+		'offset' => [
+			'type' => 'int',
+			'required' => true
+		],
+		'count' => [
+			'type' => 'int',
+			'required' => true
+		],
+	],
+	'special.denyVerificationRequest' => [
+		'id_request' => [
+			'type' => 'int',
+			'required' => true
+		],
+	],
+	'special.approveVerificationRequest' => [
+		'id_request' => [
 			'type' => 'int',
 			'required' => true
 		],
@@ -616,10 +678,11 @@ switch ( $method ) {
 		$title = $data['title'];
 		$text = trim($data['text']);
 		$userQue = (int) $data['user'];
+		$donut = (bool) $data['donut_only'];
 		if($userQue > 0){
 			$userQue = -$userQue;
 		}
-		Show::response( $tickets->add( $title, $text, $userQue ) );
+		Show::response( $tickets->add( $title, $text, $userQue, $donut ) );
 
 	case 'ticket.getById':
 		$id = (int) $data['ticket_id'];
@@ -847,6 +910,7 @@ switch ( $method ) {
 			Show::error(403);
 		}
 		Show::response( $Connect->db_get("SELECT * FROM messages WHERE author_id>0 order by id asc LIMIT $offset, $count"));
+
 	case 'special.getNewMessages':
 		$count = (int) $data['count'];
 		$offset = (int) $data['offset'];
@@ -865,4 +929,125 @@ switch ( $method ) {
 			$out[] = ['id' => (int)$val['id'], 'count_unmark' => (int)$val['count_unmark']];
 		}
 		Show::response($out);
+
+
+	case 'special.addNewModerationTicket':
+		$title = trim($data['title']);
+		$text = trim($data['text']);
+		$donut = (bool) $data['donut_only'];
+		if ( !$users->info['generator'] ) {
+			Show::error(403);
+		}
+
+		if ( mb_strlen( $title ) >= CONFIG::MAX_TICKETS_TITLE_LEN ) {
+			Show::error(20);
+		}
+
+		if ( mb_strlen( $text ) >= CONFIG::MAX_TICKETS_TEXT_LEN ) {
+			Show::error(21);
+		}
+
+		if ( mb_strlen( $title ) <= CONFIG::MIN_MESSAGE_LEN ) {
+			Show::error(24);
+		}
+
+		if ( mb_strlen( $text ) <= CONFIG::MIN_MESSAGE_LEN ) {
+			Show::error(23);
+		}
+		$res = $Connect->query("INSERT INTO queue_quest (title, description, donut, time, author_id) VALUES (?,?,?,?,?)", [$title,$text,(int)$donut, time(), $users->vk_id]);
+		$id = $res[1];
+		if ( !$res[1] ) {
+			Show::error(0);
+		}
+		Show::response(['quest_id' => $id]);
+
+	case 'special.delModerationTicket':
+		$id_answer = trim($data['id_ans']);
+		if ( !$users->info['special'] ) {
+			Show::error(403);
+		}
+		$res = $Connect->db_get("SELECT author_id,time FROM queue_quest WHERE id=?", [$id_answer]);
+		if($res){
+			$Connect->query("UPDATE users SET bad_answers=bad_answers-1 WHERE vk_user_id=?", [$res[0]['author_id']]);
+			$Connect->query("UPDATE users SET bad_answers=bad_answers+1 WHERE vk_user_id=?", [$users->vk_id]);
+		}
+		Show::response($Connect->query("DELETE FROM queue_quest WHERE id=?", [$id_answer]));
+
+	case 'special.approveModerationTicket':
+		$id_answer = trim($data['id_ans']);
+		if ( !$users->info['special'] ) {
+			Show::error(403);
+		}
+		$res = $Connect->db_get("SELECT author_id,time FROM queue_quest WHERE id=?", [$id_answer]);
+		if($res){
+			$Connect->query("UPDATE users SET bad_answers=bad_answers+1 WHERE vk_user_id=?", [$res[0]['author_id']]);
+			$Connect->query("UPDATE users SET bad_answers=bad_answers+1 WHERE vk_user_id=?", [$users->vk_id]);
+		}
+		Show::response($Connect->query("UPDATE queue_quest SET moder=1 WHERE id=?", [$id_answer]));
+
+	case 'special.getNewModerationTickets':
+		$count = (int) $data['count'];
+		$offset = (int) $data['offset'];
+		if ( !$users->info['special'] ) {
+			Show::error(403);
+		}
+		$res = $Connect->db_get(
+			"SELECT id, title, description, donut, time
+			FROM queue_quest 
+			WHERE moder=0 ORDER BY time DESC LIMIT $offset, $count"
+			);
+		$out = [];
+		foreach($res as $val){
+			$out[] = ['id' => (int)$val['id'], 'title' => (string)$val['title'], 'description' => (string)$val['description'], 'time' => (int)$val['time'],];
+		}
+		Show::response($out);
+		
+	case 'special.getVerificationRequests':
+		$count = (int) $data['count'];
+		$offset = (int) $data['offset'];
+		if ( !$users->info['special'] ) {
+			Show::error(403);
+		}
+		$res = $Connect->db_get(
+			"SELECT id, vk_id, aid, title, descverf, time
+			FROM request_verification 
+			WHERE inactive=0
+			ORDER BY time DESC LIMIT $offset, $count"
+			);
+		$out = [];
+		foreach($res as $val){
+			$out[] = ['id' => (int)$val['id'], 'vk_id' => (int)$val['vk_id'], 'aid' => (int)$val['aid'], 'title' => (string)$val['title'], 'description' => (string)$val['descverf'], 'time' => (int)$val['time'],];
+		}
+		Show::response($out);
+
+	case 'special.approveVerificationRequest':
+		$id_request = trim($data['id_request']);
+		if ( !$users->info['special'] ) {
+			Show::error(403);
+		}
+		$res = $Connect->db_get("SELECT id, aid, title, descverf, time FROM request_verification WHERE id=?", [$id_request]);
+		if($res){
+			$account->Verification($res[0]['aid']);
+			$object = [
+				'type' => 'verification_approve'
+			];
+			$sysnotifications->send($res[0]['aid'], "Запрос на верификацию одобрен", null, $object);
+
+		}
+		Show::response($Connect->query("UPDATE request_verification SET inactive=1 WHERE id=?", [$id_request]));
+
+	case 'special.denyVerificationRequest':
+		$id_request = trim($data['id_request']);
+		if ( !$users->info['special'] ) {
+			Show::error(403);
+		}
+		$res = $Connect->db_get("SELECT id, aid, title, descverf, time FROM request_verification WHERE id=?", [$id_request]);
+		if($res){
+			$object = [
+				'type' => 'verification_demiss'
+			];
+			$sysnotifications->send($res[0]['aid'], "Запрос на верификацию отклонён", null, $object);
+		}
+		Show::response($Connect->query("UPDATE request_verification SET inactive=1 WHERE id=?", [$id_request]));
+
 }

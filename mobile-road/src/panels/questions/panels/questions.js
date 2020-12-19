@@ -14,14 +14,18 @@ import {
     Div,
     Banner,
     Footer,
-    ScreenSpinner
+    ScreenSpinner,
+    Group,
+    List
     
     } from '@vkontakte/vkui';
 
-import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
-import Icon28WriteSquareOutline from '@vkontakte/icons/dist/28/write_square_outline';
+import Icon56InboxOutline           from '@vkontakte/icons/dist/56/inbox_outline';
+import Icon28WriteSquareOutline     from '@vkontakte/icons/dist/28/write_square_outline';
 // import Icon28SyncOutline from '@vkontakte/icons/dist/28/sync_outline';
-import Icon24Spinner from '@vkontakte/icons/dist/24/spinner';
+import Icon24Spinner                from '@vkontakte/icons/dist/24/spinner';
+import Icon16StarCircleFillYellow   from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
+
 
 import BannerAvatarPC from '../../../images/question_banner_pc.jpg'
 import BannerAvatarMobile from '../../../images/question_banner_mobile.png'
@@ -120,24 +124,37 @@ export default class Questions extends React.Component {
                     stretched>Новый вопрос</Button>
                 </Div> : null}
                 <PullToRefresh onRefresh={() => {this.setState({ fetching: true });this.Prepare_questions()}} isFetching={this.state.fetching}>
-                    {this.props.tiket_all ? this.props.tiket_all.length > 0 ? this.props.tiket_all.map((result, i) => 
-                    <React.Fragment key={i}>
-                        <Cell
-                            className="pointer"
-                            onClick={() => {this.setState({tiket_all: null});props.goTiket(result['id'])}}
-                            description={result['status'] === 0 ? "На рассмотрении" : result['status'] === 1 ? "Есть ответ" : "Закрыт" } 
-                            asideContent={<Avatar src={result['author']['photo_200']} size={56}/>}
-                        >
-                        {result['title']}
-
-                        </Cell>
-                        <Separator style={{width: "90%"}} />
-                    </React.Fragment>
-                    ) : <Placeholder 
-                    icon={<Icon56InboxOutline />}>
-                        Упс, кажется вопросы закончились
-                    </Placeholder>
-                     : <PanelSpinner />}
+                    <Group>
+                        <List>
+                            {this.props.tiket_all ? this.props.tiket_all.length > 0 ? this.props.tiket_all.map((result, i) => 
+                            <React.Fragment key={i}>
+                                <Cell
+                                    multiline
+                                    className="pointer"
+                                    onClick={() => {this.setState({tiket_all: null});props.goTiket(result['id'])}}
+                                    description={result['status'] === 0 ? "На рассмотрении" : result['status'] === 1 ? "Есть ответ" : "Закрыт" } 
+                                    asideContent={<Avatar src={result['author']['photo_200']} size={56}/>}
+                                >
+                                    <div style={{display:"flex"}}>
+                                        {result['title']}
+                                        <div className='questionsIcons'>
+                                            <div className='icon_donut_questions'>
+                                                {/* {<Icon16StarCircleFillYellow width={12} height={12} className="top_moderator_name_icon" />} */}
+                                                {result['donut'] ? <Icon16StarCircleFillYellow width={12} height={12} className="top_moderator_name_icon" /> : null}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Cell>
+                                <Separator style={{width: "90%"}} />
+                            </React.Fragment>
+                            ) : <Placeholder 
+                            icon={<Icon56InboxOutline />}>
+                                Упс, кажется вопросы закончились
+                            </Placeholder>
+                            : <PanelSpinner />}
+                        </List>
+                    </Group>
+                    
                 {this.props.tiket_all_helper ? this.props.tiket_all_helper.length === 20 ? 
                 <Div>
                     <Button size="xl" 

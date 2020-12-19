@@ -10,9 +10,14 @@ class Tickets {
 	}
 
 	public function getById( int $ticket_id, bool $need_full_author = true ) {
-		$sql = "SELECT id, title, status, author_id, time
+		$sql = "SELECT id, title, status, author_id, time, donut
 				FROM tickets WHERE id=?";
 		$res = $this->Connect->db_get($sql, [$ticket_id])[0];
+		if($res['donut']){
+			if(!$this->user->info['donut'] && !$this->user->info['special']){
+				Show::error(403);
+			}
+		}
 		if($res['status'] != 0 && !$this->user->info['special']){
 			$sql = "SELECT author_id FROM messages WHERE author_id=? AND ticket_id=?";
 			if(count($this->Connect->db_get($sql, [$this->user->id, $ticket_id])) == 0){
@@ -36,13 +41,20 @@ class Tickets {
 		$cond = '';
 
 		if ( $unanswered ) {
-			$cond = "WHERE status = 0";
+			if($this->user->info['special'] || $this->user->info['donut']){
+				$cond = "WHERE status=0";
+			}else{
+				$cond = "WHERE status=0 and donut=0";
+			}
+		}else{
+			if(!$this->user->info['special'] && !$this->user->info['donut']){
+				$cond = "WHERE donut=0";
+			}
 		}
 
 		if ( $count === null ) {
 			$count = CONFIG::ITEMS_PER_PAGE;
 		}
-
 		return $this->_get( $cond, $offset, $count );
 	}
 	public function getByModeratorAnswers( int $offset = 0, int $count = null, int $id ) {
@@ -110,7 +122,12 @@ class Tickets {
 		// Увеличиваем счетчик оцененных ответов
 		$auid = $res['author_id'];
 		$good_or_bad = $mark == 1 ? 'good_answers' : 'bad_answers';
-		$money = $mark == 1 ? 'money=money+10' : 'money=money';
+		if($ticket['donut']){
+			$money = $mark == 1 ? 'money=money+30' : 'money=money';
+		}else{
+			$money = $mark == 1 ? 'money=money+10' : 'money=money';
+		}
+		
 		$sql = "UPDATE users SET $good_or_bad = $good_or_bad + 1, $money WHERE id=?";
 		$this->Connect->query( $sql,[$auid]);
 
@@ -127,7 +144,7 @@ class Tickets {
 		return $result;
 	}
 
-	public function add( string $title, string $text, int $User ) {
+	public function add( string $title, string $text, int $User, bool $donut ) {
 		if ( !$this->user->info['special'] ) {
 			Show::error(403);
 		}
@@ -150,7 +167,7 @@ class Tickets {
 			Show::error(23);
 		}
 		// -$this->user->vk_id
-		$res = $this->Connect->query("INSERT INTO tickets (title,author_id,status,time) VALUES (?,?,?,?)", [$title, $User, 0, time()]);
+		$res = $this->Connect->query("INSERT INTO tickets (title,author_id,status,time,donut) VALUES (?,?,?,?,?)", [$title, $User, 0, time(), (int)$donut]);
 		$id = $res[1];
 		if ( !$res[1] ) {
 			Show::error(0);
@@ -574,7 +591,7 @@ class Tickets {
 
 		offset_count( $offset, $count );
 
-		$sql = "SELECT id, title, status, author_id, time
+		$sql = "SELECT id, title, status, author_id, time, donut
 				FROM tickets $cond
 				ORDER BY id DESC
 				LIMIT $offset, $count";
@@ -613,7 +630,8 @@ class Tickets {
 			'time' => (int) $data['time'],
 			'title' => $data['title'],
 			'author' => $data['author'],
-			'status' => (int) $data['status']
+			'status' => (int) $data['status'],
+			'donut' => (bool) $data['donut']
 		];
 
 		return $res;
