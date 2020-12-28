@@ -12,6 +12,22 @@ import {
   TabbarItem,
   Epic,
   ConfigProvider,
+  AdaptivityProvider,
+  AppRoot,
+  withAdaptivity,
+  withPlatform,
+  VKCOM,
+  ViewWidth,
+  SplitLayout,
+  SplitCol,
+  Panel,
+  PanelHeader,
+  Cell,
+  Group,
+  Root,
+  Platform,
+  ViewHeight,
+
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
@@ -33,7 +49,7 @@ import Icon28Profile          from '@vkontakte/icons/dist/28/profile';
 import Icon16CheckCircle      from '@vkontakte/icons/dist/16/check_circle';
 import Icon28ArticleOutline   from '@vkontakte/icons/dist/28/article_outline';
 import Icon28FavoriteOutline  from '@vkontakte/icons/dist/28/favorite_outline';
-import Icon28MagicWandOutline from '@vkontakte/icons/dist/28/magic_wand_outline';
+import Icon28WorkOutline      from '@vkontakte/icons/dist/28/work_outline';
 
 
 const queryString = require('query-string');
@@ -51,7 +67,44 @@ function isEmpty(obj) {
   }
   return true;
 }
+var DESKTOP_SIZE = 1000;
+var TABLET_SIZE = 900;
+var SMALL_TABLET_SIZE = 768;
+var MOBILE_SIZE = 320;
+var MOBILE_LANDSCAPE_HEIGHT = 414;
+var MEDIUM_HEIGHT = 720;
 var ignore_promo = false;
+
+
+function calculateAdaptivity(windowWidth, windowHeight) {
+  var viewWidth = ViewWidth.SMALL_MOBILE;
+  var viewHeight = ViewHeight.SMALL;
+
+  if (windowWidth >= DESKTOP_SIZE) {
+    viewWidth = ViewWidth.DESKTOP;
+  } else if (windowWidth >= TABLET_SIZE) {
+    viewWidth = ViewWidth.TABLET;
+  } else if (windowWidth >= SMALL_TABLET_SIZE) {
+    viewWidth = ViewWidth.SMALL_TABLET;
+  } else if (windowWidth >= MOBILE_SIZE) {
+    viewWidth = ViewWidth.MOBILE;
+  } else {
+    viewWidth = ViewWidth.SMALL_MOBILE;
+  }
+
+  if (windowHeight >= MEDIUM_HEIGHT) {
+    viewHeight = ViewHeight.MEDIUM;
+  } else if (windowHeight > MOBILE_LANDSCAPE_HEIGHT) {
+    viewHeight = ViewHeight.SMALL;
+  } else {
+    viewHeight = ViewHeight.EXTRA_SMALL;
+  }
+  return {
+    viewWidth: viewWidth,
+    viewHeight: viewHeight,
+  };
+}
+
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -168,30 +221,6 @@ class App extends React.Component {
       this.audio.load()
       this.audio.loop = true;
       bridge.subscribe(({ detail: { type, data }}) => { 
-        // if(type === 'VKWebAppAllowMessagesFromGroupResult') {
-        //   fetch(this.state.api_url + "method=notifications.swift&swift=on&" + window.location.search.replace('?', ''))
-        //     .then(res => res.json())
-        //     .then(data => {
-        //       if(data) {
-        //         this.setState({switchKeys: true})
-        //       }
-        //     })
-        //     .catch(err => {
-        //       this.showErrorAlert()
-        //     })
-        // }
-        // if(type === 'VKWebAppAllowMessagesFromGroupFailed') {
-        //   fetch(this.state.api_url + "method=notifications.swift&swift=off&" + window.location.search.replace('?', ''))
-        //     .then(res => res.json())
-        //     .then(data => {
-        //       if(data) {
-        //         this.setState({switchKeys: false})
-        //       }
-        //     })
-        //     .catch(err => {
-        //       this.showErrorAlert()
-        //     })
-        // }
         if(type === 'VKWebAppViewHide') {
           console.log('closing...')
         }
@@ -199,7 +228,6 @@ class App extends React.Component {
           this.componentDidMount()
         }
 			  if (type === 'VKWebAppUpdateConfig') {
-          // console.log(data)
           this.setState({default_scheme: data.scheme});
           if(!isEmpty(this.state.account)){
             if(Number(this.state.account.scheme) === 0){
@@ -259,37 +287,6 @@ class App extends React.Component {
                 this.setState({activeStory: 'questions', LoadWebView: true, need_epic: true})
               }
             }
-            // let QuePar = queryString.parse(window.location.search.replace('?', ''));
-            
-            // if(!this.state.account.noti){
-            //   if(+QuePar.vk_are_notifications_enabled){
-            //     fetch(this.state.api_url + "method=notifications.approve&" + window.location.search.replace('?', '')).then(res => res.json()).then(data => {
-            //     if(data.result) {
-            //     }else{
-            //         this.showErrorAlert(data.error.message)
-            //     }
-            //     })
-            //     .catch(err => {
-            //       this.changeData('activeStory', 'disconnect')
-
-            //     })
-            //   }
-            // }else{
-            //   if(!+QuePar.vk_are_notifications_enabled){
-            //     fetch(this.state.api_url + "method=notifications.demiss&" + window.location.search.replace('?', '')).then(res => res.json()).then(data => {
-            //       if(data.result) {
-            //       }else{
-            //           this.showErrorAlert(data.error.message)
-            //       }
-            //       })
-            //       .catch(err => {
-            //         this.changeData('activeStory', 'disconnect')
-  
-            //       })
-            //   }
-            // }
-            // account_new.noti = Boolean(+QuePar.vk_are_notifications_enabled);
-            // this.setState({account: account_new})
           } else {
             if(data.error.error_code !== 5){
                 this.setPopout(
@@ -358,141 +355,317 @@ class App extends React.Component {
         this.showErrorAlert()
       })
     }
-    showErrorAlert = (error=null, action=null) => {
+    showErrorAlert(error = null, action = null) {
       this.setPopout(
         <Alert
-            actions={[{
+          actionsLayout="horizontal"
+          actions={[{
             title: 'Отмена',
             autoclose: true,
             mode: 'cancel',
             action: action,
-            }]}
-            onClose={() => this.setPopout(null)}
-        >
-          <h2>Ошибка</h2>
-          {error ? <p>{error}</p> : <p>Что-то пошло не так, попробуйте снова!</p>}
-        </Alert>
-    )
-  }
+          }]}
+          onClose={() => this.setPopout(null)}
+          header="Ошибка"
+          text={error ? `${error}` : "Что-то пошло не так, попробуйте снова!"}
+        />
+      )
+    }
 
     
     render() {
-        return(
-        <>{!this.state.LoadWebView ? <div style={{width: '100vw', height: '100vh', backgroundColor: 'var(--background_page_my)', zIndex: 20, position: 'absolute', textAlign:'center'}}>
+      const platformwithPlat = this.props.platform;
+      var platform = null
+      if(platformname){
+        platform = platformwithPlat;
+      }else{
+        platform = Platform.VKCOM;
+      }
+      const { viewWidth } = this.props;
+      const isDesktop = viewWidth >= ViewWidth.SMALL_TABLET;
+      const hasHeader = platform !== VKCOM;
+        return (
+        <>
+        {/* {!this.state.LoadWebView ? <div style={{width: '100vw', height: '100vh', backgroundColor: 'var(--background_page_my)', zIndex: 20, position: 'absolute', textAlign:'center'}}>
             <h1 style={{margin: '50vh 0'}}>Загрузка...</h1>
             </div> : null}
           <webview 
           onLoad={() => {this.setState({LoadWebView: true});document.body.style.overflow = "auto"}}
-          >
-              <ConfigProvider scheme={this.state.scheme}> 
-              <Epic activeStory={this.state.activeStory}
-              tabbar={
-                  this.state.need_epic &&
-                  <Tabbar>
-                    <TabbarItem
-                      onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
-                      selected={this.state.activeStory === 'questions'}
-                      data-story="questions"
-                      text='Вопросы'
-                    ><Icon28ArticleOutline/></TabbarItem>
-                    <TabbarItem
-                      onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
-                      selected={this.state.activeStory === 'top'}
-                      data-story="top"
-                      text='Пантеон'
-                    ><Icon28FavoriteOutline /></TabbarItem>
-                    {this.state.account.special ? <TabbarItem
-                      onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
-                      selected={this.state.activeStory === 'moderation'}
-                      data-story="moderation"
-                      text='Модерация'
-                    ><Icon28MagicWandOutline /></TabbarItem> : null}
-                    <TabbarItem
-                      onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
-                      selected={this.state.activeStory === 'profile'}
-                      data-story="profile"
-                      text='Профиль'
-                    ><Icon28Profile /></TabbarItem>
+          > */}
+
+            
+              <ConfigProvider scheme={this.state.scheme} 
+              platform={platform}
+              > 
+              <AppRoot>
+                <SplitLayout
+                header={hasHeader && <PanelHeader separator={false} />}
+                style={{ justifyContent: "center" }}>
+
+                  {isDesktop && this.state.need_epic && (<SplitCol fixed width="280px" maxWidth="280px">
+                    <Panel>
+                      {hasHeader && <PanelHeader/>}
+                      <Group>
+                      
+                        <Cell
+                        disabled={this.state.activeStory === 'questions'}
+                        style={this.state.activeStory === 'questions' ? {
+                          backgroundColor: "var(--button_secondary_background)",
+                          borderRadius: 8
+                        } : {}}
+                        data-story="questions"
+                        onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}}
+                        before={<Icon28ArticleOutline />}>
+                          Вопросы
+                        </Cell>
+                        <Cell
+                        disabled={this.state.activeStory === 'top'}
+                        style={this.state.activeStory === 'top' ? {
+                          backgroundColor: "var(--button_secondary_background)",
+                          borderRadius: 8
+                        } : {}}
+                        data-story="top"
+                        onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}}
+                        before={<Icon28FavoriteOutline />}>
+                          Пантеон
+                        </Cell>
+                        {this.state.account.special && <Cell
+                        disabled={this.state.activeStory === 'moderation'}
+                        style={this.state.activeStory === 'moderation' ? {
+                          backgroundColor: "var(--button_secondary_background)",
+                          borderRadius: 8
+                        } : {}}
+                        data-story="moderation"
+                        onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}}
+                        before={<Icon28WorkOutline />}>
+                          Модерация
+                        </Cell>}
+                        <Cell
+                        disabled={this.state.activeStory === 'profile'}
+                        style={this.state.activeStory === 'profile' ? {
+                          backgroundColor: "var(--button_secondary_background)",
+                          borderRadius: 8
+                        } : {}}
+                        data-story="profile"
+                        onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}}
+                        before={<Icon28Profile />}>
+                          Профиль
+                        </Cell>
+                      </Group>
+                      
+                    </Panel>
+                  </SplitCol>)}
+
+                  <SplitCol
+                    animate={!isDesktop}
+                    spaced={isDesktop}
+                    width={isDesktop ? '560px' : '100%'}
+                    maxWidth={isDesktop ? '560px' : '100%'}
+                  >
+                    {!isDesktop ? <Epic activeStory={this.state.activeStory}
+                      tabbar={
+                        this.state.need_epic && !isDesktop &&
+                        <Tabbar>
+                          <TabbarItem
+                            onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
+                            selected={this.state.activeStory === 'questions'}
+                            data-story="questions"
+                            text='Вопросы'
+                          ><Icon28ArticleOutline/></TabbarItem>
+                          <TabbarItem
+                            onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
+                            selected={this.state.activeStory === 'top'}
+                            data-story="top"
+                            text='Пантеон'
+                          ><Icon28FavoriteOutline /></TabbarItem>
+                          {this.state.account.special ? <TabbarItem
+                            onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
+                            selected={this.state.activeStory === 'moderation'}
+                            data-story="moderation"
+                            text='Модерация'
+                          ><Icon28WorkOutline /></TabbarItem> : null}
+                          <TabbarItem
+                            onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
+                            selected={this.state.activeStory === 'profile' || this.state.activeStory === "notif"}
+                            data-story="profile"
+                            text='Профиль'
+                          ><Icon28Profile /></TabbarItem>
+                          
+                        </Tabbar>
+                      }
+                      >
+                      <Questions 
+                      id='questions'
+                      this={this}
+                      scheme={this.state.scheme}
+                      reloadProfile={this.LoadProfile}
+                      account={this.state.account}
+                      first_start={this.state.first_start}
+                      popout={this.state.popout} />
+
+                      <Top 
+                      id='top'
+                      this={this}
+                      reloadProfile={this.LoadProfile}
+                      scheme={this.state.scheme}
+                      account={this.state.account}
+                      popout={this.state.popout} />
+
+                      <Notification 
+                      id="notif"
+                      this={this}
+                      scheme={this.state.scheme}
+                      reloadProfile={this.LoadProfile}
+                      account={this.state.account}
+                      popout={this.state.popout}
+                      />
+
+                      <Profile 
+                      id="profile"
+                      this={this}
+                      reloadProfile={this.LoadProfile}
+                      scheme={this.state.scheme}
+                      default_scheme={this.state.default_scheme}
+                      account={this.state.account}
+                      popout={this.state.popout} />
+
+                      <Moderation 
+                      id="moderation"
+                      this={this}
+                      reloadProfile={this.LoadProfile}
+                      account={this.state.account}
+                      sizeX={this.props.sizeX}
+                      />
+                      
+                      <Start 
+                      id="start"
+                      this={this}
+                      reloadProfile={this.LoadProfile}
+                      scheme={this.state.scheme}
+                      account={this.state.account}
+                      popout={this.state.popout} />
+
+                      <Banned 
+                      id="banned"
+                      this={this}
+                      reloadProfile={this.LoadProfile}
+                      scheme={this.state.scheme}
+                      account={this.state.account}
+                      BanObject={this.state.BanObject}
+                      popout={this.state.popout} />
+                      <Unsupport 
+                      id="unsupport"
+                      this={this}
+                      reloadProfile={this.LoadProfile} />
+
+                      <Disconnect
+                      id="disconnect"
+                      this={this}
+                      compdid={this.componentDidMount}
+                      popout={this.state.popout}
+                      reloadProfile={this.LoadProfile} />
+                      <LoadingScreen 
+                      id="loading"
+                      this={this} />
+                    </Epic>
+                     : 
+                    <Root activeView={this.state.activeStory}>
+                      <Questions 
+                      id='questions'
+                      this={this}
+                      scheme={this.state.scheme}
+                      reloadProfile={this.LoadProfile}
+                      account={this.state.account}
+                      first_start={this.state.first_start}
+                      popout={this.state.popout} />
+
+                      <Top 
+                      id='top'
+                      this={this}
+                      scheme={this.state.scheme}
+                      account={this.state.account}
+                      reloadProfile={this.LoadProfile}
+                      popout={this.state.popout} />
+
+                      <Notification 
+                      id="notif"
+                      this={this}
+                      scheme={this.state.scheme}
+                      reloadProfile={this.LoadProfile}
+                      account={this.state.account}
+                      popout={this.state.popout}
+                      />
+
+                      <Profile 
+                      id="profile"
+                      this={this}
+                      reloadProfile={this.LoadProfile}
+                      scheme={this.state.scheme}
+                      default_scheme={this.state.default_scheme}
+                      account={this.state.account}
+                      popout={this.state.popout} />
+
+                      <Moderation 
+                      id="moderation"
+                      this={this}
+                      reloadProfile={this.LoadProfile}
+                      account={this.state.account}
+                      />
+                      
+                      <Start 
+                      id="start"
+                      this={this}
+                      reloadProfile={this.LoadProfile}
+                      scheme={this.state.scheme}
+                      account={this.state.account}
+                      popout={this.state.popout} />
+
+                      <Banned 
+                      id="banned"
+                      this={this}
+                      reloadProfile={this.LoadProfile}
+                      scheme={this.state.scheme}
+                      account={this.state.account}
+                      BanObject={this.state.BanObject}
+                      popout={this.state.popout} />
+                      <Unsupport 
+                      id="unsupport"
+                      this={this}
+                      reloadProfile={this.LoadProfile} />
+
+                      <Disconnect
+                      id="disconnect"
+                      this={this}
+                      compdid={this.componentDidMount}
+                      popout={this.state.popout}
+                      reloadProfile={this.LoadProfile} />
+                      <LoadingScreen 
+                      id="loading"
+                      this={this} />
+                      
+                    </Root>
                     
-                  </Tabbar>
-                }>
-                <Questions 
-                id='questions'
-                this={this}
-                scheme={this.state.scheme}
-                reloadProfile={this.LoadProfile}
-                account={this.state.account}
-                first_start={this.state.first_start}
-                popout={this.state.popout} />
-
-                <Top 
-                id='top'
-                this={this}
-                scheme={this.state.scheme}
-                account={this.state.account}
-                popout={this.state.popout} />
-
-                <Notification 
-                id="notif"
-                this={this}
-                scheme={this.state.scheme}
-                reloadProfile={this.LoadProfile}
-                account={this.state.account}
-                popout={this.state.popout}
-                />
-
-                <Profile 
-                id="profile"
-                this={this}
-                reloadProfile={this.LoadProfile}
-                scheme={this.state.scheme}
-                default_scheme={this.state.default_scheme}
-                account={this.state.account}
-                popout={this.state.popout} />
-
-                <Moderation 
-                id="moderation"
-                this={this}
-                reloadProfile={this.LoadProfile}
-                account={this.state.account}
-                />
-                
-                <Start 
-                id="start"
-                this={this}
-                reloadProfile={this.LoadProfile}
-                scheme={this.state.scheme}
-                account={this.state.account}
-                popout={this.state.popout} />
-
-                <Banned 
-                id="banned"
-                this={this}
-                reloadProfile={this.LoadProfile}
-                scheme={this.state.scheme}
-                account={this.state.account}
-                BanObject={this.state.BanObject}
-                popout={this.state.popout} />
-                <Unsupport 
-                id="unsupport"
-                this={this}
-                reloadProfile={this.LoadProfile} />
-
-                <Disconnect
-                id="disconnect"
-                this={this}
-                compdid={this.componentDidMount}
-                popout={this.state.popout}
-                reloadProfile={this.LoadProfile} />
-                <LoadingScreen 
-                id="load"
-                this={this} />
-              </Epic>
+                    }
+                  </SplitCol>
+                </SplitLayout>
+              </AppRoot>
             </ConfigProvider>
-          </webview></>
+            
+          {/* </webview> */}
+          </>
             
         );
+
+
+
     }
 }
 
-export default App;
+const AdaptiveApp = withAdaptivity(withPlatform(App), { viewWidth: true });
+
+export default () => (
+  <AdaptivityProvider viewWidth={ calculateAdaptivity( document.documentElement.clientWidth, document.documentElement.clientHeight).viewWidth}>
+    <AdaptiveApp />
+  </AdaptivityProvider>
+);
+

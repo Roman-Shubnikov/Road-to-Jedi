@@ -14,7 +14,7 @@ import {
 import '@vkontakte/vkui/dist/vkui.css';
 import '../../style.css';
 // Импортируем панели
-import Questions    from './panels/questions';
+import Questions    from './panels/panelconstruct';
 import OtherProfile from '../../components/other_profile';
 import Tiket        from '../../components/tiket';
 
@@ -22,10 +22,12 @@ import Tiket        from '../../components/tiket';
 import ModalPrometay  from '../../Modals/Prometay';
 import ModalDonut     from '../../Modals/Donut';
 import ModalComment   from '../../Modals/Comment';
+import ModalVerif     from '../../Modals/Verif';
 import ModalBan       from '../../Modals/Ban';
 
 
 import Icon28SortOutline          from '@vkontakte/icons/dist/28/sort_outline';
+const admins = [413636725, 526444378]
 
 // const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
@@ -66,8 +68,10 @@ export default class Main extends React.Component {
             countv:20,
             verification: null,
             verification_helper:null,
-
-        
+            offsetr: 0,
+            countr: 20,
+            reports: null,
+            reports_helper: null,
 
         }
         this.changeData = this.props.this.changeData;
@@ -170,7 +174,7 @@ export default class Main extends React.Component {
             this.setState({ offsetv: 20})
           }
           let offset = need_offset ? this.state.offsetv : 0;
-          fetch(this.state.api_url + "method=special.getVerificationRequests&" + window.location.search.replace('?', ''),
+          fetch(this.state.api_url + "method=admin.getVerificationRequests&" + window.location.search.replace('?', ''),
           {method: 'post',
             headers: {"Content-type": "application/json; charset=UTF-8"},
             // signal: controllertime.signal,
@@ -196,7 +200,50 @@ export default class Main extends React.Component {
               
               this.setState({verification: sliyan, verification_helper: data.response})
               if(need_offset){
-                  this.setState({ offseta: this.state.offsetv + 20 })
+                  this.setState({ offsetv: this.state.offsetv + 20 })
+              }
+              this.setPopout(null);
+            }else{
+              this.showErrorAlert(data.error.message)
+            }
+          })
+          .catch(err => {
+            this.changeData('activeStory', 'disconnect')
+
+          })
+        }
+        this.getReports = (need_offset=false) => {
+          if(!need_offset){
+            this.setState({ offsetr: 20})
+          }
+          let offset = need_offset ? this.state.offsetr : 0;
+          fetch(this.state.api_url + "method=reports.getReports&" + window.location.search.replace('?', ''),
+          {method: 'post',
+            headers: {"Content-type": "application/json; charset=UTF-8"},
+            // signal: controllertime.signal,
+            body: JSON.stringify({
+              'offset': offset,
+              'count': this.state.countr,
+            })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if(data.result) {
+              var sliyan = [];
+              if(this.state.reports !== null){
+                let tickets = this.state.reports.slice();
+                if(!need_offset){
+                  sliyan = data.response;
+                }else{
+                  sliyan = data.response ? tickets.concat(data.response) : this.state.reports;
+                }
+              }else{
+                sliyan = data.response
+              }
+              
+              this.setState({reports: sliyan, reports_helper: data.response})
+              if(need_offset){
+                  this.setState({ offsetr: this.state.offsetr + 20 })
               }
               this.setPopout(null);
             }else{
@@ -284,36 +331,36 @@ export default class Main extends React.Component {
           };
           this.showAlert = (title, text) => {
             this.setState({
-              popout: 
+              popout:
                 <Alert
+                actionsLayout="horizontal"
                   actions={[{
                     title: 'Закрыть',
                     autoclose: true,
                     mode: 'cancel'
                   }]}
                   onClose={() => this.setPopout(null)}
-                >
-                  <h2>{title}</h2>
-                  <p>{text}</p>
-              </Alert>
+                  header={title}
+                  text={text}
+                />
             })
           }
-          this.showErrorAlert = (error=null, action=null) => {
+          this.showErrorAlert = (error = null, action = null) => {
             this.setPopout(
               <Alert
-                  actions={[{
+                actionsLayout="horizontal"
+                actions={[{
                   title: 'Отмена',
                   autoclose: true,
                   mode: 'cancel',
                   action: action,
-                  }]}
-                  onClose={() => this.setPopout(null)}
-              >
-                <h2>Ошибка</h2>
-                {error ? <p>{error}</p> : <p>Что-то пошло не так, попробуйте снова!</p>}
-              </Alert>
-          )
-        }
+                }]}
+                onClose={() => this.setPopout(null)}
+                header="Ошибка"
+                text={error ? `${error}` : "Что-то пошло не так, попробуйте снова!"}
+              />
+            )
+          }
     }
 
     
@@ -323,7 +370,11 @@ export default class Main extends React.Component {
       window.addEventListener('popstate', this.handlePopstate); 
       this.getQuestions()
       this.getAnswers()
-      this.getVerification()
+      if(!(admins.indexOf(this.props.account['vk_id']) === -1)){
+        this.getVerification()
+        this.getReports()
+      }
+      
     }
     componentWillUnmount(){
       bridge.send('VKWebAppDisableSwipeBack');
@@ -341,6 +392,11 @@ export default class Main extends React.Component {
 
               <ModalDonut
               id='donut'
+              onClose={() => this.setActiveModal(null)}
+              action={() => this.setActiveModal(null)} />
+
+              <ModalVerif
+              id='verif'
               onClose={() => this.setActiveModal(null)}
               action={() => this.setActiveModal(null)} />
 
@@ -389,14 +445,16 @@ export default class Main extends React.Component {
               answers={this.state.answers} 
               answers_helper={this.state.answers_helper}
               verification={this.state.verification}
-              verification_helper={this.state.verification_helper} />
+              verification_helper={this.state.verification_helper}
+              reports={this.state.reports}
+              reports_helper={this.state.reports_helper} />
 
               <OtherProfile id="other_profile" 
               this={this} 
               agent_id={this.state.active_other_profile} 
               account={this.props.account}/>
 
-              <Tiket id="ticket" 
+              <Tiket id="ticket"
               this={this} 
               ticket_id={this.state.ticket_id} 
               account={this.props.account} />

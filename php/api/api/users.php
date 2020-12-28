@@ -31,6 +31,7 @@ class Users {
 			// throw new Exception( ERRORS[5] . $this->info['ban_reason'], 5 );
 		}
 	}
+
 	
 	public function getMy() {
 		$info = $this->info;
@@ -72,7 +73,7 @@ class Users {
 	}
 
 	public function getById( int $id ) {
-		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator,
+		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator, users.public,
 				users.bad_answers, users.avatar_id, avatars.name as avatar_name, users.flash, users.verified, users.donut, users.diamond, users.nickname,
 				users.money, users.age, users.scheme, users.vk_user_id
 				FROM users
@@ -109,7 +110,7 @@ class Users {
 		$result = [];
 
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator,
-						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme,
+						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme, users.public,
 						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname
 				FROM users
 				LEFT JOIN avatars
@@ -157,7 +158,7 @@ class Users {
 		$user_id = $this->vk_id;
 		$this->Connect->query("UPDATE users SET last_activity=? WHERE vk_user_id=?", [$time,$user_id]);
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,users.age,users.vk_user_id,
-						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.noti, users.scheme,
+						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.noti, users.scheme, users.public,
 						users.special, users.generator, users.flash, users.verified, users.donut, users.nickname, users.diamond, avatars.name as avatar_name
 				FROM users
 				LEFT JOIN avatars
@@ -172,7 +173,6 @@ class Users {
 			unset( $res['special'] );
 		}
 		
-
 		$this->info = $res ?? [];
 	}
 
@@ -210,6 +210,7 @@ class Users {
 				'donut' => (bool) $data['donut'],
 				'diamond' => (bool) $data['diamond'],
 				'generator' => (bool) $data['generator'],
+				'public' => (bool) $data['public'],
 			];	
 		}
 		if(!empty($data['banned'])){
@@ -241,6 +242,7 @@ class Users {
 		if ( isset( $data['notifications_count'] ) ) {
 			$res['notif_count'] = (int) $data['notifications_count'];
 		}
+		if(!in_array('vk_id', $res) && $data['public']) $res['vk_id'] = (int)$data['vk_user_id'];
 
 		return $res;
 	}

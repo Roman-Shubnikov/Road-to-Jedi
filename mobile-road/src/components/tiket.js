@@ -17,6 +17,7 @@ import {
     FormStatus,
     Snackbar,
     Avatar,
+    Group,
     } from '@vkontakte/vkui';
 
 import Icon16ReplyOutline           from '@vkontakte/icons/dist/16/reply_outline';
@@ -79,6 +80,9 @@ export default class Ticket extends React.Component {
         this.setActiveModal = propsbi.setActiveModal;
         this.goOtherProfile = propsbi.goOtherProfile;
         this.sendRayt = this.sendRayt.bind(this);
+
+        this.MessageRef = React.createRef();
+
         this.onChange = (event) => {
           var name = event.currentTarget.name;
           var value = event.currentTarget.value;
@@ -184,7 +188,9 @@ export default class Ticket extends React.Component {
       Admin(approved, id, author_id, text, comment,avatar=null, mark = -1){
         if(author_id > 0){
           this.props.this.setPopout(
-            <ActionSheet onClose={() => this.setPopout(null)}>
+            <ActionSheet onClose={() => this.setPopout(null)}
+            toggleRef={this.MessageRef.current}
+            iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
                {author_id > 0 ?
               <ActionSheetItem autoclose onClick={() => {this.setState({tiket_message: []});this.goOtherProfile(author_id);}}>
                 Профиль
@@ -227,7 +233,7 @@ export default class Ticket extends React.Component {
               : null}
               {(Number(author_id === this.props.account.id) && this.state.tiket_info['status'] === 0 && mark === -1 && !approved) ? 
              <ActionSheetItem autoclose onClick={() => this.setState({redaction: true, message_id_redac: id, tiket_send_message: text})}>
-             Редактировать
+              Редактировать
              </ActionSheetItem>
              : null}
               <ActionSheetItem autoclose onClick={() => {
@@ -242,18 +248,20 @@ export default class Ticket extends React.Component {
                   Скопировать текст
                 </ActionSheetItem>
               {Number(author_id) === Number(this.props.account.id) || this.props.account.special === true ? 
-              <ActionSheetItem autoclose onClick={() => this.deleteMessage(id)}>
-                Удалить сообщение
+              <ActionSheetItem autoclose mode='destructive' 
+              onClick={() => this.deleteMessage(id)}>
+                Пожаловаться
               </ActionSheetItem>
               : null}
-              {<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}
             </ActionSheet>
           )
         }else{
           if(this.props.account.special){
             
             this.props.this.setPopout(
-              <ActionSheet onClose={() => this.setPopout(null)}>
+              <ActionSheet onClose={() => this.setPopout(null)}
+              toggleRef={this.MessageRef.current}
+              iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
                 <ActionSheetItem autoclose onClick={() => this.deleteMessage(id)}>
                   Удалить сообщение
                 </ActionSheetItem>
@@ -265,7 +273,6 @@ export default class Ticket extends React.Component {
                Редактировать
                </ActionSheetItem>
                : null}
-              {<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}
               <ActionSheetItem autoclose onClick={() => {
               bridge.send("VKWebAppCopyText", {text: text});
               this.setSnack(<Snackbar
@@ -282,13 +289,14 @@ export default class Ticket extends React.Component {
           }else{
             if(Number(author_id === this.props.account.id)){
               this.props.this.setPopout(
-                <ActionSheet onClose={() => this.setPopout(null)}>
+                <ActionSheet onClose={() => this.setPopout(null)}
+                toggleRef={this.MessageRef.current}
+                iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
                   {(Number(author_id === this.props.account.id) && this.state.tiket_info['status'] === 0) ? 
                  <ActionSheetItem autoclose onClick={() => this.setState({redaction: true, message_id_redac: id, tiket_send_message: text})}>
                  Редактировать
                  </ActionSheetItem>
                  : null}
-                {<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}
                 <ActionSheetItem autoclose onClick={() => {
                   bridge.send("VKWebAppCopyText", {text: text});
                   this.setSnack(<Snackbar
@@ -311,11 +319,13 @@ export default class Ticket extends React.Component {
       }
       copy(id) {
         this.props.this.setPopout(
-          <ActionSheet onClose={() => this.setPopout(null)}>
+          <ActionSheet onClose={() => this.setPopout(null)}
+          toggleRef={this.MessageRef.current}
+          iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
             {Number(this.state.tiket_info['author']['id']) === Number(parsedHash.vk_user_id) ? 
             this.state.tiket_info['status'] === 0 ||  this.state.tiket_info['status'] === 1 ?
             <ActionSheetItem autoclose onClick={() => this.deleteTicket()}>
-            Закрыть тикет
+              Закрыть тикет
             </ActionSheetItem>
             : 
             <ActionSheetItem autoclose onClick={() => this.openTicket()}>
@@ -344,11 +354,9 @@ export default class Ticket extends React.Component {
           }}>
               Скопировать ссылку
             </ActionSheetItem>
-            {<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}
           </ActionSheet>)
       }
       clickable_user_message(author_id){
-        console.log(author_id)
         let clickable = true;
         if(author_id < 0){
           if(!this.props.account.special){
@@ -384,33 +392,34 @@ export default class Ticket extends React.Component {
           })
       }
       deleteMessage(message_id) {
-        this.setPopout(<ScreenSpinner/>)
-          fetch(this.state.api_url + "method=ticket.deleteMessage&" + window.location.search.replace('?', ''),
-          {method: 'post',
-          headers: {"Content-type": "application/json; charset=UTF-8"},
-          // signal: controllertime.signal,
-          body: JSON.stringify({
-            'message_id': message_id,
-          })
-            })
-            .then(res => res.json())
-            .then(data => {
-              if(data.result) {
-                this.getMessages()
-                this.setSnack(<Snackbar
-                  layout="vertical"
-                  before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
-                  onClose={() => this.setSnack(null)}>
-                    Сообщение удалено
-                  </Snackbar>)
-              }else {
-                this.showErrorAlert(data.error.message)
-              }
-            })
-            .catch(err => {
-              this.props.this.changeData('activeStory', 'disconnect')
+        this.props.this.setReport(3, message_id)
+        // this.setPopout(<ScreenSpinner/>)
+        //   fetch(this.state.api_url + "method=ticket.deleteMessage&" + window.location.search.replace('?', ''),
+        //   {method: 'post',
+        //   headers: {"Content-type": "application/json; charset=UTF-8"},
+        //   // signal: controllertime.signal,
+        //   body: JSON.stringify({
+        //     'message_id': message_id,
+        //   })
+        //     })
+        //     .then(res => res.json())
+        //     .then(data => {
+        //       if(data.result) {
+        //         this.getMessages()
+        //         this.setSnack(<Snackbar
+        //           layout="vertical"
+        //           before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+        //           onClose={() => this.setSnack(null)}>
+        //             Сообщение удалено
+        //           </Snackbar>)
+        //       }else {
+        //         this.showErrorAlert(data.error.message)
+        //       }
+        //     })
+        //     .catch(err => {
+        //       this.props.this.changeData('activeStory', 'disconnect')
   
-            })
+        //     })
       }
       deleteTicket() {
         this.setPopout(<ScreenSpinner/>)
@@ -647,45 +656,20 @@ export default class Ticket extends React.Component {
             <PanelHeader 
                 left={<PanelHeaderBack onClick={() => window.history.back()} />}
             >
-                {this.state.tiket_info ? <span id="animation" className='pointer' 
-                onClick={() => this.copy(this.state.tiket_info['id'])}>Вопрос #{this.state.tiket_info['id']} {this.state.tiket_info['donut'] ? <Icon16StarCircleFillYellow width={16} height={16} style={{marginTop: '13%', display: 'inline-block'}} /> : null}</span> : null}
+                {this.state.tiket_info ? <div id="animation" ref={this.MessageRef}
+                onClick={() => this.copy(this.state.tiket_info['id'])}>Вопрос #{this.state.tiket_info['id']} {this.state.tiket_info['donut'] ? <Icon16StarCircleFillYellow width={16} height={16} style={{display: 'inline-block'}} /> : null}</div> : null}
             </PanelHeader>
             {/* MESSAGES */}
+            
             {this.state.tiket_info ? <>
+              <Group>
             <div className="title_tiket">{new Date(this.state.tiket_info['time'] * 1e3).getDate()} {add_month(this.state.tiket_info['time'])}</div>
             <div className="title_tiket" style={{marginTop: "10px", width: "95%", marginLeft: "10px"}}>Пользователь обратился с вопросом  «{this.state.tiket_info['title']}»</div>
                     <>{this.state.tiket_message ? this.state.tiket_message.map(function(result, i) {
-                        var is_mine_ticket = Number(thisOb.state.tiket_info.author['id']) === Number(parsedHash.vk_user_id) ? true : false
-                        var is_mine_message = Number(result['author']['id']) === Number(parsedHash.vk_user_id) ? true : false
                         var avatar = result.author.is_moderator ? result['author']['avatar']['url'] : result.author.photo_200
                         var time = fix_time(new Date(result.time * 1e3).getHours()) + ":" + fix_time(new Date(result.time * 1e3).getMinutes())
                         var title_moder = isFinite(result['nickname']) ? `Агент Поддержки #${result['nickname']}` : result['nickname'] ? result['nickname'] : `Агент Поддержки #${result['author']['id']}`;
                         return (
-                            Number(thisOb.state.tiket_info.author['id']) === Number(parsedHash.vk_user_id) ?
-                            <Message 
-                                clickable={true}
-                                title={result.author.is_moderator ? title_moder : result.author.first_name + " " + result.author.last_name} 
-                                title_icon={result.moderator_comment !== undefined ? <Icon16ReplyOutline width={10} height={10} style={{display: "inline-block"}}/> : false}
-                                is_mine={is_mine_message === is_mine_ticket}
-                                avatar={avatar}
-                                onClick={() => thisOb.Admin(result['approved'],result['id'], result['author'].first_name ? -result['author']['id'] : result['author']['id'] , result['text'], result.moderator_comment !== undefined ? result['moderator_comment']['text'] : null,avatar, result['mark'])}
-                                key={i}
-                                is_special={thisOb.props.account.special}
-                                is_mark={result.mark}
-                                time={time}
-                                commentclick={() => {thisOb.props.this.setState({comment: result.moderator_comment !== undefined ? result['moderator_comment']['text'] : null}); thisOb.setActiveModal("comment")}}
-                                comment={result.moderator_comment !== undefined}
-                                sendRayt_false={() => thisOb.sendRayt(0, result.id)}
-                                sendRayt_true={() => thisOb.sendRayt(1, result.id)}
-                                approved={result.approved ? true : false}
-                                CanselApp={() => props.this.showAlert('Информация', 'Этот ответ оценен отрицательно')}
-                                DoneApp={() => props.this.showAlert('Информация', 'Этот ответ оценен положительно')}
-                            >
-                                {result.text}
-                            </Message>
-                            
-                            :
-                            <>
                             <Message 
                                 clickable={!thisOb.props.account.special ? false : true}
                                 title={result.author.is_moderator ? title_moder : result.author.first_name + " " + result.author.last_name} 
@@ -694,12 +678,14 @@ export default class Ticket extends React.Component {
                                 avatar={avatar}
                                 key={i}
                                 time={time}
-                                onClick={() => thisOb.Admin(result['approved'], result['id'], result['author'].first_name ? -result['author']['id'] : result['author']['id'], result['text'], result.moderator_comment !== undefined ? result['moderator_comment']['text'] : null,avatar, result['mark'])}
+                                onClick={(e) => {
+                                  thisOb.Admin(result['approved'], result['id'], result['author'].first_name ? -result['author']['id'] : result['author']['id'], result['text'], result.moderator_comment !== undefined ? result['moderator_comment']['text'] : null,avatar, result['mark'])
+                              }}
                                 is_special={thisOb.props.account.special}
                                 is_mark={result.mark}
                                 sendRayt_false={() => thisOb.sendRayt(0, result.id)}
                                 sendRayt_true={() => thisOb.sendRayt(1, result.id)}
-                                commentclick={() => {thisOb.props.this.setState({comment: result.moderator_comment !== undefined ? result['moderator_comment']['text'] : null}); thisOb.setActiveModal("comment")}}
+                                commentclick={() => {thisOb.props.this.setState({comment: {text: result.moderator_comment !== undefined ? result['moderator_comment']['text'] : null, message_id: result['id']}, }); thisOb.setActiveModal("comment")}}
                                 comment={result.moderator_comment !== undefined}
                                 approved={result.approved ? true : false}
                                 CanselApp={() => props.this.showAlert('Информация', 'Этот ответ оценен отрицательно')}
@@ -707,43 +693,37 @@ export default class Ticket extends React.Component {
                             >
                                 {result.text}
                             </Message>
-                            {/* {((result.moderator_comment !== undefined) && (result['author']['id'] === thisOb.props.account['id'])) ? <Message 
-                                clickable={false}
-                                title={"Модератор"} 
-                                is_mine={false}
-                                avatar={Moderator_img}
-                                key={i}
-                                time={time}
-                                onClick={() => {}}
-
-                            >
-                                {result['moderator_comment']['text']}
-                            </Message> : null} */}
-                            </>
                         )}) : null}
                         {!((this.state.tiket_info['status'] === 1) || (this.state.tiket_info['status'] === 2)) ? <div style={{marginBottom: '20vh'}}></div> : <div style={{marginBottom: '5vh'}}></div>}
                       </>
+
+            </Group>
             {/* INPUT */}
             {this.state.tiket_info['status'] === 0 || (this.state.redaction === true || this.state.add_comment === true) ? 
                 (this.state.limitreach && !(this.state.redaction || this.state.add_comment)) ? 
                 <FixedLayout filled vertical='bottom' style={{zIndex: 20}}>
-                  <Div>
-                    <FormStatus header='Внимание!' mode='default'>
-                      Вы исчерпали лимит сообщений в этот тикет.
-                    </FormStatus>
-                  </Div>
+                  <Group>
+                    <Div>
+                      <FormStatus header='Внимание!' mode='default'>
+                        Вы исчерпали лимит сообщений в этот тикет.
+                      </FormStatus>
+                    </Div>
+                  </Group>
                 </FixedLayout> : 
                 this.props.account.generator ?
                 <FixedLayout filled vertical='bottom' style={{zIndex: 20}}>
-                  <Div>
-                    <FormStatus header='Внимание!' mode='default'>
-                      Вы являетесь генератором. Вам запрещено отвечать на вопросы
-                    </FormStatus>
-                  </Div>
+                  <Group>
+                    <Div>
+                      <FormStatus header='Внимание!' mode='default'>
+                        Вы являетесь генератором. Вам запрещено отвечать на вопросы
+                      </FormStatus>
+                    </Div>
+                  </Group>
+                  
                 </FixedLayout>
                 :
                 <FixedLayout filled vertical='bottom' style={{zIndex: 2}}>
-                  <Separator wide />
+                    <Separator wide />
                     <WriteBar
                       after={
                         <>
@@ -760,24 +740,26 @@ export default class Ticket extends React.Component {
                       onChange={(e) => this.onChange(e)}
                       placeholder={this.detectPlaceholder()}
                     />
+                  
                 </FixedLayout>
                 
                  : null}
             {this.state.tiket_info['status'] === 1 ? 
                 Number(this.state.tiket_info['author']['id']) === Number(parsedHash.vk_user_id) ?
-                    <div>
                       <FixedLayout vertical="bottom" style={{zIndex: 20}} filled>
-                        <Div style={{display: "flex"}}>
-                          <Button size="l" style={{marginRight: "5%"}} stretched onClick={() => this.deleteTicket()}>Проблема решена</Button>
-                          <Button size="l" stretched mode="secondary" onClick={() => this.openTicket()}>Проблема не решена</Button>
-                        </Div>
-                      </FixedLayout>
+                        <Group>
+                          <Div style={{display: "flex"}}>
+                            <Button size="l" stretched style={{marginRight: "5%"}} onClick={() => this.deleteTicket()}>Проблема решена</Button>
+                            <Button size="l" stretched mode="secondary" onClick={() => this.openTicket()}>Проблема не решена</Button>
+                          </Div>
+                        </Group>
                         
-                    </div>
+                      </FixedLayout>
                 : null
             : null}
             {this.state.snackbar}
             </> : null}
+            
             </Panel>
         )
     }

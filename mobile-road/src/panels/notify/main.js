@@ -17,10 +17,12 @@ import '../../style.css'
 import Notif from './panels/notif';
 import Tiket from '../../components/tiket';
 import OtherProfile from '../../components/other_profile'
+import Reports from '../../components/report';
 
 //Импортируем модальные карточки
 import ModalPrometay from '../../Modals/Prometay';
-import ModalDonut from '../../Modals/Donut'
+import ModalDonut from '../../Modals/Donut';
+import ModalVerif from '../../Modals/Verif';
 import ModalComment from '../../Modals/Comment';
 import ModalBan from '../../Modals/Ban';
 
@@ -60,6 +62,10 @@ export default class Notify extends React.Component {
         // this.recordHistory = (panel) => {
         //   this.setState({history: [...this.state.history, panel]})
         // }
+        this.setReport = (typeres, id_rep) => {
+          this.setState({typeres, id_rep})
+          this.goPanel("report")
+        }
         this.setPopout = (value) => {
           this.setState({popout: value})
         }
@@ -155,36 +161,36 @@ export default class Notify extends React.Component {
           };
           this.showAlert = (title, text) => {
             this.setState({
-              popout: 
+              popout:
                 <Alert
+                actionsLayout="horizontal"
                   actions={[{
                     title: 'Закрыть',
                     autoclose: true,
                     mode: 'cancel'
                   }]}
                   onClose={() => this.setPopout(null)}
-                >
-                  <h2>{title}</h2>
-                  <p>{text}</p>
-              </Alert>
+                  header={title}
+                  text={text}
+                />
             })
           }
-          this.showErrorAlert = (error=null, action=null) => {
+          this.showErrorAlert = (error = null, action = null) => {
             this.setPopout(
               <Alert
-                  actions={[{
+                actionsLayout="horizontal"
+                actions={[{
                   title: 'Отмена',
                   autoclose: true,
                   mode: 'cancel',
                   action: action,
-                  }]}
-                  onClose={() => this.setPopout(null)}
-              >
-                <h2>Ошибка</h2>
-                {error ? <p>{error}</p> : <p>Что-то пошло не так, попробуйте снова!</p>}
-              </Alert>
-          )
-        }
+                }]}
+                onClose={() => this.setPopout(null)}
+                header="Ошибка"
+                text={error ? `${error}` : "Что-то пошло не так, попробуйте снова!"}
+              />
+            )
+          }
     }
     userBan(user_id, text) {
       this.setPopout(<ScreenSpinner/>)
@@ -235,6 +241,12 @@ export default class Notify extends React.Component {
               id='donut'
               onClose={() => this.setActiveModal(null)}
               action={() => this.setActiveModal(null)} />
+
+              <ModalVerif
+              id='verif'
+              onClose={() => this.setActiveModal(null)}
+              action={() => this.setActiveModal(null)} />
+              
               <ModalBan 
               id='ban_user'
               onClose={() => this.setActiveModal(null)}
@@ -260,7 +272,8 @@ export default class Notify extends React.Component {
               <ModalComment
                 id='comment'
                 onClose={this.modalBack}
-                comment={this.state.comment} />
+                comment={this.state.comment}
+                reporting={this.setReport} />
             </ModalRoot>
         )
         return(
@@ -275,6 +288,7 @@ export default class Notify extends React.Component {
               <Notif id="notif" this={this}/>
               <Tiket id="ticket" this={this} ticket_id={this.state.ticket_id} account={this.props.account} />
               <OtherProfile id="other_profile" this={this} agent_id={this.state.active_other_profile} account={this.props.account}/>
+              <Reports id="report" this={this} id_rep={this.state.id_rep} typeres={this.state.typeres} />
             </View>   
         )
     }

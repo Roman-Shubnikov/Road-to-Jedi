@@ -109,7 +109,7 @@ export default class Settings extends React.Component{
         if(data.result) {
           this.setState({noti: notif})
           this.setPopout(<Alert
-            actionsLayout='vertical'
+            actionsLayout='horizontal'
             actions={[{
               title: 'Разрешить',
               autoclose: true,
@@ -121,7 +121,7 @@ export default class Settings extends React.Component{
                   // .then(data => {})
                   // .catch(() => {this.demissNotif()})
                   setTimeout(() => {
-                    this.props.ReloadProfile()
+                    this.props.this.ReloadProfile()
                   }, 1000)
                   
                 })
@@ -135,14 +135,13 @@ export default class Settings extends React.Component{
               
             },]}
             onClose={() => this.setPopout(null)}
-          >
-            <h2>Внимание!</h2>
-            <p>Включая уведомления, Вы соглашаетесь что они могут приходить вам неограниченное кол-во раз, в неогранниченный промежуток времени (по возможности и в соответствии с вашими действиями в приложении), но для этого нам нужен доступ к ним. 
-              Если вы не согласны с данным условием, то не включайте их.
-              <br />
-              Вы всегда можете их отключить. 
-              Хотите получать уведомления?</p>
-        </Alert>)
+            header="Внимание!"
+            text="Включая уведомления, Вы соглашаетесь что они могут приходить вам неограниченное кол-во раз, 
+            в неогранниченный промежуток времени (по возможности и в соответствии с вашими действиями в приложении), но для этого нам нужен доступ к ним. 
+            Если вы не согласны с данным условием, то не включайте их.
+            Вы всегда можете их отключить. 
+            Хотите получать уведомления?"
+          />)
         }else{
             this.showErrorAlert(data.error.message)
         }
@@ -156,7 +155,7 @@ export default class Settings extends React.Component{
         .then(data => {
           this.demissNotif()
           setTimeout(() => {
-            this.props.ReloadProfile()
+            this.props.this.ReloadProfile()
           }, 1000)
         }).catch(() => {
           this.approveNotif();
@@ -212,6 +211,10 @@ export default class Settings extends React.Component{
                       checked={this.state.noti}
                       onChange={(e) => this.changeNotifStatus(e)} />
                     }>Получать уведомления</SimpleCell>
+
+                  <SimpleCell>
+                    Публичный профиль
+                  </SimpleCell>
                 </Group>
                 <Group>
                   <SimpleCell
@@ -241,7 +244,7 @@ export default class Settings extends React.Component{
                   <CellButton 
                   mode="danger"
                   onClick={() => this.setPopout(<Alert
-                    actionsLayout='vertical'
+                    actionsLayout="horizontal"
                     actions={[{
                       title: 'Удалить аккаунт',
                       autoclose: true,
@@ -253,10 +256,9 @@ export default class Settings extends React.Component{
                       mode: 'cancel'
                     },]}
                     onClose={() => this.setPopout(null)}
-                  >
-                    <h2>Внимание, опасность</h2>
-                    <p>Данное действие ведёт к удалению вашего аккаунта: всех ответов, достижений и другой информации, которая сохранена на вашем аккаунте. Вы действительно хотите его удалить?</p>
-                </Alert>)}
+                    header="Внимание, опасность"
+                    text="Данное действие ведёт к удалению вашего аккаунта: всех ответов, достижений и другой информации, которая сохранена на вашем аккаунте. Вы действительно хотите его удалить?"
+                  />)}
                   before={<Icon28DeleteOutline />}>Удалить аккаунт</CellButton>
                 </Group>
                 

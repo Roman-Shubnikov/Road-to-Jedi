@@ -7,13 +7,12 @@ import {
     PanelHeaderButton,
     Group,
     Avatar,
-    Button,
-    Separator,
     Counter,
     SimpleCell,
     Div,
     FormStatus,
     PullToRefresh,
+    RichCell,
     } from '@vkontakte/vkui';
 
 import Icon12Fire                   from '@vkontakte/icons/dist/12/fire';
@@ -27,7 +26,8 @@ import Icon28ShareExternalOutline   from '@vkontakte/icons/dist/28/share_externa
 import Icon16StarCircleFillYellow   from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
 import Icon28Messages               from '@vkontakte/icons/dist/28/messages';
 import Icon28DiamondOutline         from '@vkontakte/icons/dist/28/diamond_outline';
-import Icon28BrainOutline from '@vkontakte/icons/dist/28/brain_outline';
+import Icon28BrainOutline           from '@vkontakte/icons/dist/28/brain_outline';
+import Icon28SettingsOutline        from '@vkontakte/icons/dist/28/settings_outline';
 
 function isEmpty(obj) {
     for (let key in obj) {
@@ -75,52 +75,40 @@ export default class Profile extends React.Component{
                         <Icon28Notifications/>
                     </PanelHeaderButton></>}>Профиль</PanelHeader>
                     <PullToRefresh onRefresh={() => {this.setState({fetching: true});this.props.this.ReloadProfile();setTimeout(() => {this.setState({fetching: false});}, 1000)}} isFetching={this.state.fetching}>
-                        <SimpleCell
-                        disabled
-                        before={this.props.account.diamond ?
-                            <div style={{position:'relative', margin: 10}}><Avatar src={this.props.account['avatar']['url']} size={72} style={{position: 'relative'}} />
-                            <Icon28DiamondOutline width={25} height={25} className='Diamond_profile' />
-                            </div> : <Avatar size={72} src={this.props.account['avatar']['url']} />}
-                        size="l"
-                        description={isFinite(this.props.account['nickname']) ? `#${this.props.account['nickname']}` : this.props.account['nickname'] ? '' : `#${this.props.account['id']}`}
-                        >
-                            <div style={{display:"flex"}}>
-                                <p style={{margin:0}}>
-                                    {isFinite(this.props.account['nickname']) ? `Агент Поддержки` : this.props.account['nickname'] ? this.props.account['nickname'] : `Агент Поддержки`}
-                                </p> 
-                                {this.props.account['flash'] === true ? 
+                        <Group>
+                        <RichCell
+                            disabled
+                            before={this.props.account.diamond ?
+                                <div style={{position:'relative', margin: 10}}><Avatar src={this.props.account['avatar']['url']} size={72} style={{position: 'relative'}} />
+                                <Icon28DiamondOutline width={25} height={25} className='Diamond_profile' />
+                                </div> : <Avatar size={72} src={this.props.account['avatar']['url']} />}
+                            >
+                                <div style={{display:"flex"}}>
+                                    {this.props.account['nickname'] ? this.props.account['nickname'] : `Агент Поддержки #${this.props.account['id']}`}
+                                    {this.props.account['flash'] === true ? 
+                                            <div className="profile_icon">
+                                                <Icon12Fire width={12} height={12} onClick={() => props.setActiveModal('prom')}/>  
+                                            </div>
+                                            : null}
+                                    {this.props.account['donut'] === true ? 
                                         <div className="profile_icon">
-                                            <Icon12Fire width={12} height={12} onClick={() => props.setActiveModal('prom')}/>  
+                                            <Icon16StarCircleFillYellow width={12} height={12} onClick={() => props.setActiveModal('donut')} />  
                                         </div>
                                         : null}
-                                {this.props.account['donut'] === true ? 
-                                    <div className="profile_icon">
-                                        <Icon16StarCircleFillYellow width={12} height={12} onClick={() => props.setActiveModal('donut')} />  
-                                    </div>
-                                    : null}
-                                {this.props.account['verified'] === true ? 
-                                    <div className="profile_icon_ver">
-                                        <Icon16Verified onClick={() => props.setActiveModal('verif')} />  
-                                    </div>
-                                    : null}
-                            </div>
-                            
-                        </SimpleCell>
+                                    {this.props.account['verified'] === true ? 
+                                        <div className="profile_icon_ver">
+                                            <Icon16Verified onClick={() => props.setActiveModal('verif')} />  
+                                        </div>
+                                        : null}
+                                </div>
+                                
+                            </RichCell>
+                        </Group>
                         
-                        <Separator />
-                        <Div>
-                            <Button
-                            stretched
-                            size='l'
-                            mode='secondary'
-                            onClick={() => this.props.this.goPanel('settings')}
-                            >Настройки</Button>
-                        </Div>
-                        <Separator />
                         <Group>
                             <SimpleCell
                                 expandable
-                                className='pointer'
+
                                 href="https://vk.me/join/zyWQzsgQ9iw6V2YAfbwiGtuO883rnYhXwAY="
                                 target="_blank" rel="noopener noreferrer"
                                 before={<Icon28Messages />}>
@@ -131,14 +119,12 @@ export default class Profile extends React.Component{
                         <Group>
                             {(this.props.account['special'] || this.props.account['generator']) || <SimpleCell
                             expandable
-                            className='pointer'
                             onClick={() => {
                                 this.props.this.goPanel('qu');
                             }}
                             before={<Icon28PollSquareOutline />}>Мои ответы</SimpleCell>}
                             <SimpleCell
                             expandable
-                            className='pointer'
                             onClick={() => {
                                 this.props.this.goPanel('market');
                             }}
@@ -146,12 +132,17 @@ export default class Profile extends React.Component{
 
                             {this.props.account['generator'] && <SimpleCell
                             expandable
-                            className='pointer'
                             onClick={() => {
                                 this.props.this.goPanel('new_ticket');
                             }}
                             before={<Icon28BrainOutline />}>Генератор вопросов</SimpleCell>}
                             
+                            <SimpleCell
+                            expandable
+                            onClick={() => {
+                                this.props.this.goPanel('settings');
+                            }}
+                            before={<Icon28SettingsOutline />}>Настройки</SimpleCell>
                             
                             {/* 
                             <SimpleCell
@@ -173,20 +164,13 @@ export default class Profile extends React.Component{
                             }}
                             before={<Icon24ShareOutline />}>Поделиться профилем</SimpleCell> */}
                             
+                        
+                            {!this.props.account['special'] ? <Div>
+                                <FormStatus header="Внимание! Важная информация" mode="default">
+                                Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
+                                </FormStatus>
+                            </Div> : null}
                         </Group>
-                        {!this.props.account['special'] ? <Div>
-                            <FormStatus header="Внимание! Важная информация" mode="default">
-                            Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
-                            </FormStatus>
-                        </Div> : null}
-                        {/* <Group>
-                            <SimpleCell
-                            onClick={() => {
-                                props.this.allowMessage();
-                            }}
-                            indicator={<Switch onChange={() => props.this.allowMessage()} defaultChecked={props.this.state.switchKeys}/>}
-                            before={<Icon28Notifications />}>Уведомления в сообщения</SimpleCell>
-                        </Group> */}
                     </PullToRefresh>
                 {this.props.this.state.snackbar}
                 </> : null}

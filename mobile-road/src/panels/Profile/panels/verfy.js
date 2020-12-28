@@ -4,9 +4,7 @@ import {
     Panel,
     PanelHeader,
     PanelHeaderBack,
-    Div,
     FormLayout,
-    FormLayoutGroup,
     Input,
     Textarea,
     Checkbox,
@@ -14,6 +12,8 @@ import {
     Link,
     Placeholder,
     ScreenSpinner,
+    Group,
+    FormItem,
 
     } from '@vkontakte/vkui';
 
@@ -98,7 +98,7 @@ export default class Verfy extends React.Component{
       if(title.length > 0){
         let valid = ['error', 'Текст должен быть не больше 2000 и не меньше 6 символов' ];
         if(title.length <= 2000 && title.length > 5){
-          if(/^[a-zA-ZА-Яа-я0-9_ .,"'!?\-+=]*$/ui.test(title)){
+          if(/^[a-zA-ZА-Яа-я0-9_ё .,"':!?*+=-]*$/ui.test(title)){
             valid = ['valid', '']
           }else{
             valid = ['error', 'Текст не должен содержать спец. символы'];
@@ -114,7 +114,7 @@ export default class Verfy extends React.Component{
       if(title.length > 0){
         let valid = ['error', 'Текст должен быть не больше 2000 и не меньше 11 символов'];
         if(title.length <= 2000 && title.length > 10){
-          if(/^[a-zA-ZА-Яа-я0-9_ .,"'!?+=-]*$/ui.test(title)){
+          if(/^[a-zA-ZА-Яа-я0-9_ё .,"':!?*+=-]*$/ui.test(title)){
             valid = ['valid', '']
           }else{
             valid = ['error', 'Текст не должен содержать спец. символы'];
@@ -140,73 +140,59 @@ export default class Verfy extends React.Component{
                     </>}>
                     Верификация
                 </PanelHeader>
-                {(this.state.verfstatus !== -1) ? (this.state.verfstatus === 2) ? <><Placeholder 
+                {(this.state.verfstatus !== -1) ? (this.state.verfstatus === 2) ? <><Group><Placeholder 
                 icon={<img src={VerfIcon} alt='Ожидайте рассмотрения' style={{width: 250, height: 200}} />}
                 // action={<Div>
                 //   <Button size="xl" onClick={() => {window.history.back()}}>Вернуться к настройкам</Button>
                 // </Div>}
                 header='Вы отправили заявку на верификацию'>Вы отправили заявку на верификацию, по
                                                             окончании проверки — мы сообщим Вам
-                                                            о результатах официального статуса.
-                                                            <br /><br />Администрация проекта не сообщает о
-                                                            процессе рассмотрения
-                                                            верификации.</Placeholder>
-                                                              </> : <>
+                                                            о результатах официального статуса.</Placeholder>
+                                                              </Group></> : <>
+                <Group>
                 <FormLayout>
-                  {/* {this.state.numberstatus ? null : <FormStatus header='Некорректное заполнение формы' mode='error'>
-                    Вы должны указать номер телефона. Если этого не сделать, то пройти процедуру верефикации не получится
-                  </FormStatus>} */}
-                  <FormLayoutGroup top="Общая информация" bottom={this.validateTitle(this.state.title.trim())[1]}>
+                  <FormItem 
+                  status={this.validateTitle(this.state.title.trim())[0]}
+                  top="Общая информация" 
+                  bottom={this.validateTitle(this.state.title.trim())[1]}>
                     <Input 
                     maxLength="2000" 
                     onChange={this.onChange}
                     name='title'
-                    status={this.validateTitle(this.state.title.trim())[0]}
                     placeholder='Введите свой текст...' />
-                  </FormLayoutGroup>
-                  <FormLayoutGroup top="Почему вы решили верифицировать профиль" bottom={this.validateDesc(this.state.description.trim())[1]}>
+                  </FormItem>
+                  <FormItem 
+                  top="Почему вы решили верифицировать профиль" 
+                  bottom={this.validateDesc(this.state.description.trim())[1]}
+                  status={this.validateDesc(this.state.description.trim())[0]}>
                     <Textarea 
                     maxLength="2000" 
-                    status={this.validateDesc(this.state.description.trim())[0]}
                     name='description'
                     onChange={this.onChange}
                     placeholder='Введите свой текст...' />
-                  </FormLayoutGroup>
-                  {/* <SimpleCell
-                  description="Нажмите чтобы указать номер телефона"
-                  onClick={() => bridge.send("VKWebAppGetPhoneNumber", {})
-                  .then(data => {
-                    this.setState({number: data.phone_number, sign_number: data.sign, numberstatus: true})
-                  })
-                  .catch(error => {
-                    this.setState({numberstatus: false})
-                  })}
-                  before={<Icon28SmartphoneOutline/>}>Ваш номер телефона</SimpleCell> */}
-                  {/* {this.state.number ? <Input
-                  top='Ваш номер'
-                  disabled
-                  value={this.state.number} /> : null} */}
+                  </FormItem>
                   <Checkbox checked={this.state.check1} onChange={() => this.state.check1 ? this.setState({check1: false}) : this.setState({check1: true})}>
                     Согласен с <Link 
                     href='https://vk.com/@jedi_road-chto-takoe-verifikaciya-i-kak-ee-poluchit-galochku'
                     target="_blank" rel="noopener noreferrer">
-                    правилами
-                      </Link> верификации
+                    правилами</Link> верификации
                   </Checkbox>
+                  <FormItem>
+                    <Button 
+                    size='l' 
+                    stretched
+                    disabled={
+                      !this.state.check1 || 
+                      !(this.validateTitle(this.state.title.trim())[0] === 'valid') ||
+                      !(this.validateDesc(this.state.description.trim())[0] === 'valid')
+                      // !this.state.number
+                    }
+                    onClick={() => this.handleForm()}
+                    >Отправить на рассмотрение</Button>
+                  </FormItem>
                 </FormLayout>
-                <Div>
-                  <Button 
-                  size='xl' 
-                  stretched
-                  disabled={
-                    !this.state.check1 || 
-                    !(this.validateTitle(this.state.title.trim())[0] === 'valid') ||
-                    !(this.validateDesc(this.state.description.trim())[0] === 'valid')
-                    // !this.state.number
-                  }
-                  onClick={() => this.handleForm()}
-                  >Отправить на рассмотрение</Button>
-                </Div></>: null}
+                </Group>
+                </>: null}
                 {this.props.this.state.snackbar}
             </Panel>
         )

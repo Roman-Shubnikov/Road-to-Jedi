@@ -7,10 +7,9 @@ import Icon20CommentOutline from '@vkontakte/icons/dist/20/comment_outline';
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
 
-
-const Message = props => (
+const Message = React.forwardRef(( props, ref ) => (
     props.is_mine === true ?
-        <div className="mine_message">
+        <div className="mine_message" ref={ref}>
             <div  className="message_report_moderator" style={{marginBottom: props.approved ? "20px" : null, right: platformname ? "-12%" : "-22%"}}>
                 <div className={props.clickable ? 'pointer animation' : ''} onClick={() => props.onClick()}>
                     <p className="moderator_name_message">
@@ -45,7 +44,7 @@ const Message = props => (
             
         </div>
     :
-    <div className="all_message" style={props.is_mark === false ? {marginBottom: "-3px"} : null}>
+    <div className="all_message" style={props.is_mark === false ? {marginBottom: "-3px"} : null} ref={ref}>
         <img className="avatar_message" src={props.avatar} alt={'а'} />
         <div className={props.clickable ? 'pointer message_report animation' : 'message_report'} onClick={() => props.onClick()}>
             <p className="moderator_name_message">{props.title}</p>
@@ -53,6 +52,6 @@ const Message = props => (
             <p className="time_message">{props.time}</p>
         </div>
     </div>
-);
+));
 
 export default Message;

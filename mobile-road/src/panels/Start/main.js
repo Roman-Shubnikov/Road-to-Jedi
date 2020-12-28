@@ -28,10 +28,6 @@ export default class Start extends React.Component {
         }
         this.changeData = this.props.this.changeData;
         this.ReloadProfile = this.props.reloadProfile;
-        // this.copy = this.props.this.copy;
-        // this.recordHistory = (panel) => {
-        //   this.setState({history: [...this.state.history, panel]})
-        // }
         this.setPopout = (value) => {
           this.setState({popout: value})
         }
@@ -56,11 +52,6 @@ export default class Start extends React.Component {
             } else if (history.length > 1) {
                 history.pop()
                 this.setState({activePanel: history[history.length - 1]})
-                // if(history[history.length - 1] === 'ticket'){
-                //   this.changeData('need_epic', false)
-                // } else{
-                //   this.changeData('need_epic', true)
-                // }
                 this.setPopout(<ScreenSpinner />)
                 setTimeout(() => {
                   this.setPopout(null)
@@ -78,42 +69,37 @@ export default class Start extends React.Component {
           history.push(panel)
           window.history.pushState( { panel: panel }, panel );
           this.setState({history: history, activePanel: panel})
-          // if(panel === 'ticket'){
-          //   this.changeData('need_epic', false)
-          // } else{
-          //   this.changeData('need_epic', true)
-          // }
         }
-          this.showAlert = (title, text) => {
-            this.setState({
-              popout: 
-                <Alert
-                  actions={[{
-                    title: 'Закрыть',
-                    autoclose: true,
-                    mode: 'cancel'
-                  }]}
-                  onClose={() => this.setPopout(null)}
-                >
-                  <h2>{title}</h2>
-                  <p>{text}</p>
-              </Alert>
-            })
-          }
-          this.showErrorAlert = (error=null, action=null) => {
-            this.setPopout(
+        this.showAlert = (title, text) => {
+          this.setState({
+            popout:
               <Alert
-                  actions={[{
-                  title: 'Отмена',
+              actionsLayout="horizontal"
+                actions={[{
+                  title: 'Закрыть',
                   autoclose: true,
-                  mode: 'cancel',
-                  action: action,
-                  }]}
-                  onClose={() => this.setPopout(null)}
-              >
-                <h2>Ошибка</h2>
-                {error ? <p>{error}</p> : <p>Что-то пошло не так, попробуйте снова!</p>}
-              </Alert>
+                  mode: 'cancel'
+                }]}
+                onClose={() => this.setPopout(null)}
+                header={title}
+                text={text}
+              />
+          })
+        }
+        this.showErrorAlert = (error = null, action = null) => {
+          this.setPopout(
+            <Alert
+              actionsLayout="horizontal"
+              actions={[{
+                title: 'Отмена',
+                autoclose: true,
+                mode: 'cancel',
+                action: action,
+              }]}
+              onClose={() => this.setPopout(null)}
+              header="Ошибка"
+              text={error ? `${error}` : "Что-то пошло не так, попробуйте снова!"}
+            />
           )
         }
     }
@@ -132,8 +118,6 @@ export default class Start extends React.Component {
             id={this.props.id}
             activePanel={this.state.activePanel}
             popout={this.state.popout}
-            // history={this.state.history}
-            // onSwipeBack={() => window.history.back()}
             >
               <Startov id='start' account={this.props.account} this={this} />
               <Startov2 id='start2' account={this.props.account} this={this} />

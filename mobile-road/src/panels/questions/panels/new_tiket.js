@@ -11,6 +11,8 @@ import {
     Textarea,
     PanelHeaderBack,
     Checkbox,
+    Group,
+    FormItem,
     } from '@vkontakte/vkui';
 
 export default class NewTicket extends React.Component {
@@ -87,39 +89,47 @@ export default class NewTicket extends React.Component {
                     left={<PanelHeaderBack onClick={() => window.history.back()} />}>
                 Новый вопрос
                 </PanelHeader>
-                <FormLayout>
-                    <Input 
-                    top={this.state.title_new_tiket === null ? "Суть проблемы (0/30). Не менее 5 символов" : "Суть проблемы (" + this.state.title_new_tiket.length + "/80). Не менее 5 символов"}
-                    maxLength="80" 
-                    type="text" 
-                    name="title_new_tiket" 
-                    placeholder='Введите свой текст...'
-                    value={this.state.title_new_tiket} 
-                    onChange={(e) => this.onChange(e)}/>
+                <Group>
+                    <FormLayout>
+                        <FormItem top={"Суть проблемы (" + this.state.title_new_tiket.length + "/80). Не менее 5 символов"}
+                        >
+                            <Input 
+                            maxLength="80" 
+                            type="text" 
+                            name="title_new_tiket" 
+                            placeholder='Введите свой текст...'
+                            value={this.state.title_new_tiket} 
+                            onChange={(e) => this.onChange(e)}/>
+                        </FormItem>
+                        <FormItem top={"Подробнее о проблеме (" + this.state.text_new_tiket.length + "/2020). Не менее 5 символов"}
+                        >
+                            <Textarea maxLength="2020" 
+                            name="text_new_tiket" 
+                            onChange={(e) => this.onChange(e)}
+                            placeholder='Введите свой текст...'
+                            value={this.state.text_new_tiket}
+                            />
+                        </FormItem>
+                        
+                        <Checkbox checked={this.state.check1} onChange={() => this.state.check1 ? this.setState({check1: false}) : this.setState({check1: true})}>
+                            Только для донов
+                        </Checkbox>
 
-                    <Textarea maxLength="2020" 
-                    name="text_new_tiket" 
-                    top={this.state.text_new_tiket === null ? "Подробнее о проблеме (0/2020). Не менее 5 символов" : "Подробнее о проблеме (" + this.state.text_new_tiket.length + "/2020). Не менее 5 символов"} 
-                    onChange={(e) => this.onChange(e)}
-                    placeholder='Введите свой текст...'
-                    value={this.state.text_new_tiket}
-                    ></Textarea>
-
-                    <Checkbox checked={this.state.check1} onChange={() => this.state.check1 ? this.setState({check1: false}) : this.setState({check1: true})}>
-                        Только для донов
-                    </Checkbox>
-
-                    <Button
-                    size="xl" 
-                    level="secondary" 
-                    stretched 
-                    disabled={!Boolean(this.state.text_new_tiket.length > 5) || !Boolean(this.state.title_new_tiket.length > 5)}
-                    onClick={
-                        () => {
-                            this.sendNewTiket();
-                        }
-                    }>Отправить</Button>
-                </FormLayout>
+                        <FormItem>
+                            <Button
+                            size="l" 
+                            level="secondary" 
+                            stretched 
+                            disabled={!Boolean(this.state.text_new_tiket.length > 5) || !Boolean(this.state.title_new_tiket.length > 5)}
+                            onClick={
+                                () => {
+                                    this.sendNewTiket();
+                                }
+                            }>Отправить</Button>
+                        </FormItem>
+                    </FormLayout>
+                </Group>
+                
             </Panel>
             )
             }

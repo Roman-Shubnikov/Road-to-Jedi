@@ -14,6 +14,7 @@ import {
     TabsItem,
     Search,
     HorizontalScroll,
+    Group,
     } from '@vkontakte/vkui';
 
 import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
@@ -40,6 +41,7 @@ function fix_time(time) {
     'ноя',
     'дек',
 ];
+const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
 export default class myQuestions extends React.Component {
         constructor(props) {
@@ -90,77 +92,84 @@ export default class myQuestions extends React.Component {
             var limiter_search = this.limiter(searched);
             return (
                 <Panel id={this.props.id}>
-            <PanelHeader separator={false}
+            <PanelHeader 
+            separator={!platformname}
                 left={<PanelHeaderBack onClick={() => window.history.back()} />}
             >
                 Мои ответы
                 </PanelHeader>
-                <Search value={this.state.search}
-                    onChange={(e) => {
-                        this.setState({search: e.target.value})
-                    }} />
-                <Tabs>
-                <HorizontalScroll>
-                    <TabsItem
-                        onClick={() => this.setState({ activeTab: 'positive' })}
-                        selected={this.state.activeTab === 'positive'}
-                    >
-                        Положительные
-                    </TabsItem>
-                    <TabsItem
-                        onClick={() => this.setState({ activeTab: 'negative' })}
-                        selected={this.state.activeTab === 'negative'}
-                    >
-                        Отрицательные
-                    </TabsItem>
-                    <TabsItem
-                        onClick={() => this.setState({ activeTab: 'moderation' })}
-                        selected={this.state.activeTab === 'moderation'}
-                    >
-                        На модерации
-                    </TabsItem>
-                </HorizontalScroll>
-                </Tabs>
-                <PullToRefresh onRefresh={() => {this.setState({fetching: true});this.prepare_questions()}} isFetching={this.state.fetching}>
-                    {questions.length > 0 ?
-                    searched.length > 0 ?
-                    <>
-                    {limiter_search.map((result, i) => 
-                    <React.Fragment key={result.id}> 
-                    <Cell
-                        key={i}
-                        className='pointer'
-                        onClick={() => props.goTiket(result['ticket_id'])}
-                        description={new Date(result['time'] * 1e3).getDate() + " " + months[new Date(result['time'] * 1e3).getMonth()] + " " + new Date(result['time'] * 1e3).getFullYear() + " в " 
-                        + fix_time(new Date(result['time'] * 1e3).getHours()) + ":" + fix_time(new Date(result['time'] * 1e3).getMinutes())}
-                        size="l"
-                        // before={<Avatar src={result['author']['id'] === 526444378 ? "https://cdn3.iconfinder.com/data/icons/avatars-15/64/_Ninja-2-512.png" : result['author']['photo_200']} />}
-                    >
-                        {result['text']}
-                    </Cell>
-                    <Separator />
-                    </React.Fragment>
-                    )}
-                    {(limiter_search < searched) ? 
-                    <Div>
-                        <Button 
-                        mode='secondary' 
-                        size='xl' 
-                        stretched
-                        onClick={() => this.setState({limiter: this.state.limiter + 10})}
-                        >Показать ещё 10 ответов</Button>
-                    </Div> : null}
-                    </> :
-                    <Placeholder 
-                    icon={<Icon28WarningTriangleOutline width={56} height={56} />}>
-                        По вашему запросу ничего не найдено.
-                    </Placeholder> :
-                    <Placeholder 
-                    icon={<Icon56InboxOutline />}>
-                        Упс, кажется, здесь нет ваших ответов.
-                    </Placeholder>
-                    }
-                </PullToRefresh>
+                <Group>
+                    <Search value={this.state.search}
+                        onChange={(e) => {
+                            this.setState({search: e.target.value})
+                        }} />
+                    <Tabs>
+                        <HorizontalScroll>
+                            <TabsItem
+                                onClick={() => this.setState({ activeTab: 'positive' })}
+                                selected={this.state.activeTab === 'positive'}
+                            >
+                                Положительные
+                            </TabsItem>
+                            <TabsItem
+                                onClick={() => this.setState({ activeTab: 'negative' })}
+                                selected={this.state.activeTab === 'negative'}
+                            >
+                                Отрицательные
+                            </TabsItem>
+                            <TabsItem
+                                onClick={() => this.setState({ activeTab: 'moderation' })}
+                                selected={this.state.activeTab === 'moderation'}
+                            >
+                                На модерации
+                            </TabsItem>
+                        </HorizontalScroll>
+                    </Tabs>
+                </Group>
+                <Group>
+                    <PullToRefresh onRefresh={() => {this.setState({fetching: true});this.prepare_questions()}} isFetching={this.state.fetching}>
+                        {questions.length > 0 ?
+                        searched.length > 0 ?
+                        <>
+                        {limiter_search.map((result, i) => 
+                        <React.Fragment key={result.id}> 
+                        {(i === 0) || <Separator/>}
+                        <Cell
+                            key={i}
+                            className='pointer'
+                            onClick={() => props.goTiket(result['ticket_id'])}
+                            description={new Date(result['time'] * 1e3).getDate() + " " + months[new Date(result['time'] * 1e3).getMonth()] + " " + new Date(result['time'] * 1e3).getFullYear() + " в " 
+                            + fix_time(new Date(result['time'] * 1e3).getHours()) + ":" + fix_time(new Date(result['time'] * 1e3).getMinutes())}
+                            size="l"
+                            // before={<Avatar src={result['author']['id'] === 526444378 ? "https://cdn3.iconfinder.com/data/icons/avatars-15/64/_Ninja-2-512.png" : result['author']['photo_200']} />}
+                        >
+                            {result['text']}
+                        </Cell>
+                        </React.Fragment>
+                        )}
+                        {(limiter_search < searched) ? 
+                        <Div>
+                            <Button 
+                            mode='secondary' 
+                            size='l' 
+                            stretched
+                            onClick={() => this.setState({limiter: this.state.limiter + 10})}
+                            >Показать ещё 10 ответов</Button>
+                        </Div> : null}
+                        </> :
+                        <Placeholder 
+                        icon={<Icon28WarningTriangleOutline width={56} height={56} />}>
+                            По вашему запросу ничего не найдено.
+                        </Placeholder> :
+                        <Placeholder 
+                        icon={<Icon56InboxOutline />}>
+                            Упс, кажется, здесь нет ваших ответов.
+                        </Placeholder>
+                        }
+                    </PullToRefresh>
+                </Group>
+                
+                
             </Panel>
             )
             }
