@@ -3,12 +3,12 @@ import {
     Panel,
     PanelHeader,
     ScreenSpinner,
-    Separator,
     Header,
     PanelHeaderBack,
     Radio,
     FormLayout,
     Div,
+    Group,
     } from '@vkontakte/vkui';
 
 import Message from '../../../components/message'
@@ -75,32 +75,34 @@ export default class SchemeChange extends React.Component{
                 }>
                     Смена темы
                 </PanelHeader>
-                <Header mode='secondary'>Предпросмотр</Header>
-                <Separator /> 
-                <Div>
-                    <Message
-                    title='Пользователь'
-                    is_mine={false}
-                    avatar={avaUser}
-                    onClick={() => {}}
-                    clickable={false}
-                    >О, тут можно менять тему</Message>
-                    <Message
-                    title='Агент Поддержки'
-                    is_mine={true}
-                    avatar={avaAgent}
-                    onClick={() => {}}
-                    clickable={false}
-                    >Действительно</Message>
-                </Div>
-                <Separator style={{marginTop: 10}} />
-                <FormLayout>
-                    <div>
-                    <Radio name="radio" className="pointer" onChange={this.ChangeScheme} value="1" defaultChecked={(this.props.account.scheme === 1) ? true : false}>Светлая тема</Radio>
-                    <Radio name="radio" className="pointer" onChange={this.ChangeScheme} value="2" defaultChecked={(this.props.account.scheme === 2) ? true : false}>Тёмная тема</Radio>
-                    <Radio name="radio" className="pointer" onChange={this.ChangeScheme} value="0" description='Сервис будет использовать тему, установленную в настройках ВКонтакте' defaultChecked={(this.props.account.scheme === 0) ? true : false}>Автоматически</Radio>
-                    </div>
-                </FormLayout>
+                
+                <Group header={<Header mode='secondary'>Предпросмотр</Header>}>
+                    <Div>
+                        <Message
+                        title='Пользователь'
+                        is_mine={false}
+                        avatar={avaUser}
+                        onClick={() => {}}
+                        clickable={false}
+                        >О, тут можно менять тему</Message>
+                        <Message
+                        title='Агент Поддержки'
+                        is_mine={true}
+                        avatar={avaAgent}
+                        onClick={() => {}}
+                        clickable={false}
+                        >Действительно</Message>
+                    </Div>
+                </Group>
+                
+                <Group>
+                    <FormLayout>
+                        <Radio name="radio" className="pointer" onChange={this.ChangeScheme} value="1" defaultChecked={(this.props.account.scheme === 1) ? true : false}>Светлая тема</Radio>
+                        <Radio name="radio" className="pointer" onChange={this.ChangeScheme} value="2" defaultChecked={(this.props.account.scheme === 2) ? true : false}>Тёмная тема</Radio>
+                        <Radio name="radio" className="pointer" onChange={this.ChangeScheme} value="0" description='Сервис будет использовать тему, установленную в настройках ВКонтакте' defaultChecked={(this.props.account.scheme === 0) ? true : false}>Автоматически</Radio>
+                    </FormLayout>
+                </Group>
+                
             </Panel>
         )
     }

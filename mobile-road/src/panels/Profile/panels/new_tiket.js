@@ -15,6 +15,8 @@ import {
     InfoRow,
     FormStatus,
     Progress,
+    FormItem,
+    Group,
     } from '@vkontakte/vkui';
 function enumerate (num, dec) {
     if (num > 100) num = num % 100;
@@ -95,53 +97,61 @@ export default class NewTicket extends React.Component {
                     left={<PanelHeaderBack onClick={() => window.history.back()} />}>
                 Новый вопрос
                 </PanelHeader>
-                {(this.props.account['bad_answers'] !== null && this.props.account['bad_answers'] !== undefined) ? <Div>
-                            <FormStatus onClick={() => this.props.this.setActiveModal('answers')}>
-                                <div style={{textAlign: 'center', color: "var(--text_profile)", marginBottom: 15}}>
-                                    Вы сгенерировали <span style={{color:'var(--header_text)'}}>{this.props.account['bad_answers']} {enumerate(this.props.account['bad_answers'], ['вопрос', 'вопроса', 'вопросов'])}</span>
-                                </div>
-                                <InfoRow>
-                                    <Progress 
-                                    value={this.props.account['bad_answers'] ? Math.floor(this.props.account['bad_answers'] / 200 * 100) : 0} />
-                                    <div style={{textAlign: 'right', color: "var(--text_profile)", marginTop: 10, fontSize: 13}}>200</div>
-                                </InfoRow>
-                                {(this.props.account['marked'] >= 200) ? <div style={{textAlign: 'center', color: "var(--text_profile)", marginBottom: 5}}>
-                                    Но это не значит, что нужно расслабляться!
-                                </div> : null}
-                            </FormStatus>
-                        </Div> : null}
+                {(this.props.account['bad_answers'] !== null && this.props.account['bad_answers'] !== undefined) ? 
+                <Group>
+                    <Div>
+                        <FormStatus onClick={() => this.props.this.setActiveModal('answers')}>
+                            <div style={{textAlign: 'center', color: "var(--text_profile)", marginBottom: 15}}>
+                                Вы сгенерировали <span style={{color:'var(--header_text)'}}>{this.props.account['bad_answers']} {enumerate(this.props.account['bad_answers'], ['вопрос', 'вопроса', 'вопросов'])}</span>
+                            </div>
+                            <InfoRow>
+                                <Progress 
+                                value={this.props.account['bad_answers'] ? Math.floor(this.props.account['bad_answers'] / 200 * 100) : 0} />
+                                <div style={{textAlign: 'right', color: "var(--text_profile)", marginTop: 10, fontSize: 13}}>200</div>
+                            </InfoRow>
+                            {(this.props.account['marked'] >= 200) ? <div style={{textAlign: 'center', color: "var(--text_profile)", marginBottom: 5}}>
+                                Но это не значит, что нужно расслабляться!
+                            </div> : null}
+                        </FormStatus>
+                    </Div>
+                </Group> : null}
                 <FormLayout>
-                    <Input 
-                    top={this.state.title_new_tiket === null ? "Суть проблемы (0/30). Не менее 5 символов" : "Суть проблемы (" + this.state.title_new_tiket.length + "/80). Не менее 5 символов"}
-                    maxLength="80" 
-                    type="text" 
-                    name="title_new_tiket" 
-                    placeholder='Введите свой текст...'
-                    value={this.state.title_new_tiket} 
-                    onChange={(e) => this.onChange(e)}/>
-
-                    <Textarea maxLength="2020" 
-                    name="text_new_tiket" 
-                    top={this.state.text_new_tiket === null ? "Подробнее о проблеме (0/2020). Не менее 5 символов" : "Подробнее о проблеме (" + this.state.text_new_tiket.length + "/2020). Не менее 5 символов"} 
-                    onChange={(e) => this.onChange(e)}
-                    placeholder='Введите свой текст...'
-                    value={this.state.text_new_tiket}
-                    ></Textarea>
+                    <FormItem top={"Суть проблемы (" + this.state.title_new_tiket.length + "/80). Не менее 5 символов"}>
+                        <Input 
+                        maxLength="80" 
+                        type="text" 
+                        name="title_new_tiket" 
+                        placeholder='Введите свой текст...'
+                        value={this.state.title_new_tiket} 
+                        onChange={(e) => this.onChange(e)}/>
+                    </FormItem>
+                    <FormItem>
+                        <Textarea maxLength="2020" 
+                        name="text_new_tiket" 
+                        top={"Подробнее о проблеме (" + this.state.text_new_tiket.length + "/2020). Не менее 5 символов"} 
+                        onChange={(e) => this.onChange(e)}
+                        placeholder='Введите свой текст...'
+                        value={this.state.text_new_tiket}
+                        />
+                    </FormItem>
 
                     <Checkbox checked={this.state.check1} onChange={() => this.state.check1 ? this.setState({check1: false}) : this.setState({check1: true})}>
                         Только для донов
                     </Checkbox>
 
-                    <Button
-                    size="xl" 
-                    level="secondary" 
-                    stretched 
-                    disabled={!Boolean(this.state.text_new_tiket.length > 5) || !Boolean(this.state.title_new_tiket.length > 5)}
-                    onClick={
-                        () => {
-                            this.sendNewTiket();
-                        }
-                    }>Добавить в очередь</Button>
+                    <FormItem>
+                        <Button
+                        size="l" 
+                        level="secondary" 
+                        stretched 
+                        disabled={!Boolean(this.state.text_new_tiket.length > 5) || !Boolean(this.state.title_new_tiket.length > 5)}
+                        onClick={
+                            () => {
+                                this.sendNewTiket();
+                            }
+                        }>Добавить в очередь</Button>
+                    </FormItem>
+                    
                 </FormLayout>
             </Panel>
             )

@@ -30,8 +30,10 @@ export default class Info extends React.Component{
                     }>
                     О сервисе
                 </PanelHeader>
-                <Placeholder icon={<img src={IconJedi} alt='jedi' />} >Версия 2.0</Placeholder>
-                <Separator />
+                <Group>
+                    <Placeholder icon={<img src={IconJedi} alt='jedi' />} >Версия 2.0</Placeholder>
+                </Group>
+                
                 <Group>
                   <SimpleCell
                   className="pointer"

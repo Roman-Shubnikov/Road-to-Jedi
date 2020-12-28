@@ -10,13 +10,13 @@ import {
     Separator,
     PullToRefresh,
     PanelSpinner,
-    Cell,
     Div,
     Banner,
     Footer,
     ScreenSpinner,
     Group,
-    List
+    List,
+    SimpleCell
     
     } from '@vkontakte/vkui';
 
@@ -68,14 +68,6 @@ export default class Questions extends React.Component {
         }
         componentDidMount() {
             this.setPopout(null)
-            // this.Prepare_questions()
-            // setTimeout(() => {
-            //     if(this.props.account.is_first_start){
-            //         // this.props.this.playAudio()
-            //         this.setActiveModal('start');
-            //     }
-            //     this.setPopout(null)
-            // }, 1000) //4000
         }
 
         render() {
@@ -94,85 +86,97 @@ export default class Questions extends React.Component {
                 >
                 Вопросы
                 </PanelHeader>
-                {(this.state.ShowBanner && this.props.first_start) ? <><Banner
-                mode="image"
-                size="m"
-                onDismiss={() => {
-                    this.setState({ShowBanner: false});
-                }}
-                header="С чего начать?"
-                subheader='С прочтения статьи'
-                background={
-                <div
-                    style={{
-                    backgroundColor: '#5b9be6',
-                    backgroundImage: platformname ? 'url(' + BannerAvatarMobile + ")" : 'url(' + BannerAvatarPC + ")",
-                    backgroundPosition: 'right bottom',
-                    backgroundSize: '100%',
+                
+                {(this.state.ShowBanner && this.props.first_start) ? 
+                <Group>
+                    <Banner
+                        mode="image"
+                        size="m"
+                        onDismiss={() => {
+                            this.setState({ShowBanner: false});
+                        }}
+                        header="С чего начать?"
+                        subheader='С прочтения статьи'
+                        background={
+                            <div
+                                style={{
+                                backgroundColor: '#5b9be6',
+                                backgroundImage: platformname ? 'url(' + BannerAvatarMobile + ")" : 'url(' + BannerAvatarPC + ")",
+                                backgroundPosition: 'right bottom',
+                                backgroundSize: '100%',
 
-                    backgroundRepeat: 'no-repeat',
-                    }}
-                />
-                }
-                    asideMode="dismiss"
-                    actions={<Button mode="overlay_primary" href="https://vk.com/@jedi_road-checking-responses" target="_blank" rel="noopener noreferrer" size="l">Читать</Button>}
-                /><Separator /></> : null}
-                {this.props.account.special ? <Div>
-                    <Button onClick={() => props.goPanel('new_ticket')}
-                    size="xl" 
-                    mode="outline" 
-                    stretched>Новый вопрос</Button>
-                </Div> : null}
-                <PullToRefresh onRefresh={() => {this.setState({ fetching: true });this.Prepare_questions()}} isFetching={this.state.fetching}>
-                    <Group>
-                        <List>
-                            {this.props.tiket_all ? this.props.tiket_all.length > 0 ? this.props.tiket_all.map((result, i) => 
-                            <React.Fragment key={i}>
-                                <Cell
-                                    multiline
-                                    className="pointer"
-                                    onClick={() => {this.setState({tiket_all: null});props.goTiket(result['id'])}}
-                                    description={result['status'] === 0 ? "На рассмотрении" : result['status'] === 1 ? "Есть ответ" : "Закрыт" } 
-                                    asideContent={<Avatar src={result['author']['photo_200']} size={56}/>}
-                                >
-                                    <div style={{display:"flex"}}>
-                                        {result['title']}
-                                        <div className='questionsIcons'>
-                                            <div className='icon_donut_questions'>
-                                                {/* {<Icon16StarCircleFillYellow width={12} height={12} className="top_moderator_name_icon" />} */}
-                                                {result['donut'] ? <Icon16StarCircleFillYellow width={12} height={12} className="top_moderator_name_icon" /> : null}
+                                backgroundRepeat: 'no-repeat',
+                                }}
+                            />
+                        }
+                        asideMode="dismiss"
+                        actions={
+                        <Button mode="overlay_primary" href="https://vk.com/@jedi_road-checking-responses" target="_blank" rel="noopener noreferrer" size="l">Читать</Button>
+                    }
+                    />
+                </Group>
+                
+                 : null}
+                {this.props.account.special ? 
+                <Group>
+                    <Div>
+                        <Button onClick={() => props.goPanel('new_ticket')}
+                        size="l" 
+                        mode="outline" 
+                        stretched>Новый вопрос</Button>
+                    </Div>
+                </Group>
+                 : null}
+                <Group>
+                    <PullToRefresh onRefresh={() => {this.setState({ fetching: true });this.Prepare_questions()}} isFetching={this.state.fetching}>
+                        
+                            <List>
+                                {this.props.tiket_all ? this.props.tiket_all.length > 0 ? this.props.tiket_all.map((result, i) => 
+                                <React.Fragment key={i}>
+                                    {(i === 0) || <Separator />}
+                                    <SimpleCell
+                                        multiline
+                                        expandable
+                                        onClick={() => {this.setState({tiket_all: null});props.goTiket(result['id'])}}
+                                        description={result['status'] === 0 ? "На рассмотрении" : result['status'] === 1 ? "Есть ответ" : "Закрыт" } 
+                                        before={<Avatar src={result['author']['photo_200']} size={48}/>}
+                                    >
+                                        <div style={{display:"flex"}}>
+                                            {result['title']}
+                                            <div className='questionsIcons'>
+                                                <div className='icon_donut_questions'>
+                                                    {result['donut'] ? <Icon16StarCircleFillYellow width={12} height={12} className="top_moderator_name_icon" /> : null}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </Cell>
-                                <Separator style={{width: "90%"}} />
-                            </React.Fragment>
-                            ) : <Placeholder 
-                            icon={<Icon56InboxOutline />}>
-                                Упс, кажется вопросы закончились
-                            </Placeholder>
-                            : <PanelSpinner />}
-                        </List>
-                    </Group>
-                    
-                {this.props.tiket_all_helper ? this.props.tiket_all_helper.length === 20 ? 
-                <Div>
-                    <Button size="xl" 
-                    level="secondary" 
-                    before={this.state.fetching ? <Icon24Spinner width={28} height={28} className='Spinner__self' /> : null}
-                    onClick={() => {this.setState({ fetching: true });this.Prepare_questions(true)}}>Загрузить ещё</Button>
-                </Div>
-                : this.props.tiket_all ?
-                (this.props.tiket_all.length === 0) ? null : <Footer>{this.props.tiket_all.length} {enumerate(this.props.tiket_all.length, [' вопрос', ' вопроса', ' вопросов'])} всего</Footer>
-                 : null :
-                null}
-                {/* {this.state.tiket_all ? this.state.tiket_all.length === 0 ? 
-                <Placeholder 
-                icon={<Icon56InboxOutline />}>
-                    Упс, кажется вопросы закончились
-                </Placeholder>
-                : null : <PanelSpinner />} */}
-            </PullToRefresh>
+                                    </SimpleCell>
+                                </React.Fragment>
+                                ) : <Placeholder 
+                                icon={<Icon56InboxOutline />}>
+                                    Упс, кажется вопросы закончились
+                                </Placeholder>
+                                : <PanelSpinner />}
+                            </List>
+                        
+                        
+                    {this.props.tiket_all_helper ? this.props.tiket_all_helper.length === 20 ? 
+                    <Div>
+                        <Button size="l" 
+                        stretched
+                        level="secondary" 
+                        before={this.state.fetching ? <Icon24Spinner width={28} height={28} className='Spinner__self' /> : null}
+                        onClick={() => {
+                            this.setState({ fetching: true });this.Prepare_questions(true)
+                        }}>Загрузить ещё</Button>
+                    </Div>
+                    : this.props.tiket_all ?
+                    (this.props.tiket_all.length === 0) ? 
+                    null : 
+                    <Footer>{this.props.tiket_all.length} {enumerate(this.props.tiket_all.length, [' вопрос', ' вопроса', ' вопросов'])} всего</Footer>
+                    : null :
+                    null}
+                </PullToRefresh>
+            </Group>
             </Panel>
             )
             }

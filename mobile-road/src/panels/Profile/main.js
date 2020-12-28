@@ -3,8 +3,6 @@ import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import vkQr from '@vkontakte/vk-qr';
 // import {svg2png} from 'svg-png-converter'
 
-
-
 import {
   Alert,
   Avatar,
@@ -25,7 +23,7 @@ import {
   withPlatform,
   FormLayout,
   Button,
-  Div,
+  FormItem,
 } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
@@ -43,6 +41,7 @@ import Promocodes from './panels/promocode';
 import NewTicket from './panels/new_tiket'
 import Tiket from '../../components/tiket';
 import OtherProfile from '../../components/other_profile'
+import Reports from '../../components/report';
 
 //Импортируем модальные карточки
 import ModalPrometay from '../../Modals/Prometay';
@@ -154,10 +153,17 @@ export default withPlatform(class Main extends React.Component {
       myQuestions: [],
       moneyPromo: 0,
       sharing_type: 'prometay',
+      id_rep: 1,
+      typeres: 1,
     }
     this.changeData = this.props.this.changeData;
     this.playAudio = this.props.this.playAudio;
     this.ReloadProfile = this.props.reloadProfile;
+
+    this.setReport = (typeres, id_rep) => {
+      this.setState({typeres, id_rep})
+      this.goPanel("report")
+    }
     this.setPopout = (value) => {
       this.setState({ popout: value })
       if (value && value.type.name === 'ScreenSpinner') {
@@ -283,21 +289,22 @@ export default withPlatform(class Main extends React.Component {
       this.setState({
         popout:
           <Alert
+          actionsLayout="horizontal"
             actions={[{
               title: 'Закрыть',
               autoclose: true,
               mode: 'cancel'
             }]}
             onClose={() => this.setPopout(null)}
-          >
-            <h2>{title}</h2>
-            <p>{text}</p>
-          </Alert>
+            header={title}
+            text={text}
+          />
       })
     }
     this.showErrorAlert = (error = null, action = null) => {
       this.setPopout(
         <Alert
+          actionsLayout="horizontal"
           actions={[{
             title: 'Отмена',
             autoclose: true,
@@ -305,10 +312,9 @@ export default withPlatform(class Main extends React.Component {
             action: action,
           }]}
           onClose={() => this.setPopout(null)}
-        >
-          <h2>Ошибка</h2>
-          {error ? <p>{error}</p> : <p>Что-то пошло не так, попробуйте снова!</p>}
-        </Alert>
+          header="Ошибка"
+          text={error ? `${error}` : "Что-то пошло не так, попробуйте снова!"}
+        />
       )
     }
   }
@@ -408,6 +414,11 @@ export default withPlatform(class Main extends React.Component {
           other_profile={this.state.other_profile}
           this={this}
         />
+        <ModalComment
+          id='comment'
+          onClose={this.modalBack}
+          comment={this.state.comment}
+          reporting={this.setReport} />
 
         <ModalCard
           id='send'
@@ -416,58 +427,64 @@ export default withPlatform(class Main extends React.Component {
           header="Отправляйте монетки друзьям"
         >
           <FormLayout>
-            <Input maxLength="15"
-              onChange={(e) => this.onChange(e)}
-              placeholder="Введите id или ник агента"
-              name="money_transfer_send"
-              value={this.state.money_transfer_send}
-              status={this.validateInputs(this.state.money_transfer_send)[0]}
-              bottom={this.validateInputs(this.state.money_transfer_send)[1]} />
-            <Input maxLength="5"
-              type='number'
-              name="money_transfer_count"
-              onChange={(e) => this.onChange(e)}
-              placeholder="Введите кол-во монеток"
-              value={this.state.money_transfer_count} />
-            <Input
-              maxLength="100"
-              name="money_transfer_comment"
-              onChange={(e) => this.onChange(e)}
-              placeholder="Введите комментарий к переводу"
-              value={this.state.money_transfer_comment}
-              status={this.validateInputs(this.state.money_transfer_comment)[0]}
-              bottom={this.validateInputs(this.state.money_transfer_comment)[1]} />
+            <FormItem
+            status={this.validateInputs(this.state.money_transfer_send)[0]}
+            bottom={this.validateInputs(this.state.money_transfer_send)[1]}>
+              <Input maxLength="15"
+                onChange={(e) => this.onChange(e)}
+                placeholder="Введите id или ник агента"
+                name="money_transfer_send"
+                value={this.state.money_transfer_send}
+                 />
+            </FormItem>
+            <FormItem>
+              <Input maxLength="5"
+                type='number'
+                name="money_transfer_count"
+                onChange={(e) => this.onChange(e)}
+                placeholder="Введите кол-во монеток"
+                value={this.state.money_transfer_count} />
+            </FormItem>
+            <FormItem
+            status={this.validateInputs(this.state.money_transfer_comment)[0]}
+            bottom={this.validateInputs(this.state.money_transfer_comment)[1]}>
+              <Input
+                maxLength="100"
+                name="money_transfer_comment"
+                onChange={(e) => this.onChange(e)}
+                placeholder="Введите комментарий к переводу"
+                value={this.state.money_transfer_comment}
+                 />
+            </FormItem>
+            <FormItem>
+              <Button
+                disabled={
+                  !this.state.money_transfer_send || !this.state.money_transfer_count
+                }
+                size='xl'
+                stretched
+                mode='secondary'
+                type='submit'
+                onClick={() => {
+                  this.setActiveModal(null)
+                  this.sendMoney();
+                }}>Отправить</Button>
+            </FormItem>
           </FormLayout>
-
-          <Div>
-            <Button
-              disabled={
-                !this.state.money_transfer_send || !this.state.money_transfer_count
-              }
-              size='xl'
-              stretched
-              mode='secondary'
-              onClick={() => {
-                this.setActiveModal(null)
-                this.sendMoney();
-              }}>Отправить</Button>
-          </Div>
-
         </ModalCard>
+        
         <ModalCard
           id='moneys'
           onClose={() => this.setActiveModal(null)}
           icon={<Avatar src={this.state.moneys ? this.state.moneys.avatar : null} size={72} />}
           header={this.state.moneys ? "Ваш баланс: " + this.state.moneys.money : null}
-          caption={this.state.moneys ? this.state.moneys.text : null}
-          actions={[{
-            title: 'Закрыть',
-            mode: 'secondary',
-            action: () => {
+          subheader={this.state.moneys ? this.state.moneys.text : null}
+          actions={
+            <Button mode='secondary' onClick={() => {
               this.setActiveModal(null);
               this.setState({ moneys: null, money_transfer_count: '', money_transfer_send: '' })
-            }
-          }]}
+            }}>Закрыть</Button>
+          }
         >
         </ModalCard>
         <ModalCard
@@ -475,7 +492,8 @@ export default withPlatform(class Main extends React.Component {
           onClose={() => this.setActiveModal(null)}
           icon={<Avatar src={this.state.transfer.avatar} size={72} />}
           header='Перевод монеток'
-          caption={this.state.transfer.comment}
+          subheader={this.state.transfer.comment}
+          
           actions={[{
             title: 'Закрыть',
             mode: 'secondary',
@@ -577,10 +595,8 @@ export default withPlatform(class Main extends React.Component {
                     this.GenerateFileQr(QR) : this.GenerateFileQr(QR);console.log('click') }} download='QR.svg'>Скачать svg</Button>
                  </Div> */}
         </ModalPage>
-        <ModalComment
-          id='comment'
-          onClose={this.modalBack}
-          comment={this.state.comment} />
+        
+        
         <ModalCard
           id='invalid_qr'
           onClose={this.modalBack}
@@ -590,12 +606,9 @@ export default withPlatform(class Main extends React.Component {
             <span>
               Увы, активировать промокод не получится, так как он использовался ранее или его никогда не существовало.
                 </span>}
-          actions={[{
-            title: 'Понятно',
-            mode: 'secondary',
-            action: this.modalBack
-          }
-          ]} />
+          actions={
+            <Button mode='secondary' onClick={this.modalBack}>Понятно</Button>
+          } />
         <ModalCard 
           id='answers'
           onClose={() => this.setActiveModal(null)}
@@ -620,12 +633,9 @@ export default withPlatform(class Main extends React.Component {
             <span>
               Поздравляем! На Ваш виртуальный счет было начислено {this.state.moneyPromo} монеток.
                 </span>}
-          actions={[{
-            title: 'Ура!',
-            mode: 'primary',
-            action: this.modalBack
-          }
-          ]} />
+          actions={
+            <Button mode='primary' onClick={this.modalBack}>Ура!</Button>
+          } />
       </ModalRoot>
     )
     return (
@@ -687,6 +697,11 @@ export default withPlatform(class Main extends React.Component {
           this={this}
           agent_id={this.state.active_other_profile}
           account={this.props.account} />
+
+        <Reports id="report" 
+        this={this} 
+        id_rep={this.state.id_rep} 
+        typeres={this.state.typeres} /> 
 
       </View>
     )

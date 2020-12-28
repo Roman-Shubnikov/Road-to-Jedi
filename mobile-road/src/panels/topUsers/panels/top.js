@@ -14,6 +14,7 @@ import {
   PanelHeaderContext,
   Cell,
   List,
+  Group,
 
   } from '@vkontakte/vkui';
 
@@ -77,6 +78,7 @@ function enumerate (num, dec) {
         }
         componentDidMount(){
           // this.Prepare_top()
+          
         }
         render() {
             var props = this.props.this; // для более удобного использования.
@@ -92,7 +94,7 @@ function enumerate (num, dec) {
                     Пантеон
                   </PanelHeaderContent> 
                   :
-                    <span>Пантеон</span> }
+                    "Пантеон" }
                 
                 </PanelHeader>
                 <PanelHeaderContext opened={this.state.contextOpened} onClose={this.toggleContext}>
@@ -115,6 +117,7 @@ function enumerate (num, dec) {
                     </Cell>
                   </List>
                 </PanelHeaderContext>
+                <Group>
                 {!this.props.account['special'] ? <Div>
                     <FormStatus header="Внимание! Важная информация" mode="default">
                     Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
@@ -124,9 +127,8 @@ function enumerate (num, dec) {
                   {this.props.top_agents ? this.props.top_agents.map((result, i) => 
                     result['banned'] ? null :
                     <React.Fragment key={result.id}>
-                      <Separator/>
+                      {(i === 0) || <Separator/>}
                     <SimpleCell
-                    className="pointer"
                       onClick={() => {props.goOtherProfile(result['id'], true);this.setState({top_agents: null});}}
                       description={
                         result['special'] ? 
@@ -145,7 +147,7 @@ function enumerate (num, dec) {
                       </div> : <Avatar src={result['avatar']['url']} style={{position: 'relative'}} /> }
                     >
                   <div className="top_moderator_name">
-                  {isFinite(result['nickname']) ? `Агент Поддержки #${result['nickname']}` : result['nickname'] ? result['nickname'] : `Агент Поддержки #${result['id']}`}
+                  {result['nickname'] ? result['nickname'] : `Агент Поддержки #${result['id']}`}
                     <div className="top_moderator_name_icon">
                       {result['flash'] === true ? <Icon16Fire width={12} height={12} className="top_moderator_name_icon"/> : null}
                     </div>
@@ -161,6 +163,7 @@ function enumerate (num, dec) {
                  </React.Fragment>
                   ) : <PanelSpinner />}
                 </PullToRefresh></>
+                </Group>
             </Panel>
             )
             }

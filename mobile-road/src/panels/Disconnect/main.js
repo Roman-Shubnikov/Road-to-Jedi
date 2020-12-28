@@ -82,36 +82,36 @@ export default class Disconnect extends React.Component {
           //   this.changeData('need_epic', true)
           // }
         }
-          this.showAlert = (title, text) => {
-            this.setState({
-              popout: 
-                <Alert
-                  actions={[{
-                    title: 'Закрыть',
-                    autoclose: true,
-                    mode: 'cancel'
-                  }]}
-                  onClose={() => this.setPopout(null)}
-                >
-                  <h2>{title}</h2>
-                  <p>{text}</p>
-              </Alert>
-            })
-          }
-          this.showErrorAlert = (error=null, action=null) => {
-            this.setPopout(
+        this.showAlert = (title, text) => {
+          this.setState({
+            popout:
               <Alert
-                  actions={[{
-                  title: 'Отмена',
+              actionsLayout="horizontal"
+                actions={[{
+                  title: 'Закрыть',
                   autoclose: true,
-                  mode: 'cancel',
-                  action: action,
-                  }]}
-                  onClose={() => this.setPopout(null)}
-              >
-                <h2>Ошибка</h2>
-                {error ? <p>{error}</p> : <p>Что-то пошло не так, попробуйте снова!</p>}
-              </Alert>
+                  mode: 'cancel'
+                }]}
+                onClose={() => this.setPopout(null)}
+                header={title}
+                text={text}
+              />
+          })
+        }
+        this.showErrorAlert = (error = null, action = null) => {
+          this.setPopout(
+            <Alert
+              actionsLayout="horizontal"
+              actions={[{
+                title: 'Отмена',
+                autoclose: true,
+                mode: 'cancel',
+                action: action,
+              }]}
+              onClose={() => this.setPopout(null)}
+              header="Ошибка"
+              text={error ? `${error}` : "Что-то пошло не так, попробуйте снова!"}
+            />
           )
         }
     }

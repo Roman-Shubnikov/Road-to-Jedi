@@ -4,13 +4,14 @@ import {
     Button,
     Panel,
     PanelHeader,
-    Div,
     ScreenSpinner,
     FormLayout,
     FormStatus,
     Slider,
     Placeholder,
-    PanelHeaderBack
+    PanelHeaderBack,
+    Group,
+    FormItem
     } from '@vkontakte/vkui';
 
 
@@ -64,71 +65,54 @@ export default class Start extends React.Component {
                 }>
                 Road to Jedi
                 </PanelHeader>
-
-                {/* <img className="AvaModalPage" 
-                src={this.props.account.id !== undefined ? this.props.account.avatar.url : null} 
-                size={70}
-                alt='твоя ава' /> */}
-                  {/* <Header
-                  subtitle='Помните, отвечать нужно вдумчиво.'>Вам присвоен номер #{this.props.account.id !== undefined ? this.props.account.id : "undefined"}</Header>
-                <Separator /> */}
-                <Placeholder 
-                icon={<img style={{width: 200, height: 180}} src={SclidePlaceholder} alt='Тут была иконка... Press F to pay respect...' />}
-                header='Прежде чем начать, укажите следующие
-                                    данные, они помогут нам оценивать
-                                    Ваши ответы.'></Placeholder>
-                <FormLayout>
-                  <FormStatus header="Внимание! Важная информация" mode="error">
-                    Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
-                  </FormStatus>
-                    <Slider
-                      min={10}
-                      max={80}
-                      step={1}
-                      value={this.state.AgeUser}
-                      onChange={e => {
-                        this.setState({AgeUser: e});
-                      }}
-                      top={`Укажите свой возраст: ${this.state.AgeUser}`}
-                    />
-                  </FormLayout>
-                  {/* <Group>
-                    <SimpleCell disabled multiline
-                    before={<Icon28CoinsOutline />}>
-                      Зарабатывай монеты
-                    </SimpleCell>
-                    <SimpleCell disabled multiline
-                    before={<Icon28BillheadOutline />}>
-                      Отвечай на вопросы
-                    </SimpleCell>
-                    <SimpleCell disabled multiline
-                    before={<Icon28FavoriteOutline />}>
-                      Участвуй в рейтинге
-                    </SimpleCell>
-                    <SimpleCell disabled multiline
-                    before={<Icon28FireOutline />}>
-                      Получай отметку огня
-                    </SimpleCell>
-                  </Group> */}
+                <Group>
+                  <Placeholder 
+                  icon={<img style={{width: 200, height: 180}} src={SclidePlaceholder} alt='Тут была иконка... Press F to pay respect...' />}
+                  header='Прежде чем начать, укажите следующие
+                                      данные, они помогут нам оценивать
+                                      Ваши ответы.'></Placeholder>
+                </Group>
+                <Group>
                   <Placeholder>Убедительно просим, указывать только настоящие
-                                данные, для избежания большого количества
-                                        неверных оценок от лица
-                                            модерации.
-                  </Placeholder>
-                  {/* <FormStatus header="Обратите внимание на это" mode="default">
-                    Прежде чем нажать на кнопку. Пожалуйста, укажите свой возраст. Без этого продолжить не получится.
-                  </FormStatus> */}
-                  <Div>
-                    <Button 
-                    size='xl'
-                    stretched
-                    mode='secondary'
-                    disabled={this.state.AgeUser ? false : true}
-                    onClick={() => {
-                      this.ChangeAge(this.state.AgeUser);
+                                  данные, для избежания большого количества
+                                          неверных оценок от лица
+                                              модерации.
+                    </Placeholder>
+                </Group>
+                <Group>
+                  <FormLayout>
+                    <FormStatus header="Внимание! Важная информация" mode="error">
+                      Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
+                    </FormStatus>
+                    <FormItem top={`Укажите свой возраст: ${this.state.AgeUser}`}>
+                      <Slider
+                          min={10}
+                          max={80}
+                          step={1}
+                          value={this.state.AgeUser}
+                          onChange={e => {
+                            this.setState({AgeUser: e});
+                          }}
+                          
+                        />
+                    </FormItem>
+                    <FormItem>
+                      <Button 
+                      size='l'
+                      stretched
+                      type='submit'
+                      mode='secondary'
+                      disabled={this.state.AgeUser ? false : true}
+                      onClick={() => {
+                        this.ChangeAge(this.state.AgeUser);
+                        
+                      }}>Приступить!</Button>
+                    </FormItem>
                       
-                    }}>Приступить!</Button>
-                  </Div>
+                    </FormLayout>
+                </Group>
+                
+                
             </Panel>
             )
             }

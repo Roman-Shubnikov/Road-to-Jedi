@@ -34,7 +34,12 @@ class Account {
 		if($timeban){
 			$timeban = time() + $timeban;
 		}
-		return $this->Connect->query("INSERT INTO banned (vk_user_id,reason,time_end,moderator_vk_id) VALUES (?,?,?,?)", [$shortInfo['vk_id'], (string)$ban_reason, $timeban, $moderator_id])[0];
+		return $this->Connect->query("INSERT INTO banned (vk_user_id,reason,time_end,moderator_vk_id) VALUES (?,?,?,?)", 
+		[$shortInfo['vk_id'], (string)$ban_reason, $timeban, $moderator_id])[0];
+	}
+	public function getBansUser($agent_id){
+		$shortInfo = $this->user->getById($agent_id);
+		return $this->Connect->db_get("SELECT COUNT(*) FROM banned WHERE vk_user_id=?", [$shortInfo['vk_id']]);
 	}
 	public function Prometay($agent_id, $give=TRUE){
 		if ( !$this->user->info['special'] ) {
@@ -77,7 +82,8 @@ class Account {
 			'type' => 'verification_send'
 		];
 		$this->SYSNOTIF->send( $aid, $notification, null, $object );
-		return $this->Connect->query("INSERT INTO request_verification (vk_id,aid,title,descverf,time) VALUES (?,?,?,?,?)", [$this->user->vk_id, $aid,$title,$desc,time()])[0];
+		return $this->Connect->query("INSERT INTO request_verification (vk_id,aid,title,descverf,time) VALUES (?,?,?,?,?)", 
+		[$this->user->vk_id, $aid,$title,$desc,time()])[0];
 	}
 	public function getVerfStatus(){
 		// 0 - Не верифицирован
@@ -103,5 +109,9 @@ class Account {
 		// global $mysqli;
 		// return $mysqli->error;
 		return $status;
+	}
+
+	public function publicProfile($isPublic=TRUE){
+		return $this->Connect->query("UPDATE users SET public=? WHERE id=?", [(int)$isPublic, $this->user->id]);
 	}
 }

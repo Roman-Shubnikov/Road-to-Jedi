@@ -18,18 +18,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
 
-
-// require 'api/api/config.php';
-
-
-
 require("Utils/config.php");
 require("Utils/Show.php");
 require("Utils/AccessCheck.php");
 require("Utils/FludControl.php");
 require("Utils.php");
 require 'api/db.php';
-// require 'api/func.php';
 require 'vkapi.php';
 
 set_exception_handler( 'exceptionerror' );
@@ -39,6 +33,8 @@ require 'api/api/account.php';
 require 'api/api/tickets.php';
 require 'api/api/notifications.php';
 require 'api/api/promocodes.php';
+require 'api/api/reports.php';
+require 'api/api/folowers.php';
 
 session_id( $_GET['vk_user_id'] );
 session_start();
@@ -90,22 +86,10 @@ $params = [
 			'type' => 'string',
 			'required' => true
 		],
-		// 'phone_number' => [
-		// 	'type' => 'int',
-		// 	'required' => true
-		// ],
-		// 'phone_sign' => [
-		// 	'type' => 'string',
-		// 	'required' => true
-		// ],
 		'cond1' => [
 			'type' => 'bool',
 			'required' => true
 		],
-		// 'cond2' => [
-		// 	'type' => 'int',
-		// 	'required' => true
-		// ],
 	],
 	'account.changeScheme' => [
 		'scheme' => [
@@ -139,6 +123,12 @@ $params = [
 			'default' => NULL
 		]
 	],
+	'account.public' => [
+		'public' => [
+			'type' => 'bool',
+			'required' => true
+		]
+	],
 	'user.getById' => [
 		'id' => [
 			'type' => 'int',
@@ -159,6 +149,7 @@ $params = [
 			'required' => false
 		]
 	],
+	
 	'ticket.getRandom' => [],
 
 	'tickets.getMy' => [
@@ -347,12 +338,12 @@ $params = [
 		],
 	],
 
-	'ticket.deleteMessage' => [
-		'message_id' => [
-			'type' => 'int',
-			'required' => true
-		]
-	],
+	// 'ticket.deleteMessage' => [
+	// 	'message_id' => [
+	// 		'type' => 'int',
+	// 		'required' => true
+	// 	]
+	// ],
 
 	'ticket.close' => [
 		'ticket_id' => [
@@ -405,6 +396,32 @@ $params = [
 		'comment' => [
 			'type' => 'string',
 			'required' => true
+		]
+	],
+	'followers.subscribe' => [
+		'agent_id' => [
+			'type' => 'int',
+			'required' => true
+		]
+	],
+	'followers.unsubscribe' => [
+		'agent_id' => [
+			'type' => 'int',
+			'required' => true
+		]
+	],
+	'followers.getFollowers' => [
+		'offset' => [
+			'type' => 'int',
+			'required' => true
+		],
+		'count' => [
+			'type' => 'int',
+			'required' => true
+		],
+		'agent_id' => [
+			'type' => 'int',
+			'required' => false
 		]
 	],
 	'notifications.get' => [],
@@ -470,7 +487,7 @@ $params = [
 			'required' => true
 		],
 	],
-	'special.getVerificationRequests' => [
+	'admin.getVerificationRequests' => [
 		'offset' => [
 			'type' => 'int',
 			'required' => true
@@ -480,13 +497,53 @@ $params = [
 			'required' => true
 		],
 	],
-	'special.denyVerificationRequest' => [
+	'admin.denyVerificationRequest' => [
 		'id_request' => [
 			'type' => 'int',
 			'required' => true
 		],
 	],
-	'special.approveVerificationRequest' => [
+	'admin.approveVerificationRequest' => [
+		'id_request' => [
+			'type' => 'int',
+			'required' => true
+		],
+	],
+	'reports.send' => [
+		'type' => [
+			'type' => 'int',
+			'required' => true
+		],
+		'name' => [
+			'type' => 'int',
+			'required' => true
+		],
+		'id_rep' => [
+			'type' => 'int',
+			'required' => true
+		],
+		'comment' => [
+			'type' => 'string',
+			'required' => False,
+		],
+	],
+	'reports.getReports' => [
+		'offset' => [
+			'type' => 'int',
+			'required' => true
+		],
+		'count' => [
+			'type' => 'int',
+			'required' => true
+		],
+	],
+	'reports.denyReport' => [
+		'id_request' => [
+			'type' => 'int',
+			'required' => true
+		],
+	],
+	'reports.approveReport' => [
 		'id_request' => [
 			'type' => 'int',
 			'required' => true
@@ -518,6 +575,8 @@ $sysnotifications = new SystemNotifications( $Connect );
 $account = new Account( $users,$Connect,$sysnotifications );
 $tickets = new Tickets( $users,$Connect,$sysnotifications );
 $promocodes = new Promocodes($users, $Connect, $sysnotifications);
+$reports = new Reports($users, $Connect, $account);
+$followers = new Followers($users, $Connect);
 
 
 function getBalance() {
@@ -589,9 +648,17 @@ switch ( $method ) {
 		}else{
 			Show::error(1105);
 		}
+	case 'account.public':
+		$isPublic = (bool)$data['public'];
+		Show::response($account->publicProfile($isPublic));
+	
 	case 'user.getById':
 		$id = (int) $data['id'];
-		Show::response( $users->getById( $id ) );
+		$res = $users->getById( $id );
+		$followsUser = $followers->getFollowers($id, 3, 0);
+		$res['followers'] = $followsUser;
+
+		Show::response( $res );
 
 	case 'users.getByIds':
 		$ids = $data['ids'];
@@ -762,9 +829,9 @@ switch ( $method ) {
 
 		Show::response( $Connect->query("UPDATE messages SET mark=-1, approve_author_id=null WHERE id=?", [$id]));
 
-	case 'ticket.deleteMessage':
-		$id = (int) $data['message_id'];
-		Show::response( $tickets->deleteMessage( $id ) );
+	// case 'ticket.deleteMessage':
+	// 	$id = (int) $data['message_id'];
+	// 	Show::response( $tickets->deleteMessage( $id ) );
 
 	case 'notifications.get':
 		Show::response( $notifications->get() );
@@ -902,6 +969,21 @@ switch ( $method ) {
 		} else {
 			Show::error(1006);
 		}
+	case 'followers.subscribe':
+		$agent_id = (int)$data['agent_id'];
+		$followers->subscribe($users->id, $agent_id);
+
+	case 'followers.unsubscribe':
+		$agent_id = (int)$data['agent_id'];
+		$followers->unsubscribe($users->id, $agent_id);
+
+	case 'followers.getFollowers':
+		$count = (int) $data['count'];
+		$offset = (int) $data['offset'];
+		$agent_id = $data['agent_id'] ? (int) $data['agent_id'] : $users->id;
+		if($count > 200) $count = 200;
+		if($count <= 0) $count = 1;
+		$followers->getFollowers($agent_id, $count, $offset);
 
 	case 'special.getAllMessages':
 		$count = (int) $data['count'];
@@ -962,7 +1044,7 @@ switch ( $method ) {
 		Show::response(['quest_id' => $id]);
 
 	case 'special.delModerationTicket':
-		$id_answer = trim($data['id_ans']);
+		$id_answer = $data['id_ans'];
 		if ( !$users->info['special'] ) {
 			Show::error(403);
 		}
@@ -974,7 +1056,7 @@ switch ( $method ) {
 		Show::response($Connect->query("DELETE FROM queue_quest WHERE id=?", [$id_answer]));
 
 	case 'special.approveModerationTicket':
-		$id_answer = trim($data['id_ans']);
+		$id_answer = $data['id_ans'];
 		if ( !$users->info['special'] ) {
 			Show::error(403);
 		}
@@ -1002,10 +1084,10 @@ switch ( $method ) {
 		}
 		Show::response($out);
 		
-	case 'special.getVerificationRequests':
+	case 'admin.getVerificationRequests':
 		$count = (int) $data['count'];
 		$offset = (int) $data['offset'];
-		if ( !$users->info['special'] ) {
+		if ( $users->info['special'] < 2 ) {
 			Show::error(403);
 		}
 		$res = $Connect->db_get(
@@ -1016,13 +1098,18 @@ switch ( $method ) {
 			);
 		$out = [];
 		foreach($res as $val){
-			$out[] = ['id' => (int)$val['id'], 'vk_id' => (int)$val['vk_id'], 'aid' => (int)$val['aid'], 'title' => (string)$val['title'], 'description' => (string)$val['descverf'], 'time' => (int)$val['time'],];
+			$out[] = ['id' => (int)$val['id'], 
+			'vk_id' => (int)$val['vk_id'], 
+			'aid' => (int)$val['aid'], 
+			'title' => (string)$val['title'], 
+			'description' => (string)$val['descverf'], 
+			'time' => (int)$val['time'],];
 		}
 		Show::response($out);
 
-	case 'special.approveVerificationRequest':
-		$id_request = trim($data['id_request']);
-		if ( !$users->info['special'] ) {
+	case 'admin.approveVerificationRequest':
+		$id_request = $data['id_request'];
+		if ( $users->info['special'] < 2 ) {
 			Show::error(403);
 		}
 		$res = $Connect->db_get("SELECT id, aid, title, descverf, time FROM request_verification WHERE id=?", [$id_request]);
@@ -1036,9 +1123,9 @@ switch ( $method ) {
 		}
 		Show::response($Connect->query("UPDATE request_verification SET inactive=1 WHERE id=?", [$id_request]));
 
-	case 'special.denyVerificationRequest':
-		$id_request = trim($data['id_request']);
-		if ( !$users->info['special'] ) {
+	case 'admin.denyVerificationRequest':
+		$id_request = $data['id_request'];
+		if ( $users->info['special'] < 2 ) {
 			Show::error(403);
 		}
 		$res = $Connect->db_get("SELECT id, aid, title, descverf, time FROM request_verification WHERE id=?", [$id_request]);
@@ -1050,4 +1137,25 @@ switch ( $method ) {
 		}
 		Show::response($Connect->query("UPDATE request_verification SET inactive=1 WHERE id=?", [$id_request]));
 
-}
+
+	case 'reports.send':
+		$type_rep = $data['type'];
+		$name = $data['name'];
+		$id_rep = $data['id_rep'];
+		$comment = trim($data['comment']);
+		$reports->send($type_rep, $name, $id_rep, $comment);
+		
+	case 'reports.getReports':
+		$count = (int) $data['count'];
+		$offset = (int) $data['offset'];
+		$res = $reports->get($count, $offset);
+		Show::response($res);
+
+	case 'reports.approveReport':
+		$id_request = $data['id_request'];
+		$reports->approve($id_request);
+
+	case 'reports.denyReport':
+		$id_request = $data['id_request'];
+		$reports->deny($id_request);
+}			

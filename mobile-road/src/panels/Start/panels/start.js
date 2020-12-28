@@ -6,6 +6,7 @@ import {
     PanelHeader,
     Div,
     Placeholder,
+    Group,
     } from '@vkontakte/vkui';
 
 
@@ -30,28 +31,30 @@ export default class Start extends React.Component {
                 >
                 Road to Jedi
                 </PanelHeader>
+                <Group>
+                  <Placeholder 
+                  icon={<img style={{width: 250, height: 130}} src={SclidePlaceholder} alt='Тут была иконка... Press F to pay respect...' />}
+                  header='Отвечайте на разные вопросы пользователей ВКонтакте'>
+                    Вам присвоен номер #{this.props.account.id !== undefined ? this.props.account.id : "undefined"}
+                    <br/><br/>Помните, отвечать нужно вдумчиво. После
+                    ответа Команда наших специальных агентов
+                    проверит его и в случае отрицательной
+                    оценки — оставит комментарий, если все
+                    хорошо, Вы получите уведомление.
+                    <br/><br/>Сервис не имеет отношения к
+                    Администрации ВКонтакте
+                  </Placeholder>
+                  <Div>
+                    <Button 
+                    size='l'
+                    stretched
+                    onClick={() => {
+                      this.props.this.goPanel('start2');
+                    }}
+                    mode='secondary'>Далее</Button>
+                  </Div>
+                </Group>
                 
-                <Placeholder 
-                icon={<img style={{width: 250, height: 130}} src={SclidePlaceholder} alt='Тут была иконка... Press F to pay respect...' />}
-                header='Отвечайте на разные вопросы пользователей ВКонтакте'>
-                  Вам присвоен номер #{this.props.account.id !== undefined ? this.props.account.id : "undefined"}
-                  <br/><br/>Помните, отвечать нужно вдумчиво. После
-                  ответа Команда наших специальных агентов
-                  проверит его и в случае отрицательной
-                  оценки — оставит комментарий, если все
-                  хорошо, Вы получите уведомление.
-                  <br/><br/>Сервис не имеет отношения к
-                  Администрации ВКонтакте
-                </Placeholder>
-                <Div>
-                  <Button 
-                  size='xl'
-                  stretched
-                  onClick={() => {
-                    this.props.this.goPanel('start2');
-                  }}
-                  mode='secondary'>Далее</Button>
-                </Div>
             </Panel>
             )
             }

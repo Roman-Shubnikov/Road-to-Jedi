@@ -6,6 +6,10 @@ import {
     Avatar,
     ScreenSpinner,
     FormLayout,
+    FormItem,
+    Button,
+    FormLayoutGroup,
+    CustomSelectOption,
   } from '@vkontakte/vkui';
 
 
@@ -17,6 +21,7 @@ export default class Ban extends React.Component {
             time_val: '',
             time_num: 'sec',
             ban_reason: '',
+            ban_infinit: true,
 
         }
         var propsbi = this.props.this;
@@ -76,33 +81,62 @@ export default class Ban extends React.Component {
                 onClose={this.props.onClose}
                 icon={<Avatar src={this.props.other_profile ? this.props.other_profile['avatar']['url'] : null} size={72} />}
                 header="Забанить пользователя"
-                actions={[{
-                  title: 'Забанить! 🤬',
-                  mode: 'secondary',
-                  action: () => {
-                    this.userBan(this.props.other_profile ? this.props.other_profile['id'] : 0, this.state.ban_reason, this.timeConvert(this.state.time_val, this.state.time_num));
-                  }
-                }]}
+                actions={
+                  <Button mode='secondary' 
+                  stretched size='l' 
+                  onClick={() => {
+                    this.userBan(this.props.other_profile ? this.props.other_profile['id'] : 0, this.state.ban_reason, this.timeConvert(this.state.time_val, this.state.time_num))
+                  }}>Заблокировать</Button>
+                }
               >
                 <FormLayout>
-                <Input disabled value={this.props.other_profile ? (this.props.other_profile['id'] < 0) ? -this.props.other_profile['id'] : this.props.other_profile['id'] : null}/>
-                <Input maxLength="100" name="ban_reason" onChange={(e) => this.onChange(e)} placeholder="Введите причину бана" value={this.state.ban_reason} />
-                <div style={{display:'flex'}}>
-                    <div style={{width: '70%'}}>
-                        <Input maxLength="100" 
+                  <FormItem>
+                    <Input disabled 
+                    value={this.props.other_profile ? (this.props.other_profile['id'] < 0) ? -this.props.other_profile['id'] : this.props.other_profile['id'] : null}/>
+                  </FormItem>
+                  
+                  <FormLayoutGroup mode='horizontal'>
+                    <FormItem>
+                      <Input maxLength="100"
                         type='number' 
                         name="time_val" 
                         onChange={(e) => this.onChange(e)} placeholder="Число" 
                         value={this.state.time_val} />
-                    </div>
-                    <Select onChange={e => {console.log(e.currentTarget.value); this.setState({time_num: e.currentTarget.value})}}
+                    </FormItem>
+                    <FormItem
                     status={this.state.time_num ? 'valid' : 'error'}
                     bottom={this.state.time_num ? '' : 'А где время'}>
-                        <option value="sec">sec</option>
-                        <option value="min">min</option>
-                        <option value="day">day</option>
-                    </Select>
-                </div>
+                      <Select
+                      defaultValue='sec'
+                      options={[{label: 'sec', value: 'sec'},{label: 'min', value: 'min'}, {label: 'day', value: 'day'}]}
+                      renderOption={({ option, ...restProps }) => (
+                        <CustomSelectOption {...restProps} />
+                      )}
+                      onChange={e => {console.log(e.currentTarget.value);}}
+                      />
+                    </FormItem>
+                  </FormLayoutGroup>
+
+                  <FormItem>
+                    <Input maxLength="100" name="ban_reason" onChange={(e) => this.onChange(e)} placeholder="Введите причину бана" value={this.state.ban_reason} />
+                  </FormItem>
+                  
+                    
+                    {/* <div style={{display:'flex'}}>
+                      <div style={{width: '70%'}}>
+                          
+                      </div>
+                      <Select onChange={e => {console.log(e.currentTarget.value); this.setState({time_num: e.currentTarget.value})}}
+                      status={this.state.time_num ? 'valid' : 'error'}
+                      bottom={this.state.time_num ? '' : 'А где время'}>
+                          <option value="sec">sec</option>
+                          <option value="min">min</option>
+                          <option value="day">day</option>
+                      </Select>
+                    </div> */}
+                  
+                
+                
                 </FormLayout>
                 
                 

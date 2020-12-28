@@ -3,16 +3,16 @@ import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { 
     Panel,
     PanelHeader,
-    Separator,
     Header,
     PanelHeaderBack,
     FormLayout,
-    Div,
     Input,
     Button,
     Snackbar,
     Avatar,
-    PanelHeaderButton
+    PanelHeaderButton,
+    FormItem,
+    Group
     } from '@vkontakte/vkui';
 
 
@@ -224,49 +224,60 @@ export default class Promocodes extends React.Component{
                 }>
                     Активация
                 </PanelHeader>
-                <Header>Активировать промокод</Header>
-                <FormLayout>
-                    <Input 
-                    top='Введите промокод и получите монетки, которые можно потратить на товары в магазине.'
-                    maxLength="14" 
-                    name="promo"
-                    status={this.validatePromo(this.state.promo)[0]}
-                    bottom={this.validatePromo(this.state.promo)[1]}
-                    onChange={(e) => this.onChange(e)} 
-                    placeholder="XXXX-XXXX-XXXX" 
-                    value={this.state.promo} />
-                </FormLayout>
-                <Div>
-                    <Button size='xl'
-                    mode='primary'
-                    onClick={() => {
-                        this.activatePromocode(this.state.promo);
-                    }} 
-                    disabled={!(this.validatePromo(this.state.promo)[0] === 'valid')}
-                    stretched>Активировать</Button>
-                </Div>
-                <Separator />
-                <Header>Проверить промокод</Header>
-                <FormLayout>
-                    <Input 
-                    top='Введите промокод и проверьте его. Если он действителен, то любой пользователь может его ввести.'
-                    maxLength="14" 
-                    name="promo"
-                    status={this.validatePromo(this.state.promo)[0]}
-                    bottom={this.validatePromo(this.state.promo)[1]}
-                    onChange={(e) => this.onChange(e)} 
-                    placeholder="XXXX-XXXX-XXXX" 
-                    value={this.state.promo} />
-                </FormLayout>
-                <Div>
-                    <Button size='xl'
-                    mode='secondary'
-                    onClick={() => {
-                        this.checkPromocode(this.state.promo);
-                    }} 
-                    disabled={!(this.validatePromo(this.state.promo)[0] === 'valid')}
-                    stretched>Проверить</Button>
-                </Div>
+                <Group header={<Header>Активировать промокод</Header>}>
+                  <FormLayout>
+                    <FormItem>
+                      <Input 
+                      top='Введите промокод и получите монетки, которые можно потратить на товары в магазине.'
+                      maxLength="14" 
+                      name="promo"
+                      status={this.validatePromo(this.state.promo)[0]}
+                      bottom={this.validatePromo(this.state.promo)[1]}
+                      onChange={(e) => this.onChange(e)} 
+                      placeholder="XXXX-XXXX-XXXX" 
+                      value={this.state.promo} />
+                    </FormItem>
+                    <FormItem>
+                      <Button size='l'
+                      stretched
+                      type='submit'
+                      mode='primary'
+                      onClick={() => {
+                          this.activatePromocode(this.state.promo);
+                      }} 
+                      disabled={!(this.validatePromo(this.state.promo)[0] === 'valid')}
+                      >Активировать</Button>
+                    </FormItem>
+                  </FormLayout>
+                </Group>
+                <Group header={<Header>Проверить промокод</Header>}>
+                  <FormLayout>
+                    <FormItem>
+                      <Input 
+                      top='Введите промокод и проверьте его. Если он действителен, то любой пользователь может его ввести.'
+                      maxLength="14" 
+                      name="promo"
+                      status={this.validatePromo(this.state.promo)[0]}
+                      bottom={this.validatePromo(this.state.promo)[1]}
+                      onChange={(e) => this.onChange(e)} 
+                      placeholder="XXXX-XXXX-XXXX" 
+                      value={this.state.promo} />
+                    </FormItem>
+                    <FormItem >
+                      <Button size='l'
+                      mode='secondary'
+                      type='submit'
+                      stretched
+                      onClick={() => {
+                          this.checkPromocode(this.state.promo);
+                      }} 
+                      disabled={!(this.validatePromo(this.state.promo)[0] === 'valid')}
+                      >Проверить</Button>
+                    </FormItem>
+                  </FormLayout>
+                </Group>
+                
+                
                 {this.state.snackbar}
             </Panel>
         )

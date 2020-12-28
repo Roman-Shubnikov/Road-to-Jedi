@@ -18,12 +18,14 @@ import NewTicket from './panels/new_tiket'
 import Questions from './panels/questions'
 import Tiket from '../../components/tiket';
 import OtherProfile from '../../components/other_profile'
+import Reports from '../../components/report';
 
 //Импортируем модальные карточки
 import ModalPrometay from '../../Modals/Prometay';
 import ModalDonut from '../../Modals/Donut'
 import ModalComment from '../../Modals/Comment';
 import ModalBan from '../../Modals/Ban';
+import ModalVerif from '../../Modals/Verif'
 
 
 const queryString = require('query-string');
@@ -58,6 +60,9 @@ export default class Main extends React.Component {
             tiket_all: null,
             tiket_all_helper: null,
             snackbar: null,
+            id_rep: 1,
+            typeres: 1,
+
 
 
         
@@ -66,10 +71,17 @@ export default class Main extends React.Component {
         this.changeData = this.props.this.changeData;
         this.playAudio = this.props.this.playAudio;
         this.ReloadProfile = this.props.reloadProfile;
+        this.setData = (name, value) => {
+          this.setState({ [name]: value });
+        }
         // this.copy = this.props.this.copy;
         // this.recordHistory = (panel) => {
         //   this.setState({history: [...this.state.history, panel]})
         // }
+        this.setReport = (typeres, id_rep) => {
+          this.setState({typeres, id_rep})
+          this.goPanel("report")
+        }
         this.getQuestions = (need_offset=false) => {
           if(!need_offset){
               this.setState({ offset: 20})
@@ -211,36 +223,36 @@ export default class Main extends React.Component {
           };
           this.showAlert = (title, text) => {
             this.setState({
-              popout: 
+              popout:
                 <Alert
+                actionsLayout="horizontal"
                   actions={[{
                     title: 'Закрыть',
                     autoclose: true,
                     mode: 'cancel'
                   }]}
                   onClose={() => this.setPopout(null)}
-                >
-                  <h2>{title}</h2>
-                  <p>{text}</p>
-              </Alert>
+                  header={title}
+                  text={text}
+                />
             })
           }
-          this.showErrorAlert = (error=null, action=null) => {
+          this.showErrorAlert = (error = null, action = null) => {
             this.setPopout(
               <Alert
-                  actions={[{
+                actionsLayout="horizontal"
+                actions={[{
                   title: 'Отмена',
                   autoclose: true,
                   mode: 'cancel',
                   action: action,
-                  }]}
-                  onClose={() => this.setPopout(null)}
-              >
-                <h2>Ошибка</h2>
-                {error ? <p>{error}</p> : <p>Что-то пошло не так, попробуйте снова!</p>}
-              </Alert>
-          )
-        }
+                }]}
+                onClose={() => this.setPopout(null)}
+                header="Ошибка"
+                text={error ? `${error}` : "Что-то пошло не так, попробуйте снова!"}
+              />
+            )
+          }
     }
     
     getRandomTiket() {
@@ -301,6 +313,11 @@ export default class Main extends React.Component {
               onClose={() => this.setActiveModal(null)}
               action={() => this.setActiveModal(null)} />
 
+              <ModalVerif
+              id='verif'
+              onClose={() => this.setActiveModal(null)}
+              action={() => this.setActiveModal(null)} />
+
               <ModalBan 
               id='ban_user'
               onClose={() => this.setActiveModal(null)}
@@ -326,7 +343,8 @@ export default class Main extends React.Component {
               <ModalComment
                 id='comment'
                 onClose={this.modalBack}
-                comment={this.state.comment} />
+                comment={this.state.comment}
+                reporting={this.setReport} />
             </ModalRoot>
         )
         return(
@@ -347,6 +365,7 @@ export default class Main extends React.Component {
               <NewTicket id='new_ticket' this={this} account={this.props.account} /> 
               <Tiket id="ticket" this={this} ticket_id={this.state.ticket_id} account={this.props.account} />
               <OtherProfile id="other_profile" this={this} agent_id={this.state.active_other_profile} account={this.props.account}/>
+              <Reports id="report" this={this} id_rep={this.state.id_rep} typeres={this.state.typeres} /> 
             </View>  
         )
     }

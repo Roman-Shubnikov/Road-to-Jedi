@@ -8,6 +8,9 @@ import {
     IOS,
     ANDROID,
     withPlatform,
+    CellButton,
+    Group,
+    Text
 
   } from '@vkontakte/vkui';
 
@@ -20,7 +23,7 @@ export default withPlatform(class Donut extends React.Component {
     render() { 
       const { platform } = this.props;
         return (
-            <ModalPage
+            <ModalPage //this.props.this.setReport(3, message_id)
                 id={this.props.id}
                 onClose={this.props.onClose}
                 header={
@@ -32,12 +35,34 @@ export default withPlatform(class Donut extends React.Component {
                   </ModalPageHeader>
                 }
                 >
-                  <Div>
-                    <div style={{whiteSpace: "pre-wrap"}}><Anchorme target="_blank" rel="noreferrer noopener">{this.props.comment}</Anchorme></div>
-                  </Div>
-                  <br />
-                  <br />
-                  <br />
+                  <Group>
+                    {/* <div style={{whiteSpace: "pre-wrap"}}> */}
+                    <Div>
+                      <Text weight='regular'>
+                        <Anchorme target="_blank" rel="noreferrer noopener">
+                          {this.props.comment.text}
+                        </Anchorme>
+                      </Text>
+                    </Div>
+                    
+                    {/* </div> */}
+                    <CellButton size="m"
+                    mode='danger'
+                    centered
+                    onClick={() => {
+                      this.props.onClose()
+                      this.props.reporting(1, this.props.comment.message_id)
+                    }}>Пожаловаться</CellButton>
+                    {/* <Button size="m"
+                    mode="secondary" 
+                    style={{ marginLeft: 8 }}
+                    onClick={() => {
+                      this.deny(result.id)
+                    }}>Отклонить</Button> */}
+                  </Group>
+                  <br/>
+                  <br/>
+                  <br/>
             </ModalPage>
         )
     }

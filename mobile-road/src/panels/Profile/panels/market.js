@@ -16,6 +16,9 @@ import {
     FormLayout,
     CellButton,
     Group,
+    HorizontalScroll,
+    HorizontalCell,
+    FormItem,
     } from '@vkontakte/vkui';
 
 import Icon24Repeat from '@vkontakte/icons/dist/24/repeat';
@@ -66,6 +69,8 @@ var avatars = [
     "31.png",
     "32.png",
     "33.png",
+    "34.png",
+    
 ]
 
 const blueBackground = {
@@ -98,43 +103,20 @@ export default class Market extends React.Component{
             this.setState({ [name]: value });
         }
     }
-    images() {
-      var number = Object.keys(avatars).length;
-      var object = []
-          for (let i = 0; i < number; i++ ) {
-              object.push(
-                  <img id={i}
-                  onClick={(e) => (this.props.account.avatar.id === i +1) ? this.props.this.setSnack(
-                    <Snackbar
-                    layout="vertical"
-                    onClose={() => this.props.this.setSnack(null)}
-                    before={<Icon20CancelCircleFillRed width={24} height={24} />}
-                  >
-                    Вы уже имеете данный аватар
-                  </Snackbar>) : this.selectImage(e)} 
-                  style={i === 0 ? {marginLeft: "20px"} : null} 
-                  className="changes_avatars pointer" key={i} 
-                  src={"https://xelene.ru/road/php/images/avatars/" + avatars[i]}
-                  alt={'ava'} />
-              )
-          }
-      
-      return(object)
-  }
-  selectImage(e) {
-    let number = e.currentTarget.id;
+  selectImage(number) {
+    // let number = e.currentTarget.id;
     if(this.state.last_selected !== null){
       let last_image = document.getElementById(this.state.last_selected)
-      last_image.className = "changes_avatars pointer"
+      last_image.className = "Avatar__img"
     }
     let image = document.getElementById(number);
     // eslint-disable-next-line
     if(number != this.state.last_selected){
-      image.className = "changes_avatars select_avatar"
+      image.className = "Avatar__img select_avatar"
       this.setState({last_selected: Number(number)});
     }else{
       this.setState({last_selected: null});
-      image.className = "changes_avatars pointer"
+      image.className = "Avatar__img"
     }
     
   }
@@ -151,7 +133,7 @@ export default class Market extends React.Component{
         .then(data => {
           if(last_selected){
             let last_image = document.getElementById(this.state.last_selected)
-            last_image.className = "changes_avatars"
+            last_image.className = "Avatar__img"
             this.setState({last_selected: null})
           }
           
@@ -332,14 +314,28 @@ export default class Market extends React.Component{
                 </Div> */}
                 <Group>
                   <Header>Сменить аватар</Header>
-                  <div className="scrollImages">
-                      {this.images()}
+                  <HorizontalScroll showArrows getScrollToLeft={(i) => i - 190} getScrollToRight={(i) => i + 190}>
+                  <div style={{ display: 'flex' }}>
+                    {avatars.map((ava, i) => 
+                    <HorizontalCell key={i} size='m' onClick={(e) => (this.props.account.avatar.id === i +1) ? this.props.this.setSnack(
+                      <Snackbar
+                      layout="vertical"
+                      onClose={() => this.props.this.setSnack(null)}
+                      before={<Icon20CancelCircleFillRed width={24} height={24} />}
+                    >
+                      Вы уже имеете данный аватар
+                    </Snackbar>) : this.selectImage(i)}>
+                        <Avatar id={i} size={88} src={"https://xelene.ru/road/php/images/avatars/" + ava}/>
+                      
+                    </HorizontalCell>)}
                   </div>
+                  </HorizontalScroll>
                   <Div>
                       <Button onClick={() => {this.changeAvatar(Number(this.state.last_selected) + 1)}} 
                       before={<Icon28MoneyCircleOutline 
                       style={{marginRight: "5px"}}/>} 
-                      size="xl" 
+                      size="l" 
+                      stretched
                       mode="secondary"
                       disabled={(this.state.last_selected !== null) ? false : true}>Сменить за 700 монеток</Button>
                   </Div>
@@ -348,44 +344,48 @@ export default class Market extends React.Component{
                 <Group>
                   <Header>Сменить свой ник</Header>
                   <FormLayout>
-                    <Input placeholder="Введите желаемый ник" 
-                    bottom='Макс. 10 символов'
-                    onChange={(e) => this.onChange(e)} 
-                    value={this.state.changed_id} 
-                    maxLength="10" 
-                    name="changed_id"/>
+                    <FormItem>
+                      <Input placeholder="Введите желаемый ник" 
+                      bottom='Макс. 10 символов'
+                      onChange={(e) => this.onChange(e)} 
+                      value={this.state.changed_id} 
+                      maxLength="10" 
+                      name="changed_id"/>
+                    </FormItem>
+                    <FormItem>
+                      <div style={{display: 'flex'}}>
+                        <Button onClick={() => {this.ChangeId(this.state.changed_id)}} 
+                          style={{marginRight: 8}}
+                          before={<Icon24Repeat width={28} height={28} />}
+                          stretched
+                          size="m" 
+                          mode="secondary"
+                          disabled={(this.state.changed_id <= 0) ? true : false}>Сменить за 1500 монеток</Button>
+                        <Button 
+                          stretched
+                          onClick={() => this.setPopout(<Alert
+                          actionsLayout='vertical'
+                          actions={[{
+                            title: 'Удалить ник',
+                            autoclose: true,
+                            mode: 'destructive',
+                            action: () => this.ResetId(),
+                          },{
+                            title: 'Нет, я нажал сюда случайно',
+                            autoclose: true,
+                            style: 'cancel'
+                          },]}
+                          onClose={() => this.setPopout(null)}
+                          header="Осторожно!"
+                          text="Если вы удалите ник, то, возможно, его сможет забрать кто-то другой. После удаления ника у вас будет отображён начальный id"
+                        />)}
+                        before={<Icon24BlockOutline width={28} height={28} />}
+                        size="m" 
+                        mode='destructive'>Удалить ник</Button>
+                      </div>
+                    </FormItem>
                   </FormLayout>
-                  <Div style={{display: 'flex'}}>
-                      <Button onClick={() => {this.ChangeId(this.state.changed_id)}} 
-                        style={{marginRight: 8}}
-                        before={<Icon24Repeat width={28} height={28} />}
-                        stretched
-                        size="l" 
-                        mode="secondary"
-                        disabled={(this.state.changed_id <= 0) ? true : false}>Сменить за 1500 монеток</Button>
-                      <Button 
-                      stretched
-                      onClick={() => this.setPopout(<Alert
-                        actionsLayout='vertical'
-                        actions={[{
-                          title: 'Удалить ник',
-                          autoclose: true,
-                          mode: 'destructive',
-                          action: () => this.ResetId(),
-                        },{
-                          title: 'Нет, я нажал сюда случайно',
-                          autoclose: true,
-                          style: 'cancel'
-                        },]}
-                        onClose={() => this.setPopout(null)}
-                      >
-                        <h2>Осторожно!</h2>
-                        <p>Если вы удалите ник, то, возможно, его сможет забрать кто-то другой.<br />После удаления ника у вас будет отображён начальный id</p>
-                    </Alert>)}
-                      before={<Icon24BlockOutline width={28} height={28} />}
-                      size="l" 
-                      mode='destructive'>Удалить ник</Button>
-                  </Div>
+                  
                 </Group>
                 
 
@@ -432,8 +432,9 @@ export default class Market extends React.Component{
                     <Div>
                         <Button 
                         onClick={() => this.buyDiamond()} 
+                        stretched
                         before={<Icon28MoneyHistoryBackwardOutline 
-                        style={{marginRight: "5px"}}/>} size="xl" mode='destructive'>Купить за 10 000 монеток</Button>
+                        style={{marginRight: "5px"}}/>} size="l" mode='destructive'>Купить за 10 000 монеток</Button>
                       </Div>
                 </Group> : null : null}
                 {/* <Group separator="hide" header={<Header>Сброс статистики</Header>}>
@@ -444,7 +445,12 @@ export default class Market extends React.Component{
                 <Group>
                   <Header>Опции</Header>
                   <Div>
-                      <Button onClick={() => this.setActiveModal('send')} before={<Icon28MoneyHistoryBackwardOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Перевести</Button>
+                      <Button 
+                      onClick={() => this.setActiveModal('send')} 
+                      before={<Icon28MoneyHistoryBackwardOutline style={{marginRight: "5px"}}/>} 
+                      size="l" 
+                      mode="secondary"
+                      stretched>Перевести</Button>
                       {/* <br/>
                       <Button onClick={() => props.this.goVitas()} before={<Icon28GlobeOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Обучать Витька</Button> */}
                   </Div>

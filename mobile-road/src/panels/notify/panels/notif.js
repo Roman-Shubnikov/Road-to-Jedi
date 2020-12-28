@@ -10,6 +10,7 @@ import {
     PanelSpinner,
     SimpleCell,
     PanelHeaderBack,
+    Group,
     } from '@vkontakte/vkui';
 
 import Icon56NotificationOutline from '@vkontakte/icons/dist/56/notification_outline';
@@ -71,6 +72,8 @@ function getAvatarNotify(objectNotif){
     }else if(Type === 'verification_demiss'){
         avatar = Destruct_img
     }else if(Type === 'promo_activate'){
+        avatar = Info_img;
+    }else if(Type === 'report_approve'){
         avatar = Info_img;
     }else {
         console.log(Type);
@@ -157,35 +160,38 @@ export default class ReaderNotif extends React.Component {
                 left={<PanelHeaderBack onClick={() => {this.props.this.changeData("activeStory", 'profile');}} />}>
                 Уведомления
                 </PanelHeader>
-                <><PullToRefresh onRefresh={() => {this.setState({fetching: true});this.getNotif()}} isFetching={this.state.fetching}>
-                    {this.state.notification ? this.state.notification.length > 0 ?
-                    this.state.notification.map((result, i) =>
-                    <React.Fragment key={i}> 
-                        <SimpleCell
-                            expandable={!this.detectClicable(result)}
-                            onClick={() => this.detectNotif(result)}
-                            description={new Date(result['time'] * 1e3).getDate() + " " + month[new Date(result['time'] * 1e3).getMonth()] + " " + new Date(result['time'] * 1e3).getFullYear() + " в " 
-                            + fix_time(new Date(result['time'] * 1e3).getHours()) + ":" + fix_time(new Date(result['time'] * 1e3).getMinutes())}
-                            size="l"
-                            // before={<Avatar src={result['image']} />}
-                            before={getAvatarNotify(result) ? <Avatar src={getAvatarNotify(result)} /> : null}
-                            multiline="boolean"
-                            disabled={this.detectClicable(result)}
-                        >
-                            <div style={{lineHeight: "17px", marginTop: "3px"}}>{result['text']}</div>
-                            <div style={{marginTop: "4px"}}></div>
-                        </SimpleCell>
-                        <Separator className={{width: "100%"}}></Separator>
-                    </React.Fragment>
-                    ) :
-                    <Placeholder 
-                    icon={<Icon56NotificationOutline />}>
-                        У Вас нет новых уведомлений
-                    </Placeholder>
-                    :
-                    <PanelSpinner />
-                    }
-                </PullToRefresh></>
+                <Group>
+                    <><PullToRefresh onRefresh={() => {this.setState({fetching: true});this.getNotif()}} isFetching={this.state.fetching}>
+                        {this.state.notification ? this.state.notification.length > 0 ?
+                        this.state.notification.map((result, i) =>
+                        <React.Fragment key={i}> 
+                            {(i === 0) || <Separator/>}
+                            <SimpleCell
+                                expandable={!this.detectClicable(result)}
+                                onClick={() => this.detectNotif(result)}
+                                description={new Date(result['time'] * 1e3).getDate() + " " + month[new Date(result['time'] * 1e3).getMonth()] + " " + new Date(result['time'] * 1e3).getFullYear() + " в " 
+                                + fix_time(new Date(result['time'] * 1e3).getHours()) + ":" + fix_time(new Date(result['time'] * 1e3).getMinutes())}
+                                size="l"
+                                // before={<Avatar src={result['image']} />}
+                                before={getAvatarNotify(result) ? <Avatar src={getAvatarNotify(result)} /> : null}
+                                multiline="boolean"
+                                disabled={this.detectClicable(result)}
+                            >
+                                <div style={{lineHeight: "17px", marginTop: "3px"}}>{result['text']}</div>
+                                <div style={{marginTop: "4px"}}></div>
+                            </SimpleCell>
+                        </React.Fragment>
+                        ) :
+                        <Placeholder 
+                        icon={<Icon56NotificationOutline />}>
+                            У Вас нет новых уведомлений
+                        </Placeholder>
+                        :
+                        <PanelSpinner />
+                        }
+                    </PullToRefresh></>
+                </Group>
+                
             </Panel>
             )
             }
