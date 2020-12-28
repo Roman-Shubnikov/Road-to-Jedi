@@ -129,6 +129,12 @@ $params = [
 			'required' => true
 		]
 	],
+	'account.changeStatus' => [
+		'status' => [
+			'type' => 'string',
+			'required' => true
+		]
+	],
 	'user.getById' => [
 		'id' => [
 			'type' => 'int',
@@ -597,7 +603,10 @@ switch ( $method ) {
 		Show::response( $account->ChangeAge($age));
 
 	case 'account.get':
-		Show::response( $users->getMy() );
+		$res = $users->getMy();
+		$followsUser = $followers->getFollowers($users->id, 20, 0);
+		$res['followers'] = $followsUser;
+		Show::response( $res );
 	
 	case 'account.changeScheme':
 		$scheme = $data['scheme'];
@@ -650,13 +659,20 @@ switch ( $method ) {
 		}
 	case 'account.public':
 		$isPublic = (bool)$data['public'];
-		Show::response($account->publicProfile($isPublic));
+		Show::response($account->publicProfile($users->id, $isPublic));
+
+	case 'account.changeStatus':
+		$status = trim((string)$data['status']);
+		Show::response( $account->setPublicStatus($users->id, $status));
+
 	
 	case 'user.getById':
 		$id = (int) $data['id'];
 		$res = $users->getById( $id );
 		$followsUser = $followers->getFollowers($id, 3, 0);
+		$isFollower = $followers->checkSubscribe($users->id, $id);
 		$res['followers'] = $followsUser;
+		$res['subscribe'] = (bool) $isFollower;
 
 		Show::response( $res );
 
@@ -884,29 +900,23 @@ switch ( $method ) {
 
 	case 'shop.changeAvatar':
 		$id = $data['avatar_id'];
-		if( $id <= CONFIG::AVATARS_COUNT && $id > 0 ) {
-			$balance = getBalance();
-			if( $balance >= CONFIG::AVATAR_PRICE ) {
-				$edit = $Connect->query("UPDATE users SET money=?,avatar_id=? WHERE vk_user_id=?", [$balance - CONFIG::AVATAR_PRICE,$id,$user_id]);
-				Show::response(['edit' => $edit]);
-			} else {
-				Show::error(1002);
-			}
-		} else {
-			Show::error(1008);
-		}
+		$balance = $users->info['money'];
+
+		if( $id <= CONFIG::AVATARS_COUNT && $id > 0 ) Show::error(1008);
+		if( $balance < CONFIG::AVATAR_PRICE ) Show::error(1002);
+
+		$edit = $Connect->query("UPDATE users SET money=?,avatar_id=? WHERE vk_user_id=?", [$balance - CONFIG::AVATAR_PRICE,$id,$user_id]);
+		Show::response(['edit' => $edit]);
+
 	case 'shop.buyDiamond':
-		if(!$users->info['diamond']){
-			$balance = getBalance();
-			if( $balance >= CONFIG::DIAMOND_PRICE ) {
-				$edit = $Connect->query("UPDATE users SET money=?,diamond=1 WHERE vk_user_id=?", [$balance - CONFIG::DIAMOND_PRICE,$user_id]);
-				Show::response(['edit' => $edit]);
-			} else {
-				Show::error(1002);
-			}
-		}else{
-			Show::error(1014);
-		}
+		$balance = $users->info['money'];
+
+		if($users->info['diamond']) Show::error(1014);
+		if( $balance < CONFIG::DIAMOND_PRICE ) Show::error(1002);
+
+		$edit = $Connect->query("UPDATE users SET money=?,diamond=1 WHERE vk_user_id=?", [$balance - CONFIG::DIAMOND_PRICE,$user_id]);
+		Show::response(['edit' => $edit]);
+
 	case 'shop.checkPromo':
 		$promo = (string)$data['promocode'];
 		Show::response($promocodes->check($promo));
@@ -926,56 +936,47 @@ switch ( $method ) {
 				Show::error(7);
 			}
 		}
-		if( $summa > 0 && $summa !== 0 ) {
-			if( $balance_profile >= $summa ) {
-				if(is_numeric($send_to)){
-					$balanceTo = $Connect->db_get("SELECT * FROM users WHERE id=?", [$send_to])[0];
-				}else{
-					$balanceTo = $Connect->db_get("SELECT * FROM users WHERE nickname=?", [$send_to])[0];
-				}
-				
-				if( $balanceTo ) {
-					$idTo = $balanceTo['id'];
-					$avatarTo = $balanceTo['avatar_id'];
-					$userInfo = $Connect->db_get("SELECT * FROM users WHERE vk_user_id=?", [$user_id])[0];
-					$idWhoSend = $userInfo['id'];
-					$avatarIdWhoSend = $userInfo['avatar_id'];
-					$avatar = CONFIG::AVATAR_PATH.'/'. $Connect->db_get("SELECT * FROM avatars WHERE id=?", [$avatarIdWhoSend])[0]['name'];
-					$avatarTo = CONFIG::AVATAR_PATH.'/'.$Connect->db_get("SELECT * FROM avatars WHERE id=?", [$avatarTo])[0]['name'];
-					if( $balanceTo['vk_user_id'] != $user_id ) {
+		if($summa <= 0) Show::error(1006);
 
-						$help = $Connect->query("UPDATE users SET money=? WHERE id=?", [$balanceTo['money'] + $summa, $idTo]);
+		if( $balance_profile < $summa ) Show::error(1011);
 
-						$sysnotifications->send($idTo, "Вам поступил перевод в размере $summa монеток от агента #$idWhoSend", $avatar, [
-							'type' => 'money_transfer_give',
-							'object' => 0
-						], $comment);
-						$sysnotifications->send($idWhoSend, "Вы успешно перевели $summa монеток агенту #$idTo", $avatarTo, [
-							'type' => 'money_transfer_send',
-							'object' => 0
-						]);
-						$Connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$balance_profile - $summa, $user_id]);
-
-						Show::response(['money' => $balance_profile - $summa, 'help' => $help, 'avatar' => $avatarTo]);
-					} else {
-						Show::error(1007);
-					}
-				} else {
-					Show::error(1005);
-				}
-			} else {
-				Show::error(1011);
-			}
-		} else {
-			Show::error(1006);
+		if(is_numeric($send_to)){
+			$balanceTo = $Connect->db_get("SELECT * FROM users WHERE id=?", [$send_to])[0];
+		}else{
+			$balanceTo = $Connect->db_get("SELECT * FROM users WHERE nickname=?", [$send_to])[0];
 		}
+		if( !$balanceTo ) Show::error(1005);
+		if( $balanceTo['vk_user_id'] == $user_id ) Show::error(1007);
+
+		$idTo = $balanceTo['id'];
+		$avatarTo = $balanceTo['avatar_id'];
+		$userInfo = $Connect->db_get("SELECT * FROM users WHERE vk_user_id=?", [$user_id])[0];
+		$idWhoSend = $userInfo['id'];
+		$avatarIdWhoSend = $userInfo['avatar_id'];
+		$avatar = CONFIG::AVATAR_PATH.'/'. $Connect->db_get("SELECT * FROM avatars WHERE id=?", [$avatarIdWhoSend])[0]['name'];
+		$avatarTo = CONFIG::AVATAR_PATH.'/'.$Connect->db_get("SELECT * FROM avatars WHERE id=?", [$avatarTo])[0]['name'];
+
+		$help = $Connect->query("UPDATE users SET money=? WHERE id=?", [$balanceTo['money'] + $summa, $idTo]);
+
+		$sysnotifications->send($idTo, "Вам поступил перевод в размере $summa монеток от агента #$idWhoSend", $avatar, [
+			'type' => 'money_transfer_give',
+			'object' => 0
+		], $comment);
+		$sysnotifications->send($idWhoSend, "Вы успешно перевели $summa монеток агенту #$idTo", $avatarTo, [
+			'type' => 'money_transfer_send',
+			'object' => 0
+		]);
+		$Connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$balance_profile - $summa, $user_id]);
+		Show::response(['money' => $balance_profile - $summa, 'help' => $help, 'avatar' => $avatarTo]);
+
+
 	case 'followers.subscribe':
 		$agent_id = (int)$data['agent_id'];
-		$followers->subscribe($users->id, $agent_id);
+		Show::response( $followers->subscribe($users->id, $agent_id) );
 
 	case 'followers.unsubscribe':
 		$agent_id = (int)$data['agent_id'];
-		$followers->unsubscribe($users->id, $agent_id);
+		Show::response( $followers->unsubscribe($users->id, $agent_id) );
 
 	case 'followers.getFollowers':
 		$count = (int) $data['count'];
@@ -983,7 +984,7 @@ switch ( $method ) {
 		$agent_id = $data['agent_id'] ? (int) $data['agent_id'] : $users->id;
 		if($count > 200) $count = 200;
 		if($count <= 0) $count = 1;
-		$followers->getFollowers($agent_id, $count, $offset);
+		Show::response( $followers->getFollowers($agent_id, $count, $offset) );
 
 	case 'special.getAllMessages':
 		$count = (int) $data['count'];

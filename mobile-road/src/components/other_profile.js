@@ -8,8 +8,6 @@ import {
     Div,
     FormStatus,
     Avatar,
-    Counter,
-    SimpleCell,
     ScreenSpinner,
     ActionSheet,
     ActionSheetItem,
@@ -25,18 +23,12 @@ import {
 
 
     } from '@vkontakte/vkui';
-
-import Icon28RecentOutline          from '@vkontakte/icons/dist/28/recent_outline';
-import Icon24DoNotDisturb           from '@vkontakte/icons/dist/24/do_not_disturb';
-import Icon28CheckCircleOutline     from '@vkontakte/icons/dist/28/check_circle_outline';
+import Icon20BookOutline            from '@vkontakte/icons/dist/20/book_outline';
 import Icon16Fire                   from '@vkontakte/icons/dist/16/fire';
 import Icon16Verified               from '@vkontakte/icons/dist/16/verified';
 import Icon16StarCircleFillYellow   from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
-import Icon28LogoVkOutline          from '@vkontakte/icons/dist/28/logo_vk_outline';
 import Icon28WalletOutline          from '@vkontakte/icons/dist/28/wallet_outline';
 import Icon28PaletteOutline         from '@vkontakte/icons/dist/28/palette_outline';
-import Icon28NameTagOutline         from '@vkontakte/icons/dist/28/name_tag_outline';
-import Icon28InfoOutline            from '@vkontakte/icons/dist/28/info_outline';
 import Icon28Notifications          from '@vkontakte/icons/dist/28/notifications';
 import Icon56DurationOutline        from '@vkontakte/icons/dist/56/duration_outline';
 import Icon28DiamondOutline         from '@vkontakte/icons/dist/28/diamond_outline';
@@ -102,6 +94,7 @@ class OtherProfile extends React.Component {
             this.setPopout = propsbi.setPopout;
             this.showErrorAlert = propsbi.showErrorAlert;
             this.setActiveModal = propsbi.setActiveModal;
+            this.subscribeUnsubscribe = this.subscribeUnsubscribe.bind(this);
             this.profRef = React.createRef()
             this.setSnack = (value) => {
                 this.setState({snackbar: value})
@@ -217,8 +210,8 @@ class OtherProfile extends React.Component {
           }
         subscribeUnsubscribe(){
             this.setPopout(<ScreenSpinner/>)
-            let method = this.state.other_profile.subscribe ? "users.unsubscribe" : "users.subscribe"
-            fetch(this.state.api_url + method + window.location.search.replace('?', ''),
+            let method = this.state.other_profile.subscribe ? "followers.unsubscribe&" : "followers.subscribe&"
+            fetch(this.state.api_url + `method=${method}` + window.location.search.replace('?', ''),
             {method: 'post',
             headers: {"Content-type": "application/json; charset=UTF-8"},
             body: JSON.stringify({
@@ -228,6 +221,11 @@ class OtherProfile extends React.Component {
               .then(res => res.json())
               .then(data => {
                 if(data.result) {
+                    // let newProfile = {...this.state.other_profile}
+                    // newProfile.subscribe = (method === "followers.unsubscribe&") ? false : true;
+                    // this.setState({other_profile: newProfile})
+                    this.PrepareProfile();
+                    this.setPopout(null);
 
                 }else {
                     this.showErrorAlert(data.error.message)
@@ -335,79 +333,15 @@ class OtherProfile extends React.Component {
                         </Button>}
                         <Button
                         size='m'
-                        stretched>
-                            Подписаться
+                        stretched
+                        onClick={() => this.subscribeMenu()}
+                        mode={this.state.other_profile.subscribe ? 'secondary' : 'primary'}>
+                            {this.state.other_profile.subscribe ? "Вы подписаны" : "Подписаться"}
                         </Button>
                     </Div>
                 </Group>
-                  {/* {(this.state.other_profile['special'] || this.state.other_profile['generator'] || this.state.other_profile['banned']) ? <div style={{marginTop: 20, marginBottom: 20}} className="help_title_profile">{this.state.other_profile['banned'] ? 'Этот профиль забанен' : 'Вы не можете просматривать этот профиль'}</div> :
-                <Group header={<Header mode='tertiary'>Основная информация</Header>}>
-                    <SimpleCell 
-                        disabled
-                        before={<Icon28RecentOutline />}
-                        indicator={new Date(this.state.other_profile.registered * 1e3).getDate() + " " + this.please_Month(new Date(this.state.other_profile['registered'] * 1e3).getMonth()) + " " + new Date(this.state.other_profile.registered * 1e3).getFullYear()}>
-                            Дата регистрации
-                    </SimpleCell>
-                    <SimpleCell 
-                        disabled
-                        before={<Icon28InfoOutline />}
-                        indicator={<Counter mode='primary'>{recog_number(this.state.other_profile['good_answers'] + this.state.other_profile['bad_answers'])}</Counter>}>
-                            Всего ответов
-                    </SimpleCell>
-                    <SimpleCell 
-                        disabled
-                        before={<Icon28CheckCircleOutline />}
-                        indicator={<Counter mode='primary'>{recog_number(this.state.other_profile['good_answers'])}</Counter>}>
-                            Положительные ответы
-                    </SimpleCell>
-                    <SimpleCell 
-                        disabled
-                        before={<Icon24DoNotDisturb width={28} height={28} />}
-                        indicator={<Counter mode='primary'>{recog_number(this.state.other_profile['bad_answers'])}</Counter>}>
-                            Отрицательных ответов
-                    </SimpleCell>
-                </Group>} */}
                 
-                {/* {this.props.account['special'] ?
-                <Group header={<Header mode='tertiary'>Сервисная информация</Header>}>
-                    {this.state.other_profile['balance'] ? 
-                    <SimpleCell 
-                        disabled
-                        before={<Icon28WalletOutline />}
-                        indicator={<Counter mode='primary'>{recog_number(this.state.other_profile['balance'])}</Counter>}>
-                            Баланс
-                    </SimpleCell> : null}
-
-                    {this.state.other_profile['vk_id'] ? 
-                    <SimpleCell 
-                        expandable
-                        before={<Icon28LogoVkOutline width={28} height={28} />}
-                        href={'https://vk.com/id' + this.state.other_profile['vk_id']}
-                        target="_blank" rel="noopener noreferrer">
-                            Профиль ВК
-                    </SimpleCell> : null}
-                    {this.state.other_profile['age'] ? <SimpleCell 
-                        disabled
-                        before={<Icon28NameTagOutline />}
-                        indicator={<Counter mode='primary'>{this.state.other_profile['age']}</Counter>}>
-                            Указанный возраст
-                    </SimpleCell> : null}
-                    {(this.state.other_profile['scheme'] !== null && this.state.other_profile['scheme'] !== undefined) ? <SimpleCell 
-                        disabled
-                        before={<Icon28PaletteOutline />}
-                        indicator={SCHEMES[this.state.other_profile['scheme']]}>
-                        Используемая тема
-                    </SimpleCell> : null}
-                    {(this.state.other_profile['noti'] !== null && this.state.other_profile['noti'] !== undefined) ? <SimpleCell 
-                        disabled
-                        before={<Icon28Notifications />}
-                        indicator={NOTI[Number(this.state.other_profile['noti'])]}>
-                        Уведомления
-                    </SimpleCell> : null}
-                </Group>
-                : null} */}
-                
-                {// Новый профиль
+                {
                 (this.state.other_profile['special'] || this.state.other_profile['generator'] || this.state.other_profile['banned']) ? 
                 <div style={{marginTop: 20, marginBottom: 20}} className="help_title_profile">{this.state.other_profile['banned'] ? 
                 'Этот профиль забанен' : 
@@ -418,16 +352,17 @@ class OtherProfile extends React.Component {
                     <MiniInfoCell
                     before={<Icon20ArticleOutline />}
                     textWrap='full'>
-                        *Статус*
+                        {this.state.other_profile.publicStatus || "Играю в любимую игру"}
                     </MiniInfoCell>
                     <MiniInfoCell
                     before={<Icon20FollowersOutline />}
                     after={
                         <UsersStack 
-                        photos={this.state.other_profile['followers'][2].map((user,i) => user.avatar_name)} />
+                        photos={this.state.other_profile['followers'][2].map((user,i) => "https://xelene.ru/road/php/images/avatars/" + user.avatar_name)} />
                     }>
-                        {this.state.other_profile['followers'][0]} {enumerate(this.state.other_profile['followers'][0], 
-                        ['подписчик', 'подписчика', 'подписчиков'])}{this.state.other_profile['followers'][1] ? " · " + 
+                        {this.state.other_profile['followers'][0] ? this.state.other_profile['followers'][0] + " " + enumerate(this.state.other_profile['followers'][0], 
+                        ['подписчик', 'подписчика', 'подписчиков']) : "нет подписчиков"}
+                        {this.state.other_profile['followers'][1] ? " · " + 
                         this.state.other_profile['followers'][1] + " " + enumerate(this.state.other_profile['followers'][1], 
                         ['новый', 'новых', 'новых']) : ''}
                     </MiniInfoCell>
@@ -441,10 +376,15 @@ class OtherProfile extends React.Component {
                     </MiniInfoCell>
                     <MiniInfoCell
                     textWrap='full'
-                    before={<Icon20Info />}>
+                    before={<Icon20BookOutline />}>
                         {recog_number(this.state.other_profile['good_answers'] + 
                         this.state.other_profile['bad_answers']) + " " + enumerate(this.state.other_profile['good_answers'] + this.state.other_profile['bad_answers'], 
-                        ['Ответ', 'Ответа', 'Ответов'])}<br/>{recog_number(
+                        ['Ответ', 'Ответа', 'Ответов'])}
+                    </MiniInfoCell>
+                    <MiniInfoCell
+                    textWrap='full'
+                    before={<Icon20Info />}>
+                        {recog_number(
                         this.state.other_profile['good_answers']) + " " + enumerate(this.state.other_profile['good_answers'], 
                         ['Положительный', 'Положительныx', 'Положительных'])} · {recog_number(
                         this.state.other_profile['bad_answers']) + " " + enumerate(this.state.other_profile['bad_answers'], 
@@ -467,17 +407,37 @@ class OtherProfile extends React.Component {
                 </Group>
                 {this.state.ShowServiceInfo && 
                      <Group>
-                         <MiniInfoCell 
-                         before={<Icon20UserOutline />}
-                         after={this.state.other_profile['age'] + " " + enumerate(this.state.other_profile['age'], ['год', 'года', 'лет'])}>
-                             Возраст
-                         </MiniInfoCell>
-                         <MiniInfoCell
-                         before={<Icon28WalletOutline width={20} height={20} />}
-                         after={recog_number(this.state.other_profile['balance'])}>
-                             Баланс
-                         </MiniInfoCell>
-                     </Group>               
+                        <MiniInfoCell 
+                        before={<Icon20UserOutline />}
+                        after={this.state.other_profile['age'] + " " + enumerate(this.state.other_profile['age'], ['год', 'года', 'лет'])}>
+                            Возраст
+                        </MiniInfoCell>
+                        <MiniInfoCell
+                        before={<Icon28WalletOutline width={20} height={20} />}
+                        after={recog_number(this.state.other_profile['balance'])}>
+                            Баланс
+                        </MiniInfoCell>
+                        
+                        <MiniInfoCell
+                        before={<Icon28PaletteOutline width={20} height={20} />}
+                        after={SCHEMES[this.state.other_profile['scheme']]}>
+                            Используемая тема
+                        </MiniInfoCell>
+                        <MiniInfoCell
+                        before={<Icon28Notifications width={20} height={20} />}
+                        after={NOTI[Number(this.state.other_profile['noti'])]}>
+                            Уведомления
+                        </MiniInfoCell>
+                        <MiniInfoCell
+                        mode='base'
+                        before={<Icon20GlobeOutline/>}>
+                            <Link href={'https://vk.com/id' + this.state.other_profile.vk_id}
+                            target="_blank" 
+                            rel="noopener noreferrer">
+                                Страница ВКонтакте
+                            </Link>
+                        </MiniInfoCell>
+                     </Group>         
                 }
                 </>
                 }

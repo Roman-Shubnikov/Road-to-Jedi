@@ -111,7 +111,11 @@ class Account {
 		return $status;
 	}
 
-	public function publicProfile($isPublic=TRUE){
-		return $this->Connect->query("UPDATE users SET public=? WHERE id=?", [(int)$isPublic, $this->user->id]);
+	public function publicProfile($agent_id, $isPublic=TRUE){
+		return $this->Connect->query("UPDATE users SET public=? WHERE id=?", [(int)$isPublic, $agent_id]);
+	}
+	public function setPublicStatus($agent_id, $status){
+		if(mb_strlen($status) > CONFIG::MAX_PUBLIC_STATUS_LENGTH) Show::error(1400);
+		return $this->Connect->query("UPDATE users SET publicStatus=? WHERE id=?", [$status, $agent_id]);
 	}
 }

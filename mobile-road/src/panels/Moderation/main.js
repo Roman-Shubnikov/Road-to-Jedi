@@ -8,6 +8,8 @@ import {
   ScreenSpinner,
   ModalRoot,
   ModalCard,
+  Button,
+
 
   } from '@vkontakte/vkui';
 
@@ -412,15 +414,10 @@ export default class Main extends React.Component {
               onClose={() => this.setActiveModal(null)}
               icon={<Icon28SortOutline width={56} height={56} />}
               header={'Вы оценили ' + this.props.account['marked'] + " " + enumerate(this.props.account['marked'], ['ответ', 'ответа', 'ответов'])}
-              caption={(150 - this.props.account['marked'] < 0) ? "Порог достигнут" : "Для преодоления порога необходимо оценить ещё " + 
+              subheader={(150 - this.props.account['marked'] < 0) ? "Порог достигнут" : "Для преодоления порога необходимо оценить ещё " + 
               (150 - this.props.account['marked']) + 
               " " + enumerate(this.props.account['marked'], ['ответ', 'ответа', 'ответов']) + " за неделю"}
-              actions={[{
-                title: 'Понятно',
-                mode: 'primary',
-                action: () => this.setActiveModal(null)
-              }
-              ]}>
+              actions={<Button mode='primary' stretched size='l' onClick={() => this.setActiveModal(null)}>Понятно</Button>}>
               </ModalCard>
               <ModalComment
                   id='comment'

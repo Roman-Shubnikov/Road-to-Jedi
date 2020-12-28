@@ -132,7 +132,9 @@ export default class Answers extends React.Component {
                     <Div>
                       <FormStatus>
                         <div style={{textAlign: 'center', color: "var(--text_profile)"}}>
-                            Вы оценили <span style={{color:'var(--header_text)'}}>{this.props.account['bad_answers']} {enumerate(this.props.account['bad_answers'], ['ответ', 'ответа', 'ответов'])}</span> Генераторов
+                            Вы оценили <span style={{color:'var(--header_text)'}}>
+                              {this.props.account['bad_answers']} {enumerate(this.props.account['bad_answers'], ['ответ', 'ответа', 'ответов'])}
+                              </span> Генераторов
                         </div>
                       </FormStatus>
                     </Div>

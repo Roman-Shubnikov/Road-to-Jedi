@@ -73,7 +73,7 @@ class Users {
 	}
 
 	public function getById( int $id ) {
-		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator, users.public,
+		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator, users.public, users.publicStatus,
 				users.bad_answers, users.avatar_id, avatars.name as avatar_name, users.flash, users.verified, users.donut, users.diamond, users.nickname,
 				users.money, users.age, users.scheme, users.vk_user_id
 				FROM users
@@ -110,7 +110,7 @@ class Users {
 		$result = [];
 
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator,
-						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme, users.public,
+						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme, users.public, users.publicStatus,
 						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname
 				FROM users
 				LEFT JOIN avatars
@@ -158,7 +158,7 @@ class Users {
 		$user_id = $this->vk_id;
 		$this->Connect->query("UPDATE users SET last_activity=? WHERE vk_user_id=?", [$time,$user_id]);
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,users.age,users.vk_user_id,
-						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.noti, users.scheme, users.public,
+						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.noti, users.scheme, users.public, users.publicStatus,
 						users.special, users.generator, users.flash, users.verified, users.donut, users.nickname, users.diamond, avatars.name as avatar_name
 				FROM users
 				LEFT JOIN avatars
@@ -178,7 +178,7 @@ class Users {
 
 	private function _register() {
 		$time = time();
-		$res = $this->Connect->query("INSERT INTO users (vk_user_id,registered,last_activity,nickname,avatar_id) VALUES (?,?,?,?,?)", [$this->vk_id,$time,$time,'',rand( 1, CONFIG::AVATARS_COUNT )]);
+		$res = $this->Connect->query("INSERT INTO users (vk_user_id,registered,last_activity,nickname,avatar_id) VALUES (?,?,?,?,?)", [$this->vk_id,$time,$time,NULL,rand( 1, CONFIG::AVATARS_COUNT )]);
 		return $res;
 	}
 	private function _formatType( array $data ) {
@@ -211,6 +211,7 @@ class Users {
 				'diamond' => (bool) $data['diamond'],
 				'generator' => (bool) $data['generator'],
 				'public' => (bool) $data['public'],
+				'publicStatus' => $data['publicStatus'],
 			];	
 		}
 		if(!empty($data['banned'])){

@@ -15,18 +15,20 @@ import {
     FixedLayout,
     Switch,
     ScreenSpinner,
+    platform, 
+    IOS,
     } from '@vkontakte/vkui';
 
-import {platform, IOS} from '@vkontakte/vkui';
 
-import Icon28DoneOutline from '@vkontakte/icons/dist/28/done_outline';
-import Icon28CoinsOutline from '@vkontakte/icons/dist/28/coins_outline';
-import Icon28DeleteOutline from '@vkontakte/icons/dist/28/delete_outline';
-import Icon28PaletteOutline from '@vkontakte/icons/dist/28/palette_outline';
-import Icon28TargetOutline from '@vkontakte/icons/dist/28/target_outline';
-import Icon28InfoOutline from '@vkontakte/icons/dist/28/info_outline';
-import Icon28FavoriteOutline from '@vkontakte/icons/dist/28/favorite_outline';
-import Icon28Notifications from '@vkontakte/icons/dist/28/notifications';
+import Icon28DoneOutline            from '@vkontakte/icons/dist/28/done_outline';
+import Icon28CoinsOutline           from '@vkontakte/icons/dist/28/coins_outline';
+import Icon28DeleteOutline          from '@vkontakte/icons/dist/28/delete_outline';
+import Icon28PaletteOutline         from '@vkontakte/icons/dist/28/palette_outline';
+import Icon28TargetOutline          from '@vkontakte/icons/dist/28/target_outline';
+import Icon28InfoOutline            from '@vkontakte/icons/dist/28/info_outline';
+import Icon28FavoriteOutline        from '@vkontakte/icons/dist/28/favorite_outline';
+import Icon28Notifications          from '@vkontakte/icons/dist/28/notifications';
+import Icon28GestureOutline         from '@vkontakte/icons/dist/28/gesture_outline';
 
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 export default class Settings extends React.Component{
@@ -36,6 +38,7 @@ export default class Settings extends React.Component{
             api_url: "https://xelene.ru/road/php/index.php?",
             ShowBanner: true,
             noti: this.props.account ? this.props.account.noti : null,
+            public: this.props.account ? this.props.account.public : false,
 
         }
         var propsbi = this.props.this;
@@ -107,7 +110,7 @@ export default class Settings extends React.Component{
         .then(res => res.json())
         .then(data => {
         if(data.result) {
-          this.setState({noti: notif})
+          
           this.setPopout(<Alert
             actionsLayout='horizontal'
             actions={[{
@@ -117,9 +120,7 @@ export default class Settings extends React.Component{
               action: () => {
                 bridge.send("VKWebAppAllowMessagesFromGroup", {"group_id": 188280516})
                 .then(data => {
-                  // bridge.send("VKWebAppAllowNotifications")
-                  // .then(data => {})
-                  // .catch(() => {this.demissNotif()})
+                  this.setState({noti: true})
                   setTimeout(() => {
                     this.props.this.ReloadProfile()
                   }, 1000)
@@ -163,12 +164,53 @@ export default class Settings extends React.Component{
         
       }
     }
+    publicProfile(showAlert=true){
+      if(showAlert){
+        this.setPopout(
+        <Alert
+        actionsLayout="horizontal"
+        actions={[{
+          title: 'Отмена',
+          autoclose: true,
+          mode: 'cancel'
+        },{
+          title: 'Хочу',
+          autoclose: true,
+          action: () => this.publicProfile(false),
+          mode: 'destructive',
+        }]}
+        onClose={() => this.setPopout(null)}
+        header="Вы действительно хотите открыть свой профиль"
+        text="После публикации профиля, все смогут видеть вашу настоящую страницу ВК. Вы действительно хотите опубликовать его?"
+        />)
+      }else{
+        fetch(this.state.api_url + "method=account.public&" + window.location.search.replace('?', ''),
+        {method: 'post',
+          headers: {"Content-type": "application/json; charset=UTF-8"},
+          body: JSON.stringify({
+              'public': !this.state.public,
+          })
+          })
+          .then(res => res.json())
+          .then(data => {
+          if(data.result) {
+            this.setState({public: !this.state.public})
+            setTimeout(() => {
+              this.props.this.ReloadProfile()
+            }, 1000)
+          }else{
+            this.showErrorAlert(data.error.message)
+          }
+        }).catch(() => {
+          this.props.this.changeData('activeStory', 'disconnect')
+        })
+      }
+    }
     componentDidMount(){
       bridge.send('VKWebAppGetAds')
     .then((promoBannerProps) => {
         this.setState({ promoBannerProps });
     })
-        
     }
     render() {
         var props = this.props.this;
@@ -190,12 +232,10 @@ export default class Settings extends React.Component{
                 <Group>
                   <SimpleCell
                   before={<Icon28PaletteOutline />}
-                  className='pointer'
                   expandable
                   onClick={() => props.goPanel('schemechange')}>Смена темы</SimpleCell>
 
                   <SimpleCell
-                  className='pointer'
                   indicator={this.props.account['verified'] ? 'Присвоен' : null}
                   disabled={this.props.account['verified']}
                   expandable={!this.props.account['verified']}
@@ -207,12 +247,19 @@ export default class Settings extends React.Component{
                     disabled 
                     after={
                     <Switch 
-                      className='pointer'
                       checked={this.state.noti}
                       onChange={(e) => this.changeNotifStatus(e)} />
                     }>Получать уведомления</SimpleCell>
 
-                  <SimpleCell>
+                  <SimpleCell
+                  before={<Icon28GestureOutline/>}
+                  disabled 
+                  after={
+                    <Switch 
+                      checked={this.state.public}
+                      onChange={() => this.publicProfile(this.state.public === false)} />
+                    }
+                    >
                     Публичный профиль
                   </SimpleCell>
                 </Group>
@@ -224,7 +271,6 @@ export default class Settings extends React.Component{
                   
                   {(platform() === IOS && platformname) ? null :
                   <SimpleCell
-                  className='pointer'
                   expandable
                   href="https://vk.com/jedi_road?source=description&w=donut_payment-188280516"
                   target="_blank" rel="noopener noreferrer"
@@ -233,7 +279,6 @@ export default class Settings extends React.Component{
                 <Group>
                   
                   <SimpleCell
-                  className='pointer'
                   expandable
                   onClick={() => {
                       this.props.this.goPanel("info");

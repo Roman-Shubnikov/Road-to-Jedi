@@ -13,21 +13,28 @@ import {
     FormStatus,
     PullToRefresh,
     RichCell,
+    Header,
+    HorizontalScroll,
+    HorizontalCell,
+    MiniInfoCell,
+    Alert,
+    Textarea,
+
+
     } from '@vkontakte/vkui';
 
 import Icon12Fire                   from '@vkontakte/icons/dist/12/fire';
 import Icon16Verified               from '@vkontakte/icons/dist/16/verified';
 import Icon28PollSquareOutline      from '@vkontakte/icons/dist/28/poll_square_outline';
 import Icon28MarketOutline          from '@vkontakte/icons/dist/28/market_outline';
-// import Icon28PaletteOutline from '@vkontakte/icons/dist/28/palette_outline';
 import Icon28Notifications          from '@vkontakte/icons/dist/28/notifications';
-// import Icon24NotificationSubtractOutline from '@vkontakte/icons/dist/24/notification_subtract_outline';
 import Icon28ShareExternalOutline   from '@vkontakte/icons/dist/28/share_external_outline';
 import Icon16StarCircleFillYellow   from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
 import Icon28Messages               from '@vkontakte/icons/dist/28/messages';
 import Icon28DiamondOutline         from '@vkontakte/icons/dist/28/diamond_outline';
 import Icon28BrainOutline           from '@vkontakte/icons/dist/28/brain_outline';
 import Icon28SettingsOutline        from '@vkontakte/icons/dist/28/settings_outline';
+import Icon20ArticleOutline         from '@vkontakte/icons/dist/20/article_outline';
 
 function isEmpty(obj) {
     for (let key in obj) {
@@ -36,19 +43,71 @@ function isEmpty(obj) {
     }
     return true;
   }
-export default class Profile extends React.Component{
+class Profile extends React.Component{
     constructor(props) {
         super(props);
         this.state = {
             api_url: "https://xelene.ru/road/php/index.php?",
             fetching: false,
             subscribe: false,
+            newStatus: this.props.account.publicStatus
         }
         var propsbi = this.props.this;
         this.setPopout = propsbi.setPopout;
         this.showErrorAlert = propsbi.showErrorAlert;
         this.setActiveModal = propsbi.setActiveModal;
+        this.changeStatus = this.changeStatus.bind(this)
+        this.onChange = (event) => {
+            var name = event.currentTarget.name;
+            var value = event.currentTarget.value;
+            this.setState({ [name]: value });
+            
+        }
 
+    }
+    changeStatus(){
+        this.setPopout(
+            <Alert 
+            actionsLayout="horizontal"
+            actions={[{
+              title: 'Отмена',
+              autoclose: true,
+              mode: 'cancel'
+            },
+            {
+                title: 'Сохранить',
+                autoclose: true,
+                mode: 'default',
+                action: () => this.saveNewStatus()
+              }]}
+            onClose={() => this.setPopout(null)}
+            header="Ваш статус">
+                <Textarea maxLength="140" onChange={this.onChange} name="newStatus" defaultValue={this.state.newStatus} />
+            </Alert>
+        )
+    }
+    saveNewStatus(){
+        fetch(this.state.api_url + "method=account.changeStatus&" + window.location.search.replace('?', ''),
+          {method: 'post',
+                headers: {"Content-type": "application/json; charset=UTF-8"},
+                    // signal: controllertime.signal,
+                body: JSON.stringify({
+                    'status': this.state.newStatus.trim(),
+                })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if(data.result) {
+              setTimeout(() => {
+                this.props.this.ReloadProfile();
+              }, 1000)
+            } else {
+                this.showErrorAlert(data.error.message)
+            }
+          })
+          .catch(err => {
+            this.props.this.changeData('activeStory', 'disconnect')
+          })
     }
     componentDidMount(){
         // bridge.send("VKWebAppJoinGroup", {group_id: 188280516})
@@ -104,6 +163,36 @@ export default class Profile extends React.Component{
                                 
                             </RichCell>
                         </Group>
+                        <Group>
+                            <MiniInfoCell
+                            before={<Icon20ArticleOutline />}
+                            textWrap='full'
+                            onClick={() => {
+                                this.changeStatus()
+                            }}>
+                                {this.props.account.publicStatus || "Играю в любимую игру"}
+                            </MiniInfoCell>
+                        </Group>
+                        {this.props.account.followers[0] &&
+                            <Group header={<Header mode="secondary">Подписчики</Header>}>
+                                    <HorizontalScroll showArrows getScrollToLeft={(i) => i - 190} getScrollToRight={(i) => i + 190}>
+                                    <div style={{ display: 'flex' }}>
+                                        {
+                                            this.props.account.followers[2].map((item, i) => 
+                                            <HorizontalCell 
+                                            key={item.id} 
+                                            size='s' 
+                                            header={item.nickname ? item.nickname : `Агент #${item.from_id}`}
+                                            onClick={() => {
+                                                this.props.this.goOtherProfile(item.from_id);
+                                            }}>
+                                                <Avatar size={56} src={"https://xelene.ru/road/php/images/avatars/" + item.avatar_name}/>
+                                            </HorizontalCell>)
+                                        }
+                                    </div>
+                                    </HorizontalScroll>
+                            </Group>
+                        }
                         
                         <Group>
                             <SimpleCell
@@ -179,4 +268,6 @@ export default class Profile extends React.Component{
     }
         
 }
-    
+
+
+export default Profile

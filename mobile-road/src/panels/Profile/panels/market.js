@@ -90,6 +90,7 @@ export default class Market extends React.Component{
             changed_id: '',
             api_url: "https://xelene.ru/road/php/index.php?",
             last_selected: null,
+            selectedAvatar: 0,
 
         }
         var propsbi = this.props.this;
@@ -97,6 +98,7 @@ export default class Market extends React.Component{
         this.showErrorAlert = propsbi.showErrorAlert;
         this.showAlert = propsbi.showAlert;
         this.setActiveModal = propsbi.setActiveModal;
+        this.selectImage = this.selectImage.bind(this);
         this.onChange = (event) => {
             var name = event.currentTarget.name;
             var value = event.currentTarget.value;
@@ -104,21 +106,7 @@ export default class Market extends React.Component{
         }
     }
   selectImage(number) {
-    // let number = e.currentTarget.id;
-    if(this.state.last_selected !== null){
-      let last_image = document.getElementById(this.state.last_selected)
-      last_image.className = "Avatar__img"
-    }
-    let image = document.getElementById(number);
-    // eslint-disable-next-line
-    if(number != this.state.last_selected){
-      image.className = "Avatar__img select_avatar"
-      this.setState({last_selected: Number(number)});
-    }else{
-      this.setState({last_selected: null});
-      image.className = "Avatar__img"
-    }
-    
+    this.setState({selectedAvatar:number});
   }
     changeAvatar(last_selected) {
         fetch(this.state.api_url + "method=shop.changeAvatar&" + window.location.search.replace('?', ''),
@@ -131,41 +119,35 @@ export default class Market extends React.Component{
         })
         .then(data => data.json())
         .then(data => {
-          if(last_selected){
-            let last_image = document.getElementById(this.state.last_selected)
-            last_image.className = "Avatar__img"
-            this.setState({last_selected: null})
-          }
-          
-          
-              if(data.result){
-                  this.props.this.setSnack( 
-                    <Snackbar
-                      layout="vertical"
-                      onClose={() => this.props.this.setSnack(null)}
-                      before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
-                    >
-                      Аватар успешно сменен
-                    </Snackbar>
-                  )
+          this.setState({selectedAvatar: 0})
+          if(data.result){
+              this.props.this.setSnack( 
+                <Snackbar
+                  layout="vertical"
+                  onClose={() => this.props.this.setSnack(null)}
+                  before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                >
+                  Аватар успешно сменен
+                </Snackbar>
+              )
 
-                  setTimeout(() => {
-                    this.props.this.ReloadProfile();
-                  }, 4000)
-                }else{
-                  this.props.this.setSnack(
-                    <Snackbar
-                    layout="vertical"
-                    onClose={() => this.props.this.setSnack(null)}
-                    before={<Icon20CancelCircleFillRed width={24} height={24} />}
-                  >
-                    {data.error.message}
-                  </Snackbar>);
-                }
-            })
-            .catch(err => {
-              this.props.this.changeData('activeStory', 'disconnect')
+              setTimeout(() => {
+                this.props.this.ReloadProfile();
+              }, 4000)
+            }else{
+              this.props.this.setSnack(
+                <Snackbar
+                layout="vertical"
+                onClose={() => this.props.this.setSnack(null)}
+                before={<Icon20CancelCircleFillRed width={24} height={24} />}
+              >
+                {data.error.message}
+              </Snackbar>);
+            }
         })
+        .catch(err => {
+          this.props.this.changeData('activeStory', 'disconnect')
+      })
         
     }
     ChangeId() {
@@ -317,27 +299,29 @@ export default class Market extends React.Component{
                   <HorizontalScroll showArrows getScrollToLeft={(i) => i - 190} getScrollToRight={(i) => i + 190}>
                   <div style={{ display: 'flex' }}>
                     {avatars.map((ava, i) => 
-                    <HorizontalCell key={i} size='m' onClick={(e) => (this.props.account.avatar.id === i +1) ? this.props.this.setSnack(
+                    <HorizontalCell key={i} size='m' 
+                    className={((i + 1) === this.state.selectedAvatar) ? 'select_avatar' : ''}
+                    onClick={(e) => (this.props.account.avatar.id === i +1) ? this.props.this.setSnack(
                       <Snackbar
                       layout="vertical"
                       onClose={() => this.props.this.setSnack(null)}
                       before={<Icon20CancelCircleFillRed width={24} height={24} />}
                     >
                       Вы уже имеете данный аватар
-                    </Snackbar>) : this.selectImage(i)}>
+                    </Snackbar>) : (this.state.selectedAvatar === (i + 1) ) ? this.selectImage(0) : this.selectImage(i + 1)}>
                         <Avatar id={i} size={88} src={"https://xelene.ru/road/php/images/avatars/" + ava}/>
                       
                     </HorizontalCell>)}
                   </div>
                   </HorizontalScroll>
                   <Div>
-                      <Button onClick={() => {this.changeAvatar(Number(this.state.last_selected) + 1)}} 
+                      <Button onClick={() => {this.changeAvatar(Number(this.state.selectedAvatar))}} 
                       before={<Icon28MoneyCircleOutline 
                       style={{marginRight: "5px"}}/>} 
                       size="l" 
                       stretched
                       mode="secondary"
-                      disabled={(this.state.last_selected !== null) ? false : true}>Сменить за 700 монеток</Button>
+                      disabled={this.state.selectedAvatar === 0}>Сменить за 700 монеток</Button>
                   </Div>
                 </Group>
 
