@@ -344,12 +344,12 @@ $params = [
 		],
 	],
 
-	// 'ticket.deleteMessage' => [
-	// 	'message_id' => [
-	// 		'type' => 'int',
-	// 		'required' => true
-	// 	]
-	// ],
+	'ticket.deleteMessage' => [
+		'message_id' => [
+			'type' => 'int',
+			'required' => true
+		]
+	],
 
 	'ticket.close' => [
 		'ticket_id' => [
@@ -365,6 +365,12 @@ $params = [
 		]
 	],
 	'shop.changeAvatar' => [
+		'avatar_id' => [
+			'type' => 'int',
+			'required' => true
+		]
+	],
+	'shop.changeDonutAvatars' => [
 		'avatar_id' => [
 			'type' => 'int',
 			'required' => true
@@ -606,6 +612,9 @@ switch ( $method ) {
 		$res = $users->getMy();
 		$followsUser = $followers->getFollowers($users->id, 20, 0);
 		$res['followers'] = $followsUser;
+		if($users->info['donut']){
+			$res['donut_chat_link'] = 'https://vk.me/join/bdWXBlYwHFXjmNksi3y03DRPTQPebMwOufM=';
+		}
 		Show::response( $res );
 	
 	case 'account.changeScheme':
@@ -845,9 +854,9 @@ switch ( $method ) {
 
 		Show::response( $Connect->query("UPDATE messages SET mark=-1, approve_author_id=null WHERE id=?", [$id]));
 
-	// case 'ticket.deleteMessage':
-	// 	$id = (int) $data['message_id'];
-	// 	Show::response( $tickets->deleteMessage( $id ) );
+	case 'ticket.deleteMessage':
+		$id = (int) $data['message_id'];
+		Show::response( $tickets->deleteMessage( $id ) );
 
 	case 'notifications.get':
 		Show::response( $notifications->get() );
@@ -902,10 +911,21 @@ switch ( $method ) {
 		$id = $data['avatar_id'];
 		$balance = $users->info['money'];
 
-		if( $id <= CONFIG::AVATARS_COUNT && $id > 0 ) Show::error(1008);
+		if( $id > CONFIG::AVATARS_COUNT || $id <= 0 ) Show::error(1008);
 		if( $balance < CONFIG::AVATAR_PRICE ) Show::error(1002);
 
 		$edit = $Connect->query("UPDATE users SET money=?,avatar_id=? WHERE vk_user_id=?", [$balance - CONFIG::AVATAR_PRICE,$id,$user_id]);
+		Show::response(['edit' => $edit]);
+
+	case 'shop.changeDonutAvatars':
+		$id = (int)$data['avatar_id'];
+		$balance = $users->info['donuts'];
+		if(!$users->info['donut']) Show::error(1017);
+		if( $id > CONFIG::DONUT_AVATARS_COUNT || $id <= 0 ) Show::error(1008);
+		if( $balance < CONFIG::DONUT_AVATAR_PRICE ) Show::error(1002);
+		$id += 1000;
+
+		$edit = $Connect->query("UPDATE users SET donuts=?,avatar_id=? WHERE vk_user_id=?", [$balance - CONFIG::DONUT_AVATAR_PRICE,$id,$user_id]);
 		Show::response(['edit' => $edit]);
 
 	case 'shop.buyDiamond':

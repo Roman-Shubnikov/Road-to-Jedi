@@ -13,7 +13,7 @@ import {
     Separator,
     Snackbar,
     Avatar,
-    RichCell
+    MiniInfoCell
 
 
     } from '@vkontakte/vkui';
@@ -21,6 +21,8 @@ import Icon24Spinner                        from '@vkontakte/icons/dist/24/spinn
 import Icon56InboxOutline                   from '@vkontakte/icons/dist/56/inbox_outline';
 import Icon16CheckCircle                    from '@vkontakte/icons/dist/16/check_circle';
 import Icon20CancelCircleFillRed            from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
+import Icon20ArticlesOutline                from '@vkontakte/icons/dist/20/articles_outline';
+import Icon20BookmarkOutline                from '@vkontakte/icons/dist/20/bookmark_outline';
 
 function enumerate (num, dec) {
     if (num > 100) num = num % 100;
@@ -147,26 +149,38 @@ export default class Answers extends React.Component {
                       {this.props.answers ? (this.props.answers.length>0) ? this.props.answers.map((result, i) => 
                         <React.Fragment key={result.id}>
                           {(i === 0) || <Separator/>}
-                          <RichCell
-                          multiline
-                          disabled
-                          caption={result.description}
-                          actions={
-                            <div style={{ display: 'flex' }}>
-                              <Button size="m"
+                          <MiniInfoCell
+                          before={<Icon20BookmarkOutline />}
+                          textWrap='full'>
+                            {result.title}
+                          </MiniInfoCell>
+                          <MiniInfoCell
+                          before={<Icon20ArticlesOutline />}
+                          textWrap='full'>
+                            {result.description}
+                          </MiniInfoCell>
+                          <Div style={{ display: 'flex', paddingBottom: 0 }}>
+                            <Button size="m"
+                              stretched
+                              style={{ marginRight: 8 }}
                               onClick={() => {
                                 this.addNewTicket(result.id, i)
                               }}>Принять</Button>
                               <Button size="m" 
+                              stretched
                               mode="secondary" 
-                              style={{ marginLeft: 8 }}
                               onClick={() => {
                                 this.delNewTicket(result.id, i)
                               }}>Отклонить</Button>
-                            </div>
-                          }>
-                            {result.title}
-                          </RichCell>
+                          </Div>
+                          <Div style={{paddingTop: 8}}>
+                            <Button size="m" 
+                            mode='destructive' 
+                            stretched
+                            onClick={() => {
+                              this.props.this.setReport(4, result.id) // Вопрос генератора
+                            }}>Пожаловаться</Button>
+                          </Div>
                         </React.Fragment>
                       ) : <Placeholder 
                       icon={<Icon56InboxOutline />}>
@@ -177,7 +191,8 @@ export default class Answers extends React.Component {
                   
                   {this.props.answers_helper ? this.props.answers_helper.length === 20 ? 
                   <Div>
-                      <Button size="xl" 
+                      <Button size="l" 
+                      stretched
                       level="secondary" 
                       before={this.state.fetching ? <Icon24Spinner width={28} height={28} className='Spinner__self' /> : null}
                       onClick={() => {props.setState({ fetching: true });props.Prepare_answers(true)}}>Загрузить ещё</Button>

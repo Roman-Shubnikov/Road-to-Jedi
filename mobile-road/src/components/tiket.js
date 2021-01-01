@@ -247,9 +247,14 @@ export default class Ticket extends React.Component {
               }}>
                   Скопировать текст
                 </ActionSheetItem>
-              {Number(author_id) === Number(this.props.account.id) || this.props.account.special === true ? 
+                {Number(author_id) === Number(this.props.account.id) ? 
+                <ActionSheetItem autoclose onClick={() => this.deleteMessage(id)}>
+                  Удалить сообщение
+                </ActionSheetItem>
+                : null}
+              {this.props.account.special ? 
               <ActionSheetItem autoclose mode='destructive' 
-              onClick={() => this.deleteMessage(id)}>
+              onClick={() => this.props.this.setReport(3, id)}>
                 Пожаловаться
               </ActionSheetItem>
               : null}
@@ -392,34 +397,33 @@ export default class Ticket extends React.Component {
           })
       }
       deleteMessage(message_id) {
-        this.props.this.setReport(3, message_id)
-        // this.setPopout(<ScreenSpinner/>)
-        //   fetch(this.state.api_url + "method=ticket.deleteMessage&" + window.location.search.replace('?', ''),
-        //   {method: 'post',
-        //   headers: {"Content-type": "application/json; charset=UTF-8"},
-        //   // signal: controllertime.signal,
-        //   body: JSON.stringify({
-        //     'message_id': message_id,
-        //   })
-        //     })
-        //     .then(res => res.json())
-        //     .then(data => {
-        //       if(data.result) {
-        //         this.getMessages()
-        //         this.setSnack(<Snackbar
-        //           layout="vertical"
-        //           before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
-        //           onClose={() => this.setSnack(null)}>
-        //             Сообщение удалено
-        //           </Snackbar>)
-        //       }else {
-        //         this.showErrorAlert(data.error.message)
-        //       }
-        //     })
-        //     .catch(err => {
-        //       this.props.this.changeData('activeStory', 'disconnect')
+        this.setPopout(<ScreenSpinner/>)
+          fetch(this.state.api_url + "method=ticket.deleteMessage&" + window.location.search.replace('?', ''),
+          {method: 'post',
+          headers: {"Content-type": "application/json; charset=UTF-8"},
+          // signal: controllertime.signal,
+          body: JSON.stringify({
+            'message_id': message_id,
+          })
+            })
+            .then(res => res.json())
+            .then(data => {
+              if(data.result) {
+                this.getMessages()
+                this.setSnack(<Snackbar
+                  layout="vertical"
+                  before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+                  onClose={() => this.setSnack(null)}>
+                    Сообщение удалено
+                  </Snackbar>)
+              }else {
+                this.showErrorAlert(data.error.message)
+              }
+            })
+            .catch(err => {
+              this.props.this.changeData('activeStory', 'disconnect')
   
-        //     })
+            })
       }
       deleteTicket() {
         this.setPopout(<ScreenSpinner/>)

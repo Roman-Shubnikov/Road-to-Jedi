@@ -19,6 +19,7 @@ import '../../style.css';
 import Questions    from './panels/panelconstruct';
 import OtherProfile from '../../components/other_profile';
 import Tiket        from '../../components/tiket';
+import Reports      from '../../components/report';
 
 //Импортируем модальные карточки
 import ModalPrometay  from '../../Modals/Prometay';
@@ -43,6 +44,7 @@ function enumerate (num, dec) {
   if (num > 20) num = num % 10;
   return num === 1 ? dec[0] : num > 1 && num < 5 ? dec[1] : dec[2];
 }
+var ignore_back = false;
 export default class Main extends React.Component {
     constructor(props) {
         super(props);
@@ -74,6 +76,8 @@ export default class Main extends React.Component {
             countr: 20,
             reports: null,
             reports_helper: null,
+            typeres: 1,
+            id_rep: 1,
 
         }
         this.changeData = this.props.this.changeData;
@@ -82,6 +86,10 @@ export default class Main extends React.Component {
         // this.recordHistory = (panel) => {
         //   this.setState({history: [...this.state.history, panel]})
         // }
+        this.setReport = (typeres, id_rep) => {
+          this.setState({typeres, id_rep})
+          this.goPanel("report")
+        }
         this.changeQuest = (name,value) => {
           this.setState({ [name]: value });
         }
@@ -283,23 +291,35 @@ export default class Main extends React.Component {
             this.setActiveModal(this.state.modalHistory[this.state.modalHistory.length - 2]);
         };
         this.goBack = () => {
-          const history = this.state.history;
-          this.setActiveModal(null);
-          if(history.length === 1) {
-              bridge.send("VKWebAppClose", {"status": "success"});
-          } else if (history.length > 1) {
+          if (!ignore_back) {
+            ignore_back = true;
+            const history = this.state.history;
+            if (history.length === 1) {
+              bridge.send("VKWebAppClose", { "status": "success" });
+            } else if (history.length > 1) {
               history.pop()
-              if(this.state.activePanel === 'top') {
+              this.setActiveModal(null);
+              if (this.state.activePanel === 'profile') {
                 bridge.send('VKWebAppDisableSwipeBack');
               }
-              this.setState({activePanel: history[history.length - 1]})
+              this.setState({ activePanel: history[history.length - 1] })
               // if(history[history.length - 1] === 'ticket'){
               //   this.changeData('need_epic', false)
               // } else{
               //   this.changeData('need_epic', true)
               // }
+              this.setPopout(<ScreenSpinner />)
+              setTimeout(() => {
+                this.setPopout(null)
+              }, 500)
+            }
+            setTimeout(() => { ignore_back = false; }, 500)
+    
+          } else {
+            const history = this.state.history;
+            window.history.pushState({ panel: history[history.length - 1] }, history[history.length - 1]);
           }
-      }
+        }
         this.goPanel = (panel) => {
           let history = this.state.history.slice();
           history.push(panel)
@@ -455,6 +475,12 @@ export default class Main extends React.Component {
               this={this} 
               ticket_id={this.state.ticket_id} 
               account={this.props.account} />
+
+              <Reports id="report" 
+              this={this} 
+              id_rep={this.state.id_rep} 
+              typeres={this.state.typeres} />
+
             </View>   
         )
     }

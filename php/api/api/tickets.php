@@ -123,7 +123,7 @@ class Tickets {
 		$auid = $res['author_id'];
 		$good_or_bad = $mark == 1 ? 'good_answers' : 'bad_answers';
 		if($ticket['donut']){
-			$money = $mark == 1 ? 'money=money+30' : 'money=money';
+			$money = $mark == 1 ? 'money=money+30,donuts=donuts+10' : 'money=money';
 		}else{
 			$money = $mark == 1 ? 'money=money+10' : 'money=money';
 		}
@@ -489,14 +489,10 @@ class Tickets {
 			Show::error(404);
 		}
 
-		if ( $res['author_id'] < 0 && !$this->user->info['special'] ) {
-			Show::error(403);
-		}
 
-		if ( $res['author_id'] == $this->user->id || $res['author_id'] == -$this->user->vk_id || $this->user->info['special'] ) {
+		if ( $res['author_id'] == $this->user->id || $res['author_id'] < 0 && $this->user->info['special'] ) {
 			return $this->Connect->query("DELETE FROM messages WHERE id=?", [$message_id]);
 		}
-
 		Show::error(403);
 	}
 

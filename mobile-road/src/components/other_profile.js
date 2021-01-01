@@ -42,6 +42,10 @@ import Icon20WorkOutline            from '@vkontakte/icons/dist/20/work_outline'
 import Icon20Add                    from '@vkontakte/icons/dist/20/add';
 import Icon20UserOutline            from '@vkontakte/icons/dist/20/user_outline';
 
+import {
+    Icon48DonateOutline,
+} from '@vkontakte/icons';
+
 
 function fix_time(time) {
     if(time < 10) {
@@ -323,7 +327,7 @@ class OtherProfile extends React.Component {
                     </div>
                     </RichCell>
                     <Div style={{display: 'flex'}}>
-                        {this.state.other_profile.public && <Button
+                        {this.state.other_profile.vk_id && <Button
                         size='m'
                         stretched
                         target="_blank" rel="noopener noreferrer"
@@ -416,8 +420,12 @@ class OtherProfile extends React.Component {
                         before={<Icon28WalletOutline width={20} height={20} />}
                         after={recog_number(this.state.other_profile['balance'])}>
                             Баланс
-                        </MiniInfoCell>
-                        
+                        </MiniInfoCell> 
+                        <MiniInfoCell
+                        before={<Icon48DonateOutline width={20} height={20} />}
+                        after={recog_number(this.state.other_profile['donuts'])}>
+                            Пончики
+                        </MiniInfoCell> 
                         <MiniInfoCell
                         before={<Icon28PaletteOutline width={20} height={20} />}
                         after={SCHEMES[this.state.other_profile['scheme']]}>

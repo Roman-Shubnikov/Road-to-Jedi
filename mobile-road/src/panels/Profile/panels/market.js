@@ -29,13 +29,14 @@ import Icon16CheckCircle                  from '@vkontakte/icons/dist/16/check_c
 import Icon20CancelCircleFillRed          from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
 import Icon28InfoCircleOutline            from '@vkontakte/icons/dist/28/info_circle_outline';
 import Icon24BlockOutline                 from '@vkontakte/icons/dist/24/block_outline';
-import Icon28DiamondOutline               from '@vkontakte/icons/dist/28/diamond_outline';
-import Icon16Fire                         from '@vkontakte/icons/dist/16/fire';
-import Icon16Verified                     from '@vkontakte/icons/dist/16/verified';
-import Icon16StarCircleFillYellow         from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
+import Icon48DonateOutline                from '@vkontakte/icons/dist/48/donate_outline';
 
 
-var avatars = [
+
+import UserTopC from '../../../components/userTop';
+
+
+const avatars = [
     "1.png",
     "2.png",
     "3.png",
@@ -73,16 +74,24 @@ var avatars = [
     
 ]
 
+const donutAvatars = [
+  "1001.png",
+  "1002.png",
+  "1003.png",
+  "1004.png",
+  "1005.png",
+  "1006.png",
+  "1007.png",
+  "1008.png",
+  "1009.png",
+  "1010.png",
+
+]
+
 const blueBackground = {
     backgroundColor: 'var(--accent)'
   };
 
-  function enumerate (num, dec) {
-    if (num > 100) num = num % 100;
-    if (num <= 20 && num >= 10) return dec[2];
-    if (num > 20) num = num % 10;
-    return num === 1 ? dec[0] : num > 1 && num < 5 ? dec[1] : dec[2];
-  }
 export default class Market extends React.Component{
     constructor(props){
         super(props)
@@ -99,6 +108,7 @@ export default class Market extends React.Component{
         this.showAlert = propsbi.showAlert;
         this.setActiveModal = propsbi.setActiveModal;
         this.selectImage = this.selectImage.bind(this);
+        this.changeAvatar = this.changeAvatar.bind(this)
         this.onChange = (event) => {
             var name = event.currentTarget.name;
             var value = event.currentTarget.value;
@@ -108,13 +118,14 @@ export default class Market extends React.Component{
   selectImage(number) {
     this.setState({selectedAvatar:number});
   }
-    changeAvatar(last_selected) {
-        fetch(this.state.api_url + "method=shop.changeAvatar&" + window.location.search.replace('?', ''),
+    changeAvatar() {
+      let method = (this.state.selectedAvatar > 1000) ? "shop.changeDonutAvatars&" : "shop.changeAvatar&";
+        fetch(this.state.api_url + `method=${method}` + window.location.search.replace('?', ''),
         {method: 'post',
         headers: {"Content-type": "application/json; charset=UTF-8"},
             // signal: controllertime.signal,
         body: JSON.stringify({
-            'avatar_id': last_selected,
+            'avatar_id': (Number(this.state.selectedAvatar) > 1000 ) ? Number(this.state.selectedAvatar) - 1000 : Number(this.state.selectedAvatar),
         })
         })
         .then(data => data.json())
@@ -286,6 +297,7 @@ export default class Market extends React.Component{
                     <Text weight='medium'>Монетки — это универсальная условная единица для приобретения различных товаров в магазине</Text>
                   </Div>
                   <SimpleCell disabled indicator={this.props.account.balance}>Ваш баланс</SimpleCell>
+                  {this.props.account.donut && <SimpleCell disabled indicator={this.props.account.donuts}>Пончики</SimpleCell>}
                   <CellButton onClick={() => this.props.this.goPanel('promocodes')}>Активировать промокод</CellButton>
                 </Group>
         
@@ -294,8 +306,7 @@ export default class Market extends React.Component{
                     Скидки для тестеровщиков
                   </FormStatus>
                 </Div> */}
-                <Group>
-                  <Header>Сменить аватар</Header>
+                <Group header={<Header>Сменить аватар</Header>}>
                   <HorizontalScroll showArrows getScrollToLeft={(i) => i - 190} getScrollToRight={(i) => i + 190}>
                   <div style={{ display: 'flex' }}>
                     {avatars.map((ava, i) => 
@@ -315,18 +326,47 @@ export default class Market extends React.Component{
                   </div>
                   </HorizontalScroll>
                   <Div>
-                      <Button onClick={() => {this.changeAvatar(Number(this.state.selectedAvatar))}} 
+                      <Button onClick={this.changeAvatar}
                       before={<Icon28MoneyCircleOutline 
                       style={{marginRight: "5px"}}/>} 
                       size="l" 
                       stretched
                       mode="secondary"
-                      disabled={this.state.selectedAvatar === 0}>Сменить за 700 монеток</Button>
+                      disabled={this.state.selectedAvatar === 0 || this.state.selectedAvatar > 1000}>Сменить за 700 монеток</Button>
                   </Div>
                 </Group>
+                {this.props.account.donut && 
+                <Group header={<Header>Эксклюзивные аватарки</Header>}>
+                  <HorizontalScroll showArrows getScrollToLeft={(i) => i - 190} getScrollToRight={(i) => i + 190}>
+                  <div style={{ display: 'flex' }}>
+                    {donutAvatars.map((ava, i) => 
+                    <HorizontalCell key={i} size='m' 
+                    className={((i + 1 + 1000) === this.state.selectedAvatar) ? 'select_avatar' : ''}
+                    onClick={(e) => (this.props.account.avatar.id === i +1+1000) ? this.props.this.setSnack(
+                      <Snackbar
+                      layout="vertical"
+                      onClose={() => this.props.this.setSnack(null)}
+                      before={<Icon20CancelCircleFillRed width={24} height={24} />}
+                    >
+                      Вы уже имеете данный аватар
+                    </Snackbar>) : (this.state.selectedAvatar === (i + 1 + 1000) ) ? this.selectImage(0) : this.selectImage(i + 1 + 1000)}>
+                        <Avatar id={i} size={88} src={"https://xelene.ru/road/php/images/avatars/" + ava}/>
+                      
+                    </HorizontalCell>)}
+                  </div>
+                  </HorizontalScroll>
+                  <Div>
+                      <Button onClick={this.changeAvatar} 
+                      before={<Icon48DonateOutline width={28} height={28}
+                      style={{marginRight: "5px"}}/>} 
+                      size="l" 
+                      stretched
+                      mode="secondary"
+                      disabled={this.state.selectedAvatar === 0 || this.state.selectedAvatar < 1000}>Сменить за 50 пончиков</Button>
+                  </Div>
+                </Group>}
 
-                <Group>
-                  <Header>Сменить свой ник</Header>
+                <Group header={<Header>Сменить свой ник</Header>}>
                   <FormLayout>
                     <FormItem>
                       <Input placeholder="Введите желаемый ник" 
@@ -375,59 +415,21 @@ export default class Market extends React.Component{
 
                 
                 {this.props.account ? !this.props.account.diamond ? 
-                <Group>
-                  <Header>Купить алмаз</Header>
+                <Group header={<Header>Купить алмаз</Header>}>
                   <Div>
                     <Text weight='medium'>После приобретения этого товара, около вашей аватарки начнёт светиться фиолетовый алмаз. Это выглядит примерно так:</Text>
                   </Div>
-                  <SimpleCell
-                    disabled
-                    description={
-                      this.props.account['special'] ? 
-                      <div className="top_moderator_desc">
-                        {this.props.account['good_answers'] + enumerate(this.props.account['good_answers'], [' оценённый ответ', ' оценённых ответа', ' оценённых ответов'])}
-                      </div>
-                      :
-                      <div className="top_moderator_desc">
-                        {this.props.account['good_answers'] + enumerate(this.props.account['good_answers'], [' хороший ответ, ', ' хороших ответа, ', ' хороших ответов, ']) 
-                        + this.props.account['bad_answers'] + enumerate(this.props.account['good_answers'], [' плохой ответ', ' плохих ответа', ' плохих ответов'])}
-                      </div>
-                    }
-                        size="l"
-                        before={
-                        <div style={{position:'relative', margin: 10}}><Avatar src={this.props.account['avatar']['url']} style={{position: 'relative'}} />
-                        <Icon28DiamondOutline width={16} height={16} className='Diamond_top' />
-                        </div>}
-                      >
-                    <div className="top_moderator_name">
-                    {isFinite(this.props.account['nickname']) ? `Агент Поддержки #${this.props.account['nickname']}` : this.props.account['nickname'] 
-                    ? this.props.account['nickname'] : `Агент Поддержки #${this.props.account['id']}`}
-                      <div className="top_moderator_name_icon">
-                        {this.props.account['flash'] === true ? <Icon16Fire width={12} height={12} className="top_moderator_name_icon"/> : null}
-                      </div>
-                      <div className="top_moderator_name_icon">
-                        {this.props.account['donut'] === true ? <Icon16StarCircleFillYellow width={12} height={12} className="top_moderator_name_icon" /> : null}
-                      </div>
-                      <div className="top_moderator_name_icon_ver">
-                        {this.props.account['verified'] === true ? <Icon16Verified className="top_moderator_name_icon_ver"/>  : null }
-                      </div>
-                    </div>
-                    </SimpleCell>
-                    <Div>
-                        <Button 
-                        onClick={() => this.buyDiamond()} 
-                        stretched
-                        before={<Icon28MoneyHistoryBackwardOutline 
-                        style={{marginRight: "5px"}}/>} size="l" mode='destructive'>Купить за 10 000 монеток</Button>
-                      </Div>
+                  <UserTopC {...this.props.account} 
+                  diamond />
+                  <Div>
+                      <Button 
+                      onClick={() => this.buyDiamond()} 
+                      stretched
+                      before={<Icon28MoneyHistoryBackwardOutline 
+                      style={{marginRight: "5px"}}/>} size="l" mode='destructive'>Купить за 10 000 монеток</Button>
+                  </Div>
                 </Group> : null : null}
-                {/* <Group separator="hide" header={<Header>Сброс статистики</Header>}>
-                    <Div>
-                        <Button onClick={() => props.this.deleteStats()} before={<Icon28GridSquareOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Сбросить за 150 монеток</Button>
-                    </Div>
-                </Group> */}
-                <Group>
-                  <Header>Опции</Header>
+                <Group header={<Header>Опции</Header>}>
                   <Div>
                       <Button 
                       onClick={() => this.setActiveModal('send')} 
@@ -435,28 +437,10 @@ export default class Market extends React.Component{
                       size="l" 
                       mode="secondary"
                       stretched>Перевести</Button>
-                      {/* <br/>
-                      <Button onClick={() => props.this.goVitas()} before={<Icon28GlobeOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Обучать Витька</Button> */}
                   </Div>
                 </Group>
                 
                 {this.props.this.state.snackbar}
-                {/* <Group separator="hide" header={<Header>Обнулить статистику</Header>}>
-                    <Div>
-                        Мы обнулим вам встатистику, число всех ответов станет равным 0.
-                    </Div>
-                </Group>
-                <Div>
-                    <Button before={<Icon28MoneyCircleOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Купить за 350 монеток</Button>
-                </Div>
-                <Group separator="hide" header={<Header>Сменить id Агента</Header>}>
-                    <Div>
-                        Установите себе другой id и будьте заметнее!
-                    </Div>
-                </Group>
-                <Div>
-                    <Button before={<Icon28MoneyCircleOutline style={{marginRight: "5px"}}/>} size="xl" mode="secondary">Купить за 700 монеток</Button>
-                </Div> */}
             </Panel>
         )
     }

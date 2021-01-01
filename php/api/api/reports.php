@@ -64,18 +64,21 @@ class Reports {
         $this->Connect->query("DELETE FROM reports WHERE id_reporting=?", [$info_req['id_reporting']]);
         $count_bans = $count_bans[0]['COUNT(*)'];
         $reason = $this->reasons[$info_req['name']];
-        if($count_bans <= 5){
+        if($count_bans <= 10){
             if($count_bans == 0){
-                $timeban = 43200;
+                $timeban = 600; // 10min
                 $fullreason = "Вы были забанены по причине \"$reason\". Будьте внимательны, срок банов может увеличиваться.";
             }elseif($count_bans == 1){
-                $timeban = 172800;
+                $timeban = 3600; // 1h
                 $fullreason = "Вы были забанены по причине \"$reason\". Это уже не первый раз когда мы вас поймали! Будте внимательны";
             }elseif($count_bans == 2){
-                $timeban = 604800;
+                $timeban = 43200; // 12h
                 $fullreason = "Вы были забанены по причине \"$reason\". Ваше поведение нам очень не нравится";
-            }elseif($count_bans >= 3){
-                $timeban = 2592000;
+            }elseif($count_bans >= 3 && $count_bans <=7){
+                $timeban = 172800; // 48h
+                $fullreason = "Вы были забанены по причине \"$reason\". Мы увидели ваши частые нарушения, постарайтесь больше не нарушать правил. Иначе в будующем нам придётся с вами попрощаться";
+            }elseif($count_bans >= 8){
+                $timeban = 604800; //7d/week
                 $fullreason = "Вы были забанены по причине \"$reason\". Астанавитесь";
             }
         }else{
@@ -128,7 +131,7 @@ class Reports {
         $response_user = [FALSE];
 
         if($type == 1){
-            $shortinfo = $this->Connect->db_get("SELECT id,ticket_id,comment,comment_author_id FROM messages WHERE id=?", [$id]);
+            $shortinfo = $this->Connect->db_get("SELECT id,ticket_id,text,comment,comment_author_id FROM messages WHERE id=?", [$id]);
             if(!$shortinfo) Show::error(404);
             if($this->Connect->db_get("SELECT id FROM reports WHERE vk_id=? and type=? and id_reporting=?", [$this->users->vk_id, 
             $type, 
@@ -151,18 +154,18 @@ class Reports {
             $report_user_info[0]['vk_user_id'], 
             $id, 
             $name, 
-            $shortinfo[0]['comment']]);
+            "Сообщение:\n" . $shortinfo[0]['text'] . " Комментарий:\n" . $shortinfo[0]['comment']]);
             
         }
         
         if($type == 2){
-            $user_info = $this->Connect->db_get("SELECT id,vk_user_id FROM users WHERE id=?", [$id]);
+            $user_info = $this->Connect->db_get("SELECT id,vk_user_id,publicStatus FROM users WHERE id=?", [$id]);
             if(!$user_info) Show::error(404);
                 if($this->checkDuplicates($this->users->vk_id, $type, $user_info[0]['id'], $id)) Show::error(1200);
                 $report_user_info = $this->Connect->db_get("SELECT id,vk_user_id FROM users WHERE id=?", [$user_info[0]['id']]);
 
                 $response_user = $this->Connect->query("INSERT INTO reports 
-                (aid, vk_id, type, comment, time, id_reporting, vk_id_reporting, material_id, name) 
+                (aid, vk_id, type, comment, time, id_reporting, vk_id_reporting, material_id, name, materials) 
                 VALUES (?,?,?,?,?,?,?,?,?)",
                 [$this->users->id, 
                 $this->users->vk_id, 
@@ -172,7 +175,9 @@ class Reports {
                 $user_info[0]['id'],
                 $report_user_info[0]['vk_user_id'], 
                 $id, 
-                $name]);
+                $name,
+                $user_info[0]['publicStatus'],
+                ]);
         }
         if($type == 3){
             $shortinfo = $this->Connect->db_get("SELECT id,author_id,text FROM messages WHERE id=?", [$id]);
@@ -198,22 +203,25 @@ class Reports {
         if($type == 4){
             $res = $this->Connect->db_get("SELECT author_id,time,title,description FROM queue_quest WHERE id=?", [$id]);
             if(!$res) Show::error(404);
-            if($this->checkDuplicates($this->users->vk_id, $type, $res[0]['author_id'], $id)) Show::error(1200);
-            $report_user_info = $this->Connect->db_get("SELECT id,vk_user_id FROM users WHERE id=?", [$res[0]['author_id']]);
+            
+            $report_user_info = $this->Connect->db_get("SELECT id,vk_user_id FROM users WHERE vk_user_id=?", [$res[0]['author_id']]);
+            if($this->checkDuplicates($this->users->vk_id, $type, $report_user_info[0]['id'], $id)) Show::error(1200);
+            if(!$report_user_info) Show::error(40);
 
             $response_user = $this->Connect->query("INSERT INTO reports 
-            (aid, vk_id, type, comment, time, id_reporting, name, materials) 
-            VALUES (?,?,?,?,?,?,?,?)",
+            (aid, vk_id, type, comment, time, id_reporting, vk_id_reporting, material_id, name, materials) 
+            VALUES (?,?,?,?,?,?,?,?,?,?)",
             [$this->users->id, 
             $this->users->vk_id, 
             $type,
             $comment, 
             time(), 
-            $res[0]['author_id'],
+            $report_user_info[0]['id'],
             $report_user_info[0]['vk_user_id'],
             $id,  
             $name, 
-            $res[0]['title'] + "\n\n" + $res[0]['description']]);
+            $res[0]['title'] . "\n\n" . $res[0]['description'],
+            ]);
         }
         Show::response($response_user);
         

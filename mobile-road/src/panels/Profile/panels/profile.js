@@ -23,18 +23,22 @@ import {
 
     } from '@vkontakte/vkui';
 
-import Icon12Fire                   from '@vkontakte/icons/dist/12/fire';
-import Icon16Verified               from '@vkontakte/icons/dist/16/verified';
-import Icon28PollSquareOutline      from '@vkontakte/icons/dist/28/poll_square_outline';
-import Icon28MarketOutline          from '@vkontakte/icons/dist/28/market_outline';
-import Icon28Notifications          from '@vkontakte/icons/dist/28/notifications';
-import Icon28ShareExternalOutline   from '@vkontakte/icons/dist/28/share_external_outline';
-import Icon16StarCircleFillYellow   from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
-import Icon28Messages               from '@vkontakte/icons/dist/28/messages';
-import Icon28DiamondOutline         from '@vkontakte/icons/dist/28/diamond_outline';
-import Icon28BrainOutline           from '@vkontakte/icons/dist/28/brain_outline';
-import Icon28SettingsOutline        from '@vkontakte/icons/dist/28/settings_outline';
-import Icon20ArticleOutline         from '@vkontakte/icons/dist/20/article_outline';
+import {
+    Icon12Fire,
+    Icon16Verified,
+    Icon28PollSquareOutline,
+    Icon28MarketOutline,
+    Icon28Notifications,
+    Icon28ShareExternalOutline,
+    Icon16StarCircleFillYellow,
+    Icon28Messages,
+    Icon28DiamondOutline,
+    Icon28BrainOutline,
+    Icon28SettingsOutline,
+    Icon20ArticleOutline,
+    Icon48DonateOutline,
+    
+} from '@vkontakte/icons';
 
 function isEmpty(obj) {
     for (let key in obj) {
@@ -42,6 +46,13 @@ function isEmpty(obj) {
       return false;
     }
     return true;
+  }
+
+  function enumerate (num, dec) {
+    if (num > 100) num = num % 100;
+    if (num <= 20 && num >= 10) return dec[2];
+    if (num > 20) num = num % 10;
+    return num === 1 ? dec[0] : num > 1 && num < 5 ? dec[1] : dec[2];
   }
 class Profile extends React.Component{
     constructor(props) {
@@ -173,8 +184,15 @@ class Profile extends React.Component{
                                 {this.props.account.publicStatus || "Играю в любимую игру"}
                             </MiniInfoCell>
                         </Group>
-                        {this.props.account.followers[0] &&
-                            <Group header={<Header mode="secondary">Подписчики</Header>}>
+                        {this.props.account.followers[0] ?
+                            <Group header={
+                            <Header 
+                            mode="secondary"
+                            aside={this.props.account.followers[0] + " " + enumerate(this.props.account.followers[0], ['подписчик', 'подписчика', 'подписчиков'])}
+                            >
+                                Подписчики
+                            </Header>
+                            }>
                                     <HorizontalScroll showArrows getScrollToLeft={(i) => i - 190} getScrollToRight={(i) => i + 190}>
                                     <div style={{ display: 'flex' }}>
                                         {
@@ -192,17 +210,23 @@ class Profile extends React.Component{
                                     </div>
                                     </HorizontalScroll>
                             </Group>
-                        }
+                        :null}
                         
                         <Group>
                             <SimpleCell
                                 expandable
-
                                 href="https://vk.me/join/zyWQzsgQ9iw6V2YAfbwiGtuO883rnYhXwAY="
                                 target="_blank" rel="noopener noreferrer"
                                 before={<Icon28Messages />}>
                                     Чат
                             </SimpleCell>
+                            {this.props.account.donut_chat_link && <SimpleCell
+                                expandable
+                                href={this.props.account.donut_chat_link}
+                                target="_blank" rel="noopener noreferrer"
+                                before={<Icon48DonateOutline width={28} height={28} />}>
+                                    Чат для донов
+                            </SimpleCell>}
 
                         </Group>
                         <Group>

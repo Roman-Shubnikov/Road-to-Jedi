@@ -15,6 +15,7 @@ class CONFIG {
 	
 	const AVATAR_PATH = 'https://xelene.ru/road/php/images/avatars';
 	const AVATARS_COUNT = 34;
+	const DONUT_AVATARS_COUNT = 10;
 	
 	const MAX_TICKETS_TITLE_LEN = 80;
 	const MAX_TICKETS_TEXT_LEN = 4040;
@@ -37,6 +38,8 @@ class CONFIG {
 	const AVATAR_PRICE = 700;
 	const NICKNAME_CHANGE_PRICE = 1500;
 	const DIAMOND_PRICE = 10000;
+	const DONUT_AVATAR_PRICE = 50;
+
 	
 	const ERRORS = [
 
@@ -78,7 +81,7 @@ class CONFIG {
 		// Market
 	
 		1001 => 'Вы пытаетесь сменить id на текстовый.',
-		1002 => 'Недостаточно монеток для покупки.',
+		1002 => 'Недостаточно средств для покупки.',
 		1003 => 'Данный ник уже занят.',
 		1004 => 'Длина ника должена быть меньше 10 и больше 0.',
 		1005 => 'Пользователь не найден.',
@@ -93,6 +96,7 @@ class CONFIG {
 		1014 => 'Вы уже приобрели данный товар.',
 		1015 => 'Промокод недействителен',
 		1016 => 'Некорректный промокод',
+		1017 => 'Вы не являетесь доном нашего сообщества',
 
 		// Verification
 

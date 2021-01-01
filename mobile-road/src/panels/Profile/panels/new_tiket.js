@@ -115,44 +115,47 @@ export default class NewTicket extends React.Component {
                         </FormStatus>
                     </Div>
                 </Group> : null}
-                <FormLayout>
-                    <FormItem top={"Суть проблемы (" + this.state.title_new_tiket.length + "/80). Не менее 5 символов"}>
-                        <Input 
-                        maxLength="80" 
-                        type="text" 
-                        name="title_new_tiket" 
-                        placeholder='Введите свой текст...'
-                        value={this.state.title_new_tiket} 
-                        onChange={(e) => this.onChange(e)}/>
-                    </FormItem>
-                    <FormItem>
-                        <Textarea maxLength="2020" 
-                        name="text_new_tiket" 
-                        top={"Подробнее о проблеме (" + this.state.text_new_tiket.length + "/2020). Не менее 5 символов"} 
-                        onChange={(e) => this.onChange(e)}
-                        placeholder='Введите свой текст...'
-                        value={this.state.text_new_tiket}
-                        />
-                    </FormItem>
+                <Group>
+                    <FormLayout>
+                        <FormItem top={"Суть проблемы (" + this.state.title_new_tiket.length + "/80). Не менее 5 символов"}>
+                            <Input 
+                            maxLength="80" 
+                            type="text" 
+                            name="title_new_tiket" 
+                            placeholder='Введите свой текст...'
+                            value={this.state.title_new_tiket} 
+                            onChange={(e) => this.onChange(e)}/>
+                        </FormItem>
+                        <FormItem>
+                            <Textarea maxLength="2020" 
+                            name="text_new_tiket" 
+                            top={"Подробнее о проблеме (" + this.state.text_new_tiket.length + "/2020). Не менее 5 символов"} 
+                            onChange={(e) => this.onChange(e)}
+                            placeholder='Введите свой текст...'
+                            value={this.state.text_new_tiket}
+                            />
+                        </FormItem>
 
-                    <Checkbox checked={this.state.check1} onChange={() => this.state.check1 ? this.setState({check1: false}) : this.setState({check1: true})}>
-                        Только для донов
-                    </Checkbox>
+                        <Checkbox checked={this.state.check1} onChange={() => this.state.check1 ? this.setState({check1: false}) : this.setState({check1: true})}>
+                            Только для донов
+                        </Checkbox>
 
-                    <FormItem>
-                        <Button
-                        size="l" 
-                        level="secondary" 
-                        stretched 
-                        disabled={!Boolean(this.state.text_new_tiket.length > 5) || !Boolean(this.state.title_new_tiket.length > 5)}
-                        onClick={
-                            () => {
-                                this.sendNewTiket();
-                            }
-                        }>Добавить в очередь</Button>
-                    </FormItem>
-                    
-                </FormLayout>
+                        <FormItem>
+                            <Button
+                            size="l" 
+                            level="secondary" 
+                            stretched 
+                            disabled={!Boolean(this.state.text_new_tiket.length > 5) || !Boolean(this.state.title_new_tiket.length > 5)}
+                            onClick={
+                                () => {
+                                    this.sendNewTiket();
+                                }
+                            }>Добавить в очередь</Button>
+                        </FormItem>
+                        
+                    </FormLayout>
+                </Group>
+                
             </Panel>
             )
             }

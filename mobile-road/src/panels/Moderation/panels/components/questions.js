@@ -85,7 +85,8 @@ export default class Questions extends React.Component {
                   
                   {this.props.questions_helper ? this.props.questions_helper.length === 20 ? 
                   <Div>
-                      <Button size="xl" 
+                      <Button size="l" 
+                      stretched
                       level="secondary" 
                       before={this.state.fetching ? <Icon24Spinner width={28} height={28} className='Spinner__self' /> : null}
                       onClick={() => {props.setState({ fetching: true });this.Prepare_questions(true)}}>Загрузить ещё</Button>

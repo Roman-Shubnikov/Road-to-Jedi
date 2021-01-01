@@ -30,6 +30,7 @@ export default class ConstructPanel extends React.Component {
             this.setActiveModal = propsbi.setActiveModal;
             this.changeQuest = propsbi.changeQuest;
             this.changeData = propsbi.changeData;
+            this.setReport = propsbi.setReport;
             this.Prepare_answers = this.Prepare_answers.bind(this)
             this.Prepare_questions = this.Prepare_questions.bind(this)
             this.Prepare_verification = this.Prepare_verification.bind(this)
