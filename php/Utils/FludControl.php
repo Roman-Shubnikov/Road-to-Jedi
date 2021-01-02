@@ -1,7 +1,11 @@
 <?php
 
+
 class FludControl {
-    public function __construct() {
+    function __construct() {
+        self::check();
+    }
+    private static function check(){
         $time = time();
 
         if (!$_SESSION['flood_control']) {

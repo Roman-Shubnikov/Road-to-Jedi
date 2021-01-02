@@ -9,7 +9,7 @@ class AccessCheck {
         self::check( $query_params, $sign_params );
     }
 
-    private function getParams() {
+    public static function getParams() {
         $url = "https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $query_params = [];
         $sign_params = [];
@@ -25,7 +25,7 @@ class AccessCheck {
         return [$query_params, $sign_params];
     }
 
-    private function check( $query_params, $sign_params ) {
+    public static function check( $query_params, $sign_params ) {
         ksort($sign_params);
         $sign_params_query = http_build_query($sign_params);
         $sign = rtrim(strtr(base64_encode(hash_hmac('sha256', $sign_params_query, CONFIG::SECRET_KEY, true)), '+/', '-_'), '=');

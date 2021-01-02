@@ -15,9 +15,4 @@ require 'api/api/account.php';
 require 'api/api/tickets.php';
 require 'api/api/notifications.php';
 
-
-$id = 'Ликвидатор';
-$check_id = db_get("SELECT id FROM users WHERE id= '$id' or nickname = '$id'");
-var_dump($check_id);
-if( count($check_id) == 0 ) {
-}
+// 

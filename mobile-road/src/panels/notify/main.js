@@ -8,6 +8,7 @@ import {
   ScreenSpinner,
   ModalRoot,
   ModalCard,
+  Button
 
   } from '@vkontakte/vkui';
 
@@ -253,27 +254,24 @@ export default class Notify extends React.Component {
               other_profile={this.state.other_profile}
               this={this}
               />
+
+              <ModalComment
+                id='comment'
+                onClose={this.modalBack}
+                comment={this.state.comment}
+                reporting={this.setReport} />
               
               <ModalCard
                 id='transfer'
                 onClose={() => this.setActiveModal(null)}
                 icon={<Avatar src={this.state.transfer.avatar} size={72} />}
                 header='Перевод монеток'
-                caption={this.state.transfer.comment}
-                actions={[{
-                  title: 'Закрыть',
-                  mode: 'secondary',
-                  action: () => {
-                    this.setActiveModal(null);
-                  }
-                }]}
-              >
-              </ModalCard>
-              <ModalComment
-                id='comment'
-                onClose={this.modalBack}
-                comment={this.state.comment}
-                reporting={this.setReport} />
+                subheader={this.state.transfer.comment}
+                actions={
+                <Button mode='secondary' stretched size='l' onClick={() => this.setActiveModal(null)}>Закрыть</Button>
+              }
+              />
+              
             </ModalRoot>
         )
         return(

@@ -1,10 +1,9 @@
 <?php
-
 class Utils {
     private $VK;
     private $DB;
 
-    public function __construct($vk) {
+    function __construct($vk) {
        $this->VK = $vk;
     //    $this->DB = new DB();
     }

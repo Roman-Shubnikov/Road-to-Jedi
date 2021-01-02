@@ -50,7 +50,7 @@ export default class Banned extends React.Component {
                     <Placeholder
                     icon={<Icon56DurationOutline style={{color: 'var(--dynamic_red)'}} />}
                     header='Ваш аккаунт был заблокирован'
-                    action={<Button href='https://vk.me/jedi_road' target="_blank" rel="noopener noreferrer" size="l">Связаться с нами</Button>}>
+                    action={<Button href='https://vk.me/club201542328' target="_blank" rel="noopener noreferrer" size="l">Связаться с нами</Button>}>
                         Истекает: {this.props.BanObject.time_end ? this.convertTime(this.props.BanObject.time_end) : "Никогда(infinite)"}<br/>
                         Причина:<br/>{this.props.BanObject.reason ? this.props.BanObject.reason : "Не указана"}
                     </Placeholder>

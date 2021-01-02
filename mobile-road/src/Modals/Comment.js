@@ -38,7 +38,7 @@ export default withPlatform(class Donut extends React.Component {
                   <Group>
                     {/* <div style={{whiteSpace: "pre-wrap"}}> */}
                     <Div>
-                      <Text weight='regular'>
+                      <Text style={{whiteSpace: "pre-wrap"}} weight='regular'>
                         <Anchorme target="_blank" rel="noreferrer noopener">
                           {this.props.comment.text}
                         </Anchorme>
@@ -47,22 +47,18 @@ export default withPlatform(class Donut extends React.Component {
                     
                     {/* </div> */}
                     <CellButton size="m"
+                    href="https://vk.me/club201542328"
+                    target="_blank" rel="noreferrer noopener"
+                    centered
+                    >Комментарий вызвал вопрос?</CellButton>
+                    <CellButton size="m"
                     mode='danger'
                     centered
                     onClick={() => {
                       this.props.onClose()
                       this.props.reporting(1, this.props.comment.message_id)
                     }}>Пожаловаться</CellButton>
-                    {/* <Button size="m"
-                    mode="secondary" 
-                    style={{ marginLeft: 8 }}
-                    onClick={() => {
-                      this.deny(result.id)
-                    }}>Отклонить</Button> */}
                   </Group>
-                  <br/>
-                  <br/>
-                  <br/>
             </ModalPage>
         )
     }

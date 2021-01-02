@@ -12,7 +12,7 @@ import Answers from './components/answers'
 import Questions from './components/questions';
 import Verification from './components/verification';
 import Reports from './components/Reports';
-const admins = [413636725, 526444378]
+const admins = [413636725, 526444378,585981539]
 
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 export default class ConstructPanel extends React.Component {

@@ -41,6 +41,7 @@ var months = [
     'июля',
     'августа',
     'сентября',
+    'октябрь',
     'ноября',
     'декабря',
 ];
@@ -55,7 +56,7 @@ function fix_time(time) {
 
 function add_month(month) {
     let number_month = new Date(month * 1e3).getMonth()
-    return months[number_month - 1]
+    return months[number_month]
 }
 const blueBackground = {
   backgroundColor: 'var(--accent)'

@@ -85,8 +85,8 @@ class Reports {
             $timeban = 0;
             $fullreason = "Вы были забанены по причине \"$reason\". К сожелению, теперь, мы сможем разбанить вас только в исключительном случае :-(. Попробуйте связаться с нами";
         }
-        $type = $info_req[0]['type'];
-        $material_id = $info_req[0]['material_id'];
+        $type = $info_req['type'];
+        $material_id = $info_req['material_id'];
         if($type == 1) $this->Connect->query("UPDATE messages SET comment=NULL,comment_author_id=NULL WHERE id=?", [$material_id]);
         if($type == 3) $this->Connect->query("DELETE FROM messages WHERE id=?", [$material_id]);
         if($type == 4) $this->Connect->query("DELETE FROM queue_quest WHERE id=?", [$material_id]);

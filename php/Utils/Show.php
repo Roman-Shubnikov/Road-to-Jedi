@@ -1,5 +1,4 @@
 <?php
-
 class Show {
     private static function ok( $object ) {
         // echo json_encode($object, JSON_UNESCAPED_UNICODE);

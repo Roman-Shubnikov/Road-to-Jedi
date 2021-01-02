@@ -19,7 +19,7 @@ class CONFIG {
 	
 	const MAX_TICKETS_TITLE_LEN = 80;
 	const MAX_TICKETS_TEXT_LEN = 4040;
-	const MIN_MESSAGE_LEN = 5;
+	const MIN_MESSAGE_LEN = 4;
 	
 	const APP_ID = 7409818;
 	const SECRET_KEY = 'g3MXdwsVrz7J3vVw6pk4';
