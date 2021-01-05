@@ -461,7 +461,7 @@ export default withPlatform(class Main extends React.Component {
                 disabled={
                   !this.state.money_transfer_send || !this.state.money_transfer_count
                 }
-                size='xl'
+                size='l'
                 stretched
                 mode='secondary'
                 type='submit'
@@ -480,7 +480,9 @@ export default withPlatform(class Main extends React.Component {
           header={this.state.moneys ? "Ваш баланс: " + this.state.moneys.money : null}
           subheader={this.state.moneys ? this.state.moneys.text : null}
           actions={
-            <Button mode='secondary' onClick={() => {
+            <Button mode='secondary' 
+            size='l'
+            onClick={() => {
               this.setActiveModal(null);
               this.setState({ moneys: null, money_transfer_count: '', money_transfer_send: '' })
             }}>Закрыть</Button>
@@ -493,14 +495,14 @@ export default withPlatform(class Main extends React.Component {
           icon={<Avatar src={this.state.transfer.avatar} size={72} />}
           header='Перевод монеток'
           subheader={this.state.transfer.comment}
-          
-          actions={[{
-            title: 'Закрыть',
-            mode: 'secondary',
-            action: () => {
+          actions={
+            <Button
+            onClick={() => {
               this.setActiveModal(null);
-            }
-          }]}
+            }}
+            size='l'
+            mode='secondary'>Закрыть</Button>
+          }
         >
         </ModalCard>
         <ModalPage
@@ -617,12 +619,14 @@ export default withPlatform(class Main extends React.Component {
           caption={(200 - this.props.account['bad_answers'] < 0) ? "Порог достигнут" : "Для преодоления порога необходимо оценить ещё " + 
           (200 - this.props.account['bad_answers']) + 
           " " + enumerate(this.props.account['bad_answers'], ['вопрос', 'вопроса', 'вопросов']) + " за неделю"}
-          actions={[{
-            title: 'Понятно',
-            mode: 'primary',
-            action: () => this.setActiveModal(null)
-          }
-          ]}>
+          actions={
+            <Button
+            onClick={() => {
+              this.setActiveModal(null);
+            }}
+            size='l'
+            mode='secondary'>Понятно</Button>
+          }>
           </ModalCard>
         <ModalCard
           id='valid_qr'

@@ -22,7 +22,6 @@ import {
   SplitCol,
   Panel,
   PanelHeader,
-  Cell,
   Group,
   Root,
   Platform,
@@ -34,6 +33,7 @@ import '@vkontakte/vkui/dist/vkui.css';
 import './style.css'
 // Импортируем панели
 import Questions      from './panels/questions/main';
+import Advice         from './panels/Advice/main';
 import Top            from './panels/topUsers/main';
 import Notification   from './panels/notify/main';
 import Profile        from './panels/Profile/main';
@@ -44,12 +44,17 @@ import Unsupport      from './panels/Unsupport/main';
 import Disconnect     from './panels/Disconnect/main';
 import Moderation     from './panels/Moderation/main';
 
+import {
+  Icon28CompassOutline,
+  Icon28WorkOutline,
+  Icon28FavoriteOutline,
+  Icon28ArticleOutline,
+  Icon16CheckCircle,
+  Icon28Profile,
 
-import Icon28Profile          from '@vkontakte/icons/dist/28/profile';
-import Icon16CheckCircle      from '@vkontakte/icons/dist/16/check_circle';
-import Icon28ArticleOutline   from '@vkontakte/icons/dist/28/article_outline';
-import Icon28FavoriteOutline  from '@vkontakte/icons/dist/28/favorite_outline';
-import Icon28WorkOutline      from '@vkontakte/icons/dist/28/work_outline';
+} from '@vkontakte/icons'
+
+import EpicItemPC from './components/EpicItem';
 
 
 const queryString = require('query-string');
@@ -62,7 +67,6 @@ const blueBackground = {
 };
 function isEmpty(obj) {
   for (let key in obj) {
-    // если тело цикла начнет выполняться - значит в объекте есть свойства
     return false;
   }
   return true;
@@ -406,51 +410,42 @@ class App extends React.Component {
                     <Panel>
                       {hasHeader && <PanelHeader/>}
                       <Group>
-                      
-                        <Cell
-                        disabled={this.state.activeStory === 'questions'}
-                        style={this.state.activeStory === 'questions' ? {
-                          backgroundColor: "var(--button_secondary_background)",
-                          borderRadius: 8
-                        } : {}}
-                        data-story="questions"
-                        onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}}
-                        before={<Icon28ArticleOutline />}>
+                        <EpicItemPC
+                        icon={<Icon28ArticleOutline />}
+                        story="questions"
+                        activeStory={this.state.activeStory}
+                        changeStory={this.changeData}>
                           Вопросы
-                        </Cell>
-                        <Cell
-                        disabled={this.state.activeStory === 'top'}
-                        style={this.state.activeStory === 'top' ? {
-                          backgroundColor: "var(--button_secondary_background)",
-                          borderRadius: 8
-                        } : {}}
-                        data-story="top"
-                        onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}}
-                        before={<Icon28FavoriteOutline />}>
+                        </EpicItemPC>
+                        <EpicItemPC
+                        icon={<Icon28CompassOutline />}
+                        story="advice"
+                        activeStory={this.state.activeStory}
+                        changeStory={this.changeData}>
+                          Обзор
+                        </EpicItemPC>
+                        <EpicItemPC
+                        icon={<Icon28FavoriteOutline />}
+                        story="top"
+                        activeStory={this.state.activeStory}
+                        changeStory={this.changeData}>
                           Пантеон
-                        </Cell>
-                        {this.state.account.special && <Cell
-                        disabled={this.state.activeStory === 'moderation'}
-                        style={this.state.activeStory === 'moderation' ? {
-                          backgroundColor: "var(--button_secondary_background)",
-                          borderRadius: 8
-                        } : {}}
-                        data-story="moderation"
-                        onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}}
-                        before={<Icon28WorkOutline />}>
+                        </EpicItemPC>
+                        {this.state.account.special && 
+                        <EpicItemPC
+                        icon={<Icon28WorkOutline />}
+                        story="moderation"
+                        activeStory={this.state.activeStory}
+                        changeStory={this.changeData}>
                           Модерация
-                        </Cell>}
-                        <Cell
-                        disabled={this.state.activeStory === 'profile'}
-                        style={this.state.activeStory === 'profile' ? {
-                          backgroundColor: "var(--button_secondary_background)",
-                          borderRadius: 8
-                        } : {}}
-                        data-story="profile"
-                        onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}}
-                        before={<Icon28Profile />}>
+                        </EpicItemPC>}
+                        <EpicItemPC
+                        icon={<Icon28Profile />}
+                        story="profile"
+                        activeStory={this.state.activeStory}
+                        changeStory={this.changeData}>
                           Профиль
-                        </Cell>
+                        </EpicItemPC>
                       </Group>
                       
                     </Panel>
@@ -472,6 +467,12 @@ class App extends React.Component {
                             data-story="questions"
                             text='Вопросы'
                           ><Icon28ArticleOutline/></TabbarItem>
+                          <TabbarItem
+                            onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
+                            selected={this.state.activeStory === 'advice'}
+                            data-story="advice"
+                            text='Обзор'
+                          ><Icon28CompassOutline/></TabbarItem>
                           <TabbarItem
                             onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
                             selected={this.state.activeStory === 'top'}
@@ -501,6 +502,13 @@ class App extends React.Component {
                       reloadProfile={this.LoadProfile}
                       account={this.state.account}
                       first_start={this.state.first_start}
+                      popout={this.state.popout} />
+
+                      <Advice 
+                      id="advice"
+                      this={this}
+                      reloadProfile={this.LoadProfile}
+                      account={this.state.account}
                       popout={this.state.popout} />
 
                       <Top 
@@ -553,6 +561,7 @@ class App extends React.Component {
                       account={this.state.account}
                       BanObject={this.state.BanObject}
                       popout={this.state.popout} />
+
                       <Unsupport 
                       id="unsupport"
                       this={this}
@@ -577,6 +586,13 @@ class App extends React.Component {
                       reloadProfile={this.LoadProfile}
                       account={this.state.account}
                       first_start={this.state.first_start}
+                      popout={this.state.popout} />
+
+                      <Advice 
+                      id="advice"
+                      this={this}
+                      reloadProfile={this.LoadProfile}
+                      account={this.state.account}
                       popout={this.state.popout} />
 
                       <Top 

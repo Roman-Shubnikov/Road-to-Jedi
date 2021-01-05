@@ -94,8 +94,13 @@ class Users {
 		return $this->_formatType( $res );
 	}
 
-	public function getByIds( string $ids, $order = '' ) {
-		$a_ids = explode( ',', $ids );
+	public function getByIds($ids, $order = '' ) {
+		if(is_string($ids)){
+			$a_ids = explode( ',', $ids );
+		}else{
+			$a_ids = $ids;
+		}
+		
 		$ids = [];
 
 		foreach ( $a_ids as $i => $id ) {
@@ -113,8 +118,7 @@ class Users {
 						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme, users.public, users.publicStatus,
 						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname, users.donuts
 				FROM users
-				LEFT JOIN avatars
-				ON users.avatar_id = avatars.id
+				LEFT JOIN avatars ON users.avatar_id=avatars.id
 				WHERE users.id IN ( $s_ids ) AND users.vk_user_id NOT IN (SELECT vk_user_id FROM banned where time_end>?) $order";
 		$res = $this->Connect->db_get( $sql, [time()] );
 
@@ -244,7 +248,7 @@ class Users {
 		if ( isset( $data['notifications_count'] ) ) {
 			$res['notif_count'] = (int) $data['notifications_count'];
 		}
-		if(!in_array('vk_id', $res) && $data['public']) $res['vk_id'] = (int)$data['vk_user_id'];
+		if(!array_key_exists('vk_id', $res) && $data['public']) $res['vk_id'] = (int)$data['vk_user_id'];
 
 		return $res;
 	}

@@ -35,6 +35,7 @@ require 'api/api/notifications.php';
 require 'api/api/promocodes.php';
 require 'api/api/reports.php';
 require 'api/api/folowers.php';
+require 'api/api/recommendations.php';
 
 session_id( $_GET['vk_user_id'] );
 session_start();
@@ -384,6 +385,7 @@ $params = [
 	],
 	'shop.resetId' => [],
 	'shop.buyDiamond' => [],
+	'shop.buyRecommendations' => [],
 	'shop.checkPromo' => [
 		'promocode' => [
 			'type' => 'string',
@@ -561,6 +563,16 @@ $params = [
 			'required' => true
 		],
 	],
+	'recommendations.get' => [
+		'offset' => [
+			'type' => 'int',
+			'required' => true
+		],
+		'count' => [
+			'type' => 'int',
+			'required' => true
+		],
+	],
 ];
 $user_id = (int) $_GET['vk_user_id'];
 $method = $_GET['method'];
@@ -589,6 +601,7 @@ $tickets = new Tickets( $users,$Connect,$sysnotifications );
 $promocodes = new Promocodes($users, $Connect, $sysnotifications);
 $reports = new Reports($users, $Connect, $account);
 $followers = new Followers($users, $Connect);
+$recommended = new Recomendations($users, $Connect, $followers);
 
 
 function getBalance() {
@@ -612,6 +625,7 @@ switch ( $method ) {
 		$res = $users->getMy();
 		$followsUser = $followers->getFollowers($users->id, 20, 0);
 		$res['followers'] = $followsUser;
+		$res['is_recommended'] = $recommended->is_recommended($users->id);
 		if($users->info['donut']){
 			$res['donut_chat_link'] = 'https://vk.me/join/bdWXBlYwHFXjmNksi3y03DRPTQPebMwOufM=';
 		}
@@ -711,18 +725,21 @@ switch ( $method ) {
 	case 'tickets.getMy':
 		$offset = isset($data['offset']) ? (int) $data['offset'] : 0;
 		$count = $data['count'] ?? CONFIG::ITEMS_PER_PAGE;
+		if($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
 
 		Show::response( $tickets->getMy( $offset, $count ) );
 
 	case 'tickets.getByModeratorAnswers':
 		$offset = isset($data['offset']) ? (int) $data['offset'] : 0;
 		$count = $data['count'] ?? CONFIG::ITEMS_PER_PAGE;
+		if($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
 		$id = $users->id;
 		Show::response( $tickets->getByModeratorAnswers( $offset, $count, $id) );
 
 	case 'tickets.get':
 		$offset = isset($data['offset']) ? (int) $data['offset'] : 0;
 		$count = $data['count'] ?? CONFIG::ITEMS_PER_PAGE;
+		if($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
 		$unanswered = (bool) $data['unanswered'] ?? false;
 
 		Show::response( $tickets->get( $unanswered, $offset, $count ) );
@@ -816,6 +833,7 @@ switch ( $method ) {
 		$mark = isset( $data['mark'] ) ? $data['mark'] : -1;
 		$offset = (int) $data['offset'] ?? 0;
 		$count = $data['count'] ?? CONFIG::ITEMS_PER_PAGE;
+		if($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
 
 		Show::response( $tickets->getByModerator( $mid, $mark, $offset, $count ) );
 
@@ -927,6 +945,14 @@ switch ( $method ) {
 
 		$edit = $Connect->query("UPDATE users SET donuts=?,avatar_id=? WHERE vk_user_id=?", [$balance - CONFIG::DONUT_AVATAR_PRICE,$id,$user_id]);
 		Show::response(['edit' => $edit]);
+	
+	case 'shop.buyRecommendations':
+		$balance = $users->info['money'];
+
+		if($users->info['diamond']) Show::error(1014);
+		if( $balance < CONFIG::RECOMMENDATIONS_PRICE ) Show::error(1002);
+		$Connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$balance - CONFIG::RECOMMENDATIONS_PRICE,$user_id]);
+		Show::response($recommended->add($users->id));
 
 	case 'shop.buyDiamond':
 		$balance = $users->info['money'];
@@ -1000,6 +1026,7 @@ switch ( $method ) {
 
 	case 'followers.getFollowers':
 		$count = (int) $data['count'];
+		if($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
 		$offset = (int) $data['offset'];
 		$agent_id = $data['agent_id'] ? (int) $data['agent_id'] : $users->id;
 		if($count > 200) $count = 200;
@@ -1008,6 +1035,7 @@ switch ( $method ) {
 
 	case 'special.getAllMessages':
 		$count = (int) $data['count'];
+		if($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
 		$offset = (int) $data['offset'];
 		if ( !$users->info['special'] ) {
 			Show::error(403);
@@ -1016,6 +1044,7 @@ switch ( $method ) {
 
 	case 'special.getNewMessages':
 		$count = (int) $data['count'];
+		if($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
 		$offset = (int) $data['offset'];
 		if ( !$users->info['special'] ) {
 			Show::error(403);
@@ -1090,6 +1119,7 @@ switch ( $method ) {
 
 	case 'special.getNewModerationTickets':
 		$count = (int) $data['count'];
+		if($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
 		$offset = (int) $data['offset'];
 		if ( !$users->info['special'] ) {
 			Show::error(403);
@@ -1107,6 +1137,7 @@ switch ( $method ) {
 		
 	case 'admin.getVerificationRequests':
 		$count = (int) $data['count'];
+		if($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
 		$offset = (int) $data['offset'];
 		if ( $users->info['special'] < 2 ) {
 			Show::error(403);
@@ -1179,4 +1210,11 @@ switch ( $method ) {
 	case 'reports.denyReport':
 		$id_request = $data['id_request'];
 		$reports->deny($id_request);
+	case 'recommendations.get':
+		$count = (int) $data['count'];
+		if($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
+		$offset = (int) $data['offset'];
+		$res = $recommended->getRecommendations($offset, $count);
+		Show::response($res);
+
 }			

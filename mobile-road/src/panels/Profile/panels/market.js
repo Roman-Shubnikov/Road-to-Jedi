@@ -243,6 +243,38 @@ export default class Market extends React.Component{
             this.props.this.changeData('activeStory', 'disconnect')
           })
       }
+      buyRecommendations() {
+        fetch(this.state.api_url + "method=shop.buyRecommendations&" + window.location.search.replace('?', ''))
+        .then(res => res.json())
+        .then(data => {
+          if(data.result) {
+              this.props.this.setSnack(
+              <Snackbar
+                layout="vertical"
+                onClose={() => this.props.this.setSnack(null)}
+                before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+              >
+                Вы успешно попали в рекомендации
+              </Snackbar>
+            )
+            setTimeout(() => {
+              this.props.this.ReloadProfile();
+            }, 4000)
+          } else {
+            this.props.this.setSnack(
+              <Snackbar
+              layout="vertical"
+              onClose={() => this.props.this.setSnack(null)}
+              before={<Icon20CancelCircleFillRed width={24} height={24} />}
+            >
+              {data.error.message}
+            </Snackbar>);
+          }
+        })
+        .catch(err => {
+          this.props.this.changeData('activeStory', 'disconnect')
+        })
+    }
 
       buyDiamond() {
         fetch(this.state.api_url + "method=shop.buyDiamond&" + window.location.search.replace('?', ''))
@@ -327,8 +359,7 @@ export default class Market extends React.Component{
                   </HorizontalScroll>
                   <Div>
                       <Button onClick={this.changeAvatar}
-                      before={<Icon28MoneyCircleOutline 
-                      style={{marginRight: "5px"}}/>} 
+                      before={<Icon28MoneyCircleOutline />} 
                       size="l" 
                       stretched
                       mode="secondary"
@@ -357,8 +388,7 @@ export default class Market extends React.Component{
                   </HorizontalScroll>
                   <Div>
                       <Button onClick={this.changeAvatar} 
-                      before={<Icon48DonateOutline width={28} height={28}
-                      style={{marginRight: "5px"}}/>} 
+                      before={<Icon48DonateOutline width={28} height={28}/>} 
                       size="l" 
                       stretched
                       mode="secondary"
@@ -385,32 +415,44 @@ export default class Market extends React.Component{
                           size="m" 
                           mode="secondary"
                           disabled={(this.state.changed_id <= 0) ? true : false}>Сменить за 1500 монеток</Button>
-                        <Button 
+                        {this.props.account.nickname ? <Button 
                           stretched
                           onClick={() => this.setPopout(<Alert
-                          actionsLayout='vertical'
-                          actions={[{
-                            title: 'Удалить ник',
-                            autoclose: true,
-                            mode: 'destructive',
-                            action: () => this.ResetId(),
-                          },{
-                            title: 'Нет, я нажал сюда случайно',
-                            autoclose: true,
-                            style: 'cancel'
-                          },]}
-                          onClose={() => this.setPopout(null)}
-                          header="Осторожно!"
-                          text="Если вы удалите ник, то, возможно, его сможет забрать кто-то другой. После удаления ника у вас будет отображён начальный id"
-                        />)}
+                            actionsLayout='vertical'
+                            actions={[{
+                              title: 'Удалить ник',
+                              autoclose: true,
+                              mode: 'destructive',
+                              action: () => this.ResetId(),
+                            },{
+                              title: 'Нет, я нажал сюда случайно',
+                              autoclose: true,
+                              style: 'cancel'
+                            },]}
+                            onClose={() => this.setPopout(null)}
+                            header="Осторожно!"
+                            text="Если вы удалите ник, то, возможно, его сможет забрать кто-то другой. После удаления ника у вас будет отображён начальный id"
+                          />)}
                         before={<Icon24BlockOutline width={28} height={28} />}
                         size="m" 
-                        mode='destructive'>Удалить ник</Button>
+                        mode='destructive'>Удалить ник</Button> : null}
                       </div>
                     </FormItem>
                   </FormLayout>
                   
                 </Group>
+                {this.props.account ? !this.props.account.is_recommended ? <Group header={<Header>Попасть в рекомедации</Header>}>
+                  <Div>
+                    <Text weight='medium'>После приобретения этого товара, ваш профиль попадёт на вторую вкладку в "Обзор", так вы сможете привлечь больше подписчиков</Text>
+                  </Div>
+                  <Div>
+                      <Button onClick={() => this.buyRecommendations()}
+                      before={<Icon28MoneyCircleOutline/>} 
+                      size="l" 
+                      stretched
+                      mode="secondary">Купить за 150 монеток</Button>
+                  </Div>
+                </Group> : null : null}
                 
 
                 
@@ -425,15 +467,14 @@ export default class Market extends React.Component{
                       <Button 
                       onClick={() => this.buyDiamond()} 
                       stretched
-                      before={<Icon28MoneyHistoryBackwardOutline 
-                      style={{marginRight: "5px"}}/>} size="l" mode='destructive'>Купить за 10 000 монеток</Button>
+                      before={<Icon28MoneyHistoryBackwardOutline />} size="l" mode='destructive'>Купить за 10 000 монеток</Button>
                   </Div>
                 </Group> : null : null}
                 <Group header={<Header>Опции</Header>}>
                   <Div>
                       <Button 
                       onClick={() => this.setActiveModal('send')} 
-                      before={<Icon28MoneyHistoryBackwardOutline style={{marginRight: "5px"}}/>} 
+                      before={<Icon28MoneyHistoryBackwardOutline />} 
                       size="l" 
                       mode="secondary"
                       stretched>Перевести</Button>

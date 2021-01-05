@@ -119,7 +119,7 @@ import UserTopC from '../../../components/userTop';
                       {(i === 0) || <Separator/>}
 
                     <UserTopC {...result}
-                    onClick={() => {props.goOtherProfile(result['id'], true);this.setState({top_agents: null});}} />
+                    onClick={() => {props.goOtherProfile(result['id'], true);}} />
                  
                  </React.Fragment>
                   ) : <PanelSpinner />}

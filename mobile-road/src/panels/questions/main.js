@@ -63,10 +63,6 @@ export default class Main extends React.Component {
             id_rep: 1,
             typeres: 1,
 
-
-
-        
-
         }
         this.changeData = this.props.this.changeData;
         this.playAudio = this.props.this.playAudio;

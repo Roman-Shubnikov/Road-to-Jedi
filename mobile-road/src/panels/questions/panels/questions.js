@@ -1,4 +1,5 @@
 import React from 'react';
+import $ from 'jquery';
 
 import { 
     Panel,
@@ -23,7 +24,6 @@ import {
 import Icon56InboxOutline           from '@vkontakte/icons/dist/56/inbox_outline';
 import Icon28WriteSquareOutline     from '@vkontakte/icons/dist/28/write_square_outline';
 // import Icon28SyncOutline from '@vkontakte/icons/dist/28/sync_outline';
-import Icon24Spinner                from '@vkontakte/icons/dist/24/spinner';
 import Icon16StarCircleFillYellow   from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
 
 
@@ -38,6 +38,7 @@ function enumerate (num, dec) {
     if (num > 20) num = num % 10;
     return num === 1 ? dec[0] : num > 1 && num < 5 ? dec[1] : dec[2];
   }
+var loadingContent = false;
 export default class Questions extends React.Component {
         constructor(props) {
             super(props);
@@ -53,14 +54,17 @@ export default class Questions extends React.Component {
             this.showErrorAlert = propsbi.showErrorAlert;
             this.setActiveModal = propsbi.setActiveModal;
             this.Prepare_questions = this.Prepare_questions.bind(this);
+            this.componentDidMount = this.componentDidMount.bind(this)
         }
         Prepare_questions(need_offset=false, needPopout=false){
+            loadingContent = true
             if(needPopout){
                 this.setPopout(<ScreenSpinner />)
             }
             this.props.this.getQuestions(need_offset)
             setTimeout(() => {
                 this.setState({ fetching: false });
+                loadingContent = false
                 if(needPopout){
                     this.setPopout(null)
                 }
@@ -68,6 +72,14 @@ export default class Questions extends React.Component {
         }
         componentDidMount() {
             this.setPopout(null)
+            $(window).on('scroll.detectautoload', () => {
+                if($(window).scrollTop() + $(window).height() + 400 >= $(document).height() && !loadingContent && this.props.tiket_all_helper && this.props.tiket_all_helper.length === 20){
+                    this.Prepare_questions(true)
+                }
+            })
+        }
+        componentWillUnmount(){
+            $(window).off('scroll.detectautoload')
         }
 
         render() {
@@ -160,15 +172,7 @@ export default class Questions extends React.Component {
                         
                         
                     {this.props.tiket_all_helper ? this.props.tiket_all_helper.length === 20 ? 
-                    <Div>
-                        <Button size="l" 
-                        stretched
-                        level="secondary" 
-                        before={this.state.fetching ? <Icon24Spinner width={28} height={28} className='Spinner__self' /> : null}
-                        onClick={() => {
-                            this.setState({ fetching: true });this.Prepare_questions(true)
-                        }}>Загрузить ещё</Button>
-                    </Div>
+                    <PanelSpinner />
                     : this.props.tiket_all ?
                     (this.props.tiket_all.length === 0) ? 
                     null : 

@@ -112,7 +112,7 @@ export default class Ban extends React.Component {
                       renderOption={({ option, ...restProps }) => (
                         <CustomSelectOption {...restProps} />
                       )}
-                      onChange={e => {console.log(e.currentTarget.value);}}
+                      onChange={e => {console.log(e.currentTarget.value); this.setState({time_num: e.currentTarget.value})}}
                       />
                     </FormItem>
                   </FormLayoutGroup>
@@ -120,23 +120,6 @@ export default class Ban extends React.Component {
                   <FormItem>
                     <Input maxLength="100" name="ban_reason" onChange={(e) => this.onChange(e)} placeholder="Введите причину бана" value={this.state.ban_reason} />
                   </FormItem>
-                  
-                    
-                    {/* <div style={{display:'flex'}}>
-                      <div style={{width: '70%'}}>
-                          
-                      </div>
-                      <Select onChange={e => {console.log(e.currentTarget.value); this.setState({time_num: e.currentTarget.value})}}
-                      status={this.state.time_num ? 'valid' : 'error'}
-                      bottom={this.state.time_num ? '' : 'А где время'}>
-                          <option value="sec">sec</option>
-                          <option value="min">min</option>
-                          <option value="day">day</option>
-                      </Select>
-                    </div> */}
-                  
-                
-                
                 </FormLayout>
                 
                 

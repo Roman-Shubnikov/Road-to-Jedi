@@ -2,7 +2,6 @@
 class Followers {
     protected $Connect;
     protected $user = null;
-    protected $account;
 
 
 	function __construct( Users $user, DB $Connect) {

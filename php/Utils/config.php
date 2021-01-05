@@ -39,6 +39,7 @@ class CONFIG {
 	const NICKNAME_CHANGE_PRICE = 1500;
 	const DIAMOND_PRICE = 10000;
 	const DONUT_AVATAR_PRICE = 50;
+	const RECOMMENDATIONS_PRICE = 150;
 
 	
 	const ERRORS = [
@@ -123,6 +124,8 @@ class CONFIG {
 
 		1400 => "Статус не может быть длиннее 140 символов",
 
+		// Recommendations
+		1450 => "Вы уже и так в рекомендациях",
 		// Server
 
 		403 => 'Доступ запрещен.',
