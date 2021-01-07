@@ -30,7 +30,7 @@ import {
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
-import './style.css'
+import './styles/style.css'
 // Импортируем панели
 import Questions      from './panels/questions/main';
 import Advice         from './panels/Advice/main';

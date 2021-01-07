@@ -33,10 +33,8 @@ import {
     Icon16StarCircleFillYellow,
     Icon28Messages,
     Icon28DiamondOutline,
-    Icon28BrainOutline,
     Icon28SettingsOutline,
     Icon20ArticleOutline,
-    Icon48DonateOutline,
     
 } from '@vkontakte/icons';
 
@@ -220,14 +218,6 @@ class Profile extends React.Component{
                                 before={<Icon28Messages />}>
                                     Чат
                             </SimpleCell>
-                            {this.props.account.donut_chat_link && <SimpleCell
-                                expandable
-                                href={this.props.account.donut_chat_link}
-                                target="_blank" rel="noopener noreferrer"
-                                before={<Icon48DonateOutline width={28} height={28} />}>
-                                    Чат для донов
-                            </SimpleCell>}
-
                         </Group>
                         <Group>
                             {(this.props.account['special'] || this.props.account['generator']) || <SimpleCell
@@ -242,13 +232,6 @@ class Profile extends React.Component{
                                 this.props.this.goPanel('market');
                             }}
                             before={<Icon28MarketOutline />}>Магазин</SimpleCell>
-
-                            {this.props.account['generator'] && <SimpleCell
-                            expandable
-                            onClick={() => {
-                                this.props.this.goPanel('new_ticket');
-                            }}
-                            before={<Icon28BrainOutline />}>Генератор вопросов</SimpleCell>}
                             
                             <SimpleCell
                             expandable

@@ -29,7 +29,7 @@ export default class Info extends React.Component{
                     action={<>
                     <Button size='m' 
                     style={{marginRight: 8, marginBottom:8}} 
-                    href='https://vk.me/jedi_road' 
+                    href='https://vk.me/special_help' 
                     target="_blank"
                     rel="noopener noreferrer">Связаться с нами</Button>
                     <Button 

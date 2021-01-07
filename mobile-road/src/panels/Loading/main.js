@@ -8,7 +8,6 @@ import {
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
-import '../../style.css'
 // Импортируем панели
 import Startov from './panels/home';
 

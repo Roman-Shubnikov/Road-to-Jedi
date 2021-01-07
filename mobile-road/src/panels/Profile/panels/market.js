@@ -29,7 +29,6 @@ import Icon16CheckCircle                  from '@vkontakte/icons/dist/16/check_c
 import Icon20CancelCircleFillRed          from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
 import Icon28InfoCircleOutline            from '@vkontakte/icons/dist/28/info_circle_outline';
 import Icon24BlockOutline                 from '@vkontakte/icons/dist/24/block_outline';
-import Icon48DonateOutline                from '@vkontakte/icons/dist/48/donate_outline';
 
 
 
@@ -74,19 +73,6 @@ const avatars = [
     
 ]
 
-const donutAvatars = [
-  "1001.png",
-  "1002.png",
-  "1003.png",
-  "1004.png",
-  "1005.png",
-  "1006.png",
-  "1007.png",
-  "1008.png",
-  "1009.png",
-  "1010.png",
-
-]
 
 const blueBackground = {
     backgroundColor: 'var(--accent)'
@@ -329,7 +315,6 @@ export default class Market extends React.Component{
                     <Text weight='medium'>Монетки — это универсальная условная единица для приобретения различных товаров в магазине</Text>
                   </Div>
                   <SimpleCell disabled indicator={this.props.account.balance}>Ваш баланс</SimpleCell>
-                  {this.props.account.donut && <SimpleCell disabled indicator={this.props.account.donuts}>Пончики</SimpleCell>}
                   <CellButton onClick={() => this.props.this.goPanel('promocodes')}>Активировать промокод</CellButton>
                 </Group>
         
@@ -366,35 +351,6 @@ export default class Market extends React.Component{
                       disabled={this.state.selectedAvatar === 0 || this.state.selectedAvatar > 1000}>Сменить за 700 монеток</Button>
                   </Div>
                 </Group>
-                {this.props.account.donut && 
-                <Group header={<Header>Эксклюзивные аватарки</Header>}>
-                  <HorizontalScroll showArrows getScrollToLeft={(i) => i - 190} getScrollToRight={(i) => i + 190}>
-                  <div style={{ display: 'flex' }}>
-                    {donutAvatars.map((ava, i) => 
-                    <HorizontalCell key={i} size='m' 
-                    className={((i + 1 + 1000) === this.state.selectedAvatar) ? 'select_avatar' : ''}
-                    onClick={(e) => (this.props.account.avatar.id === i +1+1000) ? this.props.this.setSnack(
-                      <Snackbar
-                      layout="vertical"
-                      onClose={() => this.props.this.setSnack(null)}
-                      before={<Icon20CancelCircleFillRed width={24} height={24} />}
-                    >
-                      Вы уже имеете данный аватар
-                    </Snackbar>) : (this.state.selectedAvatar === (i + 1 + 1000) ) ? this.selectImage(0) : this.selectImage(i + 1 + 1000)}>
-                        <Avatar id={i} size={88} src={"https://xelene.ru/road/php/images/avatars/" + ava}/>
-                      
-                    </HorizontalCell>)}
-                  </div>
-                  </HorizontalScroll>
-                  <Div>
-                      <Button onClick={this.changeAvatar} 
-                      before={<Icon48DonateOutline width={28} height={28}/>} 
-                      size="l" 
-                      stretched
-                      mode="secondary"
-                      disabled={this.state.selectedAvatar === 0 || this.state.selectedAvatar < 1000}>Сменить за 50 пончиков</Button>
-                  </Div>
-                </Group>}
 
                 <Group header={<Header>Сменить свой ник</Header>}>
                   <FormLayout>

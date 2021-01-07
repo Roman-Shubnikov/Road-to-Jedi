@@ -563,16 +563,7 @@ $params = [
 			'required' => true
 		],
 	],
-	'recommendations.get' => [
-		'offset' => [
-			'type' => 'int',
-			'required' => true
-		],
-		'count' => [
-			'type' => 'int',
-			'required' => true
-		],
-	],
+	'recommendations.get' => [],
 ];
 $user_id = (int) $_GET['vk_user_id'];
 $method = $_GET['method'];
@@ -931,6 +922,7 @@ switch ( $method ) {
 
 		if( $id > CONFIG::AVATARS_COUNT || $id <= 0 ) Show::error(1008);
 		if( $balance < CONFIG::AVATAR_PRICE ) Show::error(1002);
+		if($users->info['avatar_name'] == $id) Show::error(1018);
 
 		$edit = $Connect->query("UPDATE users SET money=?,avatar_id=? WHERE vk_user_id=?", [$balance - CONFIG::AVATAR_PRICE,$id,$user_id]);
 		Show::response(['edit' => $edit]);
@@ -942,6 +934,7 @@ switch ( $method ) {
 		if( $id > CONFIG::DONUT_AVATARS_COUNT || $id <= 0 ) Show::error(1008);
 		if( $balance < CONFIG::DONUT_AVATAR_PRICE ) Show::error(1002);
 		$id += 1000;
+		if($users->info['avatar_name'] == $id) Show::error(1018);
 
 		$edit = $Connect->query("UPDATE users SET donuts=?,avatar_id=? WHERE vk_user_id=?", [$balance - CONFIG::DONUT_AVATAR_PRICE,$id,$user_id]);
 		Show::response(['edit' => $edit]);
@@ -1211,10 +1204,10 @@ switch ( $method ) {
 		$id_request = $data['id_request'];
 		$reports->deny($id_request);
 	case 'recommendations.get':
-		$count = (int) $data['count'];
-		if($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
-		$offset = (int) $data['offset'];
-		$res = $recommended->getRecommendations($offset, $count);
+		// $count = (int) $data['count'];
+		// if($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
+		// $offset = (int) $data['offset'];
+		$res = $recommended->getRecommendations(0, 3, $users->id);
 		Show::response($res);
 
 }			

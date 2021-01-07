@@ -1,0 +1,15 @@
+.Tiles {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 6px;
+}
+.Tiles__content {
+    word-break: normal;
+    padding: 2px 4px;
+    text-align: center;
+}
+.Tiles__icon {
+    display: flex;
+    justify-content: center;
+    padding: 4px 8px;
+}

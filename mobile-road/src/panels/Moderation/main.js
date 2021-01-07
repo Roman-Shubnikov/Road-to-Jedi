@@ -14,7 +14,6 @@ import {
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
-import '../../style.css';
 // Импортируем панели
 import Questions    from './panels/panelconstruct';
 import OtherProfile from '../../components/other_profile';

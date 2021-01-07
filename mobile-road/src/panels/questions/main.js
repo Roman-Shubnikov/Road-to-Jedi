@@ -12,7 +12,6 @@ import {
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
-import '../../style.css'
 // Импортируем панели
 import NewTicket from './panels/new_tiket'
 import Questions from './panels/questions'

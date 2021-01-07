@@ -4,15 +4,11 @@ import {
     PanelHeader,
     Group,
     Placeholder,
-    Separator,
-    SimpleCell,
     PanelHeaderBack,
     Footer
     } from '@vkontakte/vkui';
 
 import IconJedi from '../../../images/jedi.svg'
-import Icon28MessagesCircleFillYellow from '@vkontakte/icons/dist/28/messages_circle_fill_yellow';
-import Icon28RadiowavesLeftAndRightCircleFillRed from '@vkontakte/icons/dist/28/radiowaves_left_and_right_circle_fill_red';
 
 export default class Info extends React.Component{
     constructor(props){
@@ -35,25 +31,9 @@ export default class Info extends React.Component{
                 </Group>
                 
                 <Group>
-                  <SimpleCell
-                  className="pointer"
-                  before={<Icon28RadiowavesLeftAndRightCircleFillRed />}
-                  href='https://vk.com/jedi_road'
-                  target="_blank"
-                  rel="noopener noreferrer">
-                    Официальное сообщество
-                  </SimpleCell>
-                  <SimpleCell
-                  className="pointer"
-                  before={<Icon28MessagesCircleFillYellow />}
-                  href='https://vk.me/id605436158'
-                  target="_blank"
-                  rel="noopener noreferrer">
-                    Напишите нам
-                  </SimpleCell>
+                  <Footer>Всегда ваша, Команда Jedi</Footer>
                 </Group>
-                <Separator />
-                <Footer>Всегда ваша,<br/>Команда Jedi</Footer>
+                
             </Panel>
         )
     }

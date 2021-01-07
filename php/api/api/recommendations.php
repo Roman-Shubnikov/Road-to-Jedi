@@ -10,8 +10,8 @@ class Recomendations {
         $this->Connect = $Connect;
         $this->followers = $followers;
     }
-    public function getRecommendations($offset, $count){
-        $recommendet = $this->Connect->db_get("SELECT aid FROM recommendations LIMIT $offset, $count");
+    public function getRecommendations($offset, $count, $agent_id){
+        $recommendet = $this->Connect->db_get("SELECT aid FROM recommendations WHERE aid NOT IN (SELECT to_id FROM subscribes WHERE from_id=?) and aid !=? ORDER BY RAND() LIMIT $offset, $count", [$agent_id, $agent_id]);
 		if(!$recommendet) Show::response([]);
 		$ids = [];
 		foreach($recommendet as $val){
@@ -20,7 +20,8 @@ class Recomendations {
 		
 		$res = $this->users->getByIds($ids);
 		foreach($res as $key => $val){
-			$res[$key]['followers'] = $this->followers->getFollowers($val['id'], 3, 0);
+            $res[$key]['followers'] = $this->followers->getFollowers($val['id'], 3, 0);
+            // $res[$key]['is_sub'] = $this->followers->checkSubscribe($agent_id, $val['id']);
         }
         return $res;
     }

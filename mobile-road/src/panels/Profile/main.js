@@ -27,7 +27,6 @@ import {
 } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
-import '../../style.css';
 // Импортируем панели
 import Prof from './panels/profile';
 import Market from './panels/market';
@@ -38,7 +37,6 @@ import SchemeChange from './panels/schemechange';
 import Info from './panels/info'
 import Verfy from './panels/verfy'
 import Promocodes from './panels/promocode';
-import NewTicket from './panels/new_tiket'
 import Tiket from '../../components/tiket';
 import OtherProfile from '../../components/other_profile'
 import Reports from '../../components/report';
@@ -687,10 +685,6 @@ export default withPlatform(class Main extends React.Component {
         this={this} 
         account={this.state.account} 
         setMoneyPromo={this.setMoneyPromo} />
-
-        <NewTicket id='new_ticket'
-          this={this}
-          account={this.props.account} />
 
         <Tiket id="ticket"
           this={this}

@@ -1,6 +1,7 @@
 @import './space_gray.css';
 @import './bright_light.css';
 @import './vkcom.css';
+@import './menutiles.css';
 
 .blink2 {
     -webkit-animation: blink2 1s linear infinite;

@@ -13,7 +13,6 @@ import {
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
-import '../../style.css'
 // Импортируем панели
 import Notif from './panels/notif';
 import Tiket from '../../components/tiket';

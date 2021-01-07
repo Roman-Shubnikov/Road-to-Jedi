@@ -11,6 +11,9 @@ import {
 
 // Импортируем панели
 import Advice         from './panels/adv';
+import Donuts         from './panels/donuts';
+import Premium        from './panels/premium';
+import NewTicket      from './panels/new_tiket';
 import OtherProfile   from '../../components/other_profile';
 import Reports        from '../../components/report';
 
@@ -40,9 +43,6 @@ export default class Main extends React.Component {
             id_rep: 1,
             typeres: 1,
             recomndations: null,
-            recomndations_helper: null,
-            offsetr: 0,
-            countr: 20
 
         }
         this.changeData = this.props.this.changeData;
@@ -167,38 +167,12 @@ export default class Main extends React.Component {
               />
             )
           }
-        this.getRecomendations = (need_offset=false) => {
-          if(!need_offset){
-            this.setState({ offsetr: 20})
-          }
-          let offset = need_offset ? this.state.offsetr : 0;
-          fetch(this.state.api_url + "method=recommendations.get&" + window.location.search.replace('?', ''),
-          {method: 'post',
-            headers: {"Content-type": "application/json; charset=UTF-8"},
-            body: JSON.stringify({
-              'offset': offset,
-              'count': this.state.countr,
-            })
-          })
+        this.getRecomendations = () => {
+          fetch(this.state.api_url + "method=recommendations.get&" + window.location.search.replace('?', ''))
           .then(res => res.json())
           .then(data => {
             if(data.result) {
-              var sliyan = [];
-              if(this.state.recomndations !== null){
-                let tickets = this.state.recomndations.slice();
-                if(!need_offset){
-                  sliyan = data.response;
-                }else{
-                  sliyan = data.response ? tickets.concat(data.response) : this.state.recomndations;
-                }
-              }else{
-                sliyan = data.response
-              }
-              
-              this.setState({recomndations: sliyan, recomndations_helper: data.response})
-              if(need_offset){
-                  this.setState({ offsetr: this.state.offsetr + 20 })
-              }
+              this.setState({recomndations: data.response})
               this.setPopout(null);
             }else{
               this.showErrorAlert(data.error.message)
@@ -260,11 +234,29 @@ export default class Main extends React.Component {
             >
               <Advice id="advice" 
               this={this}
-              recomndations_helper={this.state.recomndations_helper}
               recomndations={this.state.recomndations}
+              account={this.props.account}
                />
-              <OtherProfile id="other_profile" this={this} agent_id={this.state.active_other_profile} account={this.props.account}/>
-              <Reports id="report" this={this} id_rep={this.state.id_rep} typeres={this.state.typeres} /> 
+              <Premium id="premium" 
+              account={this.props.account}
+              this={this} />
+
+              <Donuts id="donuts" 
+              account={this.props.account} />
+
+              <NewTicket id='new_ticket'
+                this={this}
+                account={this.props.account} />
+
+              <OtherProfile id="other_profile" 
+              this={this} 
+              agent_id={this.state.active_other_profile} 
+              account={this.props.account}/>
+
+              <Reports id="report" 
+              this={this} 
+              id_rep={this.state.id_rep} 
+              typeres={this.state.typeres} /> 
             </View>  
         )
     }
