@@ -30,7 +30,7 @@ export default class UserTopC extends React.Component {
         }
 
         render() {
-            var {disabled,special, nickname, good_answers, bad_answers, key, id, avatar, flash,donut,verified,diamond, onClick} = this.props;
+            var {disabled,special, nickname, good_answers, bad_answers, key, id, avatar, flash,donut,verified,diamond, onClick, change_color_donut} = this.props;
             return (
                 <SimpleCell
                     disabled={disabled ? disabled : !onClick}
@@ -52,7 +52,7 @@ export default class UserTopC extends React.Component {
                             <Icon28DiamondOutline width={16} height={16} className='Diamond_top' />
                             </div> : <Avatar src={avatar.url} style={{position: 'relative'}} /> }
                       >
-                    <div className="top_moderator_name">
+                    <div className="top_moderator_name" style={{color: (donut && change_color_donut) ? "var(--top_moderator_name_donut)" : "var(--top_moderator_name)"}}>
                     {nickname ? nickname : `Агент Поддержки #${id}`}
                       <div className="top_moderator_name_icon">
                         {flash ? 

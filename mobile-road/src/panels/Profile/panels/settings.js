@@ -10,7 +10,6 @@ import {
     Counter,
     SimpleCell,
     PanelHeaderBack,
-    CellButton,
     PromoBanner,
     FixedLayout,
     Switch,
@@ -22,7 +21,6 @@ import {
 
 import Icon28DoneOutline            from '@vkontakte/icons/dist/28/done_outline';
 import Icon28CoinsOutline           from '@vkontakte/icons/dist/28/coins_outline';
-import Icon28DeleteOutline          from '@vkontakte/icons/dist/28/delete_outline';
 import Icon28PaletteOutline         from '@vkontakte/icons/dist/28/palette_outline';
 import Icon28TargetOutline          from '@vkontakte/icons/dist/28/target_outline';
 import Icon28InfoOutline            from '@vkontakte/icons/dist/28/info_outline';
@@ -37,8 +35,8 @@ export default class Settings extends React.Component{
         this.state = {
             api_url: "https://xelene.ru/road/php/index.php?",
             ShowBanner: true,
-            noti: this.props.account ? this.props.account.noti : null,
-            public: this.props.account ? this.props.account.public : false,
+            noti: this.props.account ? this.props.account.settings.notify : null,
+            public: this.props.account ? this.props.account.settings.public : false,
 
         }
         var propsbi = this.props.this;
@@ -52,26 +50,18 @@ export default class Settings extends React.Component{
             this.setState({ [name]: value });
         }
     }
-    deleteAccount(){
-      fetch(this.state.api_url + "method=account.delete&" + window.location.search.replace('?', ''))
-      .then(res => res.json())
-      .then(data => {
-      if(data.result) {
-        bridge.send("VKWebAppClose", {"status": "success"});
-      }else{
-          this.showErrorAlert(data.error.message)
-      }
-      })
-      .catch(err => {
-        this.props.this.changeData('activeStory', 'disconnect')
-
-      })
-    }
     nofinc(){
       return
     }
     demissNotif(){
-      fetch(this.state.api_url + "method=notifications.demiss&" + window.location.search.replace('?', ''))
+      fetch(this.state.api_url + "method=settings.set&" + window.location.search.replace('?', ''),
+      {method: 'post',
+          headers: {"Content-type": "application/json; charset=UTF-8"},
+          body: JSON.stringify({
+              'setting': 'notify',
+              'value': 0,
+          })
+          })
       .then(res => res.json())
       .then(data => {
       if(data.result) {
@@ -87,7 +77,14 @@ export default class Settings extends React.Component{
       })
     }
     approveNotif(){
-      fetch(this.state.api_url + "method=notifications.approve&" + window.location.search.replace('?', ''))
+      fetch(this.state.api_url + "method=settings.set&" + window.location.search.replace('?', ''),
+      {method: 'post',
+          headers: {"Content-type": "application/json; charset=UTF-8"},
+          body: JSON.stringify({
+              'setting': 'notify',
+              'value': 1,
+          })
+          })
       .then(res => res.json())
       .then(data => {
       if(data.result) {
@@ -106,11 +103,6 @@ export default class Settings extends React.Component{
       notif = notif.currentTarget.checked;
       this.setPopout(<ScreenSpinner />)
       if(notif){
-        fetch(this.state.api_url + "method=notifications.approve&" + window.location.search.replace('?', ''))
-        .then(res => res.json())
-        .then(data => {
-        if(data.result) {
-          
           this.setPopout(<Alert
             actionsLayout='horizontal'
             actions={[{
@@ -121,6 +113,7 @@ export default class Settings extends React.Component{
                 bridge.send("VKWebAppAllowMessagesFromGroup", {"group_id": 188280516})
                 .then(data => {
                   this.setState({noti: true})
+                  this.approveNotif();
                   setTimeout(() => {
                     this.props.this.ReloadProfile()
                   }, 1000)
@@ -143,14 +136,6 @@ export default class Settings extends React.Component{
             Вы всегда можете их отключить. 
             Хотите получать уведомления?"
           />)
-        }else{
-            this.showErrorAlert(data.error.message)
-        }
-        })
-        .catch(err => {
-          this.props.this.changeData('activeStory', 'disconnect')
-
-        })
       }else{
         bridge.send("VKWebAppDenyNotifications")
         .then(data => {
@@ -184,11 +169,12 @@ export default class Settings extends React.Component{
         text="После публикации профиля, все смогут видеть вашу настоящую страницу ВК. Вы действительно хотите опубликовать его?"
         />)
       }else{
-        fetch(this.state.api_url + "method=account.public&" + window.location.search.replace('?', ''),
+        fetch(this.state.api_url + "method=settings.set&" + window.location.search.replace('?', ''),
         {method: 'post',
           headers: {"Content-type": "application/json; charset=UTF-8"},
           body: JSON.stringify({
-              'public': !this.state.public,
+              'setting': 'public',
+              'value': Number(!this.state.public),
           })
           })
           .then(res => res.json())
@@ -284,27 +270,6 @@ export default class Settings extends React.Component{
                       this.props.this.goPanel("info");
                   }}
                   before={<Icon28InfoOutline />}>О приложении</SimpleCell>
-                </Group>
-                <Group style={{paddingBottom: 30}}>
-                  <CellButton 
-                  mode="danger"
-                  onClick={() => this.setPopout(<Alert
-                    actionsLayout="horizontal"
-                    actions={[{
-                      title: 'Удалить аккаунт',
-                      autoclose: true,
-                      mode: 'destructive',
-                      action: () => this.deleteAccount(),
-                    },{
-                      title: 'Нет, я нажал сюда случайно',
-                      autoclose: true,
-                      mode: 'cancel'
-                    },]}
-                    onClose={() => this.setPopout(null)}
-                    header="Внимание, опасность"
-                    text="Данное действие ведёт к удалению вашего аккаунта: всех ответов, достижений и другой информации, которая сохранена на вашем аккаунте. Вы действительно хотите его удалить?"
-                  />)}
-                  before={<Icon28DeleteOutline />}>Удалить аккаунт</CellButton>
                 </Group>
                 
                 { this.state.promoBannerProps && this.state.ShowBanner && 

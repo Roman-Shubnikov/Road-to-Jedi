@@ -36,6 +36,7 @@ require 'api/api/promocodes.php';
 require 'api/api/reports.php';
 require 'api/api/folowers.php';
 require 'api/api/recommendations.php';
+require 'api/api/settings.php';
 
 session_id( $_GET['vk_user_id'] );
 session_start();
@@ -69,8 +70,25 @@ new AccessCheck();
 new FludControl();
 
 $params = [
+	'settings.get' => [
+		'setting' => [
+			'type' => 'string',
+			'required' => true
+		]
+	],
+	'settings.set' => [
+		'setting' => [
+			'type' => 'string',
+			'required' => true
+		],
+		'value' => [
+			'type' => 'int',
+			'required' => true
+		]
+	],
+
 	'account.get' => [],
-	'account.delete' => [],
+	// 'account.delete' => [],
 	'account.setAge' => [
 		'age' => [
 			'type' => 'int',
@@ -585,6 +603,7 @@ Utils::checkParams($params[$method], $data);
 
 $Connect = new DB();
 $users = new Users( $user_id, $Connect );
+$settings = new Settings( $Connect, $users );
 $notifications = new Notifications( $users,$Connect );
 $sysnotifications = new SystemNotifications( $Connect );
 $account = new Account( $users,$Connect,$sysnotifications );
@@ -595,6 +614,7 @@ $followers = new Followers($users, $Connect);
 $recommended = new Recomendations($users, $Connect, $followers);
 
 
+
 function getBalance() {
 	global $Connect, $user_id;
     return $Connect->db_get("SELECT money FROM users WHERE vk_user_id=?", [$user_id])[0]['money'];
@@ -602,8 +622,17 @@ function getBalance() {
 
 
 switch ( $method ) {
-	case 'account.delete':
-		Show::response( $account->deleteAccount());
+	// case 'account.delete':
+	// 	Show::response( $account->deleteAccount());
+
+	case 'settings.get':
+		$setting = $data['setting'];
+		Show::response($settings->getOneSetting($setting));
+
+	case 'settings.set':
+		$setting = $data['setting'];
+		$value = $data['value'];
+		Show::response($settings->complSettings($setting, $value));
 
 	case 'account.setAge':
 		$age = $data['age'];
@@ -620,6 +649,12 @@ switch ( $method ) {
 		if($users->info['donut']){
 			$res['donut_chat_link'] = 'https://vk.me/join/bdWXBlYwHFXjmNksi3y03DRPTQPebMwOufM=';
 		}
+		$res['settings'] = [
+			'public' => $settings->getOneSetting('public'),
+			'notify' => $settings->getOneSetting('notify'),
+			'hide_donut' => $settings->getOneSetting('hide_donut'),
+			'change_color_donut' => $settings->getOneSetting('change_color_donut'),
+		];
 		Show::response( $res );
 	
 	case 'account.changeScheme':

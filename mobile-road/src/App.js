@@ -209,6 +209,38 @@ class App extends React.Component {
             }
             this.setState({paused: this.audio.paused})
           }
+          this.showAlert = (title, text) => {
+            this.setState({
+              popout:
+                <Alert
+                actionsLayout="horizontal"
+                  actions={[{
+                    title: 'Закрыть',
+                    autoclose: true,
+                    mode: 'cancel'
+                  }]}
+                  onClose={() => this.setPopout(null)}
+                  header={title}
+                  text={text}
+                />
+            })
+          }
+          this.showErrorAlert = (error = null, action = null) => {
+            this.setPopout(
+              <Alert
+                actionsLayout="horizontal"
+                actions={[{
+                  title: 'Отмена',
+                  autoclose: true,
+                  mode: 'cancel',
+                  action: action,
+                }]}
+                onClose={() => this.setPopout(null)}
+                header="Ошибка"
+                text={error ? `${error}` : "Что-то пошло не так, попробуйте снова!"}
+              />
+            )
+          }
     }
     componentDidMount() {
       // if(/Mac|Macintosh|iPhone|iPad|iPod/i.test(navigator.userAgent)){
@@ -316,23 +348,6 @@ class App extends React.Component {
         })
     }
 
-    showAlert(title, text) {
-      this.setState({
-        popout: 
-          <Alert
-            actions={[{
-              title: 'Закрыть',
-              autoclose: true,
-              style: 'cancel'
-            }]}
-            onClose={this.setPopout(null)}
-          >
-            <h2>{title}</h2>
-            <p>{text}</p>
-        </Alert>
-      })
-    }
-
 
     deleteStats() {
       this.setState({popout: <ScreenSpinner/>})
@@ -358,22 +373,6 @@ class App extends React.Component {
       .catch(err => {
         this.showErrorAlert()
       })
-    }
-    showErrorAlert(error = null, action = null) {
-      this.setPopout(
-        <Alert
-          actionsLayout="horizontal"
-          actions={[{
-            title: 'Отмена',
-            autoclose: true,
-            mode: 'cancel',
-            action: action,
-          }]}
-          onClose={() => this.setPopout(null)}
-          header="Ошибка"
-          text={error ? `${error}` : "Что-то пошло не так, попробуйте снова!"}
-        />
-      )
     }
 
     

@@ -44,14 +44,16 @@ class SystemNotifications {
 		];
 		$res = $this->Connect->query("INSERT INTO notifications (owner_id,text,image,time,object_type,object, comment) VALUES (?,?,?,?,?,?,?)", [$owner_id,$text,$image,time(),$object['type'],$object['object'],$comment]);
 
-		$sql = "SELECT * FROM users WHERE id=?";
+		$sql = "SELECT users.vk_user_id, user_settings.notify FROM users 
+				LEFT JOIN user_settings ON users.id=user_settings.aid
+				WHERE users.id=?";
 		$user = $this->Connect->db_get( $sql, [$owner_id] )[0];
 		$ticket_id = $object['object'];
 		$object_lol = $ticket_id != 0 ? "https://vk.com/app7409818#ticket_id={$ticket_id}" : '';
 		
 		
 
-		if( $user['noti'] ) {
+		if( $user['notify'] ) {
 			$data = [
 				'user_id' => $user['vk_user_id'],
 				'random_id' => 0,
@@ -65,9 +67,6 @@ class SystemNotifications {
 			$url = "https://api.vk.com/method/messages.send?{$query}";
 			file_get_contents( $url );
 
-
-			// $vkapi = new VKApi();
-			// $apireq = $vkapi->sendNotification( [$user['vk_user_id']], $text, $object_lol);
 		}
 
 		$id = $res[1];

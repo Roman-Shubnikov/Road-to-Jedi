@@ -4,6 +4,7 @@ body[scheme="space_gray"] {
     --text_message_to: #2c2d2f;
     --title_profile: #fff;
     --top_moderator_name: #fff;
+    --top_moderator_name_donut: #FFB73D;
     --hr: rgb(240, 240, 240);
     --mini_description: rgba(161, 160, 160, 0.867);
     --button_send:  #70aaea;

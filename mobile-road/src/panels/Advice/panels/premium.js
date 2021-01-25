@@ -14,8 +14,10 @@ import {
     Div,
     Header,
     Snackbar,
-
-
+    Switch,
+    ScreenSpinner,
+    Separator,
+    Subhead,
 
  } from '@vkontakte/vkui';
 
@@ -40,6 +42,8 @@ const donutAvatars = [
   "1008.png",
   "1009.png",
   "1010.png",
+  "1011.png",
+
 
 ]
 const blueBackground = {
@@ -52,8 +56,12 @@ export default class Donuts extends React.Component {
             api_url: "https://xelene.ru/road/php/index.php?",
             snackbar: null,
             selectedAvatar: 0,
+            hide_donut: !this.props.account.settings.hide_donut,
+            colorchangeDonut: this.props.account.settings.change_color_donut
 
         }
+        var propsbi = this.props.this;
+        this.setPopout = propsbi.setPopout;
         this.changeAvatar = this.changeAvatar.bind(this)
         this.setSnack = (value) => {
             this.setState({ snackbar: value })
@@ -63,9 +71,45 @@ export default class Donuts extends React.Component {
           }
         
     }
+    saveSettings(setting, value){
+      this.setPopout(<ScreenSpinner />)
+      fetch(this.state.api_url + "method=settings.set&" + window.location.search.replace('?', ''),
+        {method: 'post',
+        headers: {"Content-type": "application/json; charset=UTF-8"},
+            // signal: controllertime.signal,
+        body: JSON.stringify({
+            'setting': setting,
+            'value': value,
+        })
+        })
+        .then(data => data.json())
+        .then(data => {
+          if(data.result){
+            this.setPopout(null)
+              setTimeout(() => {
+                this.props.this.ReloadProfile();
+              }, 4000)
+            }else{
+              this.showErrorAlert(data.error.message);
+            }
+        })
+        .catch(err => {
+          this.props.this.changeData('activeStory', 'disconnect')
+      })
+    }
+
+    hide_donut(check){
+      check = check.currentTarget.checked;
+      this.setState({hide_donut: check});
+      this.saveSettings('hide_donut', Number(!check))
+    }
+    needChangeColor(check){
+      check = check.currentTarget.checked;
+      this.setState({colorchangeDonut: check});
+      this.saveSettings('change_color_donut', Number(check))
+    }
 
     changeAvatar(){
-        console.log(this.state.selectedAvatar)
         fetch(this.state.api_url + "method=shop.changeDonutAvatars&" + window.location.search.replace('?', ''),
         {method: 'post',
         headers: {"Content-type": "application/json; charset=UTF-8"},
@@ -117,6 +161,31 @@ export default class Donuts extends React.Component {
                     <Placeholder 
                     icon={<img src={Don} alt='jedi' />}>
                     </Placeholder>
+                    <SimpleCell
+                    disabled 
+                    after={
+                      <Switch 
+                        checked={this.state.hide_donut}
+                        onChange={(e) => this.hide_donut(e)} />
+                      }
+                      >
+                      Отметка VK Donut
+                    </SimpleCell>
+                    <Div>
+                      <Subhead weight='regular' className='SimpleCell__description'>После активации данной функции, в Вашем профиле, около имени, появится эксклюзивная отметка</Subhead>
+                    </Div>
+                    <Separator />
+                    <SimpleCell
+                    disabled 
+                    description="Меняет цвет ника в пантеоне на эксклюзивный"
+                    after={
+                      <Switch 
+                        checked={this.state.colorchangeDonut}
+                        onChange={(e) => this.needChangeColor(e)} />
+                      }
+                      >
+                      Цвет ника
+                    </SimpleCell>
                     <SimpleCell disabled indicator={this.props.account.donuts}>Пончики</SimpleCell>
                 </Group>
                 <Group>

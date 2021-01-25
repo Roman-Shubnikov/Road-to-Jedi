@@ -15,7 +15,7 @@ class CONFIG {
 	
 	const AVATAR_PATH = 'https://xelene.ru/road/php/images/avatars';
 	const AVATARS_COUNT = 34;
-	const DONUT_AVATARS_COUNT = 10;
+	const DONUT_AVATARS_COUNT = 11;
 	
 	const MAX_TICKETS_TITLE_LEN = 80;
 	const MAX_TICKETS_TEXT_LEN = 4040;
@@ -127,6 +127,10 @@ class CONFIG {
 
 		// Recommendations
 		1450 => "Вы уже и так в рекомендациях",
+
+		// Settings
+
+		1500 => "Такой настройки не существует",
 		// Server
 
 		403 => 'Доступ запрещен.',

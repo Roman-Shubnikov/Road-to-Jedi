@@ -105,11 +105,11 @@ export default class Advice extends React.Component {
                     
                   </div>
                   <div style={{display: 'flex', justifyContent: 'space-around', marginTop: 10}}>
-                    {this.props.account['generator'] && <Tiles
+                    {this.props.account['generator'] && <><Tiles
                       onClick={() => this.props.this.goPanel('new_ticket')}
                       icon={<Icon28BrainOutline width={36} height={36} style={{color: '#FFA000'}} />}>
                         Генератор
-                      </Tiles>}
+                      </Tiles>
                       <div style={{visibility: 'hidden'}}>
                       <Tiles
                         icon={<Icon24LifebuoyOutline width={36} height={36} style={{color: '#4BB34B'}} />}>
@@ -122,7 +122,7 @@ export default class Advice extends React.Component {
                           Поддержка
                       </Tiles>
                       </div>
-                      
+                      </>}
                       
                   </div>
                   

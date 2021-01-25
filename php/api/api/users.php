@@ -8,7 +8,7 @@ class Users {
 	protected $Connect;
 
 
-	function __construct( int $vk_user_id, DB $Connect ) {
+	function __construct( int $vk_user_id, DB $Connect) {
 		$this->Connect = $Connect;
 		$this->vk_id = $vk_user_id;
 		$this->_get();
@@ -73,7 +73,7 @@ class Users {
 	}
 
 	public function getById( int $id ) {
-		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator, users.public, users.publicStatus,
+		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator, users.publicStatus,
 				users.bad_answers, users.avatar_id, avatars.name as avatar_name, users.flash, users.verified, users.donut, users.diamond, users.nickname,
 				users.money, users.age, users.scheme, users.vk_user_id, users.donuts
 				FROM users
@@ -115,7 +115,7 @@ class Users {
 		$result = [];
 
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator,
-						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme, users.public, users.publicStatus,
+						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme, users.publicStatus,
 						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname, users.donuts
 				FROM users
 				LEFT JOIN avatars ON users.avatar_id=avatars.id
@@ -162,7 +162,7 @@ class Users {
 		$user_id = $this->vk_id;
 		$this->Connect->query("UPDATE users SET last_activity=? WHERE vk_user_id=?", [$time,$user_id]);
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,users.age,users.vk_user_id,
-						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.noti, users.scheme, users.public, users.publicStatus,
+						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.scheme, users.publicStatus,
 						users.special, users.generator, users.flash, users.verified, users.donut, users.nickname, users.diamond, avatars.name as avatar_name, users.donuts
 				FROM users
 				LEFT JOIN avatars
@@ -195,6 +195,11 @@ class Users {
 		if ( !$data['id'] ) {
 			return [];
 		}
+		$info_settings = $this->Connect->db_get("SELECT public,hide_donut,change_color_donut FROM user_settings WHERE aid=?", [(int) $data['id']]);
+		$is_public = $info_settings ? (bool) $info_settings[0]['public'] : FALSE;
+		$is_hide_donut = $info_settings ? (bool) $info_settings[0]['hide_donut'] : FALSE;
+		$changeColorNick = $info_settings ? $info_settings[0]['change_color_donut'] : FALSE;
+
 		if( empty($data['banned']) || !$data['special']) {
 			$res = [
 				'id' => (int) $data['id'],
@@ -211,10 +216,11 @@ class Users {
 				'registered' => (int) $data['registered'],
 				'flash' => (bool) $data['flash'],
 				'verified' => (bool) $data['verified'],
-				'donut' => (bool) $data['donut'],
+				'donut' => $is_hide_donut ? FALSE : (bool) $data['donut'],
+				'change_color_donut' => (bool)$changeColorNick,
 				'diamond' => (bool) $data['diamond'],
 				'generator' => (bool) $data['generator'],
-				'public' => (bool) $data['public'],
+				'public' => $is_public,
 				'publicStatus' => $data['publicStatus'],
 			];	
 		}
@@ -244,11 +250,13 @@ class Users {
 			$res['donuts'] = (int)$data['donuts'];
 			$res['age'] = (int)$data['age'];
 			$res['scheme'] = (int)$data['scheme'];
+			$res['donut'] = (bool) $data['donut'];
+			
 		}
 		if ( isset( $data['notifications_count'] ) ) {
 			$res['notif_count'] = (int) $data['notifications_count'];
 		}
-		if(!array_key_exists('vk_id', $res) && $data['public']) $res['vk_id'] = (int)$data['vk_user_id'];
+		if(!array_key_exists('vk_id', $res) && $is_public) $res['vk_id'] = (int)$data['vk_user_id'];
 
 		return $res;
 	}

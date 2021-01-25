@@ -171,8 +171,6 @@ class Profile extends React.Component{
                                 </div>
                                 
                             </RichCell>
-                        </Group>
-                        <Group>
                             <MiniInfoCell
                             before={<Icon20ArticleOutline />}
                             textWrap='full'
@@ -218,8 +216,6 @@ class Profile extends React.Component{
                                 before={<Icon28Messages />}>
                                     Чат
                             </SimpleCell>
-                        </Group>
-                        <Group>
                             {(this.props.account['special'] || this.props.account['generator']) || <SimpleCell
                             expandable
                             onClick={() => {
