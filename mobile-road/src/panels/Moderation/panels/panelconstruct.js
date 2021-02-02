@@ -12,7 +12,6 @@ import Answers from './components/answers'
 import Questions from './components/questions';
 import Verification from './components/verification';
 import Reports from './components/Reports';
-const admins = [413636725, 526444378,585981539]
 
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 export default class ConstructPanel extends React.Component {
@@ -142,13 +141,13 @@ export default class ConstructPanel extends React.Component {
                         >
                             Вопросы
                         </TabsItem>
-                        {!(admins.indexOf(this.props.account['vk_id']) === -1) ? <TabsItem
+                        {this.props.account['special2'] ? <TabsItem
                             onClick={() => this.setState({ activeTab: 'reports' })}
                             selected={this.state.activeTab === 'reports'}
                         >
                             Жалобы
                         </TabsItem> : null}
-                        {!(admins.indexOf(this.props.account['vk_id']) === -1) ? <TabsItem
+                        {this.props.account['special2'] ? <TabsItem
                             onClick={() => this.setState({ activeTab: 'verification' })}
                             selected={this.state.activeTab === 'verification'}
                         >

@@ -86,4 +86,16 @@ class VKApi {
 		];
 		return $this->_request( 'notifications.sendMessage', $data );
 	}
+	public function sendMessage($user_id, $text){
+		$data = [
+			'user_id' => $user_id,
+			'random_id' => 0,
+			'message' => "$text",
+			'dont_parse_links' => 1,
+			'access_token' =>$this->token,
+			'v' => '5.120'
+		];
+
+		return $this->_request( 'messages.send', $data );
+	}
 }

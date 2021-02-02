@@ -52,7 +52,7 @@ export default class Questions extends React.Component {
                         </div>
                         <InfoRow>
                             <Progress 
-                            value={this.props.account['marked'] ? Math.floor(this.props.account['marked'] / 150 * 100) : 0} />
+                            value={this.props.account['marked'] ? this.props.account['marked'] / 150 : 0} />
                             <div style={{textAlign: 'right', color: "var(--text_profile)", marginTop: 10, fontSize: 13}}>150</div>
                         </InfoRow>
                         {(this.props.account['marked'] >= 150) ? <div style={{textAlign: 'center', color: "var(--text_profile)", marginBottom: 5}}>

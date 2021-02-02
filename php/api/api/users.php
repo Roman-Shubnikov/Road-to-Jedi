@@ -234,6 +234,9 @@ class Users {
 			$res['marked'] = (int) $data['good_answers'];
 			
 		}
+		if($data['special'] == 2) {
+			$res['special2'] = TRUE;
+		}
 
 		if ( isset( $data['is_first_start'] ) ) {
 			$res['is_first_start'] = (bool) $data['is_first_start'];

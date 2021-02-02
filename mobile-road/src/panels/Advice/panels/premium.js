@@ -172,12 +172,13 @@ export default class Donuts extends React.Component {
                       Отметка VK Donut
                     </SimpleCell>
                     <Div>
-                      <Subhead weight='regular' className='SimpleCell__description'>После активации данной функции, в Вашем профиле, около имени, появится эксклюзивная отметка</Subhead>
+                      <Subhead weight='regular' className='SimpleCell__description'>
+                        После активации данной функции, в Вашем профиле, около имени, появится эксклюзивная отметка
+                      </Subhead>
                     </Div>
                     <Separator />
                     <SimpleCell
-                    disabled 
-                    description="Меняет цвет ника в пантеоне на эксклюзивный"
+                    disabled
                     after={
                       <Switch 
                         checked={this.state.colorchangeDonut}
@@ -186,6 +187,11 @@ export default class Donuts extends React.Component {
                       >
                       Цвет ника
                     </SimpleCell>
+                    <Div>
+                      <Subhead weight='regular' className='SimpleCell__description'>
+                        После активации данной функции в общем Пантеоне, Ваш ник будет отображаться цветом доната
+                      </Subhead>
+                    </Div>
                     <SimpleCell disabled indicator={this.props.account.donuts}>Пончики</SimpleCell>
                 </Group>
                 <Group>

@@ -1,4 +1,5 @@
 import React from 'react';
+import bridge from '@vkontakte/vk-bridge';
 
 import { 
     Panel,
@@ -17,6 +18,11 @@ import {
     Progress,
     FormItem,
     Group,
+    Switch,
+    SimpleCell,
+    Subhead,
+
+
     } from '@vkontakte/vkui';
 function enumerate (num, dec) {
     if (num > 100) num = num % 100;
@@ -32,6 +38,7 @@ export default class NewTicket extends React.Component {
                 title_new_tiket: '',
                 text_new_tiket: '',
                 check1: false,
+                noty: this.props.account.settings.generator_noty,
             }
             var propsbi = this.props.this;
             this.setPopout = propsbi.setPopout;
@@ -43,6 +50,45 @@ export default class NewTicket extends React.Component {
                 var value = event.currentTarget.value;
                 this.setState({ [name]: value });
             }
+        }
+        saveSettings(setting, value){
+            this.setPopout(<ScreenSpinner />)
+            fetch(this.state.api_url + "method=settings.set&" + window.location.search.replace('?', ''),
+              {method: 'post',
+              headers: {"Content-type": "application/json; charset=UTF-8"},
+                  // signal: controllertime.signal,
+              body: JSON.stringify({
+                  'setting': setting,
+                  'value': value,
+              })
+              })
+              .then(data => data.json())
+              .then(data => {
+                if(data.result){
+                  this.setPopout(null)
+                    setTimeout(() => {
+                      this.props.this.ReloadProfile();
+                    }, 4000)
+                  }else{
+                    this.showErrorAlert(data.error.message);
+                  }
+              })
+              .catch(err => {
+                this.props.this.changeData('activeStory', 'disconnect')
+            })
+          }
+        setNotify(check){
+            check = check.currentTarget.checked;
+            if(check){
+                bridge.send("VKWebAppAllowMessagesFromGroup", {"group_id": 201151841}).then(data => {
+                    this.setState({noty: check});
+                    this.saveSettings('generator_noty', Number(check))
+                }).catch(() => this.showErrorAlert("Вы не разрешили сообщения группы"))
+            }else{
+                this.setState({noty: check});
+                this.saveSettings('generator_noty', Number(check))
+            }
+            
         }
         getRandomInRange(min, max) {
             return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -106,7 +152,7 @@ export default class NewTicket extends React.Component {
                             </div>
                             <InfoRow>
                                 <Progress 
-                                value={this.props.account['bad_answers'] ? Math.floor(this.props.account['bad_answers'] / 200 * 100) : 0} />
+                                value={this.props.account['bad_answers'] ? this.props.account['bad_answers'] / 200 : 0} />
                                 <div style={{textAlign: 'right', color: "var(--text_profile)", marginTop: 10, fontSize: 13}}>200</div>
                             </InfoRow>
                             {(this.props.account['marked'] >= 200) ? <div style={{textAlign: 'center', color: "var(--text_profile)", marginBottom: 5}}>
@@ -116,8 +162,25 @@ export default class NewTicket extends React.Component {
                     </Div>
                 </Group> : null}
                 <Group>
+                <SimpleCell
+                    disabled 
+                    after={
+                      <Switch 
+                        checked={this.state.noty}
+                        onChange={(e) => this.setNotify(e)} />
+                      }
+                      >
+                      Уведомления
+                    </SimpleCell>
+                    <Div>
+                      <Subhead weight='regular' className='SimpleCell__description'>
+                        После активации данной функции Вам будут поступать в личные сообщения результаты рассмотрения вопросов
+                      </Subhead>
+                    </Div>
+                </Group>
+                <Group>
                     <FormLayout>
-                        <FormItem top={"Суть проблемы (" + this.state.title_new_tiket.length + "/80). Не менее 5 символов"}>
+                        <FormItem top={"Заголовок вопроса (" + this.state.title_new_tiket.length + "/80). Не менее 5 символов"}>
                             <Input 
                             maxLength="80" 
                             type="text" 
@@ -126,10 +189,9 @@ export default class NewTicket extends React.Component {
                             value={this.state.title_new_tiket} 
                             onChange={(e) => this.onChange(e)}/>
                         </FormItem>
-                        <FormItem>
+                        <FormItem top={"Сообщение (" + this.state.text_new_tiket.length + "/2020). Не менее 5 символов"} >
                             <Textarea maxLength="2020" 
                             name="text_new_tiket" 
-                            top={"Подробнее о проблеме (" + this.state.text_new_tiket.length + "/2020). Не менее 5 символов"} 
                             onChange={(e) => this.onChange(e)}
                             placeholder='Введите свой текст...'
                             value={this.state.text_new_tiket}

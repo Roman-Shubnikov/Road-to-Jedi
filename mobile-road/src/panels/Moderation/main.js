@@ -29,7 +29,6 @@ import ModalBan       from '../../Modals/Ban';
 
 
 import Icon28SortOutline          from '@vkontakte/icons/dist/28/sort_outline';
-const admins = [413636725, 526444378,585981539]
 
 // const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
@@ -391,7 +390,7 @@ export default class Main extends React.Component {
       window.addEventListener('popstate', this.handlePopstate); 
       this.getQuestions()
       this.getAnswers()
-      if(!(admins.indexOf(this.props.account['vk_id']) === -1)){
+      if(this.props.account['special2']){
         this.getVerification()
         this.getReports()
       }
