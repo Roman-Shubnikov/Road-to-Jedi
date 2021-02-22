@@ -193,10 +193,12 @@ export default class Settings extends React.Component{
       }
     }
     componentDidMount(){
-      bridge.send('VKWebAppGetAds')
-    .then((promoBannerProps) => {
-        this.setState({ promoBannerProps });
-    })
+      if(!this.props.account['donut']) {
+        bridge.send('VKWebAppGetAds')
+        .then((promoBannerProps) => {
+          this.setState({ promoBannerProps });
+        })
+      }
     }
     render() {
         var props = this.props.this;

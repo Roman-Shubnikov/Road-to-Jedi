@@ -118,17 +118,6 @@ $params = [
 			'required' => true
 		]
 	],
-	'account.Flash' => [
-		'agent_id' => [
-			'type' => 'int',
-			'required' => true,
-		],
-		'give' => [
-			'type' => 'int',
-			'required' => false,
-			'default' => 1,
-		],
-	],
 	'account.ban' => [
 		'agent_id' => [
 			'type' => 'int',
@@ -670,11 +659,6 @@ switch ($method) {
 			Show::error(1010);
 		}
 		Show::response($account->changeScheme($scheme));
-
-	case 'account.Flash':
-		$agent_id = $data['agent_id'];
-		$give = (bool)$data['give'];
-		Show::response($account->Prometay($agent_id, $give));
 
 	case 'account.ban':
 		$agent_id = $data['agent_id'];

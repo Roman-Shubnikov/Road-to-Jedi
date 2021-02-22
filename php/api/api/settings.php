@@ -14,6 +14,8 @@ class Settings {
             'public' => 'bool',
             'notify' => 'bool',
             'hide_donut' => 'bool',
+            'change_color_donut' => 'bool',
+            'generator_noty' => 'bool',
         ];
 
     }
@@ -36,7 +38,7 @@ class Settings {
         $this->settings = $res ? $res[0] : [];
     }
     private function _register(){
-        $this->Connect->query("INSERT INTO user_settings (aid) VALUES (?)", [$this->users->id]);
+        $this->Connect->query("INSERT IGNORE INTO user_settings (aid) VALUES (?)", [$this->users->id]);
     }
 
     public function checkValidNameSetting($name, $value=NULL){

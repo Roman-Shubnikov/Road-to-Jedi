@@ -23,25 +23,30 @@ import {
 
 
     } from '@vkontakte/vkui';
-import Icon20BookOutline            from '@vkontakte/icons/dist/20/book_outline';
-import Icon16Fire                   from '@vkontakte/icons/dist/16/fire';
-import Icon16Verified               from '@vkontakte/icons/dist/16/verified';
-import Icon16StarCircleFillYellow   from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
-import Icon28WalletOutline          from '@vkontakte/icons/dist/28/wallet_outline';
-import Icon28PaletteOutline         from '@vkontakte/icons/dist/28/palette_outline';
-import Icon28Notifications          from '@vkontakte/icons/dist/28/notifications';
-import Icon56DurationOutline        from '@vkontakte/icons/dist/56/duration_outline';
-import Icon28DiamondOutline         from '@vkontakte/icons/dist/28/diamond_outline';
-import Icon16CheckCircle            from '@vkontakte/icons/dist/16/check_circle';
-import Icon24MoreVertical           from '@vkontakte/icons/dist/24/more_vertical';
-import Icon20ArticleOutline         from '@vkontakte/icons/dist/20/article_outline';
-import Icon20FollowersOutline       from '@vkontakte/icons/dist/20/followers_outline';
-import Icon20Info                   from '@vkontakte/icons/dist/20/info';
-import Icon20GlobeOutline           from '@vkontakte/icons/dist/20/globe_outline';
-import Icon20WorkOutline            from '@vkontakte/icons/dist/20/work_outline';
-import Icon20Add                    from '@vkontakte/icons/dist/20/add';
-import Icon20UserOutline            from '@vkontakte/icons/dist/20/user_outline';
 
+
+import { 
+    Icon20StatisticsOutline,
+    Icon20BookOutline,
+    Icon16Fire,
+    Icon16Verified,
+    Icon16StarCircleFillYellow,
+    Icon28WalletOutline,
+    Icon28PaletteOutline,
+    Icon28Notifications,
+    Icon56DurationOutline,
+    Icon28DiamondOutline,
+    Icon16CheckCircle,
+    Icon24MoreVertical,
+    Icon20ArticleOutline,
+    Icon20FollowersOutline,
+    Icon20Info,
+    Icon20GlobeOutline,
+    Icon20WorkOutline,
+    Icon20Add,
+    Icon20UserOutline,
+    Icon20CalendarOutline,
+ } from '@vkontakte/icons';
 import {
     Icon48DonateOutline,
 } from '@vkontakte/icons';
@@ -147,45 +152,11 @@ class OtherProfile extends React.Component {
     
             })
         }
-        Prom(id, give=true) {
-            this.setState({popout: <ScreenSpinner/>})
-            fetch(this.state.api_url + "method=account.Flash&" + window.location.search.replace('?', ''),
-            {method: 'post',
-                headers: {"Content-type": "application/json; charset=UTF-8"},
-                 // signal: controllertime.signal,
-                body: JSON.stringify({
-                'agent_id': id,
-                'give': Number(give),
-            })
-            })
-              .then(res => res.json())
-              .then(data => {
-                if(data.result) {
-                    let prof = this.state.other_profile;
-                    if(give){
-                        prof['flash'] = true;
-                    } else {
-                        prof['flash'] = false;
-                    }
-                    this.setState({other_profile: prof})
-                }else {
-                    this.showErrorAlert(data.error.message)
-                  }
-              })
-              .catch(err => {
-                this.props.this.changeData('activeStory', 'disconnect')
-              })
-          }
         infoMenu(id, prometey) {
             this.setPopout(
               <ActionSheet onClose={() => this.setPopout(null)}
               toggleRef={this.profRef.current}
                 iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
-                {this.props.account.special ? 
-                    <ActionSheetItem autoclose onClick={prometey ? () => this.Prom(id, false) : () => this.Prom(id)}>
-                    {prometey ? 'Забрать прометей' : 'Выдать прометей'}
-                </ActionSheetItem>
-                : null }
                 {this.props.account.special ? 
                     <ActionSheetItem autoclose onClick={() => {this.props.this.setState({other_profile:this.state.other_profile});this.setActiveModal('ban_user');}}>
                     Заблокировать
@@ -413,6 +384,11 @@ class OtherProfile extends React.Component {
                      <Group>
                         <MiniInfoCell 
                         before={<Icon20UserOutline />}
+                        after={this.state.other_profile['id']}>
+                            Id Агента
+                        </MiniInfoCell>
+                        <MiniInfoCell 
+                        before={<Icon20CalendarOutline />}
                         after={this.state.other_profile['age'] + " " + enumerate(this.state.other_profile['age'], ['год', 'года', 'лет'])}>
                             Возраст
                         </MiniInfoCell>
@@ -435,6 +411,11 @@ class OtherProfile extends React.Component {
                         before={<Icon28Notifications width={20} height={20} />}
                         after={NOTI[Number(this.state.other_profile['noti'])]}>
                             Уведомления
+                        </MiniInfoCell>
+                        <MiniInfoCell
+                        before={<Icon20StatisticsOutline width={20} height={20} />}
+                        after={this.state.other_profile['coff_active']}>
+                            Рейтинг Престижности
                         </MiniInfoCell>
                         <MiniInfoCell
                         mode='base'

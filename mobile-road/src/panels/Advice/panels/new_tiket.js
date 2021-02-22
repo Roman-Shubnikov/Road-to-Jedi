@@ -152,7 +152,7 @@ export default class NewTicket extends React.Component {
                             </div>
                             <InfoRow>
                                 <Progress 
-                                value={this.props.account['bad_answers'] ? this.props.account['bad_answers'] / 200 : 0} />
+                                value={this.props.account['bad_answers'] ? this.props.account['bad_answers'] / 200 * 100 : 0} />
                                 <div style={{textAlign: 'right', color: "var(--text_profile)", marginTop: 10, fontSize: 13}}>200</div>
                             </InfoRow>
                             {(this.props.account['marked'] >= 200) ? <div style={{textAlign: 'center', color: "var(--text_profile)", marginBottom: 5}}>

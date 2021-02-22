@@ -16,13 +16,13 @@ import {
 import Icon56NotificationOutline from '@vkontakte/icons/dist/56/notification_outline';
 
 
-import Destruct_img from '../images/notify_destructive.png';
-import Verif_img from '../images/notify_approve.png';
-import Done_img from '../images/notify_done.png';
-import Info_img from '../images/notify_info.png';
-import Paycard_img from '../images/notify_paycard.png';
-import Donut_img from '../images/notify_donut.png';
-import Comment_img from '../images/notify_comment.png';
+import Destruct_img from '../images/notify_destructive.svg';
+import Verif_img from '../images/notify_approve.svg';
+import Done_img from '../images/notify_done.svg';
+import Info_img from '../images/notify_info.svg';
+import Paycard_img from '../images/notify_paycard.svg';
+import Donut_img from '../images/notify_donut.svg';
+import Comment_img from '../images/notify_comment.svg';
 
 
 function fix_time(time) {

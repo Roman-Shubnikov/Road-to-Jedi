@@ -73,7 +73,7 @@ class Users {
 	}
 
 	public function getById( int $id ) {
-		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator, users.publicStatus,
+		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator, users.publicStatus, users.coff_active,
 				users.bad_answers, users.avatar_id, avatars.name as avatar_name, users.flash, users.verified, users.donut, users.diamond, users.nickname,
 				users.money, users.age, users.scheme, users.vk_user_id, users.donuts
 				FROM users
@@ -115,7 +115,7 @@ class Users {
 		$result = [];
 
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator,
-						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme, users.publicStatus,
+						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme, users.publicStatus,users.coff_active,
 						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname, users.donuts
 				FROM users
 				LEFT JOIN avatars ON users.avatar_id=avatars.id
@@ -142,7 +142,7 @@ class Users {
 
 		$s_ids = implode( ',', $a_ids );
 
-		return $this->getByIds( $s_ids, 'ORDER BY good_answers DESC' );
+		return $this->getByIds( $s_ids, $staff ? 'ORDER BY good_answers DESC' : 'ORDER BY coff_active DESC');
 	}
 	public function getRandom() {
 		$sql = "SELECT vk_user_id FROM users ORDER BY RAND() LIMIT 1";
@@ -162,7 +162,7 @@ class Users {
 		$user_id = $this->vk_id;
 		$this->Connect->query("UPDATE users SET last_activity=? WHERE vk_user_id=?", [$time,$user_id]);
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,users.age,users.vk_user_id,
-						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.scheme, users.publicStatus,
+						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.scheme, users.publicStatus,users.coff_active,
 						users.special, users.generator, users.flash, users.verified, users.donut, users.nickname, users.diamond, avatars.name as avatar_name, users.donuts
 				FROM users
 				LEFT JOIN avatars
@@ -182,7 +182,7 @@ class Users {
 
 	private function _register() {
 		$time = time();
-		$res = $this->Connect->query("INSERT INTO users (vk_user_id,registered,last_activity,nickname,avatar_id) VALUES (?,?,?,?,?)", [$this->vk_id,$time,$time,NULL,rand( 1, CONFIG::AVATARS_COUNT )]);
+		$res = $this->Connect->query("INSERT IGNORE INTO users (vk_user_id,registered,last_activity,nickname,avatar_id) VALUES (?,?,?,?,?)", [$this->vk_id,$time,$time,NULL,rand( 1, CONFIG::AVATARS_COUNT )]);
 		return $res;
 	}
 	private function _formatType( array $data ) {
@@ -254,6 +254,7 @@ class Users {
 			$res['age'] = (int)$data['age'];
 			$res['scheme'] = (int)$data['scheme'];
 			$res['donut'] = (bool) $data['donut'];
+			$res['coff_active'] = $data['coff_active'] / 10;
 			
 		}
 		if ( isset( $data['notifications_count'] ) ) {

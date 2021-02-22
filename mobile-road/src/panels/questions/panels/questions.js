@@ -1,5 +1,6 @@
 import React from 'react';
 import $ from 'jquery';
+import bridge from '@vkontakte/vk-bridge';
 
 import { 
     Panel,
@@ -17,7 +18,10 @@ import {
     ScreenSpinner,
     Group,
     List,
-    SimpleCell
+    SimpleCell,
+    FixedLayout,
+    PromoBanner,
+    
     
     } from '@vkontakte/vkui';
 
@@ -72,6 +76,12 @@ export default class Questions extends React.Component {
         }
         componentDidMount() {
             this.setPopout(null)
+            if(!this.props.account['donut']) {
+                    bridge.send('VKWebAppGetAds')
+                .then((promoBannerProps) => {
+                    this.setState({ promoBannerProps });
+                })
+            }
             $(window).on('scroll.detectautoload', () => {
                 if($(window).scrollTop() + $(window).height() + 400 >= $(document).height() && !loadingContent && this.props.tiket_all_helper && this.props.tiket_all_helper.length === 20){
                     this.Prepare_questions(true)
@@ -80,6 +90,7 @@ export default class Questions extends React.Component {
         }
         componentWillUnmount(){
             $(window).off('scroll.detectautoload')
+            
         }
 
         render() {
@@ -181,6 +192,10 @@ export default class Questions extends React.Component {
                     null}
                 </PullToRefresh>
             </Group>
+            { this.state.promoBannerProps && this.state.ShowBanner && 
+                <FixedLayout vertical='bottom'>
+                  <PromoBanner onClose={() => {this.setState({ShowBanner: false})}} bannerData={ this.state.promoBannerProps } />
+                </FixedLayout> }
             </Panel>
             )
             }

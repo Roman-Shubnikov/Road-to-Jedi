@@ -122,13 +122,14 @@ class Tickets {
 		// Увеличиваем счетчик оцененных ответов
 		$auid = $res['author_id'];
 		$good_or_bad = $mark == 1 ? 'good_answers' : 'bad_answers';
+		$rating = $mark == 1 ? 'coff_active=coff_active+11' : 'coff_active=coff_active-6';
 		if($ticket['donut']){
 			$money = $mark == 1 ? 'money=money+30,donuts=donuts+10' : 'money=money';
 		}else{
 			$money = $mark == 1 ? 'money=money+10' : 'money=money';
 		}
 		
-		$sql = "UPDATE users SET $good_or_bad = $good_or_bad + 1, $money WHERE id=?";
+		$sql = "UPDATE users SET $good_or_bad = $good_or_bad + 1, $rating, $money WHERE id=?";
 		$this->Connect->query( $sql,[$auid]);
 
 		// $notification = substr( $res['text'], 0, 150 ).'...';

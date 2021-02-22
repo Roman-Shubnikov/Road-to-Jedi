@@ -41,16 +41,6 @@ class Account {
 		$shortInfo = $this->user->getById($agent_id);
 		return $this->Connect->db_get("SELECT COUNT(*) FROM banned WHERE vk_user_id=?", [$shortInfo['vk_id']]);
 	}
-	public function Prometay($agent_id, $give=TRUE){
-		if ( !$this->user->info['special'] ) {
-			Show::error(403);
-		}
-		
-		if ($give) {
-			return $this->Connect->query("UPDATE users SET flash=? WHERE id=?", [time(),$agent_id])[0];
-		}
-		return $this->Connect->query("UPDATE users SET flash=0 WHERE id=?", [$agent_id])[0];
-	}
 	public function Verification($agent_id, $give=TRUE){
 		if ( !$this->user->info['special'] ) {
 			Show::error(403);

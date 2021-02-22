@@ -227,6 +227,7 @@ export default withPlatform(class Main extends React.Component {
         } else if (history.length > 1) {
           history.pop()
           this.setActiveModal(null);
+          this.setState({active_other_profile: 0})
           if (this.state.activePanel === 'profile') {
             bridge.send('VKWebAppDisableSwipeBack');
           }
@@ -392,19 +393,19 @@ export default withPlatform(class Main extends React.Component {
           id='prom'
           onClose={() => this.setActiveModal(null)}
           action={() => this.setActiveModal(null)}
-          action2={() => { this.setState({ sharing_type: 'prometay' }); this.setActiveModal('share2') }} />
+          action2={(this.state.active_other_profile === 0) ? () => { this.setState({ sharing_type: 'prometay' }); this.setActiveModal('share2') } : undefined} />
 
         <ModalDonut
           id='donut'
           onClose={() => this.setActiveModal(null)}
           action={() => this.setActiveModal(null)}
-          action2={() => { this.setState({ sharing_type: 'donut' }); this.setActiveModal('share2') }} />
+          action2={(this.state.active_other_profile === 0) ? () => { this.setState({ sharing_type: 'donut' }); this.setActiveModal('share2') } : undefined} />
 
         <ModalVerif
           id='verif'
           onClose={() => this.setActiveModal(null)}
           action={() => this.setActiveModal(null)}
-          action2={() => { this.setState({ sharing_type: 'verif' }); this.setActiveModal('share2') }} />
+          action2={(this.state.active_other_profile === 0) ? () => { this.setState({ sharing_type: 'verif' }); this.setActiveModal('share2') } : undefined} />
 
         <ModalBan
           id='ban_user'
