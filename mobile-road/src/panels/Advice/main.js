@@ -1,9 +1,8 @@
-import React from 'react'; // React
+import React, { useCallback, useEffect, useState } from 'react'; // React
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 
 
 import { 
-  Alert,
   View,
   ScreenSpinner,
   ModalRoot,
@@ -22,242 +21,145 @@ import ModalPrometay  from '../../Modals/Prometay';
 import ModalDonut     from '../../Modals/Donut'
 import ModalBan       from '../../Modals/Ban';
 import ModalVerif     from '../../Modals/Verif'
+import { useDispatch, useSelector } from 'react-redux';
+import { viewsActions } from '../../store/main';
+import { errorAlertCreator, setActiveModalCreator, goPanelCreator, goOtherProfileCreator } from '../../Utils';
 
 
 var ignore_back = false;
 
+export default props => {
+  const dispatch = useDispatch();
+  const [popout, setPopout] = useState(() => (props.popout));
+  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
+  const [typeres, setTyperes] = useState(0);
+  const [id_rep, setIdRep] = useState(0);
+  const [modalHistory, setModalHistory] = useState(null);
+  const [historyPanelsState, setHistory] = useState(['advice']);
+  const [activePanel, setActivePanel] = useState('advice');
+  const [activeModal, setModal] = useState(null);
+  const {
+    other_profile: OtherProfileData
+  } = useSelector((state) => state.account)
 
-export default class Main extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            api_url: "https://xelene.ru/road/php/index.php?",
-            activePanel: 'advice',
-            activeModal: null,
-            modalHistory: [],
-            popout: this.props.popout,
-            history: ['advice'],
-            active_other_profile: 0,
-            other_profile: null,
-            snackbar: null,
-            id_rep: 1,
-            typeres: 1,
-            recomndations: null,
-
-        }
-        this.changeData = this.props.this.changeData;
-        this.ReloadProfile = this.props.reloadProfile;
-        this.setReport = (typeres, id_rep) => {
-          this.setState({typeres, id_rep})
-          this.goPanel("report")
-        }
-      
-        this.setPopout = (value) => {
-          this.setState({popout: value})
-          if(value && value.type.name === 'ScreenSpinner'){
-            ignore_back = true;
-          }else{
-            ignore_back = false;
-          }
-        }
-        this.handlePopstate = (e) => {
-          e.preventDefault();
-          this.goBack()
-        }
-        this.goTiket = (id) => {
-          this.setPopout(<ScreenSpinner/>)
-          this.setState({ticket_id: id})
-          this.goPanel('ticket');
-          this.setPopout(null);
-        }
-        this.onChange = (event) => {
-          var name = event.currentTarget.name;
-          var value = event.currentTarget.value;
-          this.setState({ [name]: value });
-      }
-        this.goOtherProfile = (id) => {
-          this.setState({active_other_profile: id})
-          this.goPanel("other_profile")
-        }
-        this.modalBack = () => {
-            this.setActiveModal(this.state.modalHistory[this.state.modalHistory.length - 2]);
-        };
-        this.goBack = () => {
-          // this.setPopout(<ScreenSpinner />)
-          if(!ignore_back){
-            ignore_back = true;
-            const history = this.state.history;
-            this.setActiveModal(null);
-            if(history.length === 1) {
-                bridge.send("VKWebAppClose", {"status": "success"});
-            } else if (history.length > 1) {
-                history.pop()
-                if(this.state.activePanel === 'questions') {
-                  bridge.send('VKWebAppDisableSwipeBack');
-                }
-                this.setState({activePanel: history[history.length - 1]})
-                this.setPopout(<ScreenSpinner />)
-                setTimeout(() => {
-                  this.setPopout(null)
-                }, 500)
-            }
-            setTimeout(() => {ignore_back = false;}, 500)
-            
-          }else{
-            const history = this.state.history;
-            window.history.pushState( { panel: history[history.length - 1] }, history[history.length - 1] );
-          }
-          
-      }
-        this.goPanel = (panel) => {
-          let history = this.state.history.slice();
-          history.push(panel)
-          window.history.pushState( { panel: panel }, panel );
-          if(panel === 'questions') {
-            bridge.send('VKWebAppEnableSwipeBack');
-          }
-          this.setState({history: history, activePanel: panel})
-        }
-        this.setActiveModal = (activeModal) => {
-            activeModal = activeModal || null;
-            let modalHistory = this.state.modalHistory ? [...this.state.modalHistory] : [];
-        
-            if (activeModal === null) {
-              modalHistory = [];
-            } else if (modalHistory.indexOf(activeModal) !== -1) {
-              modalHistory = modalHistory.splice(0, modalHistory.indexOf(activeModal) + 1);
-            } else {
-              modalHistory.push(activeModal);
-            }
-        
-            this.setState({
-              activeModal: activeModal,
-              modalHistory: modalHistory
-            });
-          };
-          this.showAlert = (title, text) => {
-            this.setState({
-              popout:
-                <Alert
-                actionsLayout="horizontal"
-                  actions={[{
-                    title: 'Закрыть',
-                    autoclose: true,
-                    mode: 'cancel'
-                  }]}
-                  onClose={() => this.setPopout(null)}
-                  header={title}
-                  text={text}
-                />
-            })
-          }
-          this.showErrorAlert = (error = null, action = null) => {
-            this.setPopout(
-              <Alert
-                actionsLayout="horizontal"
-                actions={[{
-                  title: 'Отмена',
-                  autoclose: true,
-                  mode: 'cancel',
-                  action: action,
-                }]}
-                onClose={() => this.setPopout(null)}
-                header="Ошибка"
-                text={error ? `${error}` : "Что-то пошло не так, попробуйте снова!"}
-              />
-            )
-          }
-        this.getRecomendations = () => {
-          fetch(this.state.api_url + "method=recommendations.get&" + window.location.search.replace('?', ''))
-          .then(res => res.json())
-          .then(data => {
-            if(data.result) {
-              this.setState({recomndations: data.response})
-              this.setPopout(null);
-            }else{
-              this.showErrorAlert(data.error.message)
-            }
-          })
-          .catch(err => {
-            this.changeData('activeStory', 'disconnect')
-
-          })
-        }
-    }
-    
-    componentDidMount(){
+  const goPanel = useCallback((panel) => {
+    goPanelCreator(setHistory, setActivePanel, historyPanelsState, panel)
+    if (panel === 'questions') {
       bridge.send('VKWebAppEnableSwipeBack');
-      window.addEventListener('popstate', this.handlePopstate);
-      this.getRecomendations();
-      this.changeData('need_epic', true)
     }
-    componentWillUnmount(){
+  }, [historyPanelsState])
+  const setReport = (typeres, id_rep) => {
+    setTyperes(typeres);
+    setIdRep(id_rep);
+    goPanel("report")
+  }
+  const setActiveModal = (activeModal) => {
+    setActiveModalCreator(setModal, setModalHistory, modalHistory, activeModal)
+  }
+  const showErrorAlert = (error = null, action = null) => {
+    errorAlertCreator(setPopout, error, action)
+  }
+  const goOtherProfile = useCallback((id) => {
+    goOtherProfileCreator(goPanel, setActiveStory, showErrorAlert, OtherProfileData, dispatch, id)
+  }, [dispatch, goPanel, OtherProfileData, setActiveStory])
+  
+  const goBack = useCallback(() => {
+    const history = [...historyPanelsState]
+    if (!ignore_back) {
+      ignore_back = true;
+      if (history.length === 1) {
+        bridge.send("VKWebAppClose", { "status": "success" });
+      } else if (history.length > 1) {
+
+        if (activePanel === 'load') {
+          bridge.send('VKWebAppDisableSwipeBack');
+        }
+        history.pop()
+        setActivePanel(history[history.length - 1])
+        setPopout(<ScreenSpinner />)
+        setTimeout(() => {
+          setPopout(null)
+        }, 500)
+      }
+      setHistory(history)
+      setTimeout(() => { ignore_back = false; }, 500)
+
+    } else {
+      window.history.pushState({ panel: history[history.length - 1] }, history[history.length - 1]);
+    }
+  }, [setPopout, activePanel, historyPanelsState])
+  const handlePopstate = useCallback((e) => {
+    e.preventDefault();
+    goBack();
+  }, [goBack]);
+
+  useEffect(() => {
+    bridge.send('VKWebAppEnableSwipeBack');
+    window.addEventListener('popstate', handlePopstate);
+    dispatch(viewsActions.setNeedEpic(true))
+
+    return () => {
       bridge.send('VKWebAppDisableSwipeBack');
-      window.removeEventListener('popstate', this.handlePopstate)
+      window.removeEventListener('popstate', handlePopstate)
     }
-    render() {
-        const modal = (
-            <ModalRoot
-            activeModal={this.state.activeModal}
-            >
-              <ModalPrometay
-              id='prom'
-              onClose={() => this.setActiveModal(null)}
-              action={() => this.setActiveModal(null)} />
+  }, [handlePopstate, dispatch])
 
-              <ModalDonut
-              id='donut'
-              onClose={() => this.setActiveModal(null)}
-              action={() => this.setActiveModal(null)} />
+  const callbacks = { setPopout, setReport, showErrorAlert, setActiveModal, goOtherProfile, goPanel }
+  const modal = (
+    <ModalRoot
+      activeModal={activeModal}
+    >
+      <ModalPrometay
+        id='prom'
+        onClose={() => setActiveModal(null)}
+        action={() => setActiveModal(null)} />
 
-              <ModalVerif
-              id='verif'
-              onClose={() => this.setActiveModal(null)}
-              action={() => this.setActiveModal(null)} />
+      <ModalDonut
+        id='donut'
+        onClose={() => setActiveModal(null)}
+        action={() => setActiveModal(null)} />
 
-              <ModalBan 
-              id='ban_user'
-              onClose={() => this.setActiveModal(null)}
-              other_profile={this.state.other_profile}
-              this={this}
-              />
-            </ModalRoot>
-        )
-        return(
-            <View 
-            id={this.props.id}
-            activePanel={this.state.activePanel}
-            modal={modal}
-            history={this.state.history}
-            onSwipeBack={() => window.history.back()}
-            popout={this.state.popout}
-            >
-              <Advice id="advice" 
-              this={this}
-              recomndations={this.state.recomndations}
-              account={this.props.account}
-               />
-              <Premium id="premium" 
-              account={this.props.account}
-              this={this} />
+      <ModalVerif
+        id='verif'
+        onClose={() => setActiveModal(null)}
+        action={() => setActiveModal(null)} />
 
-              <Donuts id="donuts" 
-              account={this.props.account} />
+      <ModalBan
+        id='ban_user'
+        onClose={() => setActiveModal(null)}
+      />
+    </ModalRoot>
+  )
+  return (
+    <View
+      id={props.id}
+      activePanel={activePanel}
+      modal={modal}
+      history={historyPanelsState}
+      onSwipeBack={() => window.history.back()}
+      popout={popout}
+    >
+      <Advice id="advice" 
+        callbacks={callbacks} />
+      <Premium id="premium"
+        callbacks={callbacks}
+        reloadProfile={props.reloadProfile} />
 
-              <NewTicket id='new_ticket'
-                this={this}
-                account={this.props.account} />
+      <Donuts id="donuts"
+        callbacks={callbacks} />
 
-              <OtherProfile id="other_profile" 
-              this={this} 
-              agent_id={this.state.active_other_profile} 
-              account={this.props.account}/>
+      <NewTicket id='new_ticket'
+        callbacks={callbacks}
+        reloadProfile={props.reloadProfile} />
 
-              <Reports id="report" 
-              this={this} 
-              id_rep={this.state.id_rep} 
-              typeres={this.state.typeres} /> 
-            </View>  
-        )
-    }
+      <OtherProfile id="other_profile"
+        callbacks={callbacks} />
+
+      <Reports id="report"
+        id_rep={id_rep}
+        typeres={typeres}
+        callbacks={callbacks} />
+    </View>
+  )
+
 }

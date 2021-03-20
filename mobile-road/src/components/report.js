@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { 
     Panel,
@@ -14,62 +14,63 @@ import {
     Alert,
 
     } from '@vkontakte/vkui';
+import { API_URL } from '../config';
+import { useDispatch } from 'react-redux';
+import { viewsActions } from '../store/main';
 
-
-export default class Reports extends React.Component {
-        constructor(props) {
-            super(props);
-            this.state = {
-                api_url: "https://xelene.ru/road/php/index.php?",
-                comment: "",
-                typerep: "1",
-            }
-            var propsbi = this.props.this;
-            this.setPopout = propsbi.setPopout;
-            this.showErrorAlert = propsbi.showErrorAlert;
-            this.setActiveModal = propsbi.setActiveModal;
-            this.onChange = (event) => {
-                var name = event.currentTarget.name;
-                var value = event.currentTarget.value;
-                this.setState({ [name]: value });
-            }
+const reasons = [
+    "Оскорбление",
+    "Порнография",
+    "Введение в заблуждение",
+    "Реклама",
+    "Вредоносные ссылки",
+    "Сообщение не по теме",
+    "Издевательство",
+    "Другое",
+]
+export default props => {
+    const dispatch = useDispatch();
+    const [comment, setComment] = useState('');
+    const [typerep, setTyperep] = useState('');
+    
+    const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
+    const { setPopout, showErrorAlert } = props.callbacks;
+    const sendReport = () => {
+        setPopout(<ScreenSpinner />)
+        fetch(API_URL + "method=reports.send&" + window.location.search.replace('?', ''),
+            {method: 'post',
+                headers: {"Content-type": "application/json; charset=UTF-8"},
+                    // signal: controllertime.signal,
+                body: JSON.stringify({
+                    'type': props.typeres, // Место нахождение материала
+                    'name': Number(typerep), // Причина
+                    'id_rep': props.id_rep, 
+                    'comment': comment,
+                })
+                })
+                .then(res => res.json())
+                .then(data => {
+                if(data.result) {
+                    setPopout(<Alert 
+                        actionsLayout="horizontal"
+                        actions={[{
+                            title: 'Закрыть',
+                            autoclose: true,
+                            mode: 'cancel'
+                        }]}
+                        onClose={() => window.history.back()}
+                        header="Принято!"
+                        text="Ваша жалоба будет рассмотрена модераторами в ближайшее время."
+                    />)
+                }else{
+                    showErrorAlert(data.error.message)
+                }
+                })
+                .catch(err => {
+                    setActiveStory('disconnect')
+                })
         }
-        sendReport(){
-            this.setPopout(<ScreenSpinner />)
-            fetch(this.state.api_url + "method=reports.send&" + window.location.search.replace('?', ''),
-                {method: 'post',
-                    headers: {"Content-type": "application/json; charset=UTF-8"},
-                        // signal: controllertime.signal,
-                    body: JSON.stringify({
-                        'type': this.props.typeres, // Место нахождение материала
-                        'name': Number(this.state.typerep), // Причина
-                        'id_rep': this.props.id_rep, 
-                        'comment': this.state.comment,
-                    })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                    if(data.result) {
-                        this.setPopout(<Alert 
-                            actionsLayout="horizontal"
-                            actions={[{
-                                title: 'Закрыть',
-                                autoclose: true,
-                                mode: 'cancel'
-                            }]}
-                            onClose={() => window.history.back()}
-                            header="Принято!"
-                            text="Ваша жалоба будет рассмотрена модераторами в ближайшее время."
-                        />)
-                    }else{
-                        this.showErrorAlert(data.error.message)
-                    }
-                    })
-                    .catch(err => {
-                        this.props.this.changeData('activeStory', 'disconnect')
-                    })
-        }
-        validateComment(title){
+        const validateComment = (title) => {
             if(title.length > 0){
               let valid = ['error', 'Текст должен быть не больше 200 и не меньше 6 символов' ];
               if(title.length <= 2000 && title.length > 5){
@@ -79,102 +80,58 @@ export default class Reports extends React.Component {
                   valid = ['error', 'Текст не должен содержать спец. символы'];
                 }
               }
-        
+
               return valid
             }else{
-                if(this.state.typerep === "8") return ['error', 'При указании причины "Другое", обязательно укажите комментарий']
+                if(typerep === "8") return ['error', 'При указании причины "Другое", обязательно укажите комментарий']
             }
             return ['default', '']
-            
-          }
-        componentDidMount(){
-        }
 
-        render() {
-            return (
-                <Panel id={this.props.id}>
-                <PanelHeader 
-                    left={
-                        <PanelHeaderBack onClick={() => window.history.back()}></PanelHeaderBack>
-                    }>
-                        Жалоба
-                </PanelHeader>
-                <Group>
-                    <FormLayout>
-                        <Radio name="typerep" 
-                        onChange={this.onChange}
-                        defaultChecked
-                        value="1">Оскорбление</Radio>
-                        
-                        <Radio name="typerep" 
-                        onChange={this.onChange}
-                        value="2">Порнография</Radio>
-                        
-                        <Radio name="typerep" 
-                        onChange={this.onChange}
-                        value="3">Введение в заблуждение</Radio>
-                        
-                        <Radio name="typerep" 
-                        onChange={this.onChange}
-                        value="4">Реклама</Radio>
-                        
-                        <Radio name="typerep" 
-                        onChange={this.onChange}
-                        value="5">Вредоносные ссылки</Radio>
-                        
-                        <Radio name="typerep" 
-                        onChange={this.onChange}
-                        value="6">Сообщение не по теме</Radio>
-                        
-                        <Radio name="typerep" 
-                        onChange={this.onChange}
-                        value="7">Издевательство</Radio>
-                        
-                        <Radio name="typerep" 
-                        onChange={this.onChange}
-                        value="8">Другое</Radio>
-                        
-                        <FormItem 
-                        top='Комментарий модератору'
-                        bottom={this.validateComment(this.state.comment)[1]}
-                        status={this.validateComment(this.state.comment)[0]}>
-                            <Textarea  
-                            name='comment' 
-                            placeholder='Комментарий...'
-                            maxLength="200"
-                            onChange={this.onChange} 
-                            value={this.state.comment} />
-                        </FormItem>
-                        <FormItem>
-                            <Button 
-                            disabled={(this.validateComment(this.state.comment)[0] === 'error') || (this.state.comment === "" && this.state.typerep === "8") || (this.state.typerep !== "8" ? false : this.validateComment(this.state.comment)[0] !== 'valid')}
-                            size='l'
-                            stretched
-                            type='submit'
-                            onClick={() => {
-                                this.sendReport()
-                            }}>
-                                Отправить жалобу
-                            </Button>
-                        </FormItem>
-                        {/* <FormItem>
-                        <Button
-                            size='l'
-                            stretched
-                            type='submit'
-                            onClick={() => {
-                                console.log(this.props.typeres,
-                                    this.state.typerep,
-                                    this.props.id_rep, 
-                                    this.state.comment,
-                                    )
-                            }}>
-                                Debug
-                            </Button>
-                        </FormItem> */}
-                    </FormLayout>
-                </Group>  
-            </Panel>
-            )
-            }
-        }
+          }
+    return (
+        <Panel id={props.id}>
+        <PanelHeader 
+            left={
+                <PanelHeaderBack onClick={() => window.history.back()}></PanelHeaderBack>
+            }>
+                Жалоба
+        </PanelHeader>
+        <Group>
+            <FormLayout>
+                {reasons.map((res, i) => 
+                    <Radio name="typerep"
+                        onChange={(e) => setTyperep(e.currentTarget.value)}
+                        defaultChecked={i === 0}
+                        value={String(i + 1)}>{res}</Radio>
+                )}
+
+                <FormItem 
+                top='Комментарий модератору'
+                bottom={validateComment(comment)[1]}
+                status={validateComment(comment)[0]}>
+                    <Textarea  
+                    name='comment' 
+                    placeholder='Комментарий...'
+                    maxLength="200"
+                    onChange={(e) => {setComment(e.currentTarget.value)}} 
+                    value={comment} />
+                </FormItem>
+                <FormItem>
+                    <Button 
+                    disabled={(validateComment(comment)[0] === 'error') ||
+                     (comment === "" && typerep === "8") || 
+                     (typerep !== "8" ? false : validateComment(comment)[0] !== 'valid')}
+                    size='l'
+                    stretched
+                    type='submit'
+                    onClick={() => {
+                        sendReport()
+                    }}>
+                        Отправить жалобу
+                    </Button>
+                </FormItem>
+            </FormLayout>
+        </Group>  
+    </Panel>
+    )
+}

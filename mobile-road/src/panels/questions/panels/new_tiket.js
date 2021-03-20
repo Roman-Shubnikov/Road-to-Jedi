@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
+import {API_URL} from '../../../config';
 
 import { 
     Panel,
     PanelHeader,
     Button,
-    Alert,
     ScreenSpinner,
     Input,
     FormLayout,
@@ -14,124 +14,93 @@ import {
     Group,
     FormItem,
     } from '@vkontakte/vkui';
+import { viewsActions } from '../../../store/main';
+import { useDispatch } from 'react-redux';
 
-export default class NewTicket extends React.Component {
-        constructor(props) {
-            super(props);
-            this.state = {
-                api_url: "https://xelene.ru/road/php/index.php?",
-                title_new_tiket: '',
-                text_new_tiket: '',
-                check1: false,
-            }
-            var propsbi = this.props.this;
-            this.setPopout = propsbi.setPopout;
-            this.showErrorAlert = propsbi.showErrorAlert;
-            this.showAlert = propsbi.showAlert;
-            this.sendNewTiket = this.sendNewTiket.bind(this);
-            this.onChange = (event) => {
-                var name = event.currentTarget.name;
-                var value = event.currentTarget.value;
-                this.setState({ [name]: value });
-            }
-        }
-        getRandomInRange(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-          }
-        sendNewTiket() {
-            this.setPopout(<ScreenSpinner/>)
-            if(this.state.text_new_tiket.length > 5 || this.state.title_new_tiket.length > 5) {
-                fetch(this.state.api_url + "method=ticket.add&" + window.location.search.replace('?', ''), 
-                {method: 'post',
-                headers: {"Content-type": "application/json; charset=UTF-8"},
-                    // signal: controllertime.signal,
+export default props => {
+    const dispatch = useDispatch();
+    const [title, setTitle] = useState('');
+    const [text, setText] = useState('');
+    const [check1, setCheck1] = useState(false);
+    const { setPopout, showErrorAlert } = props.callbacks;
+
+    const getRandomInRange = (min, max) => {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    const sendNewTiket = () => {
+        setPopout(<ScreenSpinner />)
+        fetch(API_URL + "method=ticket.add&" + window.location.search.replace('?', ''),
+            {
+                method: 'post',
+                headers: { "Content-type": "application/json; charset=UTF-8" },
                 body: JSON.stringify({
-                    'title': this.state.title_new_tiket,
-                    'text': this.state.text_new_tiket,
-                    'user': this.getRandomInRange(501, 624429367),
-                    'donut_only': this.state.check1
+                    'title': title,
+                    'text': text,
+                    'user': getRandomInRange(501, 624429367),
+                    'donut_only': check1
                 })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.result) {
-                        this.setState({title_new_tiket: "", text_new_tiket: "", check1: false})
-                        this.setPopout(null)
-                    }else{
-                    this.showErrorAlert(data.error.message)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.result) {
+                    setTitle("");
+                    setText("");
+                    setCheck1(false);
+                    setPopout(null)
+                } else {
+                    showErrorAlert(data.error.message)
                 }
-                })
-                .catch(err => {
-                    this.props.this.changeData('activeStory', 'disconnect')
-                })
-            }else{
-                this.setState({
-                    popout: 
-                    <Alert
-                    actions={[{
-                    title: 'Отмена',
-                    autoclose: true,
-                    style: 'cancel'
-                    }]}
-                    onClose={this.closePopout}
-                >
-                    <h2>Ошибка</h2>
-                    <p>Заголовок или текст проблемы должен быть больше 5 символов.</p>
-                </Alert>
-                    })
-            }
-        }
+            })
+            .catch(err => {
+                dispatch(viewsActions.setActiveStory('disconnect'))
+            })
+    }
 
-        render() {
-            return (
-                <Panel id={this.props.id}>
-                <PanelHeader 
-                    left={<PanelHeaderBack onClick={() => window.history.back()} />}>
+    return(
+        <Panel id={props.id}>
+            <PanelHeader
+                left={<PanelHeaderBack onClick={() => window.history.back()} />}>
                 Новый вопрос
                 </PanelHeader>
-                <Group>
-                    <FormLayout>
-                        <FormItem top={"Суть проблемы (" + this.state.title_new_tiket.length + "/80). Не менее 5 символов"}
-                        >
-                            <Input 
-                            maxLength="80" 
-                            type="text" 
-                            name="title_new_tiket" 
+            <Group>
+                <FormLayout>
+                    <FormItem top={"Суть проблемы (" + title.length + "/80). Не менее 5 символов"}
+                    >
+                        <Input
+                            maxLength="80"
+                            type="text"
                             placeholder='Введите свой текст...'
-                            value={this.state.title_new_tiket} 
-                            onChange={(e) => this.onChange(e)}/>
-                        </FormItem>
-                        <FormItem top={"Подробнее о проблеме (" + this.state.text_new_tiket.length + "/2020). Не менее 5 символов"}
-                        >
-                            <Textarea maxLength="2020" 
-                            name="text_new_tiket" 
-                            onChange={(e) => this.onChange(e)}
+                            value={title}
+                            onChange={(e) => setTitle(e.currentTarget.value)} />
+                    </FormItem>
+                    <FormItem top={"Подробнее о проблеме (" + text.length + "/2020). Не менее 5 символов"}
+                    >
+                        <Textarea 
+                            maxLength="2020"
+                            onChange={(e) => setText(e.currentTarget.value)}
                             placeholder='Введите свой текст...'
-                            value={this.state.text_new_tiket}
-                            />
-                        </FormItem>
-                        
-                        <Checkbox checked={this.state.check1} onChange={() => this.state.check1 ? this.setState({check1: false}) : this.setState({check1: true})}>
-                            Только для донов
-                        </Checkbox>
+                            value={text}
+                        />
+                    </FormItem>
 
-                        <FormItem>
-                            <Button
-                            size="l" 
-                            level="secondary" 
-                            stretched 
-                            disabled={!Boolean(this.state.text_new_tiket.length > 5) || !Boolean(this.state.title_new_tiket.length > 5)}
+                    <Checkbox checked={check1} onChange={() => setCheck1(!check1)}>
+                        Только для донов
+                    </Checkbox>
+                    <FormItem>
+                        <Button
+                            size="l"
+                            level="secondary"
+                            stretched
+                            disabled={!Boolean(text.length > 5) || !Boolean(title.length > 5)}
                             onClick={
                                 () => {
-                                    this.sendNewTiket();
+                                    sendNewTiket();
                                 }
                             }>Отправить</Button>
-                        </FormItem>
-                    </FormLayout>
-                </Group>
-                
-            </Panel>
-            )
-            }
-        }
-  
+                    </FormItem>
+                </FormLayout>
+            </Group>
+
+        </Panel>
+    )
+}

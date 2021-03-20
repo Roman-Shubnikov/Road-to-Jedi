@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { 
     Panel,
@@ -17,161 +17,145 @@ import {
     Group,
     } from '@vkontakte/vkui';
 
-import Icon56InboxOutline from '@vkontakte/icons/dist/56/inbox_outline';
 import Icon28WarningTriangleOutline from '@vkontakte/icons/dist/28/warning_triangle_outline';
-function fix_time(time) {
-    if(time < 10) {
-        return "0" + time
-    } else {
-        return time
-    }
-  }
+import { API_URL } from '../../../config';
+import { useDispatch, useSelector } from 'react-redux';
+import { accountActions, viewsActions } from '../../../store/main';
+import { getHumanyTime } from '../../../Utils';
 
-  var months = [
-    'янв',
-    'фев',
-    'мар',
-    'апр',
-    'мая',
-    'июн',
-    'июл',
-    'авг',
-    'сен',
-    'окт',
-    'ноя',
-    'дек',
-];
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+export default props => {
+    const { myQuestions } = useSelector((state) => state.account)
+    const [activeTab, setActiveTab] = useState('positive');
+    const [limit, setLimit] = useState(20);
+    const dispatch = useDispatch();
+    const { setPopout, showErrorAlert, goTiket } = props.callbacks;
+    const [search, setSearch] = useState('');
+    const [fetching, setFetching] = useState(false);
+    const [searched, setSearched] = useState([]);
+    const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
 
-export default class myQuestions extends React.Component {
-        constructor(props) {
-            super(props);
-            this.state = {
-                api_url: "https://xelene.ru/road/php/index.php?",
-                myQuestions:[],
-                fetching: false,
-                activeTab: 'positive',
-                search: '',
-                limiter: 20
-            }
-            
-        }
-        getFiltresQuestions(questions){
-            if(this.state.activeTab === 'positive'){
-                return questions.filter(({mark}) => mark === 1);
-            }
-            if(this.state.activeTab === 'negative'){
-                return questions.filter(({mark}) => mark === 0);
-            }
-            if(this.state.activeTab === 'moderation'){
-                return questions.filter(({mark}) => mark === -1);
-            }
-        }
-        getFilterSearch(questions) {
-            const search = this.state.search.toLowerCase();
-            return questions.filter(({text}) => text.toLowerCase().indexOf(search) > -1);
-        }
+    const getMyQuestions = useCallback(() => {
+        fetch(API_URL + "method=tickets.getByModeratorAnswers&" + window.location.search.replace('?', ''))
+            .then(res => res.json())
+            .then(data => {
+                if (data.result) {
+                    dispatch(accountActions.setMyquestions(data.response))
+                    setTimeout(() => {
+                        setFetching(false);
+                        setPopout(null);
+                    }, 500)
 
-        limiter(questions){
-            return questions.slice(0, this.state.limiter)
-        }
-        prepare_questions(){
-            this.props.this.myQuestions()
-            setTimeout(() => {
-                this.setState({ fetching: false });
-              }, 500);
-        }
-        componentDidMount(){
-            // this.prepare_questions()
-        }
+                } else {
+                    showErrorAlert(data.error.message)
+                }
+            })
+            .catch(err => {
+                setActiveStory('disconnect')
 
-        render() {
-            var props = this.props.this; // для более удобного использования.
-            var questions = this.getFiltresQuestions(this.props.myQuestions);
-            var searched = this.getFilterSearch(questions);
-            var limiter_search = this.limiter(searched);
-            return (
-                <Panel id={this.props.id}>
-            <PanelHeader 
-            separator={!platformname}
+            })
+    }, [dispatch, setActiveStory, setPopout, showErrorAlert])
+    
+    const getFiltresQuestions = useCallback((questions) => {
+        let filtredQuestions;
+        if (!questions){return []}
+        switch (activeTab) {
+            case 'positive':
+                filtredQuestions = questions.filter(({ mark }) => mark === 1);
+                break;
+            case 'negative':
+                filtredQuestions = questions.filter(({ mark }) => mark === 0);
+                break;
+            case 'moderation':
+                filtredQuestions = questions.filter(({ mark }) => mark === -1);
+                break;
+            default:
+                filtredQuestions = questions.filter(({ mark }) => mark === 1);
+        }
+        const LowerSearch = search.toLowerCase();
+        filtredQuestions = filtredQuestions.filter(
+            ({ text }) => text.toLowerCase().indexOf(LowerSearch) > -1
+            );
+        return filtredQuestions;
+
+    }, [activeTab, search])
+    useEffect(() => {
+        getMyQuestions()
+        // eslint-disable-next-line
+    }, [])
+    useEffect(() => {
+        setSearched(getFiltresQuestions(myQuestions))
+    }, [myQuestions, getFiltresQuestions])
+
+    return (
+        <Panel id={props.id}>
+            <PanelHeader
+                separator={!platformname}
                 left={<PanelHeaderBack onClick={() => window.history.back()} />}
             >
                 Мои ответы
                 </PanelHeader>
-                <Group>
-                    <Search value={this.state.search}
-                        onChange={(e) => {
-                            this.setState({search: e.target.value})
-                        }} />
-                    <Tabs>
-                        <HorizontalScroll>
-                            <TabsItem
-                                onClick={() => this.setState({ activeTab: 'positive' })}
-                                selected={this.state.activeTab === 'positive'}
-                            >
-                                Положительные
-                            </TabsItem>
-                            <TabsItem
-                                onClick={() => this.setState({ activeTab: 'negative' })}
-                                selected={this.state.activeTab === 'negative'}
-                            >
-                                Отрицательные
-                            </TabsItem>
-                            <TabsItem
-                                onClick={() => this.setState({ activeTab: 'moderation' })}
-                                selected={this.state.activeTab === 'moderation'}
-                            >
-                                На модерации
-                            </TabsItem>
-                        </HorizontalScroll>
-                    </Tabs>
-                </Group>
-                <Group>
-                    <PullToRefresh onRefresh={() => {this.setState({fetching: true});this.prepare_questions()}} isFetching={this.state.fetching}>
-                        {questions.length > 0 ?
-                        searched.length > 0 ?
-                        <>
-                        {limiter_search.map((result, i) => 
-                        <React.Fragment key={result.id}> 
-                        {(i === 0) || <Separator/>}
-                        <Cell
-                            key={i}
-                            className='pointer'
-                            onClick={() => props.goTiket(result['ticket_id'])}
-                            description={new Date(result['time'] * 1e3).getDate() + " " + months[new Date(result['time'] * 1e3).getMonth()] + " " + new Date(result['time'] * 1e3).getFullYear() + " в " 
-                            + fix_time(new Date(result['time'] * 1e3).getHours()) + ":" + fix_time(new Date(result['time'] * 1e3).getMinutes())}
-                            size="l"
-                            // before={<Avatar src={result['author']['id'] === 526444378 ? "https://cdn3.iconfinder.com/data/icons/avatars-15/64/_Ninja-2-512.png" : result['author']['photo_200']} />}
+            <Group>
+                <Search value={search}
+                    onChange={(e) => {
+                        setSearch(e.currentTarget.value)
+                    }} />
+                <Tabs>
+                    <HorizontalScroll>
+                        <TabsItem
+                            onClick={() => setActiveTab('positive')}
+                            selected={activeTab === 'positive'}
                         >
-                            {result['text']}
-                        </Cell>
+                            Положительные
+                            </TabsItem>
+                        <TabsItem
+                            onClick={() => setActiveTab('negative')}
+                            selected={activeTab === 'negative'}
+                        >
+                            Отрицательные
+                            </TabsItem>
+                        <TabsItem
+                            onClick={() => setActiveTab('moderation')}
+                            selected={activeTab === 'moderation'}
+                        >
+                            На модерации
+                            </TabsItem>
+                    </HorizontalScroll>
+                </Tabs>
+            </Group>
+            <Group>
+                <PullToRefresh onRefresh={() => { setFetching(true); getMyQuestions() }} isFetching={fetching}>
+                    {searched.slice(0, limit).length > 0 ? <>
+                        {searched.slice(0, limit).map((result, i) =>
+                        <React.Fragment key={result.id}>
+                            {(i === 0) || <Separator />}
+                            <Cell
+                                key={i}
+                                onClick={() => goTiket(result['ticket_id'])}
+                                description={getHumanyTime(result.time).datetime}
+                                size="l"
+                            >
+                                {result.text}
+                            </Cell>
                         </React.Fragment>
-                        )}
-                        {(limiter_search < searched) ? 
-                        <Div>
-                            <Button 
-                            mode='secondary' 
-                            size='l' 
-                            stretched
-                            onClick={() => this.setState({limiter: this.state.limiter + 10})}
-                            >Показать ещё 10 ответов</Button>
-                        </Div> : null}
-                        </> :
-                        <Placeholder 
-                        icon={<Icon28WarningTriangleOutline width={56} height={56} />}>
+                    )}
+                        {(searched.slice(0, limit) < searched) ?
+                            <Div>
+                                <Button
+                                    mode='secondary'
+                                    size='l'
+                                    stretched
+                                    onClick={() => setLimit(prev => prev + 20)}
+                                >Показать ещё 10 ответов</Button>
+                            </Div> : null}
+                            </> :
+                        <Placeholder
+                            icon={<Icon28WarningTriangleOutline width={56} height={56} />}>
                             По вашему запросу ничего не найдено.
-                        </Placeholder> :
-                        <Placeholder 
-                        icon={<Icon56InboxOutline />}>
-                            Упс, кажется, здесь нет ваших ответов.
                         </Placeholder>
-                        }
-                    </PullToRefresh>
-                </Group>
-                
-                
-            </Panel>
-            )
-            }
-        }
-  
+                    }
+                </PullToRefresh>
+            </Group>
+        </Panel>
+    )
+}

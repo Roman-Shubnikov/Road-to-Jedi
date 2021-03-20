@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { 
     Group,
@@ -31,6 +31,9 @@ import {
 } from '@vkontakte/icons';
 
 import Don from '../images/donut.svg';
+import { useDispatch, useSelector } from 'react-redux';
+import { API_URL, AVATARS_URL, LINKS_VK } from '../../../config';
+import { viewsActions } from '../../../store/main';
 const donutAvatars = [
   "1001.png",
   "1002.png",
@@ -49,198 +52,184 @@ const donutAvatars = [
 const blueBackground = {
     backgroundColor: 'var(--accent)'
   };
-export default class Donuts extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            api_url: "https://xelene.ru/road/php/index.php?",
-            snackbar: null,
-            selectedAvatar: 0,
-            hide_donut: !this.props.account.settings.hide_donut,
-            colorchangeDonut: this.props.account.settings.change_color_donut
 
+export default props => {
+  const dispatch = useDispatch();
+  const [snackbar, setSnackbar] = useState(null);
+  const { account } = useSelector((state) => state.account)
+  const [selectedAvatar, selectAvatar] = useState(0);
+  const [hideDonut, setHidedonut] = useState(() => (account.settings.hide_donut))
+  const [colorchangeDonut, setColorchangeDonut] = useState(() => (account.settings.change_color_donut))
+  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
+  const { setPopout, showErrorAlert } = props.callbacks;
+
+  const saveSettings = (setting, value) => {
+    setPopout(<ScreenSpinner />)
+    fetch(API_URL + "method=settings.set&" + window.location.search.replace('?', ''),
+      {
+        method: 'post',
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+        body: JSON.stringify({
+          'setting': setting,
+          'value': value,
+        })
+      })
+      .then(data => data.json())
+      .then(data => {
+        if (data.result) {
+          setPopout(null)
+          setTimeout(() => {
+            props.reloadProfile();
+          }, 4000)
+        } else {
+          showErrorAlert(data.error.message);
         }
-        var propsbi = this.props.this;
-        this.setPopout = propsbi.setPopout;
-        this.changeAvatar = this.changeAvatar.bind(this)
-        this.setSnack = (value) => {
-            this.setState({ snackbar: value })
-          }
-        this.selectImage = (number) => {
-            this.setState({selectedAvatar:number});
-          }
-        
-    }
-    saveSettings(setting, value){
-      this.setPopout(<ScreenSpinner />)
-      fetch(this.state.api_url + "method=settings.set&" + window.location.search.replace('?', ''),
-        {method: 'post',
-        headers: {"Content-type": "application/json; charset=UTF-8"},
-            // signal: controllertime.signal,
-        body: JSON.stringify({
-            'setting': setting,
-            'value': value,
-        })
-        })
-        .then(data => data.json())
-        .then(data => {
-          if(data.result){
-            this.setPopout(null)
-              setTimeout(() => {
-                this.props.this.ReloadProfile();
-              }, 4000)
-            }else{
-              this.showErrorAlert(data.error.message);
-            }
-        })
-        .catch(err => {
-          this.props.this.changeData('activeStory', 'disconnect')
       })
-    }
-
-    hide_donut(check){
-      check = check.currentTarget.checked;
-      this.setState({hide_donut: check});
-      this.saveSettings('hide_donut', Number(!check))
-    }
-    needChangeColor(check){
-      check = check.currentTarget.checked;
-      this.setState({colorchangeDonut: check});
-      this.saveSettings('change_color_donut', Number(check))
-    }
-
-    changeAvatar(){
-        fetch(this.state.api_url + "method=shop.changeDonutAvatars&" + window.location.search.replace('?', ''),
-        {method: 'post',
-        headers: {"Content-type": "application/json; charset=UTF-8"},
-            // signal: controllertime.signal,
-        body: JSON.stringify({
-            'avatar_id': Number(this.state.selectedAvatar),
-        })
-        })
-        .then(data => data.json())
-        .then(data => {
-          this.setState({selectedAvatar: 0})
-          if(data.result){
-              this.setSnack( 
-                <Snackbar
-                  layout="vertical"
-                  onClose={() => this.setSnack(null)}
-                  before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
-                >
-                  Аватар успешно сменен
-                </Snackbar>
-              )
-
-              setTimeout(() => {
-                this.props.this.ReloadProfile();
-              }, 4000)
-            }else{
-              this.setSnack(
-                <Snackbar
-                layout="vertical"
-                onClose={() => this.setSnack(null)}
-                before={<Icon20CancelCircleFillRed width={24} height={24} />}
-              >
-                {data.error.message}
-              </Snackbar>);
-            }
-        })
-        .catch(err => {
-          this.props.this.changeData('activeStory', 'disconnect')
+      .catch(err => {
+        setActiveStory('disconnect');
       })
-    }
-    render(){
-        return (
-            <Panel id={this.props.id}>
-                <PanelHeader
-                left={<PanelHeaderBack onClick={() => window.history.back()} />}>
-                    Premium
+  }
+
+  const hide_donut = (check) => {
+    check = check.currentTarget.checked;
+    setHidedonut(check);
+    saveSettings('hide_donut', Number(!check))
+  }
+  const needChangeColor = (check) => {
+    check = check.currentTarget.checked;
+    setColorchangeDonut(check);
+    saveSettings('change_color_donut', Number(check))
+  }
+
+  const changeAvatar = () => {
+    fetch(API_URL + "method=shop.changeDonutAvatars&" + window.location.search.replace('?', ''),
+      {
+        method: 'post',
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+        // signal: controllertime.signal,
+        body: JSON.stringify({
+          'avatar_id': Number(selectedAvatar),
+        })
+      })
+      .then(data => data.json())
+      .then(data => {
+        selectAvatar(0);
+        if (data.result) {
+          setSnackbar(<Snackbar
+            layout="vertical"
+            onClose={() => setSnackbar(null)}
+            before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+          >
+            Аватар успешно сменен
+                </Snackbar>)
+
+          setTimeout(() => {
+            props.reloadProfile();
+          }, 4000)
+        } else {
+          setSnackbar(
+            <Snackbar
+              layout="vertical"
+              onClose={() => setSnackbar(null)}
+              before={<Icon20CancelCircleFillRed width={24} height={24} />}
+            >
+              {data.error.message}
+            </Snackbar>);
+        }
+      })
+      .catch(err => {
+        setActiveStory('disconnect');
+      })
+  }
+  return (
+    <Panel id={props.id}>
+      <PanelHeader
+        left={<PanelHeaderBack onClick={() => window.history.back()} />}>
+        Premium
                 </PanelHeader>
-                <Group>
-                    <Placeholder 
-                    icon={<img src={Don} alt='jedi' />}>
-                    </Placeholder>
-                    <SimpleCell
-                    disabled 
-                    after={
-                      <Switch 
-                        checked={this.state.hide_donut}
-                        onChange={(e) => this.hide_donut(e)} />
-                      }
-                      >
-                      Отметка VK Donut
+      <Group>
+        <Placeholder
+          icon={<img src={Don} alt='jedi' />}>
+        </Placeholder>
+        <SimpleCell
+          disabled
+          after={
+            <Switch
+              checked={hideDonut}
+              onChange={(e) => hide_donut(e)} />
+          }
+        >
+          Отметка VK Donut
                     </SimpleCell>
-                    <Div>
-                      <Subhead weight='regular' className='SimpleCell__description'>
-                        После активации данной функции, в Вашем профиле, около имени, появится эксклюзивная отметка
+        <Div>
+          <Subhead weight='regular' className='SimpleCell__description'>
+            После активации данной функции, в Вашем профиле, около имени, появится эксклюзивная отметка
                       </Subhead>
-                    </Div>
-                    <Separator />
-                    <SimpleCell
-                    disabled
-                    after={
-                      <Switch 
-                        checked={this.state.colorchangeDonut}
-                        onChange={(e) => this.needChangeColor(e)} />
-                      }
-                      >
-                      Цвет ника
+        </Div>
+        <Separator />
+        <SimpleCell
+          disabled
+          after={
+            <Switch
+              checked={colorchangeDonut}
+              onChange={(e) => needChangeColor(e)} />
+          }
+        >
+          Цвет ника
                     </SimpleCell>
-                    <Div>
-                      <Subhead weight='regular' className='SimpleCell__description'>
-                        После активации данной функции в общем Пантеоне, Ваш ник будет отображаться цветом доната
+        <Div>
+          <Subhead weight='regular' className='SimpleCell__description'>
+            После активации данной функции в общем Пантеоне, Ваш ник будет отображаться цветом доната
                       </Subhead>
-                    </Div>
-                    <SimpleCell disabled indicator={this.props.account.donuts}>Пончики</SimpleCell>
-                </Group>
-                <Group>
-                    {this.props.account.donut_chat_link && <SimpleCell
-                        expandable
-                        href={this.props.account.donut_chat_link}
-                        target="_blank" rel="noopener noreferrer"
-                        before={<Icon48DonateOutline width={28} height={28} />}>
-                            Чат для донов
+        </Div>
+        <SimpleCell disabled indicator={account.donuts}>Пончики</SimpleCell>
+      </Group>
+      <Group>
+        {account.donut_chat_link && <SimpleCell
+          expandable
+          href={account.donut_chat_link}
+          target="_blank" rel="noopener noreferrer"
+          before={<Icon48DonateOutline width={28} height={28} />}>
+          Чат для донов
                     </SimpleCell>}
-                    <SimpleCell
-                    href="https://vk.com/@jedi_road-unikalnyi-kontent-vk-donut"
-                    target="_blank" rel="noopener noreferrer"
-                    before={<Icon28UserStarBadgeOutline/>}>
-                        Уникальный контент VK Donut
+        <SimpleCell
+          href={LINKS_VK.donut_article}
+          target="_blank" rel="noopener noreferrer"
+          before={<Icon28UserStarBadgeOutline />}>
+          Уникальный контент VK Donut
                     </SimpleCell>
 
-                </Group>
-                <Group header={<Header>Эксклюзивные аватарки</Header>}>
-                    
-                  <HorizontalScroll showArrows getScrollToLeft={(i) => i - 190} getScrollToRight={(i) => i + 190}>
-                  <div style={{ display: 'flex' }}>
-                    {donutAvatars.map((ava, i) => 
-                    <HorizontalCell key={i} size='m' 
-                    className={((i + 1 ) === this.state.selectedAvatar) ? 'select_avatar' : ''}
-                    onClick={(e) => (this.props.account.avatar.id === i +1+1000) ? this.setSnack(
-                      <Snackbar
-                      layout="vertical"
-                      onClose={() => this.setSnack(null)}
-                      before={<Icon20CancelCircleFillRed width={24} height={24} />}
-                    >
-                      Вы уже имеете данный аватар
-                    </Snackbar>) : (this.state.selectedAvatar === (i + 1) ) ? this.selectImage(0) : this.selectImage(i + 1)}>
-                        <Avatar id={i} size={88} src={"https://xelene.ru/road/php/images/avatars/" + ava}/>
-                      
-                    </HorizontalCell>)}
-                  </div>
-                  </HorizontalScroll>
-                  <Div>
-                      <Button onClick={this.changeAvatar} 
-                      before={<Icon48DonateOutline width={28} height={28}/>} 
-                      size="l" 
-                      stretched
-                      mode="secondary"
-                      disabled={this.state.selectedAvatar === 0}>Сменить за 50 пончиков</Button>
-                  </Div>
-                </Group>
-                {this.state.snackbar}
-            </Panel>
-        )
-    }
+      </Group>
+      <Group header={<Header>Эксклюзивные аватарки</Header>}>
+
+        <HorizontalScroll showArrows getScrollToLeft={(i) => i - 190} getScrollToRight={(i) => i + 190}>
+          <div style={{ display: 'flex' }}>
+            {donutAvatars.map((ava, i) =>
+              <HorizontalCell key={i} size='m'
+                className={((i + 1) === selectedAvatar) ? 'select_avatar' : ''}
+                onClick={(e) => (account.avatar.id === i + 1 + 1000) ? setSnackbar(
+                  <Snackbar
+                    layout="vertical"
+                    onClose={() => setSnackbar(null)}
+                    before={<Icon20CancelCircleFillRed width={24} height={24} />}
+                  >
+                    Вы уже имеете данный аватар
+                    </Snackbar>) : (selectedAvatar === (i + 1)) ? selectAvatar(0) : selectAvatar(i + 1)}>
+                <Avatar id={i} size={88} src={AVATARS_URL + ava} />
+
+              </HorizontalCell>)}
+          </div>
+        </HorizontalScroll>
+        <Div>
+          <Button onClick={changeAvatar}
+            before={<Icon48DonateOutline width={28} height={28} />}
+            size="l"
+            stretched
+            mode="secondary"
+            disabled={selectedAvatar === 0}>Сменить за 50 пончиков</Button>
+        </Div>
+      </Group>
+      {snackbar}
+    </Panel>
+  )
 }

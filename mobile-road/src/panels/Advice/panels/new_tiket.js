@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import bridge from '@vkontakte/vk-bridge';
 
 import { 
     Panel,
     PanelHeader,
     Button,
-    Alert,
     ScreenSpinner,
     Input,
     FormLayout,
@@ -22,204 +21,171 @@ import {
     SimpleCell,
     Subhead,
 
-
     } from '@vkontakte/vkui';
-function enumerate (num, dec) {
-    if (num > 100) num = num % 100;
-    if (num <= 20 && num >= 10) return dec[2];
-    if (num > 20) num = num % 10;
-    return num === 1 ? dec[0] : num > 1 && num < 5 ? dec[1] : dec[2];
-    }
-export default class NewTicket extends React.Component {
-        constructor(props) {
-            super(props);
-            this.state = {
-                api_url: "https://xelene.ru/road/php/index.php?",
-                title_new_tiket: '',
-                text_new_tiket: '',
-                check1: false,
-                noty: this.props.account.settings.generator_noty,
-            }
-            var propsbi = this.props.this;
-            this.setPopout = propsbi.setPopout;
-            this.showErrorAlert = propsbi.showErrorAlert;
-            this.showAlert = propsbi.showAlert;
-            this.sendNewTiket = this.sendNewTiket.bind(this);
-            this.onChange = (event) => {
-                var name = event.currentTarget.name;
-                var value = event.currentTarget.value;
-                this.setState({ [name]: value });
-            }
-        }
-        saveSettings(setting, value){
-            this.setPopout(<ScreenSpinner />)
-            fetch(this.state.api_url + "method=settings.set&" + window.location.search.replace('?', ''),
-              {method: 'post',
-              headers: {"Content-type": "application/json; charset=UTF-8"},
-                  // signal: controllertime.signal,
-              body: JSON.stringify({
-                  'setting': setting,
-                  'value': value,
-              })
-              })
-              .then(data => data.json())
-              .then(data => {
-                if(data.result){
-                  this.setPopout(null)
-                    setTimeout(() => {
-                      this.props.this.ReloadProfile();
-                    }, 4000)
-                  }else{
-                    this.showErrorAlert(data.error.message);
-                  }
-              })
-              .catch(err => {
-                this.props.this.changeData('activeStory', 'disconnect')
-            })
-          }
-        setNotify(check){
-            check = check.currentTarget.checked;
-            if(check){
-                bridge.send("VKWebAppAllowMessagesFromGroup", {"group_id": 201151841}).then(data => {
-                    this.setState({noty: check});
-                    this.saveSettings('generator_noty', Number(check))
-                }).catch(() => this.showErrorAlert("Вы не разрешили сообщения группы"))
-            }else{
-                this.setState({noty: check});
-                this.saveSettings('generator_noty', Number(check))
-            }
-            
-        }
-        getRandomInRange(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-          }
-        sendNewTiket() {
-            this.setState({popout: <ScreenSpinner/>})
-            if(this.state.text_new_tiket.length > 5 || this.state.title_new_tiket.length > 5) {
-                fetch(this.state.api_url + "method=special.addNewModerationTicket&" + window.location.search.replace('?', ''), 
-                {method: 'post',
-                headers: {"Content-type": "application/json; charset=UTF-8"},
-                    // signal: controllertime.signal,
+import { useDispatch, useSelector } from 'react-redux';
+import { enumerate, errorAlertCreator } from '../../../Utils';
+import { API_URL, GENERATOR_NORM } from '../../../config';
+import { viewsActions } from '../../../store/main';
+export default props => {
+    const dispatch = useDispatch();
+    const [title, setTitle] = useState('');
+    const [text, setText] = useState('');
+    const { account } = useSelector((state) => state.account)
+    const { setPopout, showErrorAlert, setActiveModal } = props.callbacks;
+    const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
+    const [check1, setCheck1] = useState(false);
+    const [noty, setNoty] = useState(() => (account.settings.generator_noty));
+
+    const saveSettings = (setting, value) => {
+        setPopout(<ScreenSpinner />)
+        fetch(API_URL + "method=settings.set&" + window.location.search.replace('?', ''),
+            {
+                method: 'post',
+                headers: { "Content-type": "application/json; charset=UTF-8" },
                 body: JSON.stringify({
-                    'title': this.state.title_new_tiket,
-                    'text': this.state.text_new_tiket,
-                    'donut_only': this.state.check1
+                    'setting': setting,
+                    'value': value,
                 })
+            })
+            .then(data => data.json())
+            .then(data => {
+                if (data.result) {
+                    setPopout(null)
+                    setTimeout(() => {
+                        props.reloadProfile();
+                    }, 4000)
+                } else {
+                    showErrorAlert(data.error.message);
+                }
+            })
+            .catch(err => {
+                setActiveStory('disconnect');
+            })
+    }
+    const setNotify = (check) => {
+        check = check.currentTarget.checked;
+        if (check) {
+            bridge.send("VKWebAppAllowMessagesFromGroup", { "group_id": 201151841 }).then(data => {
+                setNoty(check)
+                saveSettings('generator_noty', Number(check))
+            }).catch(() => showErrorAlert("Вы не разрешили сообщения группы"))
+        } else {
+            setNoty(check)
+            saveSettings('generator_noty', Number(check))
+        }
+
+    }
+    const sendNewTiket = () => {
+        setPopout(<ScreenSpinner />)
+        if (text.length > 5 || title.length > 5) {
+            fetch(API_URL + "method=special.addNewModerationTicket&" + window.location.search.replace('?', ''),
+                {
+                    method: 'post',
+                    headers: { "Content-type": "application/json; charset=UTF-8" },
+                    body: JSON.stringify({
+                        'title': title,
+                        'text': text,
+                        'donut_only': check1
+                    })
                 })
                 .then(res => res.json())
                 .then(data => {
-                    if(data.result) {
-                        this.setState({title_new_tiket: "", text_new_tiket: "", check1: false})
-                        this.setPopout(null)
-                    }else{
-                        this.showErrorAlert(data.error.message)
+                    if (data.result) {
+                        setText('');
+                        setTitle('');
+                        setCheck1(false);
+                        setPopout(null)
+                    } else {
+                        showErrorAlert(data.error.message)
                     }
                 })
                 .catch(err => {
-                    this.props.this.changeData('activeStory', 'disconnect')
+                    setActiveStory('disconnect');
                 })
-            }else{
-                this.setState({
-                    popout: 
-                    <Alert
-                    actions={[{
-                    title: 'Отмена',
-                    autoclose: true,
-                    style: 'cancel'
-                    }]}
-                    onClose={this.closePopout}
-                >
-                    <h2>Ошибка</h2>
-                    <p>Заголовок или текст проблемы должен быть больше 5 символов.</p>
-                </Alert>
-                    })
-            }
+        } else {
+            errorAlertCreator(setPopout, "Заголовок или текст проблемы должен быть больше 5 символов.")
         }
-
-        render() {
-            return (
-                <Panel id={this.props.id}>
-                <PanelHeader 
-                    left={<PanelHeaderBack onClick={() => window.history.back()} />}>
+    }
+    return (
+        <Panel id={props.id}>
+            <PanelHeader
+                left={<PanelHeaderBack onClick={() => window.history.back()} />}>
                 Новый вопрос
                 </PanelHeader>
-                {(this.props.account['bad_answers'] !== null && this.props.account['bad_answers'] !== undefined) ? 
+            {(account['bad_answers'] !== null && account['bad_answers'] !== undefined) ?
                 <Group>
                     <Div>
-                        <FormStatus onClick={() => this.props.this.setActiveModal('answers')}>
-                            <div style={{textAlign: 'center', color: "var(--text_profile)", marginBottom: 15}}>
-                                Вы сгенерировали <span style={{color:'var(--header_text)'}}>{this.props.account['bad_answers']} {enumerate(this.props.account['bad_answers'], ['вопрос', 'вопроса', 'вопросов'])}</span>
+                        <FormStatus onClick={() => setActiveModal('answers')}>
+                            <div style={{ textAlign: 'center', color: "var(--text_profile)", marginBottom: 15 }}>
+                                Вы сгенерировали <span style={{ color: 'var(--header_text)' }}>{account['bad_answers']} {enumerate(account['bad_answers'], ['вопрос', 'вопроса', 'вопросов'])}</span>
                             </div>
                             <InfoRow>
-                                <Progress 
-                                value={this.props.account['bad_answers'] ? this.props.account['bad_answers'] / 200 * 100 : 0} />
-                                <div style={{textAlign: 'right', color: "var(--text_profile)", marginTop: 10, fontSize: 13}}>200</div>
+                                <Progress
+                                    value={account['bad_answers'] ? account['bad_answers'] / GENERATOR_NORM * 100 : 0} />
+                                <div style={{ textAlign: 'right', color: "var(--text_profile)", marginTop: 10, fontSize: 13 }}>{GENERATOR_NORM}</div>
                             </InfoRow>
-                            {(this.props.account['marked'] >= 200) ? <div style={{textAlign: 'center', color: "var(--text_profile)", marginBottom: 5}}>
+                            {(account['marked'] >= 200) ? <div style={{ textAlign: 'center', color: "var(--text_profile)", marginBottom: 5 }}>
                                 Но это не значит, что нужно расслабляться!
                             </div> : null}
                         </FormStatus>
                     </Div>
                 </Group> : null}
-                <Group>
+            <Group>
                 <SimpleCell
-                    disabled 
+                    disabled
                     after={
-                      <Switch 
-                        checked={this.state.noty}
-                        onChange={(e) => this.setNotify(e)} />
-                      }
-                      >
-                      Уведомления
+                        <Switch
+                            checked={noty}
+                            onChange={(e) => setNotify(e)} />
+                    }
+                >
+                    Уведомления
                     </SimpleCell>
-                    <Div>
-                      <Subhead weight='regular' className='SimpleCell__description'>
+                <Div>
+                    <Subhead weight='regular' className='SimpleCell__description'>
                         После активации данной функции Вам будут поступать в личные сообщения результаты рассмотрения вопросов
                       </Subhead>
-                    </Div>
-                </Group>
-                <Group>
-                    <FormLayout>
-                        <FormItem top={"Заголовок вопроса (" + this.state.title_new_tiket.length + "/80). Не менее 5 символов"}>
-                            <Input 
-                            maxLength="80" 
-                            type="text" 
-                            name="title_new_tiket" 
+                </Div>
+            </Group>
+            <Group>
+                <FormLayout>
+                    <FormItem top={"Заголовок вопроса (" + title.length + "/80). Не менее 5 символов"}>
+                        <Input
+                            maxLength="80"
+                            type="text"
                             placeholder='Введите свой текст...'
-                            value={this.state.title_new_tiket} 
-                            onChange={(e) => this.onChange(e)}/>
-                        </FormItem>
-                        <FormItem top={"Сообщение (" + this.state.text_new_tiket.length + "/2020). Не менее 5 символов"} >
-                            <Textarea maxLength="2020" 
-                            name="text_new_tiket" 
-                            onChange={(e) => this.onChange(e)}
+                            value={title}
+                            onChange={(e) => setTitle(e.currentTarget.value)} />
+                    </FormItem>
+                    <FormItem top={"Сообщение (" + text.length + "/2020). Не менее 5 символов"} >
+                        <Textarea maxLength="2020"
+                            onChange={(e) => setText(e.currentTarget.value)}
                             placeholder='Введите свой текст...'
-                            value={this.state.text_new_tiket}
-                            />
-                        </FormItem>
+                            value={text}
+                        />
+                    </FormItem>
 
-                        <Checkbox checked={this.state.check1} onChange={() => this.state.check1 ? this.setState({check1: false}) : this.setState({check1: true})}>
-                            Только для донов
+                    <Checkbox checked={check1} onChange={() => setCheck1(prev => !prev)}>
+                        Только для донов
                         </Checkbox>
 
-                        <FormItem>
-                            <Button
-                            size="l" 
-                            level="secondary" 
-                            stretched 
-                            disabled={!Boolean(this.state.text_new_tiket.length > 5) || !Boolean(this.state.title_new_tiket.length > 5)}
+                    <FormItem>
+                        <Button
+                            size="l"
+                            level="secondary"
+                            stretched
+                            disabled={!Boolean(text.length > 5) || !Boolean(title.length > 5)}
                             onClick={
                                 () => {
-                                    this.sendNewTiket();
+                                    sendNewTiket();
                                 }
                             }>Добавить в очередь</Button>
-                        </FormItem>
-                        
-                    </FormLayout>
-                </Group>
-                
-            </Panel>
-            )
-            }
-        }
-  
+                    </FormItem>
+
+                </FormLayout>
+            </Group>
+
+        </Panel>
+    )
+    
+}

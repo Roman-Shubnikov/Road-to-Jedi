@@ -18,12 +18,11 @@ import { Anchorme } from 'react-anchorme'
 
 import Icon24Dismiss              from '@vkontakte/icons/dist/24/dismiss';
 
-
 export default withPlatform(class Donut extends React.Component {
     render() { 
       const { platform } = this.props;
         return (
-            <ModalPage //this.props.this.setReport(3, message_id)
+            <ModalPage 
                 id={this.props.id}
                 onClose={this.props.onClose}
                 header={
@@ -36,16 +35,14 @@ export default withPlatform(class Donut extends React.Component {
                 }
                 >
                   <Group>
-                    {/* <div style={{whiteSpace: "pre-wrap"}}> */}
                     <Div>
                       <Text style={{whiteSpace: "pre-wrap"}} weight='regular'>
-                        <Anchorme target="_blank" rel="noreferrer noopener">
-                          {this.props.comment.text}
+                        <Anchorme onClick={(e) => {e.stopPropagation()}} target="_blank" rel="noreferrer noopener">
+                    {this.props.comment.objComment.text}
                         </Anchorme>
                       </Text>
                     </Div>
                     
-                    {/* </div> */}
                     <CellButton size="m"
                     href="https://vk.me/club201542328"
                     target="_blank" rel="noreferrer noopener"

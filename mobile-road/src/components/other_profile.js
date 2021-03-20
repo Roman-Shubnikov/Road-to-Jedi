@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 
 import { 
@@ -14,12 +14,14 @@ import {
     PanelHeaderBack,
     Placeholder,
     Header,
-    RichCell,
     Snackbar,
     MiniInfoCell,
     UsersStack,
     Button,
     Link,
+    PanelSpinner,
+    IconButton,
+    SimpleCell,
 
 
     } from '@vkontakte/vkui';
@@ -50,33 +52,13 @@ import {
 import {
     Icon48DonateOutline,
 } from '@vkontakte/icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react';
+import { accountActions, viewsActions } from '../store/main';
+import { API_URL, AVATARS_URL } from '../config';
+import { isEmptyObject } from 'jquery';
+import { getHumanyTime, enumerate, recog_number } from '../Utils';
 
-
-function fix_time(time) {
-    if(time < 10) {
-        return "0" + time
-    } else {
-        return time
-    }
-  }
-function recog_number(num){
-    let out = ""
-    if (num > 999999) {
-      out = Math.floor(num / 1000000 * 10) / 10 + "M"
-    } else if (num > 999) {
-      out = Math.floor(num / 1000 * 10) / 10 + "K"
-    } else {
-      out = num
-    }
-    return out;
-  };
-
-  function enumerate (num, dec) {
-    if (num > 100) num = num % 100;
-    if (num <= 20 && num >= 10) return dec[2];
-    if (num > 20) num = num % 10;
-    return num === 1 ? dec[0] : num > 1 && num < 5 ? dec[1] : dec[2];
-  }
 const SCHEMES = [
     'Автоматическая',
     'Light',
@@ -90,369 +72,304 @@ const NOTI = [
 const blueBackground = {
     backgroundColor: 'var(--accent)'
   };
-class OtherProfile extends React.Component {
-        constructor(props) {
-            super(props);
-            this.state = {
-                api_url: "https://xelene.ru/road/php/index.php?",
-                other_profile: null,
-                snackbar: null,
-                ShowServiceInfo: false,
-            }
-            var propsbi = this.props.this;
-            this.setPopout = propsbi.setPopout;
-            this.showErrorAlert = propsbi.showErrorAlert;
-            this.setActiveModal = propsbi.setActiveModal;
-            this.subscribeUnsubscribe = this.subscribeUnsubscribe.bind(this);
-            this.profRef = React.createRef()
-            this.setSnack = (value) => {
-                this.setState({snackbar: value})
-              }
-        }
-        convertStandartDate(num){
-            let out = '';
-            if(num < 10){
-                out = "0" + num;
-            }else{
-                out = num;
-            }
-            return out;
-        }
-        convertTime(timei){
-            let out = '';
-            let time = new Date(timei * 1000);
-            out = this.convertStandartDate(time.getDate()) + 
-            '.' + (this.convertStandartDate(time.getMonth() + 1)) + 
-            '.' + time.getFullYear() + 
-            ' ' + this.convertStandartDate(time.getHours()) + 
-            ':' + this.convertStandartDate(time.getMinutes())
-            return out;
-        }
-        PrepareProfile(is_change=false){
-            fetch(this.state.api_url + "method=user.getById&" + window.location.search.replace('?', ''),
-            {method: 'post',
-                headers: {"Content-type": "application/json; charset=UTF-8"},
-                 // signal: controllertime.signal,
+
+export default props => {
+    const dispatch = useDispatch();
+    const [ShowServiceInfo, setShowServiceInfo] = useState(false);
+    const [snackbar, setSnackbar] = useState(null);
+    const profRef = useRef(null);
+    const { setPopout, showErrorAlert, setActiveModal, setReport } = props.callbacks;
+    const {other_profile: OtherProfileData, account} = useSelector((state) => (state.account))
+    const setActiveStory = (story) => dispatch(viewsActions.setActiveStory(story))
+    const { online, id: agent_id, 
+        nickname, 
+        flash, 
+        verified: verif, 
+        vk_id, 
+        banned, 
+        diamond, 
+        avatar, 
+        donut, 
+        subscribe, 
+        followers,
+        good_answers,
+        bad_answers,
+        age,
+        balance,
+        donuts,
+
+    } = OtherProfileData;
+    const total_answers = good_answers + bad_answers;
+
+    
+
+    
+    const subscribeUnsubscribe = () => {
+        setPopout(<ScreenSpinner />)
+        let method = OtherProfileData.subscribe ? "followers.unsubscribe&" : "followers.subscribe&"
+        fetch(API_URL + `method=${method}` + window.location.search.replace('?', ''),
+            {
+                method: 'post',
+                headers: { "Content-type": "application/json; charset=UTF-8" },
                 body: JSON.stringify({
-                'id': this.props.agent_id,
-            })
+                    'agent_id': agent_id,
+                })
             })
             .then(res => res.json())
             .then(data => {
-              if(data.result) {
-                this.setState({other_profile: data.response})
-                this.setPopout(null)
-              }else {
-                this.showErrorAlert(data.error.message, () => {window.history.back();this.props.this.setPopout(null)})
-              }
+                if (data.result) {
+                    dispatch(accountActions.getOtherProfile(agent_id))
+                    setPopout(null);
+
+                } else {
+                    showErrorAlert(data.error.message)
+                }
             })
             .catch(err => {
-                this.props.this.changeData('activeStory', 'disconnect')
-                // this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
-    
+                setActiveStory('disconnect')
             })
+    }
+    const subscribeMenu = () => {
+        if (OtherProfileData.subscribe) {
+            setPopout(
+                <ActionSheet onClose={() => setPopout(null)}
+                    toggleRef={profRef.current}
+                    iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
+                    <ActionSheetItem mode='destructive' onClick={() => {
+                        subscribeUnsubscribe()
+                    }}>Отписаться</ActionSheetItem>
+                </ActionSheet>)
+        } else {
+            subscribeUnsubscribe()
         }
-        infoMenu(id, prometey) {
-            this.setPopout(
-              <ActionSheet onClose={() => this.setPopout(null)}
-              toggleRef={this.profRef.current}
+    }
+    const infoMenu = (id) => {
+        setPopout(
+            <ActionSheet onClose={() => setPopout(null)}
+                toggleRef={profRef.current}
                 iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
-                {this.props.account.special ? 
-                    <ActionSheetItem autoclose onClick={() => {this.props.this.setState({other_profile:this.state.other_profile});this.setActiveModal('ban_user');}}>
-                    Заблокировать
+                {account.special ?
+                    <ActionSheetItem autoclose onClick={() => { setActiveModal('ban_user'); }}>
+                        Заблокировать
                 </ActionSheetItem>
-                : null }
-                <ActionSheetItem autoclose 
-                onClick={() => {
-                    bridge.send("VKWebAppCopyText", {text: "https://vk.com/app7409818#agent_id=" + id});
-                    this.setSnack(<Snackbar
-                        layout="vertical"
-                        onClose={() => this.setSnack(null)}
-                        before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}>
+                    : null}
+                <ActionSheetItem autoclose
+                    onClick={() => {
+                        bridge.send("VKWebAppCopyText", { text: "https://vk.com/app7409818#agent_id=" + id });
+                        setSnackbar(<Snackbar
+                            layout="vertical"
+                            onClose={() => setSnackbar(null)}
+                            before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}>
                             Ссылка скопирована
                         </Snackbar>)
-                }}>
+                    }}>
                     Скопировать ссылку
                 </ActionSheetItem>
-                <ActionSheetItem autoclose 
-                mode='destructive'
-                onClick={() => {
-                    this.props.this.setReport(2, this.state.other_profile['id']) // профиль, id
-                }}>
+                <ActionSheetItem autoclose
+                    mode='destructive'
+                    onClick={() => {
+                        setReport(2, agent_id)
+                    }}>
                     Пожаловаться
                 </ActionSheetItem>
-              </ActionSheet>)
-          }
-        subscribeUnsubscribe(){
-            this.setPopout(<ScreenSpinner/>)
-            let method = this.state.other_profile.subscribe ? "followers.unsubscribe&" : "followers.subscribe&"
-            fetch(this.state.api_url + `method=${method}` + window.location.search.replace('?', ''),
-            {method: 'post',
-            headers: {"Content-type": "application/json; charset=UTF-8"},
-            body: JSON.stringify({
-            'agent_id': this.state.other_profile.id,
-            })
-            })
-              .then(res => res.json())
-              .then(data => {
-                if(data.result) {
-                    // let newProfile = {...this.state.other_profile}
-                    // newProfile.subscribe = (method === "followers.unsubscribe&") ? false : true;
-                    // this.setState({other_profile: newProfile})
-                    this.PrepareProfile();
-                    this.setPopout(null);
+            </ActionSheet>)
+    }
+    useEffect(() => {
 
-                }else {
-                    this.showErrorAlert(data.error.message)
-                  }
-              })
-              .catch(err => {
-                this.props.this.changeData('activeStory', 'disconnect')
-              })
-        }
-        subscribeMenu(){
-            if(this.state.other_profile.subscribe){
-                this.setPopout(
-                    <ActionSheet onClose={() => this.setPopout(null)}
-                    toggleRef={this.profRef.current}
-                    iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
-                        <ActionSheetItem mode='destructive' onClick={() => {
-                            this.subscribeUnsubscribe()
-                        }}>Отписаться</ActionSheetItem>
-                    </ActionSheet>)
-            }else{
-                this.subscribeUnsubscribe()
-            }
-            
-        }
-        
-        please_Month(text) {
-            let mounts = [
-                "января",
-                "февраля",
-                "марта",
-                "апреля",
-                "мая",
-                "июня",
-                "июля",
-                "августа",
-                "сентября",
-                "октября",
-                "ноября",
-                "декабря"
-            ];
-            return mounts[text]
-         }
+    })
 
-        componentDidMount(){
-            this.setPopout(<ScreenSpinner/>);
-            this.PrepareProfile();
-            // console.log(queryString.parse(window.location.hash))
-            // this.props.this.setReport(21,41)
-        }
+    return(
+        <Panel id={props.id}>
+            <PanelHeader
+            left={<PanelHeaderBack onClick={() => window.history.back()} />}>
+                Профиль
+            </PanelHeader>
 
-        render() {
-            var props = this.props.this; // для более удобного использования.
-            return (
-                <Panel id={this.props.id}>
-                <PanelHeader 
-                    left={
-                        <PanelHeaderBack onClick={() => window.history.back()}/>
-                    }>
-                        Профиль
-                </PanelHeader>
-                
-                {this.state.other_profile && !this.state.other_profile['banned'] ? <>
+            {!isEmptyObject(OtherProfileData) && !banned ? <>
                 <Group>
-                    <RichCell
-                    disabled
-                    after={
-                        <Icon24MoreVertical 
-                        onClick={() => this.infoMenu(this.state.other_profile['id'], this.state.other_profile['flash'])}
-                        getRootRef={this.profRef}
-                         />
-                    }
-                    caption={
-                        this.state.other_profile['online']['is_online'] === true ? "online" : new Date(this.state.other_profile['online']['last_seen'] * 1e3).getDate() + " " + this.please_Month(new Date(this.state.other_profile['online']['last_seen'] * 1e3).getMonth()) + " "  + new Date(this.state.other_profile['online']['last_seen'] * 1e3).getFullYear() + " в " 
-                    + fix_time(new Date(this.state.other_profile['online']['last_seen'] * 1e3).getHours()) + ":" + fix_time(new Date(this.state.other_profile['online']['last_seen'] * 1e3).getMinutes())
-                    }
-                    before={this.state.other_profile.diamond ?
-                        <div style={{position:'relative', margin: 10}}><Avatar src={this.state.other_profile['avatar']['url']} size={70} style={{position: 'relative'}} />
-                        <Icon28DiamondOutline width={25} height={25} className='Diamond_profile' />
-                        </div> : <Avatar size={70} src={this.state.other_profile['avatar']['url']} style={{position: 'relative'}} />}
+                    <SimpleCell
+                        disabled
+                        after={
+                            <>
+                            <IconButton
+                                onClick={() => infoMenu(agent_id)}
+                                getRootRef={profRef}
+                                icon={<Icon24MoreVertical/>}>
+                            </IconButton>
+                                </>
+                            
+                        }
+                        description={online.is_online ? "online" : getHumanyTime(online.last_seen).date + " в " + getHumanyTime(online.last_seen).time}
+                        before={diamond ?
+                            <div style={{ position: 'relative', margin: 10 }}><Avatar src={avatar.url} size={70} style={{ position: 'relative' }} />
+                                <Icon28DiamondOutline width={25} height={25} className='Diamond_profile' />
+                            </div> : <Avatar size={70} src={avatar.url} style={{ position: 'relative'}} />}
                     >
-                    <div style={{display:'flex'}}>
-                    {this.state.other_profile['nickname'] ? this.state.other_profile['nickname'] : `Агент Поддержки #${this.state.other_profile['id']}`}
-                        {this.state.other_profile['flash'] && 
-                        <div className="profile_moderator_name_icon">
-                            <Icon16Fire width={12} height={12} style={{color: "var(--prom_icon)"}} onClick={() => props.setActiveModal('prom')} />  
-                        </div>}
-                        {this.state.other_profile['donut'] &&
-                        <div className="profile_moderator_name_icon">
-                            <Icon16StarCircleFillYellow width={12} height={12} onClick={() => props.setActiveModal('donut')} />  
-                        </div>}
-                        {this.state.other_profile['verified'] &&
-                        <div className="profile_moderator_name_icon_ver">
-                            <Icon16Verified style={{color: "var(--dynamic_blue)"}} onClick={() => props.setActiveModal('verif')} />  
-                        </div>}
-                    </div>
-                    </RichCell>
-                    <Div style={{display: 'flex'}}>
-                        {this.state.other_profile.vk_id && <Button
-                        size='m'
-                        stretched
-                        target="_blank" rel="noopener noreferrer"
-                        href={"https://vk.me/id" + this.state.other_profile.vk_id}
-                        style={{marginRight: 8}}>
+                        <div style={{ display: 'flex' }}>
+                            {nickname ? nickname : `Агент Поддержки #${agent_id}`}
+                            {flash &&
+                                <div className="profile_moderator_name_icon">
+                                    <Icon16Fire width={12} height={12} style={{ color: "var(--prom_icon)" }} onClick={() => setActiveModal('prom')} />
+                                </div>}
+                            {donut &&
+                                <div className="profile_moderator_name_icon">
+                                    <Icon16StarCircleFillYellow width={12} height={12} onClick={() => setActiveModal('donut')} />
+                                </div>}
+                            {verif &&
+                                <div className="profile_moderator_name_icon_ver">
+                                    <Icon16Verified style={{ color: "var(--dynamic_blue)" }} onClick={() => setActiveModal('verif')} />
+                                </div>}
+                        </div>
+                    </SimpleCell>
+                    <Div style={{ display: 'flex' }}>
+                        {vk_id && <Button
+                            size='m'
+                            stretched
+                            target="_blank" rel="noopener noreferrer"
+                            href={"https://vk.me/id" + vk_id}
+                            style={{ marginRight: 8 }}>
                             Сообщение
                         </Button>}
                         <Button
-                        size='m'
-                        stretched
-                        onClick={() => this.subscribeMenu()}
-                        mode={this.state.other_profile.subscribe ? 'secondary' : 'primary'}>
-                            {this.state.other_profile.subscribe ? "Вы подписаны" : "Подписаться"}
+                            size='m'
+                            stretched
+                            onClick={() => subscribeMenu()}
+                            mode={subscribe ? 'secondary' : 'primary'}>
+                            {subscribe ? "Вы подписаны" : "Подписаться"}
                         </Button>
                     </Div>
                 </Group>
-                
-                {
-                (this.state.other_profile['special'] || this.state.other_profile['generator'] || this.state.other_profile['banned']) ? 
-                <div style={{marginTop: 20, marginBottom: 20}} className="help_title_profile">{this.state.other_profile['banned'] ? 
-                'Этот профиль забанен' : 
-                'Вы не можете просматривать этот профиль'}
-                </div> :
-                <>
-                <Group header={<Header mode='tertiary'>Основная информация</Header>}>
-                    <MiniInfoCell
-                    before={<Icon20ArticleOutline />}
-                    textWrap='full'>
-                        {this.state.other_profile.publicStatus || "Играю в любимую игру"}
-                    </MiniInfoCell>
-                    <MiniInfoCell
-                    before={<Icon20FollowersOutline />}
-                    after={
-                        <UsersStack 
-                        photos={this.state.other_profile['followers'][2].map((user,i) => "https://xelene.ru/road/php/images/avatars/" + user.avatar_name)} />
-                    }>
-                        {this.state.other_profile['followers'][0] ? this.state.other_profile['followers'][0] + " " + enumerate(this.state.other_profile['followers'][0], 
-                        ['подписчик', 'подписчика', 'подписчиков']) : "нет подписчиков"}
-                        {this.state.other_profile['followers'][1] ? " · " + 
-                        this.state.other_profile['followers'][1] + " " + enumerate(this.state.other_profile['followers'][1], 
-                        ['новый', 'новых', 'новых']) : ''}
-                    </MiniInfoCell>
-                    <MiniInfoCell
-                        mode='full'
-                        before={<Icon20WorkOutline/>}>
-                        Дата регистрации: {new Date(this.state.other_profile.registered * 1e3).getDate() + " " + 
-                        this.please_Month(new Date(this.state.other_profile['registered'] * 1e3).getMonth()) + " " + 
-                        new Date(this.state.other_profile.registered * 1e3).getFullYear()}
 
-                    </MiniInfoCell>
-                    <MiniInfoCell
-                    textWrap='full'
-                    before={<Icon20BookOutline />}>
-                        {recog_number(this.state.other_profile['good_answers'] + 
-                        this.state.other_profile['bad_answers']) + " " + enumerate(this.state.other_profile['good_answers'] + this.state.other_profile['bad_answers'], 
-                        ['Ответ', 'Ответа', 'Ответов'])}
-                    </MiniInfoCell>
-                    <MiniInfoCell
-                    textWrap='full'
-                    before={<Icon20Info />}>
-                        {recog_number(
-                        this.state.other_profile['good_answers']) + " " + enumerate(this.state.other_profile['good_answers'], 
-                        ['Положительный', 'Положительныx', 'Положительных'])} · {recog_number(
-                        this.state.other_profile['bad_answers']) + " " + enumerate(this.state.other_profile['bad_answers'], 
-                        ['Отрицательный', 'Отрицательных', 'Отрицательных'])}
-                    </MiniInfoCell>
-                    {this.state.other_profile.public && <MiniInfoCell
-                        mode='base'
-                        before={<Icon20GlobeOutline/>}>
-                        <Link href={'https://vk.com/id' + this.state.other_profile.vk_id}
-                        target="_blank" rel="noopener noreferrer">Страница ВКонтакте</Link>
+                {
+                    (OtherProfileData.special || OtherProfileData.generator || banned) ?
+                        <div style={{ marginTop: 20, marginBottom: 20 }} className="help_title_profile">{banned ?
+                            'Этот профиль заблокирован' :
+                            'Вы не можете просматривать этот профиль'}
+                        </div> :
+                        <>
+                            <Group header={<Header mode='tertiary'>Основная информация</Header>}>
+                                <MiniInfoCell
+                                    before={<Icon20ArticleOutline />}
+                                    textWrap='full'>
+                                    {OtherProfileData.publicStatus || "Играю в любимую игру"}
+                                </MiniInfoCell>
+                                <MiniInfoCell
+                                    before={<Icon20FollowersOutline />}
+                                    after={
+                                        <UsersStack
+                                            photos={OtherProfileData.followers[2].map((user, i) => AVATARS_URL + user.avatar_name)} />
+                                    }>
+                                    {followers[0] ? followers[0] + " " + enumerate(followers[0],
+                                        ['подписчик', 'подписчика', 'подписчиков']) : "нет подписчиков"}
+                                    {followers[1] ? " · " +
+                                        followers[1] + " " + enumerate(followers[1],
+                                            ['новый', 'новых', 'новых']) : ''}
+                                </MiniInfoCell>
+                                <MiniInfoCell
+                                    mode='full'
+                                    before={<Icon20WorkOutline />}>
+                                    Дата регистрации: {getHumanyTime(OtherProfileData.registered).date}
+
+                                </MiniInfoCell>
+                                <MiniInfoCell
+                                    textWrap='full'
+                                    before={<Icon20BookOutline />}>
+                                    {recog_number(total_answers) + " " + enumerate(total_answers,
+                                            ['Ответ', 'Ответа', 'Ответов'])}
+                                </MiniInfoCell>
+                                <MiniInfoCell
+                                    textWrap='full'
+                                    before={<Icon20Info />}>
+                                    {recog_number(good_answers) + " " + enumerate(good_answers,
+                                            ['Положительный', 'Положительныx', 'Положительных'])} · {recog_number(
+                                                bad_answers) + " " + enumerate(bad_answers,
+                                                    ['Отрицательный', 'Отрицательных', 'Отрицательных'])}
+                                </MiniInfoCell>
+                                {OtherProfileData.public && <MiniInfoCell
+                                    mode='base'
+                                    before={<Icon20GlobeOutline />}>
+                                    <Link href={'https://vk.com/id' + vk_id}
+                                        target="_blank" rel="noopener noreferrer">Страница ВКонтакте</Link>
+                                </MiniInfoCell>}
+                                {account.special && <MiniInfoCell
+                                    before={<Icon20Add style={{ transform: ShowServiceInfo ? "rotate(45deg)" : '', transition: 'all 0.3s' }} />}
+                                    mode="more"
+                                    onClick={() => { setShowServiceInfo(prevState => !prevState) }}
+                                >
+                                    Подробная информация
                     </MiniInfoCell>}
-                    {this.props.account.special &&  <MiniInfoCell
-                        before={<Icon20Add style={{transform: this.state.ShowServiceInfo ? "rotate(45deg)" : '', transition: 'all 0.3s'}} />}
-                        mode="more"
-                        onClick={() => {this.setState({ShowServiceInfo: !this.state.ShowServiceInfo})}}
-                    >
-                        Подробная информация
-                    </MiniInfoCell>}
-                    
-                </Group>
-                {this.state.ShowServiceInfo && 
-                     <Group>
-                        <MiniInfoCell 
-                        before={<Icon20UserOutline />}
-                        after={this.state.other_profile['id']}>
-                            Id Агента
+
+                            </Group>
+                            {ShowServiceInfo &&
+                                <Group>
+                                    <MiniInfoCell
+                                        before={<Icon20UserOutline />}
+                                        after={agent_id}>
+                                        Id Агента
                         </MiniInfoCell>
-                        <MiniInfoCell 
-                        before={<Icon20CalendarOutline />}
-                        after={this.state.other_profile['age'] + " " + enumerate(this.state.other_profile['age'], ['год', 'года', 'лет'])}>
-                            Возраст
+                                    <MiniInfoCell
+                                        before={<Icon20CalendarOutline />}
+                                    after={age + " " + enumerate(age, ['год', 'года', 'лет'])}>
+                                        Возраст
                         </MiniInfoCell>
-                        <MiniInfoCell
-                        before={<Icon28WalletOutline width={20} height={20} />}
-                        after={recog_number(this.state.other_profile['balance'])}>
-                            Баланс
-                        </MiniInfoCell> 
-                        <MiniInfoCell
-                        before={<Icon48DonateOutline width={20} height={20} />}
-                        after={recog_number(this.state.other_profile['donuts'])}>
-                            Пончики
-                        </MiniInfoCell> 
-                        <MiniInfoCell
-                        before={<Icon28PaletteOutline width={20} height={20} />}
-                        after={SCHEMES[this.state.other_profile['scheme']]}>
-                            Используемая тема
+                                    <MiniInfoCell
+                                        before={<Icon28WalletOutline width={20} height={20} />}
+                                    after={recog_number(balance)}>
+                                        Баланс
                         </MiniInfoCell>
-                        <MiniInfoCell
-                        before={<Icon28Notifications width={20} height={20} />}
-                        after={NOTI[Number(this.state.other_profile['noti'])]}>
-                            Уведомления
+                                    <MiniInfoCell
+                                        before={<Icon48DonateOutline width={20} height={20} />}
+                                    after={recog_number(donuts)}>
+                                        Пончики
                         </MiniInfoCell>
-                        <MiniInfoCell
-                        before={<Icon20StatisticsOutline width={20} height={20} />}
-                        after={this.state.other_profile['coff_active']}>
-                            Рейтинг Престижности
+                                    <MiniInfoCell
+                                        before={<Icon28PaletteOutline width={20} height={20} />}
+                                        after={SCHEMES[OtherProfileData.scheme]}>
+                                        Используемая тема
                         </MiniInfoCell>
-                        <MiniInfoCell
-                        mode='base'
-                        before={<Icon20GlobeOutline/>}>
-                            <Link href={'https://vk.com/id' + this.state.other_profile.vk_id}
-                            target="_blank" 
-                            rel="noopener noreferrer">
-                                Страница ВКонтакте
+                                    <MiniInfoCell
+                                        before={<Icon28Notifications width={20} height={20} />}
+                                    after={NOTI[Number(OtherProfileData.noti)]}>
+                                        Уведомления
+                        </MiniInfoCell>
+                                    <MiniInfoCell
+                                        before={<Icon20StatisticsOutline width={20} height={20} />}
+                                    after={OtherProfileData.coff_active}>
+                                        Рейтинг Престижности
+                        </MiniInfoCell>
+                                    <MiniInfoCell
+                                        mode='base'
+                                        before={<Icon20GlobeOutline />}>
+                                        <Link href={'https://vk.com/id' + vk_id}
+                                            target="_blank"
+                                            rel="noopener noreferrer">
+                                            Страница ВКонтакте
                             </Link>
-                        </MiniInfoCell>
-                     </Group>         
+                                    </MiniInfoCell>
+                                </Group>
+                            }
+                        </>
                 }
-                </>
-                }
-                
-                {!this.props.account['special'] &&
-                <Group>
-                    <Div>
-                        <FormStatus header="Внимание! Важная информация" mode="default">
-                        Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
+
+                {!account.special &&
+                    <Group>
+                        <Div>
+                            <FormStatus header="Внимание! Важная информация" mode="default">
+                                Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
                         </FormStatus>
-                    </Div>
-                </Group>}
-                </> : 
-                this.state.other_profile &&
-                <Placeholder 
-                stretched
-                icon={<Icon56DurationOutline style={{color: 'var(--dynamic_red)'}} />}>
-                    {!this.state.other_profile['banned']['time_end'] ? "Этот аккаунт был заблокирован навсегда" : "Этот аккаунт был временно заблокирован"}
-                    <br/>
-                    {this.state.other_profile['banned']['time_end'] ? <p>До: {this.convertTime(this.state.other_profile.banned.time_end)}<br /></p> : null}
-                    {this.state.other_profile['banned']['reason'] ? "Причина: " + this.state.other_profile['banned']['reason'] : null}
-                </Placeholder>}
-                {this.state.snackbar}
-            </Panel>
-            )
-            }
-        }
-  
-export default OtherProfile;
+                        </Div>
+                    </Group>}
+            </> :
+                OtherProfileData && banned ?
+                <Placeholder
+                    stretched
+                    icon={<Icon56DurationOutline style={{ color: 'var(--dynamic_red)' }} />}>
+                    {!banned.time_end ? "Этот аккаунт был заблокирован навсегда" : "Этот аккаунт был временно заблокирован"}
+                    <br />
+                    {banned.time_end ? <p>До: {getHumanyTime(banned.time_end).datetime}<br /></p> : null}
+                    {banned.reason ? "Причина: " + banned.reason : null}
+                </Placeholder> : <PanelSpinner/>}
+            {snackbar}
+        </Panel>
+    )
+}

@@ -370,7 +370,7 @@ class Tickets {
 
 		// Увеличиваем счетчик ответов
 		$author_id = $res['author_id'];
-		$sql = "UPDATE users SET total_answers = total_answers + 1 WHERE id=?";
+		$sql = "UPDATE users SET good_answers = good_answers + 1, coff_active=coff_active+20 WHERE id=?";
 		$this->Connect->query($sql, [$author_id]);
 
         $sql = "UPDATE users SET money = money + 20 WHERE id=?";

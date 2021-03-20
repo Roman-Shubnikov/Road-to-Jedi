@@ -12,26 +12,19 @@ import {
      Icon56LockOutline,
 } from '@vkontakte/icons';
 
-export default class Donuts extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-        }
-    }
-    render(){
-        return (
-            <Panel id={this.props.id}>
-                <PanelHeader
+export default props => {
+    return (
+        <Panel id={props.id}>
+            <PanelHeader
                 left={<PanelHeaderBack onClick={() => window.history.back()} />}>
-                    Ошибка
+                Ошибка
                 </PanelHeader>
-                <Placeholder 
+            <Placeholder
                 icon={<Icon56LockOutline />}
                 stretched
                 header="Вам не хватает прав доступа">
-                    Для доступа к этому разделу нужно иметь платную подписку VK Donut
+                Для доступа к этому разделу нужно иметь платную подписку VK Donut
                 </Placeholder>
-            </Panel>
-        )
-    }
+        </Panel>
+    )
 }

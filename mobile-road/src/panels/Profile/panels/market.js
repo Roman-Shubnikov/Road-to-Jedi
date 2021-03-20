@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { 
     Panel,
     PanelHeader,
@@ -21,18 +21,23 @@ import {
     FormItem,
     } from '@vkontakte/vkui';
 
-import Icon24Repeat from '@vkontakte/icons/dist/24/repeat';
-import Icon28MoneyCircleOutline from '@vkontakte/icons/dist/28/money_circle_outline';
 
-import Icon28MoneyHistoryBackwardOutline  from '@vkontakte/icons/dist/28/money_history_backward_outline';
-import Icon16CheckCircle                  from '@vkontakte/icons/dist/16/check_circle';
-import Icon20CancelCircleFillRed          from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
-import Icon28InfoCircleOutline            from '@vkontakte/icons/dist/28/info_circle_outline';
-import Icon24BlockOutline                 from '@vkontakte/icons/dist/24/block_outline';
+import {
+  Icon28MoneyHistoryBackwardOutline,
+  Icon16CheckCircle,
+  Icon20CancelCircleFillRed,
+  Icon28InfoCircleOutline,
+  Icon24BlockOutline,
+  Icon24Repeat,
+  Icon28MoneyCircleOutline,
 
+} from '@vkontakte/icons';
 
 
 import UserTopC from '../../../components/userTop';
+import { useDispatch, useSelector } from 'react-redux';
+import { viewsActions } from '../../../store/main';
+import { API_URL, AVATARS_URL } from '../../../config';
 
 
 const avatars = [
@@ -77,368 +82,231 @@ const avatars = [
 const blueBackground = {
     backgroundColor: 'var(--accent)'
   };
+export default props => {
+  const dispatch = useDispatch();
+  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
+  const account = useSelector((state) => state.account.account);
+  const { setPopout, setActiveModal, goPanel, setSnackbar } = props.callbacks;
 
-export default class Market extends React.Component{
-    constructor(props){
-        super(props)
-        this.state = {
-            changed_id: '',
-            api_url: "https://xelene.ru/road/php/index.php?",
-            last_selected: null,
-            selectedAvatar: 0,
-
+  const [selectedAvatar, setSelectedAvatar] = useState(0);
+  const [changed_id, setChangedId] = useState('');
+  const MarketManager = (type, data) => {
+    let method,jsonData,textSnack;
+    switch(type){
+      case 'avatar':
+        textSnack = "Аватар успешно сменен";
+        method = "shop.changeAvatar&";
+        jsonData = {
+          'avatar_id': Number(selectedAvatar),
+        };
+        break;
+      case 'changeId':
+        textSnack = "Вы успешно сменили ник";
+        jsonData = {
+          'change_id': changed_id.trim(),
         }
-        var propsbi = this.props.this;
-        this.setPopout = propsbi.setPopout;
-        this.showErrorAlert = propsbi.showErrorAlert;
-        this.showAlert = propsbi.showAlert;
-        this.setActiveModal = propsbi.setActiveModal;
-        this.selectImage = this.selectImage.bind(this);
-        this.changeAvatar = this.changeAvatar.bind(this)
-        this.onChange = (event) => {
-            var name = event.currentTarget.name;
-            var value = event.currentTarget.value;
-            this.setState({ [name]: value });
-        }
+        method = "shop.changeId&";
+        break;
+      case 'resetId':
+        textSnack = "Вы успешно удалили ник";
+        jsonData = {}
+        method = "shop.resetId&";
+        break;
+      case 'recomend':
+        textSnack = "Вы успешно попали в рекомендации";
+        jsonData = {}
+        method = "shop.buyRecommendations&";
+        break;
+      case 'diamond':
+        textSnack = "Вы успешно купили алмаз"
+        jsonData = {}
+        method = "shop.buyDiamond&";
+        break;
+      default:
+        method = "shop.changeAvatar&";
     }
-  selectImage(number) {
-    this.setState({selectedAvatar:number});
-  }
-    changeAvatar() {
-      let method = (this.state.selectedAvatar > 1000) ? "shop.changeDonutAvatars&" : "shop.changeAvatar&";
-        fetch(this.state.api_url + `method=${method}` + window.location.search.replace('?', ''),
-        {method: 'post',
-        headers: {"Content-type": "application/json; charset=UTF-8"},
-            // signal: controllertime.signal,
-        body: JSON.stringify({
-            'avatar_id': (Number(this.state.selectedAvatar) > 1000 ) ? Number(this.state.selectedAvatar) - 1000 : Number(this.state.selectedAvatar),
-        })
-        })
-        .then(data => data.json())
-        .then(data => {
-          this.setState({selectedAvatar: 0})
-          if(data.result){
-              this.props.this.setSnack( 
-                <Snackbar
-                  layout="vertical"
-                  onClose={() => this.props.this.setSnack(null)}
-                  before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
-                >
-                  Аватар успешно сменен
-                </Snackbar>
-              )
-
-              setTimeout(() => {
-                this.props.this.ReloadProfile();
-              }, 4000)
-            }else{
-              this.props.this.setSnack(
-                <Snackbar
-                layout="vertical"
-                onClose={() => this.props.this.setSnack(null)}
-                before={<Icon20CancelCircleFillRed width={24} height={24} />}
-              >
-                {data.error.message}
-              </Snackbar>);
-            }
-        })
-        .catch(err => {
-          this.props.this.changeData('activeStory', 'disconnect')
+     
+    fetch(API_URL + `method=${method}` + window.location.search.replace('?', ''),
+      {
+        method: 'post',
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+        body: JSON.stringify(jsonData)
       })
-        
-    }
-    ChangeId() {
-        if(this.state.changed_id){ 
-          fetch(this.state.api_url + "method=shop.changeId&" + window.location.search.replace('?', ''),
-          {method: 'post',
-                headers: {"Content-type": "application/json; charset=UTF-8"},
-                    // signal: controllertime.signal,
-                body: JSON.stringify({
-                    'change_id': this.state.changed_id.trim(),
-                })
-          })
-          .then(res => res.json())
-          .then(data => {
-            if(data.result) {
-                this.props.this.setSnack(
-                <Snackbar
-                  layout="vertical"
-                  onClose={() => this.props.this.setSnack(null)}
-                  before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
-                >
-                  Вы успешно сменили ник
-                </Snackbar>
-              )
-              setTimeout(() => {
-                this.props.this.ReloadProfile();
-              }, 4000)
-            } else {
-              this.props.this.setSnack(
-                <Snackbar
-                layout="vertical"
-                onClose={() => this.props.this.setSnack(null)}
-                before={<Icon20CancelCircleFillRed width={24} height={24} />}
-              >
-                {data.error.message}
-              </Snackbar>);
-            }
-          })
-          .catch(err => {
-            this.props.this.changeData('activeStory', 'disconnect')
-          })
-        } else {
-          this.props.this.setSnack(
+      .then(data => data.json())
+      .then(data => {
+        setSelectedAvatar(0);
+        if (data.result) {
+          setSnackbar(
             <Snackbar
-            layout="vertical"
-            onClose={() => this.props.this.setSnack(null)}
-            before={<Icon20CancelCircleFillRed width={24} height={24} />}
-          >
-            Вы не указали желаемый ник
-          </Snackbar>);
-        }
-      }
-      ResetId() {
-          fetch(this.state.api_url + "method=shop.resetId&" + window.location.search.replace('?', ''))
-          .then(res => res.json())
-          .then(data => {
-            if(data.result) {
-                this.props.this.setSnack(
-                <Snackbar
-                  layout="vertical"
-                  onClose={() => this.props.this.setSnack(null)}
-                  before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
-                >
-                  Вы успешно удалили ник
+              layout="vertical"
+              onClose={() => setSnackbar(null)}
+              before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+            >
+              {textSnack}
                 </Snackbar>
-              )
-              setTimeout(() => {
-                this.props.this.ReloadProfile();
-              }, 4000)
-            } else {
-              this.props.this.setSnack(
-                <Snackbar
-                layout="vertical"
-                onClose={() => this.props.this.setSnack(null)}
-                before={<Icon20CancelCircleFillRed width={24} height={24} />}
-              >
-                {data.error.message}
-              </Snackbar>);
-            }
-          })
-          .catch(err => {
-            this.props.this.changeData('activeStory', 'disconnect')
-          })
-      }
-      buyRecommendations() {
-        fetch(this.state.api_url + "method=shop.buyRecommendations&" + window.location.search.replace('?', ''))
-        .then(res => res.json())
-        .then(data => {
-          if(data.result) {
-              this.props.this.setSnack(
-              <Snackbar
-                layout="vertical"
-                onClose={() => this.props.this.setSnack(null)}
-                before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
-              >
-                Вы успешно попали в рекомендации
-              </Snackbar>
-            )
-            setTimeout(() => {
-              this.props.this.ReloadProfile();
-            }, 4000)
-          } else {
-            this.props.this.setSnack(
-              <Snackbar
+          )
+
+          setTimeout(() => {
+            props.reloadProfile();
+          }, 2000)
+        } else {
+          setSnackbar(
+            <Snackbar
               layout="vertical"
-              onClose={() => this.props.this.setSnack(null)}
+              onClose={() => setSnackbar(null)}
               before={<Icon20CancelCircleFillRed width={24} height={24} />}
             >
               {data.error.message}
             </Snackbar>);
-          }
-        })
-        .catch(err => {
-          this.props.this.changeData('activeStory', 'disconnect')
-        })
-    }
+        }
+      })
+      .catch(err => {
+        console.log(err)
+        setActiveStory('disconnect');
+      })
 
-      buyDiamond() {
-        fetch(this.state.api_url + "method=shop.buyDiamond&" + window.location.search.replace('?', ''))
-        .then(res => res.json())
-        .then(data => {
-          if(data.result) {
-              this.props.this.setSnack(
-              <Snackbar
-                layout="vertical"
-                onClose={() => this.props.this.setSnack(null)}
-                before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
-              >
-                Вы успешно купили алмаз
-              </Snackbar>
-            )
-            setTimeout(() => {
-              this.props.this.ReloadProfile();
-            }, 4000)
-          } else {
-            this.props.this.setSnack(
-              <Snackbar
-              layout="vertical"
-              onClose={() => this.props.this.setSnack(null)}
-              before={<Icon20CancelCircleFillRed width={24} height={24} />}
-            >
-              {data.error.message}
-            </Snackbar>);
-          }
-        })
-        .catch(err => {
-          this.props.this.changeData('activeStory', 'disconnect')
-        })
-    }
-
-    render() {
-        return(
-            <Panel id={this.props.id}>
-                <PanelHeader 
-                    left={
-                        <><PanelHeaderBack onClick={() => window.history.back()} />
-                        <PanelHeaderButton 
-                        href='https://vk.com/@jedi_road-sistema-nachisleniya-ballov-i-shop'
-                        target="_blank" rel="noopener noreferrer">
-                          <Icon28InfoCircleOutline />
-                        </PanelHeaderButton> </>
-                }>
-                    Магазин
+  }
+  return (
+    <Panel id={props.id}>
+      <PanelHeader
+        left={
+          <><PanelHeaderBack onClick={() => window.history.back()} />
+            <PanelHeaderButton
+              href='https://vk.com/@jedi_road-sistema-nachisleniya-ballov-i-shop'
+              target="_blank" rel="noopener noreferrer">
+              <Icon28InfoCircleOutline />
+            </PanelHeaderButton> </>
+        }>
+        Магазин
                 </PanelHeader>
-                
-                <Group>
-                  <Div>
-                    <Text weight='medium'>Монетки — это универсальная условная единица для приобретения различных товаров в магазине</Text>
-                  </Div>
-                  <SimpleCell disabled indicator={this.props.account.balance}>Ваш баланс</SimpleCell>
-                  <CellButton onClick={() => this.props.this.goPanel('promocodes')}>Активировать промокод</CellButton>
-                </Group>
-        
-                {/* <Div>
+
+      <Group>
+        <Div>
+          <Text weight='medium'>Монетки — это универсальная условная единица для приобретения различных товаров в магазине</Text>
+        </Div>
+        <SimpleCell disabled indicator={account.balance}>Ваш баланс</SimpleCell>
+        <CellButton onClick={() => goPanel('promocodes')}>Активировать промокод</CellButton>
+      </Group>
+
+      {/* <Div>
                   <FormStatus >
                     Скидки для тестеровщиков
                   </FormStatus>
                 </Div> */}
-                <Group header={<Header>Сменить аватар</Header>}>
-                  <HorizontalScroll showArrows getScrollToLeft={(i) => i - 190} getScrollToRight={(i) => i + 190}>
-                  <div style={{ display: 'flex' }}>
-                    {avatars.map((ava, i) => 
-                    <HorizontalCell key={i} size='m' 
-                    className={((i + 1) === this.state.selectedAvatar) ? 'select_avatar' : ''}
-                    onClick={(e) => (this.props.account.avatar.id === i +1) ? this.props.this.setSnack(
-                      <Snackbar
-                      layout="vertical"
-                      onClose={() => this.props.this.setSnack(null)}
-                      before={<Icon20CancelCircleFillRed width={24} height={24} />}
-                    >
-                      Вы уже имеете данный аватар
-                    </Snackbar>) : (this.state.selectedAvatar === (i + 1) ) ? this.selectImage(0) : this.selectImage(i + 1)}>
-                        <Avatar id={i} size={88} src={"https://xelene.ru/road/php/images/avatars/" + ava}/>
-                      
-                    </HorizontalCell>)}
-                  </div>
-                  </HorizontalScroll>
-                  <Div>
-                      <Button onClick={this.changeAvatar}
-                      before={<Icon28MoneyCircleOutline />} 
-                      size="l" 
-                      stretched
-                      mode="secondary"
-                      disabled={this.state.selectedAvatar === 0 || this.state.selectedAvatar > 1000}>Сменить за 700 монеток</Button>
-                  </Div>
-                </Group>
+      <Group header={<Header>Сменить аватар</Header>}>
+        <HorizontalScroll showArrows getScrollToLeft={(i) => i - 190} getScrollToRight={(i) => i + 190}>
+          <div style={{ display: 'flex' }}>
+            {avatars.map((ava, i) =>
+              <HorizontalCell key={i} size='m'
+                className={((i + 1) === selectedAvatar) ? 'select_avatar' : ''}
+                onClick={(e) => (account.avatar.id === i + 1) ? setSnackbar(
+                  <Snackbar
+                    layout="vertical"
+                    onClose={() => setSnackbar(null)}
+                    before={<Icon20CancelCircleFillRed width={24} height={24} />}
+                  >
+                    Вы уже имеете данный аватар
+                    </Snackbar>) : (selectedAvatar === (i + 1)) ? setSelectedAvatar(0) : setSelectedAvatar(i + 1)}>
+                <Avatar id={i} size={88} src={AVATARS_URL + ava} />
 
-                <Group header={<Header>Сменить свой ник</Header>}>
-                  <FormLayout>
-                    <FormItem>
-                      <Input placeholder="Введите желаемый ник" 
-                      bottom='Макс. 10 символов'
-                      onChange={(e) => this.onChange(e)} 
-                      value={this.state.changed_id} 
-                      maxLength="10" 
-                      name="changed_id"/>
-                    </FormItem>
-                    <FormItem>
-                      <div style={{display: 'flex'}}>
-                        <Button onClick={() => {this.ChangeId(this.state.changed_id)}} 
-                          style={{marginRight: 8}}
-                          before={<Icon24Repeat width={28} height={28} />}
-                          stretched
-                          size="m" 
-                          mode="secondary"
-                          disabled={(this.state.changed_id <= 0) ? true : false}>Сменить за 1500 монеток</Button>
-                        {this.props.account.nickname ? <Button 
-                          stretched
-                          onClick={() => this.setPopout(<Alert
-                            actionsLayout='vertical'
-                            actions={[{
-                              title: 'Удалить ник',
-                              autoclose: true,
-                              mode: 'destructive',
-                              action: () => this.ResetId(),
-                            },{
-                              title: 'Нет, я нажал сюда случайно',
-                              autoclose: true,
-                              style: 'cancel'
-                            },]}
-                            onClose={() => this.setPopout(null)}
-                            header="Осторожно!"
-                            text="Если вы удалите ник, то, возможно, его сможет забрать кто-то другой. После удаления ника у вас будет отображён начальный id"
-                          />)}
-                        before={<Icon24BlockOutline width={28} height={28} />}
-                        size="m" 
-                        mode='destructive'>Удалить ник</Button> : null}
-                      </div>
-                    </FormItem>
-                  </FormLayout>
-                  
-                </Group>
-                {this.props.account ? !this.props.account.is_recommended ? <Group header={<Header>Попасть в рекомедации</Header>}>
-                  <Div>
-                    <Text weight='medium'>После приобретения этого товара, ваш профиль попадёт на вторую вкладку в "Обзор", так вы сможете привлечь больше подписчиков</Text>
-                  </Div>
-                  <Div>
-                      <Button onClick={() => this.buyRecommendations()}
-                      before={<Icon28MoneyCircleOutline/>} 
-                      size="l" 
-                      stretched
-                      mode="secondary">Купить за 150 монеток</Button>
-                  </Div>
-                </Group> : null : null}
-                
+              </HorizontalCell>)}
+          </div>
+        </HorizontalScroll>
+        <Div>
+          <Button onClick={() => MarketManager('avatar')}
+            before={<Icon28MoneyCircleOutline />}
+            size="l"
+            stretched
+            mode="secondary"
+            disabled={selectedAvatar === 0}>Сменить за 700 монеток</Button>
+        </Div>
+      </Group>
 
-                
-                {this.props.account ? !this.props.account.diamond ? 
-                <Group header={<Header>Купить алмаз</Header>}>
-                  <Div>
-                    <Text weight='medium'>После приобретения этого товара, около вашей аватарки начнёт светиться фиолетовый алмаз. Это выглядит примерно так:</Text>
-                  </Div>
-                  <UserTopC {...this.props.account} 
-                  diamond />
-                  <Div>
-                      <Button 
-                      onClick={() => this.buyDiamond()} 
-                      stretched
-                      before={<Icon28MoneyHistoryBackwardOutline />} size="l" mode='destructive'>Купить за 10 000 монеток</Button>
-                  </Div>
-                </Group> : null : null}
-                <Group header={<Header>Опции</Header>}>
-                  <Div>
-                      <Button 
-                      onClick={() => this.setActiveModal('send')} 
-                      before={<Icon28MoneyHistoryBackwardOutline />} 
-                      size="l" 
-                      mode="secondary"
-                      stretched>Перевести</Button>
-                  </Div>
-                </Group>
-                
-                {this.props.this.state.snackbar}
-            </Panel>
-        )
-    }
+      <Group header={<Header>Сменить свой ник</Header>}>
+        <FormLayout>
+          <FormItem>
+            <Input placeholder="Введите желаемый ник"
+              bottom='Макс. 10 символов'
+              onChange={(e) => setChangedId(e.currentTarget.value)}
+              value={changed_id}
+              maxLength="10" />
+          </FormItem>
+          <FormItem>
+            <div style={{ display: 'flex' }}>
+              <Button onClick={() => { MarketManager('changeId') }}
+                style={{ marginRight: 8 }}
+                before={<Icon24Repeat width={28} height={28} />}
+                stretched
+                size="m"
+                mode="secondary"
+                disabled={!( changed_id.trim().length > 0)}>Сменить за 1500 монеток</Button>
+              {account.nickname ? <Button
+                stretched
+                onClick={() => setPopout(<Alert
+                  actionsLayout='vertical'
+                  actions={[{
+                    title: 'Удалить ник',
+                    autoclose: true,
+                    mode: 'destructive',
+                    action: () => MarketManager('resetId'),
+                  }, {
+                    title: 'Нет, я нажал сюда случайно',
+                    autoclose: true,
+                    style: 'cancel'
+                  },]}
+                  onClose={() => setPopout(null)}
+                  header="Осторожно!"
+                  text="Если вы удалите ник, то, возможно, его сможет забрать кто-то другой. После удаления ника у вас будет отображён начальный id"
+                />)}
+                before={<Icon24BlockOutline width={28} height={28} />}
+                size="m"
+                mode='destructive'>Удалить ник</Button> : null}
+            </div>
+          </FormItem>
+        </FormLayout>
+
+      </Group>
+      {account ? !account.is_recommended ? <Group header={<Header>Попасть в рекомедации</Header>}>
+        <Div>
+          <Text weight='medium'>После приобретения этого товара, ваш профиль попадёт на вторую вкладку в "Обзор", так вы сможете привлечь больше подписчиков</Text>
+        </Div>
+        <Div>
+          <Button onClick={() => MarketManager('recomend')}
+            before={<Icon28MoneyCircleOutline />}
+            size="l"
+            stretched
+            mode="secondary">Купить за 150 монеток</Button>
+        </Div>
+      </Group> : null : null}
+
+
+
+      {account ? !account.diamond ?
+        <Group header={<Header>Купить алмаз</Header>}>
+          <Div>
+            <Text weight='medium'>После приобретения этого товара, около вашей аватарки начнёт светиться фиолетовый алмаз. Это выглядит примерно так:</Text>
+          </Div>
+          <UserTopC {...account}
+            diamond />
+          <Div>
+            <Button
+              onClick={() => MarketManager('diamond')}
+              stretched
+              before={<Icon28MoneyHistoryBackwardOutline />} size="l" mode='destructive'>Купить за 10 000 монеток</Button>
+          </Div>
+        </Group> : null : null}
+      <Group header={<Header>Опции</Header>}>
+        <Div>
+          <Button
+            onClick={() => setActiveModal('send')}
+            before={<Icon28MoneyHistoryBackwardOutline />}
+            size="l"
+            mode="secondary"
+            stretched>Перевести</Button>
+        </Div>
+      </Group>
+
+      {props.snackbar}
+    </Panel>
+  )
 }

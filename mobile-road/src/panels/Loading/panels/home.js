@@ -4,23 +4,16 @@ import {
     PanelHeader,
     } from '@vkontakte/vkui';
 
-import Icon24Spinner          from '@vkontakte/icons/dist/24/spinner';
-
-export default class Info extends React.Component{
-    constructor(props){
-        super(props)
-        this.state = {
-        }
-    }
-
-    render() {
-        return(
-            <Panel id={this.props.id}>
-                <PanelHeader>
-                    Загрузка
-                </PanelHeader>
-                <Icon24Spinner style={{margin: 'auto'}} width={56} height={56} className='Spinner__self' />
-            </Panel>
+import { Icon44Spinner } from '@vkontakte/icons';
+export default props => {
+    return(
+        <Panel id={props.id}>
+            <PanelHeader>
+                Загрузка
+            </PanelHeader>
+            <Icon44Spinner style={{ margin: 'auto', color: 'var(--icon_outline_secondary)'}} width={56} height={56} className='Spinner__self' />
+        </Panel>
         )
-    }
 }
+
+

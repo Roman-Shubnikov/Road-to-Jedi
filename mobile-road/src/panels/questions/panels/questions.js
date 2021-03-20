@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import $ from 'jquery';
 import bridge from '@vkontakte/vk-bridge';
+import { viewsActions, ticketActions } from '../../../store/main'
+import {API_URL} from '../../../config';
+import { enumerate } from '../../../Utils';
 
 import { 
     Panel,
@@ -15,7 +19,6 @@ import {
     Div,
     Banner,
     Footer,
-    ScreenSpinner,
     Group,
     List,
     SimpleCell,
@@ -25,179 +28,229 @@ import {
     
     } from '@vkontakte/vkui';
 
-import Icon56InboxOutline           from '@vkontakte/icons/dist/56/inbox_outline';
-import Icon28WriteSquareOutline     from '@vkontakte/icons/dist/28/write_square_outline';
-// import Icon28SyncOutline from '@vkontakte/icons/dist/28/sync_outline';
-import Icon16StarCircleFillYellow   from '@vkontakte/icons/dist/16/star_circle_fill_yellow';
+import {
+    Icon56InboxOutline,
+    Icon28WriteSquareOutline,
+    Icon16StarCircleFillYellow,
+
+} from '@vkontakte/icons';
 
 
 import BannerAvatarPC from '../../../images/question_banner_pc.jpg'
 import BannerAvatarMobile from '../../../images/question_banner_mobile.png'
 
+
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
-function enumerate (num, dec) {
-    if (num > 100) num = num % 100;
-    if (num <= 20 && num >= 10) return dec[2];
-    if (num > 20) num = num % 10;
-    return num === 1 ? dec[0] : num > 1 && num < 5 ? dec[1] : dec[2];
-  }
 var loadingContent = false;
-export default class Questions extends React.Component {
-        constructor(props) {
-            super(props);
-            this.state = {
-                api_url: "https://xelene.ru/road/php/index.php?",
-                fething: false,
-                offset: 0,
-                ShowBanner: true,
 
-            }
-            var propsbi = this.props.this;
-            this.setPopout = propsbi.setPopout;
-            this.showErrorAlert = propsbi.showErrorAlert;
-            this.setActiveModal = propsbi.setActiveModal;
-            this.Prepare_questions = this.Prepare_questions.bind(this);
-            this.componentDidMount = this.componentDidMount.bind(this)
+
+export default props => {
+    const dispatch = useDispatch();
+    const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
+    const [offset, setOffset] = useState(0);
+    const [ShowBanner, setShowBanner] = useState(true);
+    const [fetching, setFetching] = useState(false);
+    const account = useSelector((state) => state.account.account)
+    const { tickets, ticketsCurrent } = useSelector((state) => state.tickets)
+    const setTickets = useCallback((tickets, ticketsCurrent) => dispatch(ticketActions.setTickets({ tickets, ticketsCurrent })), [dispatch])
+    const [promoBannerProps, setPromoBannerProps] = useState(null);
+    const [ShowAdsBanner, setShowAdsBanner] = useState(true);
+
+    const {setPopout, showErrorAlert, goTiket, goPanel} = props.callbacks;
+    const getQuestions = useCallback((need_offset = false) => {
+        if (!need_offset) {
+            setOffset(20)
         }
-        Prepare_questions(need_offset=false, needPopout=false){
-            loadingContent = true
-            if(needPopout){
-                this.setPopout(<ScreenSpinner />)
-            }
-            this.props.this.getQuestions(need_offset)
-            setTimeout(() => {
-                this.setState({ fetching: false });
-                loadingContent = false
-                if(needPopout){
-                    this.setPopout(null)
-                }
-              }, 500);
-        }
-        componentDidMount() {
-            this.setPopout(null)
-            if(!this.props.account['donut']) {
-                    bridge.send('VKWebAppGetAds')
-                .then((promoBannerProps) => {
-                    this.setState({ promoBannerProps });
+        let offsetData = need_offset ? offset : 0;
+        fetch(API_URL + "method=tickets.get&" + window.location.search.replace('?', ''),
+            {
+                method: 'post',
+                headers: { "Content-type": "application/json; charset=UTF-8" },
+                // signal: controllertime.signal,
+                body: JSON.stringify({
+                    'count': 20,
+                    'unanswered': 1,
+                    'offset': offsetData,
                 })
-            }
-            $(window).on('scroll.detectautoload', () => {
-                if($(window).scrollTop() + $(window).height() + 400 >= $(document).height() && !loadingContent && this.props.tiket_all_helper && this.props.tiket_all_helper.length === 20){
-                    this.Prepare_questions(true)
+            })
+            .then(res => res.json())
+            .then(data => {
+                setTimeout(() => {
+                    setFetching(false)
+                    loadingContent = false
+                }, 500);
+                if (data.result) {
+                    var sliyan = [];
+                    if (tickets !== null) {
+                        let ticketsR = tickets.slice();
+                        if (!need_offset) {
+                            sliyan = data.response;
+                        } else {
+                            sliyan = data.response ? ticketsR.concat(data.response) : tickets;
+                        }
+                    } else {
+                        sliyan = data.response
+
+                    }
+                    setTickets(sliyan, data.response)
+                    if (need_offset) {
+                        setOffset(prev => prev + 20)
+                    }
+                    loadingContent = false
+                } else {
+                    showErrorAlert(data.error.message)
                 }
             })
-        }
-        componentWillUnmount(){
-            $(window).off('scroll.detectautoload')
-            
-        }
+            .catch(err => {
+                setActiveStory('disconnect');
 
-        render() {
-            var props = this.props.this; // Для более удобного использования.
+            })
+        
+    }, [offset, setActiveStory, setTickets, showErrorAlert, tickets])
+    const getRandomTiket = () => {
+        fetch(API_URL + "method=ticket.getRandom&" + window.location.search.replace('?', ''))
+            .then(res => res.json())
+            .then(data => {
+                if (data.result) {
+                    goTiket(data.response.id)
+                } else {
+                    showErrorAlert(data.error.message)
+                }
+            })
+            .catch(err => {
+                setActiveStory('disconnect');
+
+            })
+    }
+    useEffect(() => {
+        setPopout(null)
+        if(ticketsCurrent === null){
+            getQuestions(true);
+        }
+        // eslint-disable-next-line
+    }, [setPopout, ticketsCurrent])
+    useEffect(() => {
+        
+        if (!account.donut) {
+            bridge.send('VKWebAppGetAds')
+                .then((BannerProps) => {
+                    setPromoBannerProps(BannerProps)
+                })
+        }
+        
+        $(window).on('scroll.detectautoload1', () => {
             
-            return (
-                <Panel id={this.props.id}> 
-                <PanelHeader
+            if ($(window).scrollTop() + $(window).height() + 400 >= $(document).height() && !loadingContent && ticketsCurrent && ticketsCurrent.length === 20) {
+                loadingContent = true
+                getQuestions(true)
+            }
+        })
+        return () => {
+            $(window).off('scroll.detectautoload1')
+        }
+        // eslint-disable-next-line
+    }, [offset, ticketsCurrent, account])
+
+
+    return(
+        <Panel id={props.id}>
+            <PanelHeader
                 left={<>
-                {(this.props.tiket_all && this.props.tiket_all.length > 0) ? 
-                <PanelHeaderButton onClick={() => this.props.this.getRandomTiket()}>
-                    <Icon28WriteSquareOutline/>
-                </PanelHeaderButton> : null}
-                {/* {platformname ? null : <PanelHeaderButton onClick={() => this.Prepare_questions(false, true)}><Icon28SyncOutline/></PanelHeaderButton>} */}
+                    {(tickets && tickets.length > 0) ?
+                        <PanelHeaderButton onClick={() => getRandomTiket()}>
+                            <Icon28WriteSquareOutline />
+                        </PanelHeaderButton> : null}
                 </>}
-                >
+            >
                 Вопросы
                 </PanelHeader>
-                
-                {(this.state.ShowBanner && this.props.first_start) ? 
+
+            {(ShowBanner && account.is_first_start) ?
                 <Group>
                     <Banner
                         mode="image"
                         size="m"
                         onDismiss={() => {
-                            this.setState({ShowBanner: false});
+                            setShowBanner(false);
                         }}
                         header="С чего начать?"
                         subheader='С прочтения статьи'
                         background={
                             <div
                                 style={{
-                                backgroundColor: '#5b9be6',
-                                backgroundImage: platformname ? 'url(' + BannerAvatarMobile + ")" : 'url(' + BannerAvatarPC + ")",
-                                backgroundPosition: 'right bottom',
-                                backgroundSize: '100%',
+                                    backgroundColor: '#5b9be6',
+                                    backgroundImage: platformname ? 'url(' + BannerAvatarMobile + ")" : 'url(' + BannerAvatarPC + ")",
+                                    backgroundPosition: 'right bottom',
+                                    backgroundSize: '100%',
 
-                                backgroundRepeat: 'no-repeat',
+                                    backgroundRepeat: 'no-repeat',
                                 }}
                             />
                         }
                         asideMode="dismiss"
                         actions={
-                        <Button mode="overlay_primary" href="https://vk.com/@jedi_road-checking-responses" target="_blank" rel="noopener noreferrer" size="l">Читать</Button>
-                    }
+                            <Button mode="overlay_primary" href="https://vk.com/@jedi_road-checking-responses" target="_blank" rel="noopener noreferrer" size="l">Читать</Button>
+                        }
                     />
                 </Group>
-                
-                 : null}
-                {this.props.account.special ? 
+
+                : null}
+            {account.special ?
                 <Group>
                     <Div>
-                        <Button onClick={() => props.goPanel('new_ticket')}
-                        size="l" 
-                        mode="outline" 
-                        stretched>Новый вопрос</Button>
+                        <Button onClick={() => goPanel('new_ticket')}
+                            size="l"
+                            mode="outline"
+                            stretched>Новый вопрос</Button>
                     </Div>
                 </Group>
-                 : null}
-                <Group>
-                    <PullToRefresh onRefresh={() => {this.setState({ fetching: true });this.Prepare_questions()}} isFetching={this.state.fetching}>
-                        
-                            <List>
-                                {this.props.tiket_all ? this.props.tiket_all.length > 0 ? this.props.tiket_all.map((result, i) => 
-                                <React.Fragment key={i}>
-                                    {(i === 0) || <Separator />}
-                                    <SimpleCell
-                                        multiline
-                                        expandable
-                                        onClick={() => {this.setState({tiket_all: null});props.goTiket(result['id'])}}
-                                        description={result['status'] === 0 ? "На рассмотрении" : result['status'] === 1 ? "Есть ответ" : "Закрыт" } 
-                                        before={<Avatar src={result['author']['photo_200']} size={48}/>}
-                                    >
-                                        <div style={{display:"flex"}}>
-                                            {result['title']}
-                                            <div className='questionsIcons'>
-                                                <div className='icon_donut_questions'>
-                                                    {result['donut'] ? <Icon16StarCircleFillYellow width={12} height={12} className="top_moderator_name_icon" /> : null}
-                                                </div>
+                : null}
+            <Group>
+                <PullToRefresh onRefresh={() => {setFetching(true); getQuestions() }} isFetching={fetching}>
+                    <List>
+                        {tickets ? tickets.length > 0 ? tickets.map((result, i) =>
+                            <React.Fragment key={i}>
+                                {(i === 0) || <Separator />}
+                                <SimpleCell
+                                    multiline
+                                    expandable
+                                    onClick={() => { goTiket(result['id']) }}
+                                    description={result['status'] === 0 ? "На рассмотрении" : result['status'] === 1 ? "Есть ответ" : "Закрыт"}
+                                    before={<Avatar src={result['author']['photo_200']} size={48} />}
+                                >
+                                    <div style={{ display: "flex" }}>
+                                        {result['title']}
+                                        <div className='questionsIcons'>
+                                            <div className='icon_donut_questions'>
+                                                {result['donut'] ? <Icon16StarCircleFillYellow width={12} height={12} className="top_moderator_name_icon" /> : null}
                                             </div>
                                         </div>
-                                    </SimpleCell>
-                                </React.Fragment>
-                                ) : <Placeholder 
-                                icon={<Icon56InboxOutline />}>
-                                    Упс, кажется вопросы закончились
+                                    </div>
+                                </SimpleCell>
+                            </React.Fragment>
+                        ) : <Placeholder
+                            icon={<Icon56InboxOutline />}>
+                            Упс, кажется вопросы закончились
                                 </Placeholder>
-                                : <PanelSpinner />}
-                            </List>
-                        
-                        
-                    {this.props.tiket_all_helper ? this.props.tiket_all_helper.length === 20 ? 
-                    <PanelSpinner />
-                    : this.props.tiket_all ?
-                    (this.props.tiket_all.length === 0) ? 
-                    null : 
-                    <Footer>{this.props.tiket_all.length} {enumerate(this.props.tiket_all.length, [' вопрос', ' вопроса', ' вопросов'])} всего</Footer>
-                    : null :
-                    null}
+                            : <PanelSpinner />}
+                    </List>
+
+
+                    {ticketsCurrent ? ticketsCurrent.length === 20 ?
+                        <PanelSpinner />
+                        : tickets ?
+                            (tickets.length === 0) ?
+                                null :
+                                <Footer>{tickets.length} {enumerate(tickets.length, [' вопрос', ' вопроса', ' вопросов'])} всего</Footer>
+                            : null :
+                        null}
                 </PullToRefresh>
             </Group>
-            { this.state.promoBannerProps && this.state.ShowBanner && 
+            { promoBannerProps && ShowAdsBanner &&
                 <FixedLayout vertical='bottom'>
-                  <PromoBanner onClose={() => {this.setState({ShowBanner: false})}} bannerData={ this.state.promoBannerProps } />
-                </FixedLayout> }
-            </Panel>
-            )
-            }
-        }
-  
+                <PromoBanner onClose={() => { setShowAdsBanner(false) }} bannerData={promoBannerProps} />
+                </FixedLayout>}
+        </Panel>
+    )
+}

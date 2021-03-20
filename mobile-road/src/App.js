@@ -1,21 +1,18 @@
-import React from 'react'; // React
+import React, { useCallback, useEffect, useRef, useState } from 'react'; // React
+import {useDispatch, useSelector} from "react-redux";
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 
-import music from './music/Soloriver.mp3';
+// import music from './music/Soloriver.mp3';
+import { API_URL } from "./config";
 
 import { 
-  Alert,
-  Avatar,
   ScreenSpinner,
-  Snackbar,
   Tabbar,
   TabbarItem,
   Epic,
   ConfigProvider,
   AdaptivityProvider,
   AppRoot,
-  withAdaptivity,
-  withPlatform,
   VKCOM,
   ViewWidth,
   SplitLayout,
@@ -26,11 +23,15 @@ import {
   Root,
   Platform,
   ViewHeight,
+  usePlatform,
+  useAdaptivity,
+  Alert,
 
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
 import './styles/style.css'
+import {accountActions, viewsActions} from './store/main'
 // Импортируем панели
 import Questions      from './panels/questions/main';
 import Advice         from './panels/Advice/main';
@@ -47,10 +48,9 @@ import Moderation     from './panels/Moderation/main';
 import {
   Icon28CompassOutline,
   Icon28WorkOutline,
-  Icon28FavoriteOutline,
   Icon28ArticleOutline,
-  Icon16CheckCircle,
   Icon28Profile,
+  Icon28BankOutline,
 
 } from '@vkontakte/icons'
 
@@ -62,9 +62,6 @@ const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera 
 // const parsedHash = queryString.parse(window.location.search.replace('?', ''));
 const hash = queryString.parse(window.location.hash);
 
-const blueBackground = {
-  backgroundColor: 'var(--accent)'
-};
 function isEmpty(obj) {
   for (let key in obj) {
     return false;
@@ -109,340 +106,270 @@ function calculateAdaptivity(windowWidth, windowHeight) {
   };
 }
 
-class App extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            account:[],
-            activeStory: 'loading',
-            scheme: "bright_light",
-            default_scheme: "bright_light",
-            api_url: "https://xelene.ru/road/php/index.php?",
-            popout: <ScreenSpinner/>,
-            snackbar: null,
-            switchKeys: false,
-            need_epic: true,
-            first_start: false,
-            LoadWebView: false,
-            BanObject: null,
+const App = () => {
+  const [popout, setPopout] = useState(() => <ScreenSpinner/>);
+  const [LoadWebView, setLoadWebView] = useState(false);
+  const dispatch = useDispatch();
+  const { account, schemeSettings } = useSelector((state) => state.account)
+  const { scheme, default_scheme } = schemeSettings;
+  const activeStory = useSelector((state) => state.views.activeStory)
+  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
+  const setBanObject = useCallback((payload) => dispatch(accountActions.setBanObject(payload)), [dispatch])
+  const setScheme = useCallback((payload) => dispatch(accountActions.setScheme(payload)), [dispatch])
+  const need_epic = useSelector((state) => state.views.need_epic)
+  // const adress_token = "vk_access_token_settings=&vk_app_id=7409818&vk_are_notifications_enabled=0&vk_is_app_user=1&vk_is_favorite=0&vk_language=ru&vk_platform=desktop_web&vk_ref=other&vk_ts=1614870020&vk_user_id=413636725&sign=jlrDcgr_3Eru2vMajX5MJZYEk-XYZ51RBmbQ4ce8B1I";
 
-        };
-        this.componentDidMount = this.componentDidMount.bind(this);
-        this.changeData = (name,value) => {
-          this.setState({ [name]: value });
-        }
-        this.LoadProfile = () => {
-          fetch(this.state.api_url + "method=account.get&" + window.location.search.replace('?', ''))
-          .then(res => res.json())
-          .then(data => {
-          if(data.result) {
-              this.setState({account: data.response,popout: null, switchKeys: data.response.noti})
-              if(this.state.activeStory === 'disconnect'){
-                this.setState({activeStory: 'questions', LoadWebView: true})
-              }
-              if(!isEmpty(this.state.account)){
-                if(Number(this.state.account.scheme) === 0){
-                  this.setState({scheme: this.state.default_scheme})
-                  if(this.state.default_scheme === 'bright_light'){
-                    if(platformname){
-                      bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF",'navigation_bar_color': "#FFFFFF"});
-                    }
-                  }
-                  if(this.state.default_scheme === 'space_gray'){
-                    if(platformname){
-                      bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A",'navigation_bar_color': "#19191A"});
-                    }
-                  }
-                }
-                if(Number(this.state.account.scheme) === 1){
-                  this.setState({scheme: 'bright_light'})
-                  if(platformname){
+  const fetchAccount = useCallback(() => {
+    fetch(API_URL + "method=account.get&" + window.location.search.replace('?', ''))
+    .then(res => res.json())
+    .then(data => {
+    setPopout(null)
+    if(data.result) {
+      dispatch(accountActions.setAccount(data.response))
+        let account = data.response;
+        if(!isEmpty(account)){
+          switch(Number(account.scheme)) {
+            case 0:
+              setScheme({ ...schemeSettings, scheme: default_scheme })
+              if(platformname){
+                switch(default_scheme){
+                  case 'bright_light':
                     bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF",'navigation_bar_color': "#FFFFFF"});
-                  }
-                  
-                }
-                if(Number(this.state.account.scheme) === 2){
-                  this.setState({scheme: 'space_gray'})
-                  if(platformname){
+                    break;
+                  case 'space_gray':
                     bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A",'navigation_bar_color': "#19191A"});
-                  }
+                    break;
+                  default:
+                    bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" });
                 }
-              }else{
-                this.setState({scheme: data.scheme})
-                if(data.scheme === 'space_gray'){
-                  if(platformname){
-                    bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A",'navigation_bar_color': "#19191A"});
-                  }
-                }else{
-                  if(platformname){
-                    bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF",'navigation_bar_color': "#FFFFFF"});
-                  }
-                }
-                }
-            }})
-          .catch(err => {
-            this.changeData('activeStory', 'disconnect')
-    
-          })
-        }
-        this.setPopout = (value) => {
-          this.setState({popout: value})
-        }
-          this.playAudio = () => {
-            if(!this.audio.paused){
-              this.audio.pause()
-            } else {
-              this.audio.volume = 0.1;
-              this.audio.currentTime = 0;
-              const audioPromise = this.audio.play()
-              if (audioPromise !== undefined) {
-              audioPromise
-                .then(_ => {
-                // autoplay started
-                
-                })
-                .catch(err => {
-                // catch dom exception
-                console.info(err)
-                })
               }
-            }
-            this.setState({paused: this.audio.paused})
-          }
-          this.showAlert = (title, text) => {
-            this.setState({
-              popout:
-                <Alert
-                actionsLayout="horizontal"
-                  actions={[{
-                    title: 'Закрыть',
-                    autoclose: true,
-                    mode: 'cancel'
-                  }]}
-                  onClose={() => this.setPopout(null)}
-                  header={title}
-                  text={text}
-                />
-            })
-          }
-          this.showErrorAlert = (error = null, action = null) => {
-            this.setPopout(
-              <Alert
-                actionsLayout="horizontal"
-                actions={[{
-                  title: 'Отмена',
-                  autoclose: true,
-                  mode: 'cancel',
-                  action: action,
-                }]}
-                onClose={() => this.setPopout(null)}
-                header="Ошибка"
-                text={error ? `${error}` : "Что-то пошло не так, попробуйте снова!"}
-              />
-            )
-          }
-    }
-    componentDidMount() {
-      // if(/Mac|Macintosh|iPhone|iPad|iPod/i.test(navigator.userAgent)){
-      //   this.setState({activeStory: 'unsupport', LoadWebView: true});
-      //   return
-      // }
-      this.setState({
-          snackbar: null,
-          switchKeys: false,
-          first_start: false,
-          BanObject: null,
-      })
-      this.audio = new Audio(music)
-      this.audio.load()
-      this.audio.loop = true;
-      bridge.subscribe(({ detail: { type, data }}) => { 
-        if(type === 'VKWebAppViewHide') {
-          console.log('closing...')
-        }
-        if(type === 'VKWebAppViewRestore') {
-          this.componentDidMount()
-        }
-			  if (type === 'VKWebAppUpdateConfig') {
-          this.setState({default_scheme: data.scheme});
-          if(!isEmpty(this.state.account)){
-            if(Number(this.state.account.scheme) === 0){
-              this.setState({scheme: data.scheme})
-            }
-            if(Number(this.state.account.scheme) === 1){
-              this.setState({scheme: 'bright_light'})
+              break;
+            case 1:
+              setScheme({ ...schemeSettings, scheme: 'bright_light' })
               if(platformname){
                 bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF",'navigation_bar_color': "#FFFFFF"});
               }
-            }
-            if(Number(this.state.account.scheme) === 2){
-              this.setState({scheme: 'space_gray'})
+              break;
+            case 2:
+              setScheme({ ...schemeSettings, scheme: 'space_gray' })
               if(platformname){
                 bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A",'navigation_bar_color': "#19191A"});
               }
+              break;
+            default:
+              if (platformname) {
+              bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" });
+              }
+          } 
+          
+        }else{
+          
+          setScheme({ ...schemeSettings, scheme: data.scheme })
+          if(data.scheme === 'space_gray'){
+            if(platformname){
+              bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A",'navigation_bar_color': "#19191A"});
             }
           }else{
-            this.setState({scheme: data.scheme})
-            if(data.scheme === 'space_gray'){
-              if(platformname){
-                bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A",'navigation_bar_color': "#19191A"});
-              }
-            }else{
-              if(platformname){
-                bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF",'navigation_bar_color': "#FFFFFF"});
-              }
-            }
+            if(platformname){
+              bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF",'navigation_bar_color': "#FFFFFF"});
             }
           }
-        })
-        fetch(this.state.api_url + "method=account.get&" + window.location.search.replace('?', ''))
-        .then(res => res.json())
-        .then(data => {
-          if(data.result) {
-            // var account_new = data.response;
-            this.setState({account: data.response, popout: null, switchKeys: data.response.noti, first_start: data.response.is_first_start})
-              if(Number(this.state.account.scheme) === 1){
-                this.setState({scheme: 'bright_light'})
-                if(platformname){
-                  bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF"});
-                }
-              }
-              if(Number(this.state.account.scheme) === 2){
-                this.setState({scheme: 'space_gray'})
-                if(platformname){
-                  bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A",'navigation_bar_color': "#19191A"});
-                }
-              }
-            if(this.state.account.is_first_start){
-              this.setState({activeStory: 'start', LoadWebView: true});
-            }else{
-              if(hash.promo !== undefined && !ignore_promo){
-                ignore_promo = true;
-                this.setState({activeStory: 'profile', LoadWebView: true, need_epic: true})
-              }else if(this.state.activeStory === 'loading' || this.state.activeStory === 'disconnect'){
-                this.setState({activeStory: 'questions', LoadWebView: true, need_epic: true})
-              }
-            }
-          } else {
-            if(data.error.error_code !== 5){
-                this.setPopout(
-                  <Alert
-                    actions={[{
-                      title: 'Повторить',
-                      autoclose: true,
-                      action: () => this.componentDidMount()
-                    }]}
-                    onClose={() => {this.setPopout(null);this.componentDidMount()}}
-                  >
-                    <h2>Ошибка</h2>
-                    <p>{data.error.message}</p>
-                        </Alert>)
-            }else{
-              this.setState({BanObject: data.error.error_obj, activeStory: 'banned', LoadWebView: true})
-            }
-          }
-        })
-        .catch(err => {
-          this.setState({activeStory: 'disconnect', need_epic: false})
-          this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже. Возможно, вы попали на флуд-контроль.')
-        })
-    }
-
-
-    deleteStats() {
-      this.setState({popout: <ScreenSpinner/>})
-      fetch(this.state.api_url + "method=delete.stats&" + window.location.search.replace('?', ''))
-      .then(res => res.json())
-      .then(data => {
-        if(data.response) {
-          this.setState({snackbar: 
-            <Snackbar
-              layout="vertical"
-              onClose={() => this.setState({ snackbar: null })}
-              before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
-            >
-              Статистика профиля сброшена
-            </Snackbar>, popout: null
-          })
-          this.LoadProfile()
-          window.history.back()
-        } else {
-          this.showAlert('Ошибка', data.error_text);
         }
-      })
-      .catch(err => {
-        this.showErrorAlert()
-      })
-    }
-
-    
-    render() {
-      const platformwithPlat = this.props.platform;
-      var platform = null
-      if(platformname){
-        platform = platformwithPlat;
       }else{
-        platform = Platform.VKCOM;
+      if (data.error.error_code !== 5){
+        setPopout(
+          <Alert
+          actionsLayout="horizontal"
+          actions = {
+            [{
+              title: 'Отмена',
+              autoclose: true,
+              mode: 'cancel',
+              action: () => AppInit(),
+            }]}
+          onClose = {() => {setPopout(null);AppInit()}}
+          header = "Ошибка"
+            text={ data.error.message }>
+            
+          </Alert>
+        )
+      } else {
+        setBanObject(data.error.error_obj)
+        setActiveStory('banned')
+        setLoadWebView(true)
       }
-      const { viewWidth } = this.props;
-      const isDesktop = viewWidth >= ViewWidth.SMALL_TABLET;
-      const hasHeader = platform !== VKCOM;
-        return (
-        <>
-        {/* {!this.state.LoadWebView ? <div style={{width: '100vw', height: '100vh', backgroundColor: 'var(--background_page_my)', zIndex: 20, position: 'absolute', textAlign:'center'}}>
+      dispatch(viewsActions.setActiveStory('disconnect'))
+      }
+    })
+    .catch(err => {
+      dispatch(viewsActions.setActiveStory('disconnect'))
+
+    })
+    // eslint-disable-next-line 
+  }, [account, activeStory, default_scheme, dispatch, setActiveStory])
+
+  const AppInit = useCallback(() => {
+    setBanObject(null);
+    fetchAccount()
+    if (account.is_first_start) { 
+      setActiveStory('start')
+    }else{
+      if (hash.promo !== undefined && !ignore_promo) {
+        ignore_promo = true;
+        setActiveStory('profile');
+      }
+      if (activeStory === 'loading'){
+        setActiveStory('questions');
+      }
+      
+    }
+    setLoadWebView(true)
+    dispatch(viewsActions.setNeedEpic(true))
+  }, [dispatch, fetchAccount, setActiveStory, setBanObject, account, activeStory])
+
+  const bridgecallback = useCallback(({ detail: { type, data } }) => {
+    if (type === 'VKWebAppViewHide') {
+      console.log('closing...')
+    }
+    if (type === 'VKWebAppViewRestore') {
+      AppInit();
+    }
+    if (type === 'VKWebAppUpdateConfig') {
+      setScheme({ ...schemeSettings, default_scheme: data.scheme })
+      if (!isEmpty(account)) {
+        switch (Number(account.scheme)) {
+          case 0:
+            setScheme({ ...schemeSettings, scheme: default_scheme })
+            if (platformname) {
+              switch (default_scheme) {
+                case 'bright_light':
+                  bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" });
+                  break;
+                case 'space_gray':
+                  bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "light", "action_bar_color": "#19191A", 'navigation_bar_color': "#19191A" });
+                  break;
+                default:
+                  bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" });
+              }
+            }
+            break;
+          case 1:
+            setScheme({ ...schemeSettings, scheme: 'bright_light' })
+            if (platformname) {
+              bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" });
+            }
+            break;
+          case 2:
+            setScheme({ ...schemeSettings, scheme: 'space_gray' })
+            if (platformname) {
+              bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "light", "action_bar_color": "#19191A", 'navigation_bar_color': "#19191A" });
+            }
+            break;
+          default:
+            
+        }
+      } else {
+        setScheme({ ...schemeSettings, scheme: data.scheme })
+        if (data.scheme === 'space_gray') {
+          if (platformname) {
+            bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "light", "action_bar_color": "#19191A", 'navigation_bar_color': "#19191A" });
+          }
+        } else {
+          if (platformname) {
+            bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" });
+          }
+        }
+      }
+    }
+  }, [account, default_scheme, AppInit, setScheme, schemeSettings])
+ 
+  useEffect(() => {
+    AppInit();
+    bridge.send('VKWebAppInit', {});
+    // eslint-disable-next-line
+  }, [])
+  useEffect(() => {
+    bridge.subscribe(bridgecallback);
+    
+    return () => bridge.unsubscribe(bridgecallback);
+  }, [account, bridgecallback])
+  
+  const platformwithPlat = usePlatform();
+  const platform = useRef();
+  const viewWidth = useAdaptivity().viewWidth;
+  const isDesktop = useRef();
+  const hasHeader = useRef()
+  
+  useEffect(() => {
+    if (platformname) {
+      platform.current = platformwithPlat;
+    } else {
+      platform.current = Platform.VKCOM;
+    }
+  }, [platformwithPlat])
+
+  
+  useEffect(() => {
+    hasHeader.current = platform.current !== VKCOM;
+    isDesktop.current = viewWidth >= ViewWidth.SMALL_TABLET;
+  }, [viewWidth, platform])
+
+  return(
+    <>
+        {!LoadWebView ? <div style={{width: '100vw', height: '100vh', backgroundColor: 'var(--background_page_my)', zIndex: 20, position: 'absolute', textAlign:'center'}}>
             <h1 style={{margin: '50vh 0'}}>Загрузка...</h1>
             </div> : null}
           <webview 
-          onLoad={() => {this.setState({LoadWebView: true});document.body.style.overflow = "auto"}}
-          > */}
+          onLoad={() => {setLoadWebView(true);document.body.style.overflow = "auto"}}
+          >
 
             
-              <ConfigProvider scheme={this.state.scheme} 
-              platform={platform}
+        <ConfigProvider scheme={scheme}
+              platform={platform.current}
               > 
               <AppRoot>
                 <SplitLayout
-                header={hasHeader && <PanelHeader separator={false} />}
+              header={hasHeader.current && <PanelHeader separator={false} />}
                 style={{ justifyContent: "center" }}>
 
-                  {isDesktop && this.state.need_epic && (<SplitCol fixed width="280px" maxWidth="280px">
+              {isDesktop.current && need_epic && (<SplitCol fixed width="280px" maxWidth="280px">
                     <Panel>
-                      {hasHeader && <PanelHeader/>}
+                  {hasHeader.current && <PanelHeader/>}
                       <Group>
                         <EpicItemPC
                         icon={<Icon28ArticleOutline />}
                         story="questions"
-                        activeStory={this.state.activeStory}
-                        changeStory={this.changeData}>
+                        activeStory={activeStory}
+                        changeActiveStory={setActiveStory}>
                           Вопросы
                         </EpicItemPC>
                         <EpicItemPC
                         icon={<Icon28CompassOutline />}
                         story="advice"
-                        activeStory={this.state.activeStory}
-                        changeStory={this.changeData}>
+                        activeStory={activeStory}
+                        changeActiveStory={setActiveStory}>
                           Обзор
                         </EpicItemPC>
                         <EpicItemPC
-                        icon={<Icon28FavoriteOutline />}
+                        icon={<Icon28BankOutline />}
                         story="top"
-                        activeStory={this.state.activeStory}
-                        changeStory={this.changeData}>
+                        activeStory={activeStory}
+                        changeActiveStory={setActiveStory}>
                           Пантеон
                         </EpicItemPC>
-                        {this.state.account.special && 
+                        {account.special && 
                         <EpicItemPC
                         icon={<Icon28WorkOutline />}
                         story="moderation"
-                        activeStory={this.state.activeStory}
-                        changeStory={this.changeData}>
+                        activeStory={activeStory}
+                        changeActiveStory={setActiveStory}>
                           Модерация
                         </EpicItemPC>}
                         <EpicItemPC
                         icon={<Icon28Profile />}
                         story="profile"
-                        activeStory={this.state.activeStory}
-                        changeStory={this.changeData}>
+                        activeStory={activeStory}
+                        changeActiveStory={setActiveStory}>
                           Профиль
                         </EpicItemPC>
                       </Group>
@@ -451,42 +378,42 @@ class App extends React.Component {
                   </SplitCol>)}
 
                   <SplitCol
-                    animate={!isDesktop}
-                    spaced={isDesktop}
-                    width={isDesktop ? '560px' : '100%'}
-                    maxWidth={isDesktop ? '560px' : '100%'}
+                animate={!isDesktop.current}
+                spaced={isDesktop.current}
+                width={isDesktop.current ? '560px' : '100%'}
+                maxWidth={isDesktop.current ? '560px' : '100%'}
                   >
-                    {!isDesktop ? <Epic activeStory={this.state.activeStory}
+                {!isDesktop.current ? <Epic activeStory={activeStory}
                       tabbar={
-                        this.state.need_epic && !isDesktop &&
+                        need_epic && !isDesktop.current &&
                         <Tabbar>
                           <TabbarItem
-                            onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
-                            selected={this.state.activeStory === 'questions'}
+                            onClick={(e) => {setActiveStory(e.currentTarget.dataset.story)}} 
+                            selected={activeStory === 'questions'}
                             data-story="questions"
                             text='Вопросы'
                           ><Icon28ArticleOutline/></TabbarItem>
                           <TabbarItem
-                            onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
-                            selected={this.state.activeStory === 'advice'}
+                            onClick={(e) => {setActiveStory(e.currentTarget.dataset.story)}} 
+                            selected={activeStory === 'advice'}
                             data-story="advice"
                             text='Обзор'
                           ><Icon28CompassOutline/></TabbarItem>
                           <TabbarItem
-                            onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
-                            selected={this.state.activeStory === 'top'}
+                            onClick={(e) => {setActiveStory(e.currentTarget.dataset.story)}} 
+                            selected={activeStory === 'top'}
                             data-story="top"
                             text='Пантеон'
-                          ><Icon28FavoriteOutline /></TabbarItem>
-                          {this.state.account.special ? <TabbarItem
-                            onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
-                            selected={this.state.activeStory === 'moderation'}
+                          ><Icon28BankOutline /></TabbarItem>
+                          {account.special ? <TabbarItem
+                            onClick={(e) => {setActiveStory(e.currentTarget.dataset.story)}} 
+                            selected={activeStory === 'moderation'}
                             data-story="moderation"
                             text='Модерация'
                           ><Icon28WorkOutline /></TabbarItem> : null}
                           <TabbarItem
-                            onClick={(e) => {this.setState({activeStory: e.currentTarget.dataset.story})}} 
-                            selected={this.state.activeStory === 'profile' || this.state.activeStory === "notif"}
+                            onClick={(e) => {setActiveStory(e.currentTarget.dataset.story)}} 
+                            selected={activeStory === 'profile' || activeStory === "notif"}
                             data-story="profile"
                             text='Профиль'
                           ><Icon28Profile /></TabbarItem>
@@ -496,167 +423,128 @@ class App extends React.Component {
                       >
                       <Questions 
                       id='questions'
-                      this={this}
-                      scheme={this.state.scheme}
-                      reloadProfile={this.LoadProfile}
-                      account={this.state.account}
-                      first_start={this.state.first_start}
-                      popout={this.state.popout} />
+                      scheme={scheme}
+                      reloadProfile={fetchAccount}
+                      popout={popout} />
 
                       <Advice 
                       id="advice"
-                      this={this}
-                      reloadProfile={this.LoadProfile}
-                      account={this.state.account}
-                      popout={this.state.popout} />
+                      reloadProfile={fetchAccount}
+                      popout={popout} />
 
                       <Top 
                       id='top'
-                      this={this}
-                      reloadProfile={this.LoadProfile}
-                      scheme={this.state.scheme}
-                      account={this.state.account}
-                      popout={this.state.popout} />
+                      reloadProfile={fetchAccount}
+                      scheme={scheme}
+                      popout={popout} />
 
                       <Notification 
                       id="notif"
-                      this={this}
-                      scheme={this.state.scheme}
-                      reloadProfile={this.LoadProfile}
-                      account={this.state.account}
-                      popout={this.state.popout}
+                      scheme={scheme}
+                      reloadProfile={fetchAccount}
+                      popout={popout}
                       />
 
                       <Profile 
                       id="profile"
-                      this={this}
-                      reloadProfile={this.LoadProfile}
-                      scheme={this.state.scheme}
-                      default_scheme={this.state.default_scheme}
-                      account={this.state.account}
-                      popout={this.state.popout} />
+                      reloadProfile={fetchAccount}
+                      scheme={scheme}
+                      default_scheme={default_scheme}
+                      popout={popout} />
 
                       <Moderation 
                       id="moderation"
-                      this={this}
-                      reloadProfile={this.LoadProfile}
-                      account={this.state.account}
-                      sizeX={this.props.sizeX}
+                      reloadProfile={fetchAccount}
                       />
                       
                       <Start 
                       id="start"
-                      this={this}
-                      reloadProfile={this.LoadProfile}
-                      scheme={this.state.scheme}
-                      account={this.state.account}
-                      popout={this.state.popout} />
+                      reloadProfile={fetchAccount}
+                      scheme={scheme}
+                      popout={popout} />
 
                       <Banned 
                       id="banned"
-                      this={this}
-                      reloadProfile={this.LoadProfile}
-                      scheme={this.state.scheme}
-                      account={this.state.account}
-                      BanObject={this.state.BanObject}
-                      popout={this.state.popout} />
+                      reloadProfile={fetchAccount}
+                      scheme={scheme}
+                      popout={popout} />
 
                       <Unsupport 
                       id="unsupport"
-                      this={this}
-                      reloadProfile={this.LoadProfile} />
+                      reloadProfile={fetchAccount} />
 
                       <Disconnect
                       id="disconnect"
-                      this={this}
-                      compdid={this.componentDidMount}
-                      popout={this.state.popout}
-                      reloadProfile={this.LoadProfile} />
+                      popout={popout}
+                      setPopout={setPopout}
+                      AppInit={AppInit}
+                      reloadProfile={fetchAccount} />
+
                       <LoadingScreen 
-                      id="loading"
-                      this={this} />
+                      id="loading" />
                     </Epic>
                      : 
-                    <Root activeView={this.state.activeStory}>
+                    <Root activeView={activeStory}>
                       <Questions 
                       id='questions'
-                      this={this}
-                      scheme={this.state.scheme}
-                      reloadProfile={this.LoadProfile}
-                      account={this.state.account}
-                      first_start={this.state.first_start}
-                      popout={this.state.popout} />
+                      scheme={scheme}
+                      reloadProfile={fetchAccount}
+                      popout={popout} />
 
                       <Advice 
                       id="advice"
-                      this={this}
-                      reloadProfile={this.LoadProfile}
-                      account={this.state.account}
-                      popout={this.state.popout} />
+                      reloadProfile={fetchAccount}
+                      popout={popout} />
 
                       <Top 
                       id='top'
-                      this={this}
-                      scheme={this.state.scheme}
-                      account={this.state.account}
-                      reloadProfile={this.LoadProfile}
-                      popout={this.state.popout} />
+                      scheme={scheme}
+                      reloadProfile={fetchAccount}
+                      popout={popout} />
 
                       <Notification 
                       id="notif"
-                      this={this}
-                      scheme={this.state.scheme}
-                      reloadProfile={this.LoadProfile}
-                      account={this.state.account}
-                      popout={this.state.popout}
+                      scheme={scheme}
+                      reloadProfile={fetchAccount}
+                      popout={popout}
                       />
 
                       <Profile 
                       id="profile"
-                      this={this}
-                      reloadProfile={this.LoadProfile}
-                      scheme={this.state.scheme}
-                      default_scheme={this.state.default_scheme}
-                      account={this.state.account}
-                      popout={this.state.popout} />
+                      reloadProfile={fetchAccount}
+                      scheme={scheme}
+                      default_scheme={default_scheme}
+                      popout={popout} />
 
                       <Moderation 
                       id="moderation"
-                      this={this}
-                      reloadProfile={this.LoadProfile}
-                      account={this.state.account}
+                      reloadProfile={fetchAccount}
                       />
                       
                       <Start 
                       id="start"
-                      this={this}
-                      reloadProfile={this.LoadProfile}
-                      scheme={this.state.scheme}
-                      account={this.state.account}
-                      popout={this.state.popout} />
+                      reloadProfile={fetchAccount}
+                      scheme={scheme}
+                      popout={popout} />
 
                       <Banned 
                       id="banned"
-                      this={this}
-                      reloadProfile={this.LoadProfile}
-                      scheme={this.state.scheme}
-                      account={this.state.account}
-                      BanObject={this.state.BanObject}
-                      popout={this.state.popout} />
+                      reloadProfile={fetchAccount}
+                      scheme={scheme}
+                      popout={popout} />
+
                       <Unsupport 
                       id="unsupport"
-                      this={this}
-                      reloadProfile={this.LoadProfile} />
+                      reloadProfile={fetchAccount} />
 
-                      <Disconnect
+                    <Disconnect
                       id="disconnect"
-                      this={this}
-                      compdid={this.componentDidMount}
-                      popout={this.state.popout}
-                      reloadProfile={this.LoadProfile} />
+                      popout={popout}
+                      setPopout={setPopout}
+                      AppInit={AppInit}
+                      reloadProfile={fetchAccount} />
                       <LoadingScreen 
-                      id="loading"
-                      this={this} />
+                      id="loading" />
                       
                     </Root>
                     
@@ -666,21 +554,14 @@ class App extends React.Component {
               </AppRoot>
             </ConfigProvider>
             
-          {/* </webview> */}
+          </webview>
           </>
-            
-        );
+  )
 
-
-
-    }
 }
-
-const AdaptiveApp = withAdaptivity(withPlatform(App), { viewWidth: true });
 
 export default () => (
   <AdaptivityProvider viewWidth={ calculateAdaptivity( document.documentElement.clientWidth, document.documentElement.clientHeight).viewWidth}>
-    <AdaptiveApp />
+    <App />
   </AdaptivityProvider>
 );
-

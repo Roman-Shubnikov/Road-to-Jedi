@@ -1,210 +1,121 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { 
     Group,
     Div,
     FormStatus,
+    SimpleCell,
     Placeholder,
+    InfoRow,
+    Progress,
     PullToRefresh,
     Button,
     Footer,
     List,
     PanelSpinner,
-    Separator,
-    Snackbar,
-    Avatar,
-    MiniInfoCell
-
 
     } from '@vkontakte/vkui';
-import Icon24Spinner                        from '@vkontakte/icons/dist/24/spinner';
-import Icon56InboxOutline                   from '@vkontakte/icons/dist/56/inbox_outline';
-import Icon16CheckCircle                    from '@vkontakte/icons/dist/16/check_circle';
-import Icon20CancelCircleFillRed            from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
-import Icon20ArticlesOutline                from '@vkontakte/icons/dist/20/articles_outline';
-import Icon20BookmarkOutline                from '@vkontakte/icons/dist/20/bookmark_outline';
+import {
+  Icon24Spinner,
+  Icon56InboxOutline,
+  Icon28RecentOutline,
+} from '@vkontakte/icons';
+import { useSelector } from 'react-redux';
+import { enumerate } from '../../../../Utils';
+import { SPECIAL_NORM } from '../../../../config';
 
-function enumerate (num, dec) {
-    if (num > 100) num = num % 100;
-    if (num <= 20 && num >= 10) return dec[2];
-    if (num > 20) num = num % 10;
-    return num === 1 ? dec[0] : num > 1 && num < 5 ? dec[1] : dec[2];
-  }
-
-  const blueBackground = {
-    backgroundColor: 'var(--accent)'
-  };
-export default class Answers extends React.Component {
-        constructor(props) {
-            super(props);
-            this.state = {
-            }
-            var propsbi = this.props.this;
-            this.setPopout = propsbi.setPopout;
-            this.showErrorAlert = propsbi.showErrorAlert;
-            this.setActiveModal = propsbi.setActiveModal;
-            this.Prepare_questions = propsbi.Prepare_questions
-            this.setSnack = propsbi.setSnack;
-        }
-        addNewTicket(id_ticket, index){
-            fetch(this.props.api_url + "method=special.approveModerationTicket&" + window.location.search.replace('?', ''),
-            {method: 'post',
-                  headers: {"Content-type": "application/json; charset=UTF-8"},
-                      // signal: controllertime.signal,
-                  body: JSON.stringify({
-                      'id_ans': id_ticket,
-                  })
-            })
-            .then(res => res.json())
-            .then(data => {
-              if(data.result) {
-                this.props.this.changeQuest('answers', [...this.props.answers.slice(0, index), ...this.props.answers.slice(index + 1)])
-                  this.setSnack(
-                  <Snackbar
-                    layout="vertical"
-                    onClose={() => this.setSnack(null)}
-                    before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
-                  >
-                    Вопрос одобрен
-                  </Snackbar>
-                )
-              } else {
-                this.setSnack(
-                  <Snackbar
-                  layout="vertical"
-                  onClose={() => this.setSnack(null)}
-                  before={<Icon20CancelCircleFillRed width={24} height={24} />}
-                >
-                  {data.error.message}
-                </Snackbar>);
-              }
-            })
-            .catch(err => {
-              this.props.this.changeData('activeStory', 'disconnect')
-            })
-          }
-        delNewTicket(id_ticket,index){
-            fetch(this.props.api_url + "method=special.delModerationTicket&" + window.location.search.replace('?', ''),
-            {method: 'post',
-                  headers: {"Content-type": "application/json; charset=UTF-8"},
-                      // signal: controllertime.signal,
-                  body: JSON.stringify({
-                      'id_ans': id_ticket,
-                  })
-            })
-            .then(res => res.json())
-            .then(data => {
-              if(data.result) {
-                this.props.this.changeQuest('answers', [...this.props.answers.slice(0, index), ...this.props.answers.slice(index + 1)])
-                  this.setSnack(
-                  <Snackbar
-                    layout="vertical"
-                    onClose={() => this.setSnack(null)}
-                    before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
-                  >
-                    Вопрос удалён
-                  </Snackbar>
-                )
-              } else {
-                this.setSnack(
-                  <Snackbar
-                  layout="vertical"
-                  onClose={() => this.setSnack(null)}
-                  before={<Icon20CancelCircleFillRed width={24} height={24} />}
-                >
-                  {data.error.message}
-                </Snackbar>);
-              }
-            })
-            .catch(err => {
-              this.props.this.changeData('activeStory', 'disconnect')
-            })
-          }
-
-        componentDidMount(){
-        }
-
-        render() {
-            var props = this.props.this; // для более удобного использования.
-            return (
-                <>
-                
-                {(this.props.account['bad_answers'] !== null && this.props.account['bad_answers'] !== undefined) ? 
-                  <Group>
-                    <Div>
-                      <FormStatus>
-                        <div style={{textAlign: 'center', color: "var(--text_profile)"}}>
-                            Вы оценили <span style={{color:'var(--header_text)'}}>
-                              {this.props.account['bad_answers']} {enumerate(this.props.account['bad_answers'], ['ответ', 'ответа', 'ответов'])}
-                              </span> Генераторов
-                        </div>
-                      </FormStatus>
-                    </Div>
-                  </Group>
-                : null}
-                <Group>
-                <><PullToRefresh onRefresh={() => {props.setState({fetching: true});props.Prepare_answers()}} isFetching={props.state.fetching}>
-                  
-                    <List>
-                      {this.props.answers ? (this.props.answers.length>0) ? this.props.answers.map((result, i) => 
-                        <React.Fragment key={result.id}>
-                          {(i === 0) || <Separator/>}
-                          <MiniInfoCell
-                          before={<Icon20BookmarkOutline />}
-                          textWrap='full'>
-                            {result.title}
-                          </MiniInfoCell>
-                          <MiniInfoCell
-                          before={<Icon20ArticlesOutline />}
-                          textWrap='full'>
-                            {result.description}
-                          </MiniInfoCell>
-                          <Div style={{ display: 'flex', paddingBottom: 0 }}>
-                            <Button size="m"
-                              stretched
-                              style={{ marginRight: 8 }}
-                              onClick={() => {
-                                this.addNewTicket(result.id, i)
-                              }}>Принять</Button>
-                              <Button size="m" 
-                              stretched
-                              mode="secondary" 
-                              onClick={() => {
-                                this.delNewTicket(result.id, i)
-                              }}>Отклонить</Button>
-                          </Div>
-                          <Div style={{paddingTop: 8}}>
-                            <Button size="m" 
-                            mode='destructive' 
-                            stretched
-                            onClick={() => {
-                              this.props.this.setReport(4, result.id) // Вопрос генератора
-                            }}>Пожаловаться</Button>
-                          </Div>
-                        </React.Fragment>
-                      ) : <Placeholder 
-                      icon={<Icon56InboxOutline />}>
-                          Можешь отдохнуть. Вопросов больше не придумали
-                      </Placeholder> : <PanelSpinner />}
-                    </List>
-                  
-                  
-                  {this.props.answers_helper ? this.props.answers_helper.length === 20 ? 
-                  <Div>
-                      <Button size="l" 
-                      stretched
-                      level="secondary" 
-                      before={this.state.fetching ? <Icon24Spinner width={28} height={28} className='Spinner__self' /> : null}
-                      onClick={() => {props.setState({ fetching: true });props.Prepare_answers(true)}}>Загрузить ещё</Button>
-                  </Div>
-                  : this.props.answers ?
-                  (this.props.answers.length === 0) ? null : <Footer>{this.props.answers.length} {enumerate(this.props.answers.length, [' вопрос', ' вопроса', ' вопросов'])} всего</Footer>
-                  : null :
-                  null}
-                </PullToRefresh></>
-                </Group>
-                </> 
-            )
-            }
-        }
+export default props => {
   
+  const [fetching, setFetching] = useState(false);
+  const {
+    account
+  } = useSelector((state) => state.account);
+  const { answers } = useSelector((state) => state.moderation.moderationData);
+  const { setActiveModal, getInfo, goTiket } = props.callbacks;
+  const colorHandler = (num) => {
+    let styles = {};
+    let num_style = 1
+    if (num > 0 && num <= 5) {
+      styles = {
+        color: 'var(--dynamic_green)',
+      };
+      num_style = 1
+    } else if (num >= 6 && num <= 10) {
+      styles = {
+        color: 'var(--dynamic_orange)',
+      };
+      num_style = 2
+    } else if (num >= 11) {
+      styles = {
+        color: 'var(--dynamic_red)',
+      };
+      num_style = 3
+    }
+    return [styles, num_style];
+  }
+  useEffect(() => {
+    if (!answers.data){
+      getInfo('answers')
+    }
+    
+    // eslint-disable-next-line
+  }, [])
+
+  return (
+    <>
+      {(account.marked !== null && account.marked !== undefined) ?
+        <Group>
+          <Div>
+            <FormStatus onClick={() => setActiveModal('answers')}>
+              <div style={{ textAlign: 'center', color: "var(--text_profile)", marginBottom: 15 }}>
+                Вы оценили <span style={{ color: 'var(--header_text)' }}>{account.marked} {enumerate(account.marked, ['ответ', 'ответа', 'ответов'])}</span> Агентов Поддержки
+                        </div>
+              <InfoRow>
+                <Progress
+                  value={account.marked ? account.marked / SPECIAL_NORM * 100 : 0} />
+                <div style={{ textAlign: 'right', color: "var(--text_profile)", marginTop: 10, fontSize: 13 }}>{SPECIAL_NORM}</div>
+              </InfoRow>
+              {(account.marked >= SPECIAL_NORM) ? <div style={{ textAlign: 'center', color: "var(--text_profile)", marginBottom: 5 }}>
+                Но это не значит, что нужно расслабляться!
+                        </div> : null}
+            </FormStatus>
+          </Div>
+        </Group>
+
+        : null}
+      <><PullToRefresh onRefresh={() => { setFetching(true); getInfo('answers'); setTimeout(() => setFetching(false), 500) }} isFetching={fetching}>
+        <Group>
+          <List>
+            {answers.data ? (answers.data.length > 0) ? answers.data.map((result, i) =>
+              <React.Fragment key={result.id}>
+                <SimpleCell
+                  onClick={() => goTiket(result.id)}
+                  expandable
+                  before={<Icon28RecentOutline className={(colorHandler(result.count_unmark)[1] === 3) ? 'blink2' : ''} width={34} height={34} style={colorHandler(result.count_unmark)[0]} />}
+                  description={result.count_unmark + " " + enumerate(result.count_unmark, [' неоценённый ответ', ' неоценённых ответа', ' неоценённых ответов'])}>
+                  Вопрос #{result.id}
+                </SimpleCell>
+              </React.Fragment>
+            ) : <Placeholder
+              icon={<Icon56InboxOutline />}>
+              Можешь отдохнуть. Ответов больше не писали
+                      </Placeholder> : <PanelSpinner />}
+          </List>
+        </Group>
+
+        {answers.data_helper ? answers.data_helper.length === 20 ?
+          <Div>
+            <Button size="l"
+              stretched
+              level="secondary"
+              before={fetching ? <Icon24Spinner width={28} height={28} className='Spinner__self' /> : null}
+              onClick={() => { setFetching(true); getInfo('answers', true); setTimeout(() => setFetching(false), 500) }}>Загрузить ещё</Button>
+          </Div>
+          : answers.data ?
+            (answers.data.length === 0) ? null : <Footer>{answers.data.length} {enumerate(answers.data.length, [' вопрос', ' вопроса', ' вопросов'])} всего</Footer>
+            : null :
+          null}
+      </PullToRefresh></>
+    </>
+  )
+}

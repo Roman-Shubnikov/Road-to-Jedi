@@ -8,34 +8,35 @@ const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera 
 
 
 const Message = React.forwardRef(( props, ref ) => (
-    props.is_mine === true ?
+    props.is_mine ?
         <div className="mine_message" ref={ref}>
-            <div  className="message_report_moderator" style={{marginBottom: props.approved ? "20px" : null, right: platformname ? "-12%" : "-22%"}}>
-                <div className={props.clickable ? 'pointer animation' : ''} onClick={() => props.onClick()}>
+            <div  className="message_report_moderator" style={{marginBottom: props.approved ? "20px" : null, right: platformname ? "-12%" : "-22%"}}
+                onClick={() => props.onClick()}>
+                <div className={props.clickable ? 'pointer animation' : ''}>
                     <p className="moderator_name_message">
                         {props.title} 
-                        {/* {props.approved ? '✔️' : ''} */}
+                        {props.is_special && props.approved ? '✔️' : ''}
                     </p>
-                    <p className="text_message"><Anchorme target="_blank" rel="noreferrer noopener">{props.children}</Anchorme></p>
+                    <p className="text_message"><Anchorme onClick={(e) => { e.stopPropagation() }} target="_blank" rel="noreferrer noopener">{props.children}</Anchorme></p>
                     
                 </div>
                 <div style={{display:'flex'}}>
                     {props.is_mark === 1 ? 
-                    <div className="approved animation pointer" onClick={() => props.DoneApp()}>
+                        <div className="approved animation pointer" onClick={(e) => { e.stopPropagation();props.DoneApp()}}>
                         <Icon16Done className="approved_icon green" height={15} width={15} style={{display: "inline-block"}}/>
                     </div>
                     : props.is_mark === 0 ?
-                    <div className="approved animation pointer" onClick={() => props.CanselApp()}>
+                            <div className="approved animation pointer" onClick={(e) => { e.stopPropagation();props.CanselApp()}}>
                         <Icon16Cancel className="approved_icon" height={15} width={15} style={{display: "inline-block"}}/>
                     </div>
                     : null}
                     {props.comment ? 
-                    <div className="approved animation pointer" onClick={() => props.commentclick()}>
+                        <div className="approved animation pointer" onClick={(e) => { e.stopPropagation();props.commentclick()}}>
                         <Icon20CommentOutline className="approved_icon" height={16} width={16} style={{display: "inline-block", color: 'var(--accent)'}}/>
                     </div>
                     : null}
                 </div>
-                <img className="avatar_message_moderator" src={props.avatar} 
+                <img className="avatar_message_moderator" src={props.avatar} onClick={() => props.onClick()}
                 alt={'аva'}
                 style={{marginLeft: platformname ? "99%" : "99%"}} 
                 />

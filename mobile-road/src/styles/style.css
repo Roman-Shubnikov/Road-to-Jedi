@@ -2,7 +2,22 @@
 @import './bright_light.css';
 @import './vkcom.css';
 @import './menutiles.css';
-
+@import './fonts/fonts-connect.css';
+:root{
+    --font-common: "VK Medium";
+}
+::-webkit-scrollbar {
+    width: 3px;
+    background-color: var(--background_page_my);
+}
+::-webkit-scrollbar-thumb {
+    background-color:var(--text_profile);
+    border-radius: 10%;
+    box-shadow: inset 1px 1px 10px var(--text_profile);
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--select_reyt);
+}
 .blink2 {
     -webkit-animation: blink2 1s linear infinite;
     animation: blink2 1s linear infinite;
@@ -20,7 +35,7 @@ div,p{
     -khtml-user-select: none;    /* Konqueror */
     -moz-user-select: none;      /* Firefox */
     -ms-user-select: none;       /* Internet Explorer/Edge */
-    user-select: none;           
+    user-select: none;        
 }
 a{
     color: var(--accent);
@@ -120,7 +135,7 @@ a{
     right: 0;
     position: relative;
     display: flex;
-    width: 95%;
+    width: 94%;
 }
 
 .message_report_moderator {

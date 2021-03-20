@@ -1,4 +1,4 @@
-import React from 'react'; // React
+import React, {useCallback, useState, useEffect} from 'react'; // React
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 
 import { 
@@ -11,116 +11,97 @@ import '@vkontakte/vkui/dist/vkui.css';
 // Импортируем панели
 import Startov from './panels/start';
 import Startov2 from './panels/start2';
+import { useDispatch, useSelector } from 'react-redux';
+import { viewsActions } from '../../store/main';
 
 var ignore_back = false;
 
-export default class Start extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            api_url: "https://xelene.ru/road/php/index.php?",
-            activePanel: 'start',
-            popout: this.props.popout,
-            history: ['start'],
-        
+export default props => {
+  const [activePanel, setActivePanel] = useState('start');
+  const [popout, setPopout] = useState(null);
+  const [historyPanelsState, setHistory] = useState(['questions']);
+  const dispatch = useDispatch();
+  const account = useSelector((state) => state.account.account)
+  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
 
+
+  const goBack = useCallback(() => {
+    const history = [...historyPanelsState]
+    if (!ignore_back) {
+      ignore_back = true;
+      if (history.length === 1) {
+        bridge.send("VKWebAppClose", { "status": "success" });
+      } else if (history.length > 1) {
+
+        if (activePanel === 'load') {
+          bridge.send('VKWebAppDisableSwipeBack');
         }
-        this.changeData = this.props.this.changeData;
-        this.ReloadProfile = this.props.reloadProfile;
-        this.setPopout = (value) => {
-          this.setState({popout: value})
-        }
-        this.handlePopstate = (e) => {
-          e.preventDefault();
-          this.goBack()
-        }
-        this.onChange = (event) => {
-          var name = event.currentTarget.name;
-          var value = event.currentTarget.value;
-          this.setState({ [name]: value });
+        history.pop()
+        setActivePanel(history[history.length - 1])
+        setPopout(<ScreenSpinner />)
+        setTimeout(() => {
+          setPopout(null)
+        }, 500)
       }
-        this.modalBack = () => {
-            this.setActiveModal(this.state.modalHistory[this.state.modalHistory.length - 2]);
-        };
-        this.goBack = () => {
-          if(!ignore_back){
-            ignore_back = true;
-            const history = this.state.history;
-            if(history.length === 1) {
-                bridge.send("VKWebAppClose", {"status": "success"});
-            } else if (history.length > 1) {
-                history.pop()
-                this.setState({activePanel: history[history.length - 1]})
-                this.setPopout(<ScreenSpinner />)
-                setTimeout(() => {
-                  this.setPopout(null)
-                }, 500)
-            }
-            setTimeout(() => {ignore_back = false;}, 500)
-            
-          }else{
-            const history = this.state.history;
-            window.history.pushState( { panel: history[history.length - 1] }, history[history.length - 1] );
-          }
-      }
-        this.goPanel = (panel) => {
-          let history = this.state.history.slice();
-          history.push(panel)
-          window.history.pushState( { panel: panel }, panel );
-          this.setState({history: history, activePanel: panel})
-        }
-        this.showAlert = (title, text) => {
-          this.setState({
-            popout:
-              <Alert
-              actionsLayout="horizontal"
-                actions={[{
-                  title: 'Закрыть',
-                  autoclose: true,
-                  mode: 'cancel'
-                }]}
-                onClose={() => this.setPopout(null)}
-                header={title}
-                text={text}
-              />
-          })
-        }
-        this.showErrorAlert = (error = null, action = null) => {
-          this.setPopout(
-            <Alert
-              actionsLayout="horizontal"
-              actions={[{
-                title: 'Отмена',
-                autoclose: true,
-                mode: 'cancel',
-                action: action,
-              }]}
-              onClose={() => this.setPopout(null)}
-              header="Ошибка"
-              text={error ? `${error}` : "Что-то пошло не так, попробуйте снова!"}
-            />
-          )
-        }
+      setHistory(history)
+      setTimeout(() => { ignore_back = false; }, 500)
+
+    } else {
+      window.history.pushState({ panel: history[history.length - 1] }, history[history.length - 1]);
     }
-    componentDidMount(){
+  }, [setPopout, activePanel, historyPanelsState])
+
+  const handlePopstate = useCallback((e) => {
+    e.preventDefault();
+    goBack();
+  }, [goBack])
+  const goPanel = useCallback((panel) => {
+    let history = [...historyPanelsState];
+    history.push(panel)
+    window.history.pushState({ panel: panel }, panel);
+    if (panel === 'questions') {
       bridge.send('VKWebAppEnableSwipeBack');
-      window.addEventListener('popstate', this.handlePopstate); 
-      this.changeData('need_epic', false)
     }
-    componentWillUnmount(){
+    setHistory(history);
+    setActivePanel(panel)
+  }, [historyPanelsState])
+  const showErrorAlert = (error = null, action = null) => {
+    setPopout(
+      <Alert
+        actionsLayout="horizontal"
+        actions={[{
+          title: 'Отмена',
+          autoclose: true,
+          mode: 'cancel',
+          action: action,
+        }]}
+        onClose={() => setPopout(null)}
+        header="Ошибка"
+        text={error ? `${error}` : "Что-то пошло не так, попробуйте снова!"}
+      />
+    )
+  }
+
+  useEffect(() => {
+    bridge.send('VKWebAppEnableSwipeBack');
+    window.addEventListener('popstate', handlePopstate);
+    dispatch(viewsActions.setNeedEpic(false))
+    return () => {
       bridge.send('VKWebAppDisableSwipeBack');
-      window.removeEventListener('popstate', this.handlePopstate)
+      window.removeEventListener('popstate', handlePopstate)
     }
-    render() {
-        return(
-            <View 
-            id={this.props.id}
-            activePanel={this.state.activePanel}
-            popout={this.state.popout}
-            >
-              <Startov id='start' account={this.props.account} this={this} />
-              <Startov2 id='start2' account={this.props.account} this={this} />
-            </View>   
-        )
-    }
+  }, [dispatch, handlePopstate])
+  const callbacks = { setPopout, goPanel, showErrorAlert, reloadProfile: props.reloadProfile, setActiveStory }
+  return (
+    <View
+      id={props.id}
+      activePanel={activePanel}
+      popout={popout}
+      history={historyPanelsState}
+      onSwipeBack={() => window.history.back()}
+    >
+      <Startov id='start' callbacks={callbacks} account={account} />
+      <Startov2 id='start2' callbacks={callbacks} account={account} />
+    </View>
+  )
 }

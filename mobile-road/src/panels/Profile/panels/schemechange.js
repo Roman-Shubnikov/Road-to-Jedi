@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { 
     Panel,
     PanelHeader,
@@ -9,101 +9,115 @@ import {
     FormLayout,
     Div,
     Group,
+    usePlatform,
+    VKCOM
     } from '@vkontakte/vkui';
 
 import Message from '../../../components/message'
-import avaUser from '../../../images/user.jpg'
+import avaUser from '../../../images/user.png'
 import avaAgent from '../../../images/schemeagent.jpg'
+import { useDispatch, useSelector } from 'react-redux';
+import { accountActions, viewsActions } from '../../../store/main';
+import { API_URL } from '../../../config';
 
-export default class SchemeChange extends React.Component{
-    constructor(props){
-        super(props)
-        this.state = {
-            api_url: "https://xelene.ru/road/php/index.php?",
+const themes = [
+    { themeName: 'Светлая тема', val: '1' },
+    { themeName: 'Тёмная тема', val: '2' },
+    { themeName: 'Автоматически', val: '0', description: 'Сервис будет использовать тему, установленную в настройках ВКонтакте' },
+]
 
+export default props => {
+    const dispatch = useDispatch();
+    const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
+    const { account, schemeSettings } = useSelector((state) => state.account)
+    const { default_scheme } = schemeSettings;
+    const setScheme = useCallback((payload) => dispatch(accountActions.setScheme(payload)), [dispatch])
+    const { setPopout, showErrorAlert } = props.callbacks;
+    const platform = usePlatform();
+
+
+    const ChangeScheme = (e) => {
+        setPopout(<ScreenSpinner />)
+        let value = e.currentTarget.value;
+        if (value === 0) {
+            setScheme({ ...schemeSettings, scheme: default_scheme })
         }
-        var propsbi = this.props.this;
-        this.setPopout = propsbi.setPopout;
-        this.showErrorAlert = propsbi.showErrorAlert;
-        this.showAlert = propsbi.showAlert;
-        this.setActiveModal = propsbi.setActiveModal;
-        this.onChange = (event) => {
-            var name = event.currentTarget.name;
-            var value = event.currentTarget.value;
-            this.setState({ [name]: value });
-        }
-        this.ChangeScheme = (e) => {
-            this.setPopout(<ScreenSpinner />)
-            let value = e.currentTarget.value;
-            if(value === 0){
-                this.props.this.changeData('scheme', this.props.default_scheme)
-            }
-            fetch(this.state.api_url + "method=account.changeScheme&" + window.location.search.replace('?', ''),
-            {method: 'post',
-                headers: {"Content-type": "application/json; charset=UTF-8"},
-                    // signal: controllertime.signal,
+        fetch(API_URL + "method=account.changeScheme&" + window.location.search.replace('?', ''),
+            {
+                method: 'post',
+                headers: { "Content-type": "application/json; charset=UTF-8" },
+                // signal: controllertime.signal,
                 body: JSON.stringify({
                     'scheme': value,
                 })
-                })
-                .then(res => res.json())
-                .then(data => {
-                if(data.result) {
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.result) {
                     setTimeout(() => {
-                        this.props.this.ReloadProfile();
-                        this.setPopout(null)
-                      }, 3000)
-                }else{
-                    this.showErrorAlert(data.error.message)
+                        props.reloadProfile();
+                        setPopout(null)
+                    }, 3000)
+                } else {
+                    showErrorAlert(data.error.message)
                 }
-                })
-                .catch(err => {
-                    this.props.this.changeData('activeStory', 'disconnect')
-    
-                })
-    
-        }
-    }
-    
+            })
+            .catch(err => {
+                setActiveStory('disconnect')
 
-    render() {
-        return(
-            <Panel id={this.props.id}>
-                <PanelHeader 
-                    left={
-                        <PanelHeaderBack onClick={() => window.history.back()} /> 
+            })
+
+    }
+    return (
+        <Panel id={props.id}>
+            <PanelHeader
+                left={
+                    <PanelHeaderBack onClick={() => window.history.back()} />
                 }>
-                    Смена темы
+                Смена темы
                 </PanelHeader>
-                
-                <Group header={<Header mode='secondary'>Предпросмотр</Header>}>
-                    <Div>
-                        <Message
+
+            <Group header={<Header mode='secondary'>Предпросмотр</Header>}>
+                <Div>
+                    <Message
                         title='Пользователь'
                         is_mine={false}
                         avatar={avaUser}
-                        onClick={() => {}}
+                        onClick={() => { }}
                         clickable={false}
-                        >О, тут можно менять тему</Message>
-                        <Message
+                    >О, тут можно менять тему</Message>
+                    <Message
                         title='Агент Поддержки'
                         is_mine={true}
                         avatar={avaAgent}
-                        onClick={() => {}}
+                        onClick={() => { }}
                         clickable={false}
-                        >Действительно</Message>
-                    </Div>
-                </Group>
-                
-                <Group>
-                    <FormLayout>
-                        <Radio name="radio" className="pointer" onChange={this.ChangeScheme} value="1" defaultChecked={(this.props.account.scheme === 1) ? true : false}>Светлая тема</Radio>
-                        <Radio name="radio" className="pointer" onChange={this.ChangeScheme} value="2" defaultChecked={(this.props.account.scheme === 2) ? true : false}>Тёмная тема</Radio>
-                        <Radio name="radio" className="pointer" onChange={this.ChangeScheme} value="0" description='Сервис будет использовать тему, установленную в настройках ВКонтакте' defaultChecked={(this.props.account.scheme === 0) ? true : false}>Автоматически</Radio>
-                    </FormLayout>
-                </Group>
-                
-            </Panel>
-        )
-    }
+                    >Действительно</Message>
+                </Div>
+            </Group>
+
+            <Group>
+                <FormLayout>
+                    {themes.map((res, i) => 
+                        <Radio name="radio" 
+                        onChange={ChangeScheme}
+                        disabled={platform === VKCOM} 
+                        value={res.val} 
+                        // eslint-disable-next-line
+                        defaultChecked={(account.scheme == res.val)}
+                        description={res.description}>
+                            {res.themeName}
+                        </Radio>)}
+                    {platform === VKCOM && 
+                    <Radio name="radio" defaultChecked
+                    description="В компьютерной версии не поддерживается смена темы">
+                        Desktop
+                    </Radio> 
+                    }
+                    
+                </FormLayout>
+            </Group>
+
+        </Panel>
+    )
 }

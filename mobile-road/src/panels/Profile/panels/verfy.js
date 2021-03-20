@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { 
     Panel,
@@ -16,185 +16,146 @@ import {
     FormItem,
 
     } from '@vkontakte/vkui';
-
-// import Icon28SmartphoneOutline from '@vkontakte/icons/dist/28/smartphone_outline';
 import VerfIcon from '../../../images/verfload.svg';
-
-// const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
-
-
-export default class Verfy extends React.Component{
-    constructor(props){
-        super(props)
-        this.state = {
-            api_url: "https://xelene.ru/road/php/index.php?",
-            check1: false,
-            title: '',
-            description: '',
-            // number: '',
-            // numberstatus: true,
-            // sign_number: '',
-            verfstatus: -1,
-
+import { API_URL } from '../../../config';
+import { useDispatch } from 'react-redux';
+import { viewsActions } from '../../../store/main';
+const maxLength = 2000;
+const minLengthTitle = 5;
+const minLengthDesc = 10;
+export default props => {
+  const dispatch = useDispatch();
+  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [status, setStatus] = useState(-1);
+  const [check1, setCheck1] = useState(false);
+  const { setPopout, showErrorAlert } = props.callbacks;
+  const checkVerfStatus = useCallback(() => {
+    fetch(API_URL +
+      "method=account.getVerfStatus&" + window.location.search.replace('?', ''))
+      .then(res => res.json())
+      .then(data => {
+        if (data.result) {
+          setStatus(data.response)
+          setPopout(null);
+        } else {
+          showErrorAlert(data.error.message)
         }
-        var propsbi = this.props.this;
-        this.setPopout = propsbi.setPopout;
-        this.showErrorAlert = propsbi.showErrorAlert;
-        this.showAlert = propsbi.showAlert;
-        this.setActiveModal = propsbi.setActiveModal;
-        this.onChange = (event) => {
-            var name = event.currentTarget.name;
-            var value = event.currentTarget.value;
-            this.setState({ [name]: value });
-        }
-    }
-    handleForm(){
-      this.setPopout(<ScreenSpinner />);
-      fetch(this.state.api_url + 
+      })
+      .catch(err => {
+        setActiveStory('disconnect')
+
+      })
+  }, [setActiveStory, setPopout, showErrorAlert])
+  const handleForm = () => {
+    this.setPopout(<ScreenSpinner />);
+    fetch(API_URL +
       "method=account.sendRequestVerf&" + window.location.search.replace('?', ''),
-      {method: 'post',
-      headers: {"Content-type": "application/json; charset=UTF-8"},
-          // signal: controllertime.signal,
-      body: JSON.stringify({
-        'title': this.state.title.trim(),
-        'description': this.state.description.trim(),
-        'cond1': true,
-        // 'phone_number': this.state.number,
-        // 'phone_sign': this.state.sign_number,
-    })
+      {
+        method: 'post',
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+        body: JSON.stringify({
+          'title': title.trim(),
+          'description': description.trim(),
+          'cond1': check1,
+        })
       })
       .then(res => res.json())
       .then(data => {
-      if(data.result) {
-        this.checkVerfStatus()
-      }else{
-          this.showErrorAlert(data.error.message)
-      }
+        if (data.result) {
+          checkVerfStatus()
+        } else {
+          showErrorAlert(data.error.message)
+        }
       })
       .catch(err => {
-        this.props.this.changeData('activeStory', 'disconnect')
+        setActiveStory('disconnect')
 
       })
 
-    }
-    checkVerfStatus(){
-      fetch(this.state.api_url + 
-        "method=account.getVerfStatus&" + window.location.search.replace('?', ''))
-        .then(res => res.json())
-        .then(data => {
-        if(data.result) {
-          this.setState({verfstatus: data.response})
-          this.setPopout(null);
-        }else{
-            this.showErrorAlert(data.error.message)
+  }
+  const validateTitle = (title, max, min) => {
+    if (title.length > 0) {
+      let valid = ['error', `Текст должен быть не больше ${max} и не меньше ${min} символов`];
+      if (title.length <= max && title.length > min) {
+        if (/^[a-zA-ZА-Яа-я0-9_ё .,"':!?*+=-]*$/ui.test(title)) {
+          valid = ['valid', '']
+        } else {
+          valid = ['error', 'Текст не должен содержать спец. символы'];
         }
-        })
-        .catch(err => {
-          this.props.this.changeData('activeStory', 'disconnect')
-
-        })
-    }
-    validateTitle(title){
-      if(title.length > 0){
-        let valid = ['error', 'Текст должен быть не больше 2000 и не меньше 6 символов' ];
-        if(title.length <= 2000 && title.length > 5){
-          if(/^[a-zA-ZА-Яа-я0-9_ё .,"':!?*+=-]*$/ui.test(title)){
-            valid = ['valid', '']
-          }else{
-            valid = ['error', 'Текст не должен содержать спец. символы'];
-          }
-        }
-  
-        return valid
       }
-      return ['default', '']
-      
-    }
-    validateDesc(title){
-      if(title.length > 0){
-        let valid = ['error', 'Текст должен быть не больше 2000 и не меньше 11 символов'];
-        if(title.length <= 2000 && title.length > 10){
-          if(/^[a-zA-ZА-Яа-я0-9_ё .,"':!?*+=-]*$/ui.test(title)){
-            valid = ['valid', '']
-          }else{
-            valid = ['error', 'Текст не должен содержать спец. символы'];
-          }
-        }
-  
-        return valid
-      }
-      return ['default', '']
-    }
-    componentDidMount(){
-      this.setPopout(<ScreenSpinner />);
-      this.checkVerfStatus();
-    }
 
-    render() {
-        // var props = this.props.this;
-        return(
-            <Panel id={this.props.id}>
-                <PanelHeader 
-                    left={<>
-                    <PanelHeaderBack onClick={() => window.history.back()}></PanelHeaderBack>
-                    </>}>
-                    Верификация
+      return valid
+    }
+    return ['default', '']
+  }
+  useEffect(() => {
+    setPopout(<ScreenSpinner/>)
+    checkVerfStatus()
+    const img = new Image();
+    img.src = VerfIcon;
+
+  }, [checkVerfStatus, setPopout])
+
+  return (
+    <Panel id={props.id}>
+      <PanelHeader
+        left={<>
+          <PanelHeaderBack onClick={() => window.history.back()}></PanelHeaderBack>
+        </>}>
+        Верификация
                 </PanelHeader>
-                {(this.state.verfstatus !== -1) ? (this.state.verfstatus === 2) ? <><Group><Placeholder 
-                icon={<img src={VerfIcon} alt='Ожидайте рассмотрения' style={{width: 250, height: 200}} />}
-                // action={<Div>
-                //   <Button size="xl" onClick={() => {window.history.back()}}>Вернуться к настройкам</Button>
-                // </Div>}
-                header='Вы отправили заявку на верификацию'>Вы отправили заявку на верификацию, по
-                                                            окончании проверки — мы сообщим Вам
+      {(status !== -1) ? (status === 2) ? <><Group><Placeholder
+        icon={<img src={VerfIcon} alt='Ожидайте рассмотрения' style={{ width: 250, height: 200 }} />}
+        header='Вы отправили заявку на верификацию'>Вы отправили заявку на верификацию, по
+        окончании проверки — мы сообщим Вам
                                                             о результатах официального статуса.</Placeholder>
-                                                              </Group></> : <>
-                <Group>
-                <FormLayout>
-                  <FormItem 
-                  status={this.validateTitle(this.state.title.trim())[0]}
-                  top="Общая информация" 
-                  bottom={this.validateTitle(this.state.title.trim())[1]}>
-                    <Input 
-                    maxLength="2000" 
-                    onChange={this.onChange}
-                    name='title'
-                    placeholder='Введите свой текст...' />
-                  </FormItem>
-                  <FormItem 
-                  top="Почему вы решили верифицировать профиль" 
-                  bottom={this.validateDesc(this.state.description.trim())[1]}
-                  status={this.validateDesc(this.state.description.trim())[0]}>
-                    <Textarea 
-                    maxLength="2000" 
-                    name='description'
-                    onChange={this.onChange}
-                    placeholder='Введите свой текст...' />
-                  </FormItem>
-                  <Checkbox checked={this.state.check1} onChange={() => this.state.check1 ? this.setState({check1: false}) : this.setState({check1: true})}>
-                    Согласен с <Link 
-                    href='https://vk.com/@jedi_road-chto-takoe-verifikaciya-i-kak-ee-poluchit-galochku'
-                    target="_blank" rel="noopener noreferrer">
-                    правилами</Link> верификации
+      </Group></> : <>
+        <Group>
+          <FormLayout>
+            <FormItem
+              status={validateTitle(title.trim(), maxLength, minLengthTitle)[0]}
+              top="Общая информация"
+                bottom={validateTitle(title.trim(), maxLength, minLengthTitle)[1]}>
+              <Input
+                maxLength="2000"
+                value={title}
+                onChange={(e) => setTitle(e.currentTarget.value)}
+                placeholder='Введите свой текст...' />
+            </FormItem>
+            <FormItem
+              top="Почему вы решили верифицировать профиль"
+                bottom={validateTitle(description.trim(), maxLength, minLengthDesc)[1]}
+                status={validateTitle(description.trim(), maxLength, minLengthDesc)[0]}>
+              <Textarea
+                maxLength="2000"
+                value={description}
+                onChange={(e) => setDescription(e.currentTarget.value)}
+                placeholder='Введите свой текст...' />
+            </FormItem>
+            <Checkbox checked={check1} onChange={() => setCheck1(prev => !prev)}>
+              Согласен с <Link
+                href='https://vk.com/@jedi_road-chto-takoe-verifikaciya-i-kak-ee-poluchit-galochku'
+                target="_blank" rel="noopener noreferrer">
+                правилами</Link> верификации
                   </Checkbox>
-                  <FormItem>
-                    <Button 
-                    size='l' 
-                    stretched
-                    disabled={
-                      !this.state.check1 || 
-                      !(this.validateTitle(this.state.title.trim())[0] === 'valid') ||
-                      !(this.validateDesc(this.state.description.trim())[0] === 'valid')
-                      // !this.state.number
-                    }
-                    onClick={() => this.handleForm()}
-                    >Отправить на рассмотрение</Button>
-                  </FormItem>
-                </FormLayout>
-                </Group>
-                </>: null}
-                {this.props.this.state.snackbar}
-            </Panel>
-        )
-    }
+            <FormItem>
+              <Button
+                size='l'
+                stretched
+                disabled={
+                  !check1 ||
+                  !(validateTitle(title.trim(), maxLength, minLengthTitle)[0] === 'valid') ||
+                  !(this.validateDesc(description.trim(), maxLength, minLengthDesc)[0] === 'valid')
+                }
+                onClick={() => handleForm()}
+              >Отправить на рассмотрение</Button>
+            </FormItem>
+          </FormLayout>
+        </Group>
+      </> : null}
+      {this.props.this.state.snackbar}
+    </Panel>
+  )
 }
