@@ -3,8 +3,9 @@ import {
     Alert,
 
 } from '@vkontakte/vkui';
-import { accountActions, FetchFatalError, ForceErrorBackend } from '../store/main';
+import { accountActions } from '../store/main';
 import { isEmptyObject } from 'jquery';
+import { API_URL } from '../config';
 
 export const errorAlertCreator = (setPopout, error = null, action = null) => {
     setPopout(
@@ -60,12 +61,26 @@ export const goPanelCreator = (setHistory, setActivePanel, historyPanelsState, p
 }
 export const goOtherProfileCreator = (goPanel, setActiveStory, showErrorAlert, OtherProfileData, dispatch, id) => {
     if (isEmptyObject(OtherProfileData) || OtherProfileData.id !== id) {
-        try {
-            dispatch(accountActions.getOtherProfile(id))
-        } catch (error) {
-            if (error instanceof FetchFatalError) setActiveStory('disconnect');
-            if (error instanceof ForceErrorBackend) showErrorAlert(error.message);
-        }
+        fetch(API_URL + "method=user.getById&" + window.location.search.replace('?', ''),
+        {
+            method: 'post',
+            headers: { "Content-type": "application/json; charset=UTF-8" },
+            body: JSON.stringify({
+                'id': id,
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.result) {
+                dispatch(accountActions.setOtherProfile(data.response))
+                goPanel("other_profile")
+            }else{
+                showErrorAlert(data.error.message)
+            }
+        })
+        .catch(err => {
+            setActiveStory('disconnect');
+        })
+        
     }
-    goPanel("other_profile")
 }

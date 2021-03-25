@@ -18,15 +18,19 @@ import {
     IOS,
     } from '@vkontakte/vkui';
 
+    
+import {
+  Icon28DoneOutline,
+  Icon28CoinsOutline,
+  Icon28PaletteOutline,
+  Icon28TargetOutline,
+  Icon28InfoOutline,
+  Icon28FavoriteOutline,
+  Icon28Notifications,
+  Icon28GestureOutline,
 
-import Icon28DoneOutline            from '@vkontakte/icons/dist/28/done_outline';
-import Icon28CoinsOutline           from '@vkontakte/icons/dist/28/coins_outline';
-import Icon28PaletteOutline         from '@vkontakte/icons/dist/28/palette_outline';
-import Icon28TargetOutline          from '@vkontakte/icons/dist/28/target_outline';
-import Icon28InfoOutline            from '@vkontakte/icons/dist/28/info_outline';
-import Icon28FavoriteOutline        from '@vkontakte/icons/dist/28/favorite_outline';
-import Icon28Notifications          from '@vkontakte/icons/dist/28/notifications';
-import Icon28GestureOutline         from '@vkontakte/icons/dist/28/gesture_outline';
+} from '@vkontakte/icons'
+
 import { useDispatch, useSelector } from 'react-redux';
 import { API_URL } from '../../../config';
 import { viewsActions } from '../../../store/main';
@@ -183,7 +187,6 @@ export default props => {
           disabled
           indicator={account.age}
           before={<Icon28TargetOutline />}>Ваш возраст</SimpleCell>
-
       </Group>
 
       <Group>
@@ -193,7 +196,7 @@ export default props => {
           onClick={() => goPanel('schemechange')}>Смена темы</SimpleCell>
 
         <SimpleCell
-          indicator={account.verified ? 'Присвоен' : null}
+          indicator={account.verified ? 'Присвоена' : null}
           disabled={account.verified}
           expandable={!account.verified}
           onClick={!account.verified ? () => goPanel('verf') : undefined}

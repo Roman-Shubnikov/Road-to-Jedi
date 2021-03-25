@@ -100,6 +100,7 @@ export default props => {
             <FormLayout>
                 {reasons.map((res, i) => 
                     <Radio name="typerep"
+                    key={i}
                         onChange={(e) => setTyperep(e.currentTarget.value)}
                         defaultChecked={i === 0}
                         value={String(i + 1)}>{res}</Radio>

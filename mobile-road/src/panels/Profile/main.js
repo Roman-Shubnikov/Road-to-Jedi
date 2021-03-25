@@ -24,6 +24,7 @@ import {
   FormItem,
   usePlatform,
   VKCOM,
+  Textarea,
 } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
@@ -75,7 +76,6 @@ const queryString = require('query-string');
 const hash = queryString.parse(window.location.hash);
 
 function qr(agent_id, sheme) {
-  console.log(sheme)
   let hex = "foregroundColor"
   if (sheme === "bright_light") {
     hex = "#000"
@@ -135,13 +135,14 @@ export default props => {
   const [activeModal, setModal] = useState(null);
   const [modalHistory, setModalHistory] = useState(null);
   const [sharing_type, setSharingType] = useState('prometay');
-  const account = useSelector((state) => state.account.account)
   const comment = useSelector((state) => state.tickets.comment)
   const [Transfers, setTransfers] = useState({ to_id: '', count: '', comment: '', dataTrans: null});
   const [snackbar, setSnackbar] = useState(null);
   const [moneyPromo, setMoneyPromo] = useState(0);
+  const [newStatus, setNewStatus] = useState('');
   const {
-    other_profile: OtherProfileData
+    other_profile: OtherProfileData,
+    account,
   } = useSelector((state) => state.account)
   const [typeres, setTyperes] = useState(0);
   const [id_rep, setIdRep] = useState(0);
@@ -249,6 +250,33 @@ export default props => {
     return ['default', '']
 
   }
+  const saveNewStatus = () => {
+    setPopout(<ScreenSpinner/>)
+    fetch(API_URL + "method=account.changeStatus&" + window.location.search.replace('?', ''),
+        {
+            method: 'post',
+            headers: { "Content-type": "application/json; charset=UTF-8" },
+            body: JSON.stringify({
+                'status': newStatus.trim(),
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.result) {
+              
+              setActiveModal(null)
+              setTimeout(() => {
+                  props.reloadProfile();
+                  setPopout(null);
+              }, 1000)
+            } else {
+                showErrorAlert(data.error.message)
+            }
+        })
+        .catch(err => {
+            setActiveStory('disconnect');
+        })
+}
   useEffect(() => {
     bridge.send('VKWebAppEnableSwipeBack');
     window.addEventListener('popstate', handlePopstate);
@@ -366,6 +394,28 @@ export default props => {
             }}>Закрыть</Button>
         }
       >
+      </ModalCard>
+
+      <ModalCard
+        id='statuschange'
+        onClose={() => setActiveModal(null)}
+        header='Введите новый статус'
+        subheader='Будте креативны, но не нарушайте правила'
+        actions={[
+          <Button mode='secondary'
+          key={1}
+            size='l'
+            stretched
+            onClick={() => setActiveModal(null)}>Отмена</Button>,
+            <Button mode='primary'
+            key={2}
+            size='l'
+            stretched
+            onClick={() => saveNewStatus()}>Сохранить</Button>
+          ]
+        }
+      >
+        <Textarea maxLength="140" onChange={(e) => setNewStatus(e.currentTarget.value)} defaultValue={newStatus} />
       </ModalCard>
 
       <ModalPage
@@ -488,7 +538,7 @@ export default props => {
     </ModalRoot>
   )
   
-  const callbacks = { setPopout, goPanel, setReport, showErrorAlert, goTiket, setActiveModal, showAlert, goOtherProfile, setSnackbar }
+  const callbacks = { setPopout, goPanel, setReport, showErrorAlert, goTiket, setActiveModal, showAlert, goOtherProfile, setSnackbar, setNewStatus }
   return (
     <View
       id={props.id}
@@ -532,12 +582,14 @@ export default props => {
         setMoneyPromo={setMoneyPromo} />
 
       <Tiket id="ticket"
-        ticket_id={ticket_id} />
+      callbacks={callbacks}
+      ticket_id={ticket_id} />
 
       <OtherProfile id="other_profile"
       callbacks={callbacks} />
 
       <Reports id="report"
+      callbacks={callbacks}
         id_rep={id_rep}
         typeres={typeres} />
 

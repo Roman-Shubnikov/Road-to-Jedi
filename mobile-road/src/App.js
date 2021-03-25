@@ -26,7 +26,7 @@ import {
   usePlatform,
   useAdaptivity,
   Alert,
-
+  Badge,
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
@@ -218,13 +218,16 @@ const App = () => {
         ignore_promo = true;
         setActiveStory('profile');
       }
-      if (activeStory === 'loading'){
+      if (activeStory === 'loading' || activeStory === 'disconnect'){
         setActiveStory('questions');
       }
       
     }
     setLoadWebView(true)
-    dispatch(viewsActions.setNeedEpic(true))
+    if(activeStory !== 'disconnect'){
+      dispatch(viewsActions.setNeedEpic(true))
+    }
+    
   }, [dispatch, fetchAccount, setActiveStory, setBanObject, account, activeStory])
 
   const bridgecallback = useCallback(({ detail: { type, data } }) => {
@@ -369,7 +372,9 @@ const App = () => {
                         icon={<Icon28Profile />}
                         story="profile"
                         activeStory={activeStory}
+                        badge={account.notif_count ? <Badge mode="prominent" /> : null}
                         changeActiveStory={setActiveStory}>
+                        
                           Профиль
                         </EpicItemPC>
                       </Group>
@@ -412,6 +417,7 @@ const App = () => {
                             text='Модерация'
                           ><Icon28WorkOutline /></TabbarItem> : null}
                           <TabbarItem
+                            indicator={account.notif_count ? <Badge mode="prominent" /> : null}
                             onClick={(e) => {setActiveStory(e.currentTarget.dataset.story)}} 
                             selected={activeStory === 'profile' || activeStory === "notif"}
                             data-story="profile"

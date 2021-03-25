@@ -1,4 +1,4 @@
-import {accountActionTypes, viewsActionTypes, tiketsActionTypes, moderationActionTypes} from "./ActionTypes";
+import {accountActionTypes, viewsActionTypes, tiketsActionTypes, moderationActionTypes, topUserActionTypes} from "./ActionTypes";
 
 const initalStateAccount = {
     account: {},
@@ -27,6 +27,7 @@ const initalStateTickets = {
     tickets: null,
     ticketsCurrent: null,
     ticketInfo: {},
+    offset: 0,
 }
 const initalStateModeration = {
     moderationData: {
@@ -56,6 +57,16 @@ const initalStateModeration = {
             data_helper: null,
         }
     },
+
+}
+const initalStateTopUsers = {
+    topAgents: {
+        'all': null,
+        'donut': null,
+        'verif': null,
+        'flash': null,
+    },
+    mode: false
 
 }
 
@@ -94,9 +105,11 @@ export const ticketsReducer = (state = initalStateTickets, action) => {
         case tiketsActionTypes.SET_COMMENT:
             return { ...state, comment: action.payload }
         case tiketsActionTypes.SET_TICKETS:
-            return { ...state, tickets: action.payload.tickets, ticketsCurrent: action.payload.ticketsCurrent }
+            return { ...state, tickets: action.payload.tickets, ticketsCurrent: action.payload.ticketsCurrent}
         case tiketsActionTypes.SET_TICKET:
             return { ...state, ticketInfo: action.payload }
+        case tiketsActionTypes.SET_OFFSET:
+            return { ...state, offset: action.payload }
         default:
             return state
     }
@@ -105,6 +118,17 @@ export const moderationReducer = (state = initalStateModeration, action) => {
     switch (action.type) {
         case moderationActionTypes.SET_DATA:
             return { ...state, moderationData: action.payload }
+        default:
+            return state
+    }
+}
+
+export const topUsersReducer = (state = initalStateTopUsers, action) => {
+    switch (action.type) {
+        case topUserActionTypes.SET_TOP:
+            return { ...state, topAgents: action.payload }
+        case topUserActionTypes.SET_MODE:
+            return { ...state, mode: action.payload }
         default:
             return state
     }

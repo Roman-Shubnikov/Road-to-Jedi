@@ -197,7 +197,7 @@ export default props => {
           }}>
             Скопировать текст
                 </ActionSheetItem>
-          {Number(author_id) === Number(account.id) ?
+          {(Number(author_id) === Number(account.id) && mark !== -1) ?
             <ActionSheetItem 
             autoclose 
             mode='destructive'

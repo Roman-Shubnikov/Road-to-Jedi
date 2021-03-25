@@ -1,5 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
+
+import $ from 'jquery';
 
 import { 
     Panel,
@@ -22,8 +24,8 @@ import {
     PanelSpinner,
     IconButton,
     SimpleCell,
-
-
+    usePlatform,
+    VKCOM,
     } from '@vkontakte/vkui';
 
 
@@ -48,6 +50,8 @@ import {
     Icon20Add,
     Icon20UserOutline,
     Icon20CalendarOutline,
+    Icon16FireVerified,
+
  } from '@vkontakte/icons';
 import {
     Icon48DonateOutline,
@@ -58,6 +62,7 @@ import { accountActions, viewsActions } from '../store/main';
 import { API_URL, AVATARS_URL } from '../config';
 import { isEmptyObject } from 'jquery';
 import { getHumanyTime, enumerate, recog_number } from '../Utils';
+import { DonutTooltip, FlashTooltip, FlashVerifTooltip, VerifTooltip } from './Tooltips';
 
 const SCHEMES = [
     'Автоматическая',
@@ -77,10 +82,26 @@ export default props => {
     const dispatch = useDispatch();
     const [ShowServiceInfo, setShowServiceInfo] = useState(false);
     const [snackbar, setSnackbar] = useState(null);
+    const [tooltip1, setTooltip1] = useState(false);
+    const [tooltip2, setTooltip2] = useState(false);
+    const [tooltip3, setTooltip3] = useState(false);
+    const [tooltip4, setTooltip4] = useState(false);
+    const platform = usePlatform();
     const profRef = useRef(null);
     const { setPopout, showErrorAlert, setActiveModal, setReport } = props.callbacks;
     const {other_profile: OtherProfileData, account} = useSelector((state) => (state.account))
     const setActiveStory = (story) => dispatch(viewsActions.setActiveStory(story))
+
+    const [ref1,setRef1] = useState(null);
+    const [ref2,setRef2] = useState(null);
+    const [ref3,setRef3] = useState(null);
+    const [ref4,setRef4] = useState(null);
+
+    const ref1Setter = node => {setRef1(node)};
+    const ref2Setter = node => {setRef2(node)};
+    const ref3Setter = node => {setRef3(node)};
+    const ref4Setter = node => {setRef4(node)};
+
     const { online, id: agent_id, 
         nickname, 
         flash, 
@@ -174,9 +195,29 @@ export default props => {
                 </ActionSheetItem>
             </ActionSheet>)
     }
-    useEffect(() => {
-
-    })
+    useLayoutEffect(() => {
+        if(platform === VKCOM){
+            $(ref1).on('mouseover.ref1_otherProf', () => {
+                setTooltip1(true)
+            })
+            $(ref2).on('mouseover.ref2_otherProf', () => {
+                setTooltip2(true)
+            })
+            $(ref3).on('mouseover.ref3_otherProf', () => {
+                setTooltip3(true)
+            })
+            $(ref4).on('mouseover.ref4_otherProf', () => {
+                setTooltip4(true)
+            })
+        }
+        
+        return () => {
+            $(ref1).off('mouseover.ref1_otherProf');
+            $(ref2).off('mouseover.ref2_otherProf');
+            $(ref3).off('mouseover.ref3_otherProf');
+            $(ref4).off('mouseover.ref4_otherProf');
+        }
+    }, [ref1,ref2, ref3, ref4, platform])
 
     return(
         <Panel id={props.id}>
@@ -207,18 +248,46 @@ export default props => {
                     >
                         <div style={{ display: 'flex' }}>
                             {nickname ? nickname : `Агент Поддержки #${agent_id}`}
-                            {flash &&
-                                <div className="profile_moderator_name_icon">
+                            {flash && verif &&
+                            <FlashVerifTooltip
+                            isShown={tooltip1}
+                            offsetX={-23}
+                            onClose={() => setTooltip1(false)}>
+                                <div ref={ref1Setter} className="profile_moderator_name_icon">
+                                    <Icon16FireVerified width={12} height={12} style={{ color: "var(--prom_icon)" }} onClick={() => setActiveModal('prom')} />
+                                </div>
+                            </FlashVerifTooltip>
+                                }
+                            {flash && !verif &&
+                            <FlashTooltip
+                            offsetX={-23}
+                            isShown={tooltip2}
+                            onClose={() => setTooltip2(false)}>
+                                <div ref={ref2Setter} className="profile_moderator_name_icon">
                                     <Icon16Fire width={12} height={12} style={{ color: "var(--prom_icon)" }} onClick={() => setActiveModal('prom')} />
-                                </div>}
+                                </div>
+                            </FlashTooltip>
+                                }
                             {donut &&
-                                <div className="profile_moderator_name_icon">
+                            <DonutTooltip
+                            isShown={tooltip3}
+                            offsetX={-23}
+                            onClose={() => setTooltip3(false)}>
+                                <div ref={ref3Setter} className="profile_moderator_name_icon">
                                     <Icon16StarCircleFillYellow width={12} height={12} onClick={() => setActiveModal('donut')} />
-                                </div>}
-                            {verif &&
-                                <div className="profile_moderator_name_icon_ver">
+                                </div>
+                            </DonutTooltip>
+                                }
+                            {verif && !flash &&
+                            <VerifTooltip
+                            offsetX={-23}
+                            isShown={tooltip4}
+                            onClose={() => setTooltip4(false)}>
+                                <div ref={ref4Setter} className="profile_moderator_name_icon_ver">
                                     <Icon16Verified style={{ color: "var(--dynamic_blue)" }} onClick={() => setActiveModal('verif')} />
-                                </div>}
+                                </div>
+                            </VerifTooltip>
+                                }
                         </div>
                     </SimpleCell>
                     <Div style={{ display: 'flex' }}>

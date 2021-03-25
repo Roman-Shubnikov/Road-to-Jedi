@@ -163,7 +163,12 @@ $params = [
 		'staff' => [
 			'type' => 'bool',
 			'required' => false
-		]
+		],
+		'type' => [
+			'type' => 'string',
+			'required' => false,
+			'default' => 'all',
+		],
 	],
 
 	'ticket.getRandom' => [],
@@ -590,7 +595,7 @@ if (!$data) {
 if (!isset($params[$method])) {
 	Show::error(405);
 }
-Utils::checkParams($params[$method], $data);
+$data = Utils::checkParams($params[$method], $data);
 
 $Connect = new DB();
 $users = new Users($user_id, $Connect);
@@ -639,7 +644,7 @@ switch ($method) {
 		$res['followers'] = $followsUser;
 		$res['is_recommended'] = $recommended->is_recommended($users->id);
 		if ($users->info['donut']) {
-			$res['donut_chat_link'] = 'https://vk.me/join/bdWXBlYwHFXjmNksi3y03DRPTQPebMwOufM=';
+			$res['donut_chat_link'] = CONFIG::DONUT_CHAT_LINK;
 		}
 		$res['settings'] = [
 			'public' => $settings->getOneSetting('public'),
@@ -722,12 +727,14 @@ switch ($method) {
 
 	case 'users.getTop':
 		$staff = ($data['staff'] != null) ? (int) $data['staff'] : false;
+		$type = $data['type'];
+		if(!in_array($type, CONFIG::TYPES_TOP_GET)) Show::error(1550);
 		if ($staff) {
 			if (!$users->info['special']) {
 				$staff = false;
 			}
 		}
-		Show::response($users->getTop($staff));
+		Show::response($users->getTop($type, $staff));
 
 	case 'users.getRandom':
 		Show::response($users->getRandom());

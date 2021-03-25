@@ -5,6 +5,7 @@
 @import './fonts/fonts-connect.css';
 :root{
     --font-common: "VK Medium";
+    /* --font-tt: "VK Medium"; */
 }
 ::-webkit-scrollbar {
     width: 3px;
@@ -480,6 +481,7 @@ a{
 
 .qr {
     text-align: center;
+    margin-top: 20px;
 }
 
 .profile {

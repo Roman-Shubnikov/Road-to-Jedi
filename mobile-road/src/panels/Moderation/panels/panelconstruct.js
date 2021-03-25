@@ -63,13 +63,13 @@ export default props => {
             >
               Вопросы
                         </TabsItem>
-            {account['special2'] ? <TabsItem
+            {account.special2 ? <TabsItem
               onClick={() => setActivetab('reports')}
               selected={activeTab === 'reports'}
             >
               Жалобы
                         </TabsItem> : null}
-            {account['special2'] ? <TabsItem
+            {account.special2 ? <TabsItem
               onClick={() => setActivetab('verification')}
               selected={activeTab === 'verification'}
             >

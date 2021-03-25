@@ -129,20 +129,35 @@ class Users {
 		return $result;
 	}
 
-	public function getTop($staff) {
+	public function getTop($type, $staff) {
 		$count = CONFIG::MAX_ITEMS_COUNT;
-		$sql = "SELECT id FROM users where special=? ORDER BY good_answers DESC LIMIT 0, $count";
-		$ids = $this->Connect->db_get( $sql, [$staff ? 1 : 0] );
-
-		$a_ids = [];
-
-		foreach ( $ids as $id ) {
-			$a_ids[] = $id['id'];
+		$order = 'ORDER BY coff_active DESC';
+		switch($type){
+			case 'all':
+				$order = 'ORDER BY coff_active DESC';
+				break;
+			case 'donut':
+				$order = 'AND donut != 0 ORDER BY coff_active DESC';
+				break;
+			case 'verif':
+				$order = 'AND verified != 0 ORDER BY coff_active DESC';
+				break;
+			case 'flash':
+				$order = 'AND flash != 0 ORDER BY coff_active DESC';
+				break;
 		}
 
-		$s_ids = implode( ',', $a_ids );
-
-		return $this->getByIds( $s_ids, $staff ? 'ORDER BY good_answers DESC' : 'ORDER BY coff_active DESC');
+		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator,
+						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme, users.publicStatus,users.coff_active,
+						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname, users.donuts
+				FROM users
+				LEFT JOIN avatars ON users.avatar_id=avatars.id
+				WHERE users.vk_user_id NOT IN (SELECT vk_user_id FROM banned where time_end>?) AND users.special=? $order LIMIT $count";
+		$res = $this->Connect->db_get( $sql, [time(), (int) $staff] );
+		foreach ( $res as $item ) {
+			$result[] = $this->_formatType( $item );
+		} 
+		return $result;
 	}
 	public function getRandom() {
 		$sql = "SELECT vk_user_id FROM users ORDER BY RAND() LIMIT 1";

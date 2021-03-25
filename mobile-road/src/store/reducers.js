@@ -4,6 +4,7 @@ import {
     viewsReducer as views,
     ticketsReducer as tickets,
     moderationReducer as moderation,
+    topUsersReducer as topUsers,
 
 } from "./main";
 
@@ -12,4 +13,5 @@ export const reducers = combineReducers({
     views,
     tickets,
     moderation,
+    topUsers
 })

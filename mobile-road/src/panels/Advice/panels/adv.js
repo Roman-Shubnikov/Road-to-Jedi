@@ -11,6 +11,8 @@ import {
     Separator,
     UsersStack,
     Header,
+    Div,
+    FormStatus,
 
     } from '@vkontakte/vkui';
 
@@ -29,7 +31,7 @@ import {
 
 import Tiles from '../../../components/menutiles';
 import { useDispatch, useSelector } from 'react-redux';
-import { API_URL } from '../../../config';
+import { API_URL, AVATARS_URL } from '../../../config';
 import { accountActions, viewsActions } from '../../../store/main';
 import { enumerate, recog_number } from '../../../Utils';
 
@@ -128,7 +130,7 @@ export default props => {
                 <UsersStack
                   photos={
                     result.followers[2].map((user, i) =>
-                      "https://xelene.ru/road/php/images/avatars/" + user.avatar_name)
+                      AVATARS_URL + user.avatar_name)
                   }>
                   {result.followers[0] !== 0 ?
                     recog_number(result.followers[0]) + " " + enumerate(result.followers[0], ['подписчик', 'подписчика', 'подписчиков'])
@@ -161,6 +163,11 @@ export default props => {
                   </Placeholder>
           :
           <PanelSpinner />}
+          {!account.special ? <Div>
+            <FormStatus header="Внимание! Важная информация" mode="default">
+            Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
+            </FormStatus>
+          </Div> : null}
       </Group>
     </Panel>
   )

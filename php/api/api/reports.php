@@ -166,7 +166,7 @@ class Reports {
 
                 $response_user = $this->Connect->query("INSERT INTO reports 
                 (aid, vk_id, type, comment, time, id_reporting, vk_id_reporting, material_id, name, materials) 
-                VALUES (?,?,?,?,?,?,?,?,?)",
+                VALUES (?,?,?,?,?,?,?,?,?,?)",
                 [$this->users->id, 
                 $this->users->vk_id, 
                 $type, 

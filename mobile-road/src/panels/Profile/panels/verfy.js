@@ -49,7 +49,7 @@ export default props => {
       })
   }, [setActiveStory, setPopout, showErrorAlert])
   const handleForm = () => {
-    this.setPopout(<ScreenSpinner />);
+    setPopout(<ScreenSpinner />);
     fetch(API_URL +
       "method=account.sendRequestVerf&" + window.location.search.replace('?', ''),
       {
@@ -95,8 +95,8 @@ export default props => {
     checkVerfStatus()
     const img = new Image();
     img.src = VerfIcon;
-
-  }, [checkVerfStatus, setPopout])
+// eslint-disable-next-line
+  }, [setPopout])
 
   return (
     <Panel id={props.id}>
@@ -147,7 +147,7 @@ export default props => {
                 disabled={
                   !check1 ||
                   !(validateTitle(title.trim(), maxLength, minLengthTitle)[0] === 'valid') ||
-                  !(this.validateDesc(description.trim(), maxLength, minLengthDesc)[0] === 'valid')
+                  !(validateTitle(description.trim(), maxLength, minLengthDesc)[0] === 'valid')
                 }
                 onClick={() => handleForm()}
               >Отправить на рассмотрение</Button>
@@ -155,7 +155,7 @@ export default props => {
           </FormLayout>
         </Group>
       </> : null}
-      {this.props.this.state.snackbar}
+      {props.snackbar}
     </Panel>
   )
 }

@@ -14,9 +14,12 @@ import {
 import { useState } from 'react';
 import { API_URL } from '../config';
 import { timeConvertVal } from '../Utils';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { viewsActions } from '../store/main';
 
 export default props => {
+  const dispatch = useDispatch();
+  const setActiveStory = (story) => dispatch(viewsActions.setActiveStory(story))
   const [time_val, setTimeVal] = useState('');
   const [time_num, setTimeNum] = useState('sec');
   const [reason, setReason] = useState('');
@@ -24,7 +27,7 @@ export default props => {
   const { setPopout, showErrorAlert, setActiveModal, showAlert } = props.callbacks;
 
   const userBan = (user_id, text, time) => {
-    this.setPopout(<ScreenSpinner />)
+    setPopout(<ScreenSpinner />)
     fetch(API_URL + "method=account.ban&" + window.location.search.replace('?', ''),
       {
         method: 'post',
@@ -47,7 +50,7 @@ export default props => {
         }
       })
       .catch(err => {
-        this.changeData('activeStory', 'disconnect')
+        setActiveStory('disconnect')
       })
   }
 
@@ -76,7 +79,7 @@ export default props => {
             <Input maxLength="100"
               type='number'
               name="time_val"
-              onChange={(e) => setTimeVal(e)} placeholder="Число"
+              onChange={(e) => setTimeVal(e.currentTarget.value)} placeholder="Число"
               value={time_val} />
           </FormItem>
           <FormItem

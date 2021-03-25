@@ -16,6 +16,7 @@ class CONFIG {
 	const AVATAR_PATH = 'https://xelene.ru/road/php/images/avatars';
 	const AVATARS_COUNT = 34;
 	const DONUT_AVATARS_COUNT = 11;
+	const DONUT_CHAT_LINK = 'https://vk.me/join/bdWXBlYwHFXjmNksi3y03DRPTQPebMwOufM=';
 	
 	const MAX_TICKETS_TITLE_LEN = 80;
 	const MAX_TICKETS_TEXT_LEN = 4040;
@@ -29,8 +30,16 @@ class CONFIG {
 	const FLOOD_CONTROL = 25;
 	const FLOOD_CONTROL_BAN = 60;
 
-	const REGEXP_VALID_NAME = "/^[a-zA-ZА-Яа-я0-9_ ]*$/u";
-	const REGEXP_VALID_TEXT = "/^[a-zA-ZА-Яа-я0-9_ \.,\"'!?+=-]*$/ui";
+	const REGEXP_VALID_NAME = "/^[a-zA-ZА-Яа-яё0-9_ ]*$/u";
+	const REGEXP_VALID_TEXT = "/^[a-zA-ZА-Яа-яё0-9_ \.,\"'!?+=-]*$/ui";
+
+
+	const TYPES_TOP_GET = [
+		'all',
+		'donut',
+		'verif',
+		'flash',
+	];
 
 	// PublicStatuses
 	const MAX_PUBLIC_STATUS_LENGTH = 140;
@@ -81,7 +90,6 @@ class CONFIG {
 		40 => 'Профиль не найден.',
 
 		// Market
-	
 		1001 => 'Вы пытаетесь сменить id на текстовый.',
 		1002 => 'Недостаточно средств для покупки.',
 		1003 => 'Данный ник уже занят.',
@@ -130,8 +138,10 @@ class CONFIG {
 		1450 => "Вы уже и так в рекомендациях",
 
 		// Settings
-
 		1500 => "Такой настройки не существует",
+
+		// Top
+		1550 => "Такой выборки данных не существует",
 		// Server
 
 		403 => 'Доступ запрещен.',

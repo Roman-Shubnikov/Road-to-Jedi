@@ -5,8 +5,7 @@ import {
     
 
   } from '@vkontakte/vkui';
-import { Icon56Fire } from '@vkontakte/icons';
-
+import { Icon56FireOutline } from '@vkontakte/icons';
 
 export default class Prometay extends React.Component {
     render() {
@@ -14,7 +13,7 @@ export default class Prometay extends React.Component {
             <ModalCard
                 id={this.props.id}
                 onClose={this.props.onClose}
-                icon={<Icon56Fire style={{color: "var(--prom_icon)"}} width={72} height={72} />}
+                icon={<Icon56FireOutline style={{color: "var(--prom_icon)"}} width={72} height={72} />}
                 subheader="Прометей — особенный значок, выдаваемый агентам за хорошее качество ответов."
                 actions={this.props.action2 ? [
                   <Button mode='secondary' stretched size='l' onClick={this.props.action2}>Рассказать</Button>,

@@ -22,8 +22,6 @@ import {
     Group,
     List,
     SimpleCell,
-    FixedLayout,
-    PromoBanner,
     
     
     } from '@vkontakte/vkui';
@@ -44,23 +42,21 @@ const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera 
 
 var loadingContent = false;
 
+var adsCounter = 0;
 
 export default props => {
     const dispatch = useDispatch();
     const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
-    const [offset, setOffset] = useState(0);
     const [ShowBanner, setShowBanner] = useState(true);
     const [fetching, setFetching] = useState(false);
     const account = useSelector((state) => state.account.account)
-    const { tickets, ticketsCurrent } = useSelector((state) => state.tickets)
+    const { tickets, ticketsCurrent, offset } = useSelector((state) => state.tickets)
     const setTickets = useCallback((tickets, ticketsCurrent) => dispatch(ticketActions.setTickets({ tickets, ticketsCurrent })), [dispatch])
-    const [promoBannerProps, setPromoBannerProps] = useState(null);
-    const [ShowAdsBanner, setShowAdsBanner] = useState(true);
 
     const {setPopout, showErrorAlert, goTiket, goPanel} = props.callbacks;
     const getQuestions = useCallback((need_offset = false) => {
         if (!need_offset) {
-            setOffset(20)
+            dispatch(ticketActions.setOffset(20))
         }
         let offsetData = need_offset ? offset : 0;
         fetch(API_URL + "method=tickets.get&" + window.location.search.replace('?', ''),
@@ -95,7 +91,7 @@ export default props => {
                     }
                     setTickets(sliyan, data.response)
                     if (need_offset) {
-                        setOffset(prev => prev + 20)
+                        dispatch(ticketActions.setOffset(offset + 20))
                     }
                     loadingContent = false
                 } else {
@@ -107,7 +103,7 @@ export default props => {
 
             })
         
-    }, [offset, setActiveStory, setTickets, showErrorAlert, tickets])
+    }, [dispatch, offset, setActiveStory, setTickets, showErrorAlert, tickets])
     const getRandomTiket = () => {
         fetch(API_URL + "method=ticket.getRandom&" + window.location.search.replace('?', ''))
             .then(res => res.json())
@@ -132,12 +128,12 @@ export default props => {
     }, [setPopout, ticketsCurrent])
     useEffect(() => {
         
-        if (!account.donut) {
-            bridge.send('VKWebAppGetAds')
-                .then((BannerProps) => {
-                    setPromoBannerProps(BannerProps)
-                })
-        }
+        // if (!account.donut) {
+        //     bridge.send('VKWebAppGetAds')
+        //         .then((BannerProps) => {
+        //             setPromoBannerProps(BannerProps)
+        //         })
+        // }
         
         $(window).on('scroll.detectautoload1', () => {
             
@@ -151,6 +147,16 @@ export default props => {
         }
         // eslint-disable-next-line
     }, [offset, ticketsCurrent, account])
+    useEffect(() => {
+        if(adsCounter % 2 === 0 && account.donut && !account.donut){
+            console.log('aaa')
+            bridge.send("VKWebAppShowNativeAds", {ad_format:"interstitial"})
+            // .then(data => console.log(data.result))
+            // .catch(error => console.log(error));
+        }
+        adsCounter++
+        
+    }, [account])
 
 
     return(
@@ -247,10 +253,10 @@ export default props => {
                         null}
                 </PullToRefresh>
             </Group>
-            { promoBannerProps && ShowAdsBanner &&
+            {/* { promoBannerProps && ShowAdsBanner &&
                 <FixedLayout vertical='bottom'>
                 <PromoBanner onClose={() => { setShowAdsBanner(false) }} bannerData={promoBannerProps} />
-                </FixedLayout>}
+                </FixedLayout>} */}
         </Panel>
     )
 }

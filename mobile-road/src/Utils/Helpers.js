@@ -1,3 +1,6 @@
+import React from 'react';
+import { Link } from "@vkontakte/vkui";
+
 export const getHumanyTime = (unixtime) => {
     let date, time, year, month, day, hours, minutes, datetime;
     if (unixtime !== null) {
@@ -68,4 +71,10 @@ export const recog_number = (num) => {
 };
 export const getRandomInRange = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export const LinkHandler = props => {
+    return(
+        <Link href={props.href} target="_blank" rel="noopener noreferrer">{props.children}</Link>
+    )
 }

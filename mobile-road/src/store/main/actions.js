@@ -4,6 +4,7 @@ import {
     viewsActionTypes,
     tiketsActionTypes,
     moderationActionTypes,
+    topUserActionTypes,
     } from './ActionTypes';
 import { ForceErrorBackend, FetchFatalError } from './Errors'
 
@@ -14,32 +15,6 @@ export const accountActions = {
     setBanObject: (payload) => ({ type: accountActionTypes.SET_BAN_OBJECT, payload }),
     setRecomendations: (payload) => ({ type: accountActionTypes.SET_RECOMENDATIONS, payload }),
     setOtherProfile: (payload) => ({ type: accountActionTypes.SET_OTHER_PROFILE, payload }),
-    getOtherProfile: (payload) => {
-        return (dispatch) => {
-        fetch(API_URL + "method=user.getById&" + window.location.search.replace('?', ''),
-            {
-                method: 'post',
-                headers: { "Content-type": "application/json; charset=UTF-8" },
-                body: JSON.stringify({
-                    'id': payload,
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.result) {
-                    return data.response;
-                } else {
-                    throw new ForceErrorBackend(data.error.message)
-                }
-            })
-            .then((data) => dispatch( getOtherProfileSuccess(data) ))
-            .catch(err => {
-                throw new FetchFatalError("Ошибка запроса")
-                // this.showErrorAlert('Ошибка запроса. Пожалуйста, попробуйте позже',() => {this.props.this.changeData('activeStory', 'disconnect')})
-
-            })
-        }
-    },
 
     
 }
@@ -47,6 +22,10 @@ export const accountActions = {
 export const viewsActions = {
     setActiveStory: (payload) => ({ type: viewsActionTypes.SET_ACTIVE_STORY, payload}),
     setNeedEpic: (payload) => ({ type: viewsActionTypes.SET_NEED_EPIC, payload}),
+}
+export const topUsersActions = {
+    setTop: (payload) => ({ type: topUserActionTypes.SET_TOP, payload}),
+    setMode: (payload) => ({ type: topUserActionTypes.SET_MODE, payload}),
 }
 export const ticketActions = {
     setTickets: (payload) => ({ type: tiketsActionTypes.SET_TICKETS, payload }),
@@ -77,16 +56,11 @@ export const ticketActions = {
         }
     },
     setComment: (payload) => ({ type: tiketsActionTypes.SET_COMMENT, payload }),
+    setOffset: (payload) => ({ type: tiketsActionTypes.SET_OFFSET, payload }),
 }
 
 export const moderationActions = {
     setData: (payload) => ({ type: moderationActionTypes.SET_DATA, payload }),
-}
-
-
-
-const getOtherProfileSuccess = (data) => {
-    return ({ type: accountActionTypes.SET_OTHER_PROFILE, payload: data })
 }
 
 const getTicketSuccess = (data) => {

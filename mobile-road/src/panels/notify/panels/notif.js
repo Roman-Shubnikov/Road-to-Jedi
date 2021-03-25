@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { 
     Panel,
@@ -23,177 +23,160 @@ import Info_img from '../images/notify_info.svg';
 import Paycard_img from '../images/notify_paycard.svg';
 import Donut_img from '../images/notify_donut.svg';
 import Comment_img from '../images/notify_comment.svg';
+import { inArray } from 'jquery';
+import { getHumanyTime } from '../../../Utils';
+import { useDispatch } from 'react-redux';
+import { viewsActions } from '../../../store/main';
+import { API_URL } from '../../../config';
 
-
-function fix_time(time) {
-    if(time < 10) {
-        return "0" + time
-    } else {
-        return time
-    }
-}
-
-var month= [
-    'января',
-    'февраля',
-    'марта',
-    'апреля',
-    'мая',
-    'июня',
-    'июля',
-    'августа',
-    'сентября',
-    'октября',
-    'ноября',
-    'декабря',
-];
 
 function getAvatarNotify(objectNotif){
-    let Type = objectNotif['object']['type']
-    let avatar = null;
-    if(Type === 'add_good_answer'){
+    let typeNotif = objectNotif['object']['type'];
+    let avatar;
+    if(inArray(typeNotif, ['add_good_answer']) !== -1){
         avatar = Done_img;
-    }else if(Type === 'add_bad_answer'){
+    }else if(inArray(typeNotif, ['add_bad_answer', 'verification_demiss']) !== -1){
         avatar = Destruct_img;
-    }else if(Type === 'money_transfer_send' || Type === 'money_transfer_give'){
+    }else if(inArray(typeNotif, ['money_transfer_send', 'money_transfer_give']) !== -1){
         avatar = Paycard_img;
-    }else if(Type === 'reply_approve'){
+    }else if(inArray(typeNotif, ['reply_approve', 'verification_send', 'promo_activate', 'report_approve']) !== -1){
         avatar = Info_img;
-    }else if(Type === 'comment_add'){
+    }else if(inArray(typeNotif, ['comment_add']) !== -1){
         avatar = Comment_img;
-    }else if(Type === 'donut_add'){
+    }else if(inArray(typeNotif, ['donut_add', 'donut_del']) !== -1){
         avatar = Donut_img;
-    }else if(Type === 'donut_del'){
-        avatar = Donut_img;
-    }else if(Type === 'verification_send'){
-        avatar = Info_img;
-    }else if(Type === 'verification_approve'){
+    }else if(inArray(typeNotif, ['verification_approve']) !== -1){
         avatar = Verif_img;
-    }else if(Type === 'verification_demiss'){
-        avatar = Destruct_img
-    }else if(Type === 'promo_activate'){
-        avatar = Info_img;
-    }else if(Type === 'report_approve'){
-        avatar = Info_img;
-    }else {
-        console.log(Type);
+    }else{
+        console.log(typeNotif);
     }
     return avatar
 }
+const clicableTypes = [
+    'add_good_answer',
+    'add_bad_answer',
+    'reply_approve',
+    'comment_add',
+    'money_transfer_send',
+    'money_transfer_give',
+
+];
+const ticketTypes = [
+    'add_good_answer',
+    'add_bad_answer',
+    'comment_add',
+    'reply_approve',
+];
+const moneyTypes = [
+    'money_transfer_send',
+    'money_transfer_give',
+]
+export default props => {
+    const dispatch = useDispatch();
+    const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
+    const { showErrorAlert, goTiket, openMoneyTransfer } = props.callbacks;
+    const [fetching, setFetching] = useState(false);
+    const [notification, setNotifications] = useState(null);
+
+    const detectNotif = (res) => {
+        let typeNotif = res['object']['type'];
+        if(inArray(typeNotif, ticketTypes) !== -1){
+            goTiket(res['object']['object'])
+        }else if(inArray(typeNotif, moneyTypes) !== -1){
+            openMoneyTransfer(res['image'], res['text'], res['comment'], typeNotif)
+        }else{
+            return true;
+        }
+        return false;
+    }
+
+    const detectClickable = (res) => {
+        let typeNotif = res['object']['type'];
+        if(inArray(typeNotif, clicableTypes) !== -1){
+            return true
+        }
+        return false
+    }
+    const getNotif = () => {
+        fetch(API_URL + "method=notifications.get&" + window.location.search.replace('?', ''))
+        .then(res => res.json())
+        .then(data => {
+        if(data.result) {
+            setNotifications(data.response)
+            setTimeout(() => {
+                setFetching(false)
+              }, 500);
+        }else {
+           showErrorAlert(data.error.message)
+          }
+        })
+        .catch(err => {
+            setActiveStory('disconnect')
+
+        })
+    }
+    const markView = () => {
+        fetch(API_URL + "method=notifications.markAsViewed&" + window.location.search.replace('?', ''))
+        .then(res => res.json())
+        .then(data => {
+        if(data.result) {
+            setTimeout(() => {
+                props.reloadProfile();
+              }, 4000)
+        }else {
+            showErrorAlert(data.error.message)
+          }
+        })
+        .catch(err => {
+            setActiveStory('disconnect')
+
+        })
+    }
+
+    useEffect(() => {
+        getNotif();
+        markView();
+        // eslint-disable-next-line
+    }, [])
 
 
-export default class ReaderNotif extends React.Component {
-        constructor(props) {
-            super(props);
-            this.state = {
-                notification: null,
-                fetching: false,
-
-            }
-            this.detectNotif = (Res) => {
-                let props = this.props.this; 
-                let Type = Res['object']['type'];
-                if(Type === 'add_good_answer' || Type === 'add_bad_answer' || Type === 'reply_approve' || Type === 'comment_add'){
-                    props.goTiket(Res['object']['object'])
-                }else if(Type === 'money_transfer_send' || Type === 'money_transfer_give'){
-                    props.openMoneyTransfer(Res['image'], Res['text'], Res['comment'])
-                }else{
-                    return true;
+    return (
+        <Panel id={props.id}>
+        <PanelHeader
+        left={<PanelHeaderBack onClick={() => {setActiveStory('profile');}} />}>
+        Уведомления
+        </PanelHeader>
+        <Group>
+            <><PullToRefresh onRefresh={() => {setFetching(true);getNotif()}} isFetching={fetching}>
+                {notification ? notification.length > 0 ?
+                notification.map((result, i) =>
+                <React.Fragment key={i}> 
+                    {(i === 0) || <Separator/>}
+                    <SimpleCell
+                        expandable={detectClickable(result)}
+                        onClick={() => detectNotif(result)}
+                        description={getHumanyTime(result.time).datetime}
+                        size="l"
+                        // before={<Avatar src={result['image']} />}
+                        before={getAvatarNotify(result) ? <Avatar src={getAvatarNotify(result)} /> : null}
+                        multiline="boolean"
+                        disabled={!detectClickable(result)}
+                    >
+                        <div style={{lineHeight: "17px", marginTop: "3px"}}>{result['text']}</div>
+                        <div style={{marginTop: "4px"}}></div>
+                    </SimpleCell>
+                </React.Fragment>
+                ) :
+                <Placeholder 
+                icon={<Icon56NotificationOutline />}>
+                    У Вас нет новых уведомлений
+                </Placeholder>
+                :
+                <PanelSpinner />
                 }
-                return false;
-                
-            }
-            this.detectClicable = (Res) => {
-                let Type = Res['object']['type'];
-                if(Type === 'add_good_answer' || Type === 'add_bad_answer' || Type === 'reply_approve' || Type === 'comment_add' || Type === 'money_transfer_send' || Type === 'money_transfer_give'){
-                    return false
-                }
-                return true
-            }
-            this.getNotif = () => {
-                fetch(this.props.this.state.api_url + "method=notifications.get&" + window.location.search.replace('?', ''))
-                .then(res => res.json())
-                .then(data => {
-                if(data.result) {
-                    this.setState({notification: data.response})
-                    setTimeout(() => {
-                        this.setState({ fetching: false });
-                      }, 500);
-                }else {
-                   this.props.this.showErrorAlert(data.error.message)
-                  }
-                })
-                .catch(err => {
-                    this.props.this.changeData('activeStory', 'disconnect')
-
-                })
-            }
-            this.markView = () => {
-                fetch(this.props.this.state.api_url + "method=notifications.markAsViewed&" + window.location.search.replace('?', ''))
-                .then(res => res.json())
-                .then(data => {
-                if(data.result) {
-                    setTimeout(() => {
-                        this.props.this.ReloadProfile();
-                      }, 4000)
-                }else {
-                   this.props.this.showErrorAlert(data.error.message)
-                  }
-                })
-                .catch(err => {
-                    this.props.this.changeData('activeStory', 'disconnect')
-
-                })
-            }
-        }
+            </PullToRefresh></>
+        </Group>
         
-        componentDidMount() {
-            this.getNotif();
-            this.markView();
-        }
-        
-
-        render() {
-            return (
-                <Panel id={this.props.id}>
-                <PanelHeader
-                left={<PanelHeaderBack onClick={() => {this.props.this.changeData("activeStory", 'profile');}} />}>
-                Уведомления
-                </PanelHeader>
-                <Group>
-                    <><PullToRefresh onRefresh={() => {this.setState({fetching: true});this.getNotif()}} isFetching={this.state.fetching}>
-                        {this.state.notification ? this.state.notification.length > 0 ?
-                        this.state.notification.map((result, i) =>
-                        <React.Fragment key={i}> 
-                            {(i === 0) || <Separator/>}
-                            <SimpleCell
-                                expandable={!this.detectClicable(result)}
-                                onClick={() => this.detectNotif(result)}
-                                description={new Date(result['time'] * 1e3).getDate() + " " + month[new Date(result['time'] * 1e3).getMonth()] + " " + new Date(result['time'] * 1e3).getFullYear() + " в " 
-                                + fix_time(new Date(result['time'] * 1e3).getHours()) + ":" + fix_time(new Date(result['time'] * 1e3).getMinutes())}
-                                size="l"
-                                // before={<Avatar src={result['image']} />}
-                                before={getAvatarNotify(result) ? <Avatar src={getAvatarNotify(result)} /> : null}
-                                multiline="boolean"
-                                disabled={this.detectClicable(result)}
-                            >
-                                <div style={{lineHeight: "17px", marginTop: "3px"}}>{result['text']}</div>
-                                <div style={{marginTop: "4px"}}></div>
-                            </SimpleCell>
-                        </React.Fragment>
-                        ) :
-                        <Placeholder 
-                        icon={<Icon56NotificationOutline />}>
-                            У Вас нет новых уведомлений
-                        </Placeholder>
-                        :
-                        <PanelSpinner />
-                        }
-                    </PullToRefresh></>
-                </Group>
-                
-            </Panel>
-            )
-            }
-        }
-  
+    </Panel>
+    )
+}

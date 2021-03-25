@@ -14,7 +14,12 @@ export const tiketsActionTypes = {
     SET_TICKETS: 'TICKETS.SET_TICKETS',
     SET_TICKET: 'TICKETS.SET_TICKET',
     SET_COMMENT: 'TICKETS.SET_COMMENT',
+    SET_OFFSET: 'TICKETS.SET_OFFSET',
 }
 export const moderationActionTypes = {
     SET_DATA: 'MODERATION.SET_DATA',
+}
+export const topUserActionTypes ={ 
+    SET_TOP: 'TOP_USERS.SET_TOP',
+    SET_MODE: 'TOP_USERS.SET_MODE',
 }

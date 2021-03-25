@@ -16,10 +16,6 @@ import {
     HorizontalScroll,
     HorizontalCell,
     MiniInfoCell,
-    Alert,
-    Textarea,
-
-
     } from '@vkontakte/vkui';
 
 import {
@@ -39,7 +35,7 @@ import {
 import { enumerate } from '../../../Utils';
 import { isEmptyObject } from 'jquery';
 import { useDispatch, useSelector } from 'react-redux';
-import { API_URL, AVATARS_URL, CONVERSATION_LINK } from '../../../config';
+import { AVATARS_URL, CONVERSATION_LINK } from '../../../config';
 import { viewsActions } from '../../../store/main';
 
 
@@ -47,55 +43,15 @@ export default props => {
     const dispatch = useDispatch();
     const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
     const account = useSelector((state) => state.account.account)
-    const { setPopout, showErrorAlert, setActiveModal, goOtherProfile, goPanel } = props.callbacks;
-    const [newStatus, setNewStatus] = useState('');
+    const { setActiveModal, goOtherProfile, goPanel, setNewStatus } = props.callbacks;
     const [fetching, setFetching] = useState(false);
 
-    const changeStatus = () => {
-        setNewStatus(account.publicStatus)
-        setPopout(
-            <Alert
-                actionsLayout="horizontal"
-                actions={[{
-                    title: 'Отмена',
-                    autoclose: true,
-                    mode: 'cancel'
-                },
-                {
-                    title: 'Сохранить',
-                    autoclose: true,
-                    mode: 'default',
-                    action: () => saveNewStatus()
-                }]}
-                onClose={() => setPopout(null)}
-                header="Ваш статус">
-                <Textarea maxLength="140" onChange={(e) => setNewStatus(e.currentTarget.value)} name="newStatus" defaultValue={newStatus} />
-            </Alert>
-        )
-    }
-    const saveNewStatus = () => {
-        fetch(API_URL + "method=account.changeStatus&" + window.location.search.replace('?', ''),
-            {
-                method: 'post',
-                headers: { "Content-type": "application/json; charset=UTF-8" },
-                body: JSON.stringify({
-                    'status': newStatus.trim(),
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.result) {
-                    setTimeout(() => {
-                        props.reloadProfile();
-                    }, 1000)
-                } else {
-                    showErrorAlert(data.error.message)
-                }
-            })
-            .catch(err => {
-                setActiveStory('disconnect');
-            })
-    }
+    const changeStatus = useCallback(() => {
+        setNewStatus(account.publicStatus);
+        setActiveModal('statuschange');
+
+    }, [account, setActiveModal, setNewStatus])
+
     return (
         <Panel id={props.id}>
             {!isEmptyObject(account) ? <>

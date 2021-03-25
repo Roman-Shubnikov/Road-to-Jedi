@@ -8,6 +8,7 @@ import {
 export default props => {
     return(
     <Cell
+        badge={props.badge}
         disabled={props.activeStory === props.story}
         style={props.activeStory === props.story ? {
             backgroundColor: "var(--button_secondary_background)",
