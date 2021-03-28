@@ -565,6 +565,18 @@ a{
     left: 27px;
     background: var(--message_icon_moder);
 }
+.Diamond_profile_new{
+    color: #792EC0;
+    padding: 2px;
+    border-radius: 50%; 
+    position: absolute;
+    display: block;
+    z-index: 2;
+    top: 65px;
+    left: 65px;
+    border: 1px solid rgb(0, 0, 0);
+    background: var(--message_icon_moder);
+}
 .Diamond_profile{
     color: #792EC0;
     padding: 2px;

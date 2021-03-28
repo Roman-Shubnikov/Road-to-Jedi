@@ -10,8 +10,6 @@ import {
     Counter,
     SimpleCell,
     PanelHeaderBack,
-    PromoBanner,
-    FixedLayout,
     Switch,
     ScreenSpinner,
     platform, 
@@ -41,8 +39,6 @@ export default props => {
   const dispatch = useDispatch();
   const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
   const { account } = useSelector((state) => state.account)
-  const [ShowBanner, setShowBanner] = useState(true);
-  const [promoBannerProps, setPromoBannerProps] = useState(null);
   const [notify, setNotify] = useState(account ? account.settings.notify : false)
   const [publicProfile, setPublic] = useState(account ? account.settings.public : false)
   const { setPopout, showErrorAlert, goPanel } = props.callbacks;
@@ -167,11 +163,8 @@ export default props => {
   }
 
   useEffect(() => {
-    if (!account.donut) {
-      bridge.send('VKWebAppGetAds')
-        .then((promoBannerProps) => {
-          setPromoBannerProps(promoBannerProps);
-        })
+    if(account.donut && !account.donut){
+      bridge.send("VKWebAppShowNativeAds", {ad_format:"reward"})
     }
   }, [account])
   return (
@@ -245,11 +238,6 @@ export default props => {
           }}
           before={<Icon28InfoOutline />}>О приложении</SimpleCell>
       </Group>
-
-      { promoBannerProps && ShowBanner &&
-        <FixedLayout vertical='bottom'>
-          <PromoBanner onClose={() => setShowBanner(false)} bannerData={promoBannerProps} />
-        </FixedLayout>}
       {props.snackbar}
     </Panel>
   )

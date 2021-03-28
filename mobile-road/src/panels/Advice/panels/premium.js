@@ -46,7 +46,7 @@ const donutAvatars = [
   "1009.png",
   "1010.png",
   "1011.png",
-
+  "1012.png",
 
 ]
 const blueBackground = {

@@ -45,7 +45,7 @@ export default props => {
         }
         >
           <Group>
-            <MiniInfoCell
+            {Comment.avatar && <MiniInfoCell
             before={<Icon20UserOutline />}
             after={
                 <UsersStack
@@ -53,7 +53,7 @@ export default props => {
             }>
               {Comment.nickname ? Comment.nickname : `Специальный агент #${Comment.author_id}`}
               
-          </MiniInfoCell>
+          </MiniInfoCell>}
           <MiniInfoCell
             before={<Icon20ArticleOutline />}
             textWrap='full'>

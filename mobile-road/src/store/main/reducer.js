@@ -65,6 +65,7 @@ const initalStateTopUsers = {
         'donut': null,
         'verif': null,
         'flash': null,
+        'ghosts': null,
     },
     mode: false
 
@@ -75,7 +76,7 @@ export const accountReducer = (state = initalStateAccount, action) => {
         case accountActionTypes.SET_ACCOUNT:
             return {...state, account: action.payload}
         case accountActionTypes.SET_SCHEME:
-            return { ...state, schemeSettings: action.payload}
+            return { ...state, schemeSettings: {...state.schemeSettings, ...action.payload}}
         case accountActionTypes.SET_OTHER_PROFILE:
             return { ...state, other_profile: action.payload }
         case accountActionTypes.SET_BAN_OBJECT:

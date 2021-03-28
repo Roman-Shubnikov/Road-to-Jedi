@@ -149,7 +149,6 @@ export default props => {
     }, [offset, ticketsCurrent, account])
     useEffect(() => {
         if(adsCounter % 2 === 0 && account.donut && !account.donut){
-            console.log('aaa')
             bridge.send("VKWebAppShowNativeAds", {ad_format:"interstitial"})
             // .then(data => console.log(data.result))
             // .catch(error => console.log(error));

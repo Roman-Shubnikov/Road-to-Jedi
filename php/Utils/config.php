@@ -14,8 +14,8 @@ class CONFIG {
 	const MAX_ITEMS_COUNT = 30;
 	
 	const AVATAR_PATH = 'https://xelene.ru/road/php/images/avatars';
-	const AVATARS_COUNT = 34;
-	const DONUT_AVATARS_COUNT = 11;
+	const AVATARS_COUNT = 42;
+	const DONUT_AVATARS_COUNT = 12;
 	const DONUT_CHAT_LINK = 'https://vk.me/join/bdWXBlYwHFXjmNksi3y03DRPTQPebMwOufM=';
 	
 	const MAX_TICKETS_TITLE_LEN = 80;
@@ -39,6 +39,7 @@ class CONFIG {
 		'donut',
 		'verif',
 		'flash',
+		'ghosts',
 	];
 
 	// PublicStatuses
@@ -50,6 +51,7 @@ class CONFIG {
 	const DIAMOND_PRICE = 10000;
 	const DONUT_AVATAR_PRICE = 50;
 	const RECOMMENDATIONS_PRICE = 150;
+	const GHOST_PRICE = 5;
 
 	
 	const ERRORS = [

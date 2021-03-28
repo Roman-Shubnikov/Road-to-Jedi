@@ -40,12 +40,12 @@ class SQL(object):
         return result
 
     def query(self, sql, placeholders:tuple=()):
-        try:
-            self.get_connection()
-            cursor = self.connection.cursor()
-            cursor.execute(sql, placeholders)
-            self.connection.commit()
-            self.connection.close()
-            return True
-        except Exception:
-            return False
+        # try:
+        self.get_connection()
+        cursor = self.connection.cursor()
+        cursor.execute(sql, placeholders)
+        self.connection.commit()
+        self.connection.close()
+        return True
+        # except Exception:
+        #     return False

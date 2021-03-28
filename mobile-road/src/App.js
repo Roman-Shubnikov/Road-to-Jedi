@@ -126,56 +126,7 @@ const App = () => {
     setPopout(null)
     if(data.result) {
       dispatch(accountActions.setAccount(data.response))
-        let account = data.response;
-        if(!isEmpty(account)){
-          switch(Number(account.scheme)) {
-            case 0:
-              setScheme({ ...schemeSettings, scheme: default_scheme })
-              if(platformname){
-                switch(default_scheme){
-                  case 'bright_light':
-                    bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF",'navigation_bar_color': "#FFFFFF"});
-                    break;
-                  case 'space_gray':
-                    bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A",'navigation_bar_color': "#19191A"});
-                    break;
-                  default:
-                    bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" });
-                }
-              }
-              break;
-            case 1:
-              setScheme({ ...schemeSettings, scheme: 'bright_light' })
-              if(platformname){
-                bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF",'navigation_bar_color': "#FFFFFF"});
-              }
-              break;
-            case 2:
-              setScheme({ ...schemeSettings, scheme: 'space_gray' })
-              if(platformname){
-                bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A",'navigation_bar_color': "#19191A"});
-              }
-              break;
-            default:
-              if (platformname) {
-              bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" });
-              }
-          } 
-          
-        }else{
-          
-          setScheme({ ...schemeSettings, scheme: data.scheme })
-          if(data.scheme === 'space_gray'){
-            if(platformname){
-              bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "light", "action_bar_color": "#19191A",'navigation_bar_color': "#19191A"});
-            }
-          }else{
-            if(platformname){
-              bridge.send("VKWebAppSetViewSettings", {"status_bar_style": "dark", "action_bar_color": "#FFFFFF",'navigation_bar_color': "#FFFFFF"});
-            }
-          }
-        }
-      }else{
+    }else{
       if (data.error.error_code !== 5){
         setPopout(
           <Alert
@@ -211,24 +162,12 @@ const App = () => {
   const AppInit = useCallback(() => {
     setBanObject(null);
     fetchAccount()
-    if (account.is_first_start) { 
-      setActiveStory('start')
-    }else{
-      if (hash.promo !== undefined && !ignore_promo) {
-        ignore_promo = true;
-        setActiveStory('profile');
-      }
-      if (activeStory === 'loading' || activeStory === 'disconnect'){
-        setActiveStory('questions');
-      }
-      
-    }
-    setLoadWebView(true)
-    if(activeStory !== 'disconnect'){
-      dispatch(viewsActions.setNeedEpic(true))
+    if( activeStory === 'disconnect'){
+      setActiveStory('questions')
     }
     
-  }, [dispatch, fetchAccount, setActiveStory, setBanObject, account, activeStory])
+    
+  }, [fetchAccount, setBanObject, setActiveStory, activeStory])
 
   const bridgecallback = useCallback(({ detail: { type, data } }) => {
     if (type === 'VKWebAppViewHide') {
@@ -239,58 +178,67 @@ const App = () => {
     }
     if (type === 'VKWebAppUpdateConfig') {
       setScheme({ ...schemeSettings, default_scheme: data.scheme })
-      if (!isEmpty(account)) {
-        switch (Number(account.scheme)) {
-          case 0:
-            setScheme({ ...schemeSettings, scheme: default_scheme })
-            if (platformname) {
-              switch (default_scheme) {
-                case 'bright_light':
-                  bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" });
-                  break;
-                case 'space_gray':
-                  bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "light", "action_bar_color": "#19191A", 'navigation_bar_color': "#19191A" });
-                  break;
-                default:
-                  bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" });
-              }
-            }
-            break;
-          case 1:
-            setScheme({ ...schemeSettings, scheme: 'bright_light' })
-            if (platformname) {
-              bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" });
-            }
-            break;
-          case 2:
-            setScheme({ ...schemeSettings, scheme: 'space_gray' })
-            if (platformname) {
-              bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "light", "action_bar_color": "#19191A", 'navigation_bar_color': "#19191A" });
-            }
-            break;
-          default:
-            
-        }
-      } else {
-        setScheme({ ...schemeSettings, scheme: data.scheme })
-        if (data.scheme === 'space_gray') {
+      
+    }
+  }, [AppInit, setScheme, schemeSettings])
+  useEffect(() => {
+    if (!isEmpty(account)) {
+      switch (Number(account.scheme)) {
+        case 0:
+          setScheme({ scheme: default_scheme })
           if (platformname) {
-            bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "light", "action_bar_color": "#19191A", 'navigation_bar_color': "#19191A" });
+            switch (default_scheme) {
+              case 'bright_light':
+                bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" });
+                break;
+              case 'space_gray':
+                bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "light", "action_bar_color": "#19191A", 'navigation_bar_color': "#19191A" });
+                break;
+              default:
+                bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" });
+            }
           }
-        } else {
+          break;
+        case 1:
+          setScheme({ scheme: 'bright_light' })
           if (platformname) {
             bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" });
           }
-        }
+          break;
+        case 2:
+          setScheme({ scheme: 'space_gray' })
+          if (platformname) {
+            bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "light", "action_bar_color": "#19191A", 'navigation_bar_color': "#19191A" });
+          }
+          break;
+        default:
+          
       }
     }
-  }, [account, default_scheme, AppInit, setScheme, schemeSettings])
- 
+  }, [account, default_scheme, setScheme])
   useEffect(() => {
     AppInit();
     bridge.send('VKWebAppInit', {});
     // eslint-disable-next-line
   }, [])
+  useEffect(() => {
+    if (account.is_first_start) { 
+      setActiveStory('start')
+    }else{
+      if (hash.promo !== undefined && !ignore_promo) {
+        ignore_promo = true;
+        setActiveStory('profile');
+      }
+      if (activeStory === 'loading'){
+        setActiveStory('questions');
+      }
+      
+    }
+    setLoadWebView(true)
+    if(activeStory !== 'disconnect'){
+      dispatch(viewsActions.setNeedEpic(true))
+    }
+  }, [account.is_first_start, dispatch, setActiveStory, activeStory])
   useEffect(() => {
     bridge.subscribe(bridgecallback);
     

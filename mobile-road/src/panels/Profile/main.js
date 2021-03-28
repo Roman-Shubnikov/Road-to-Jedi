@@ -25,6 +25,7 @@ import {
   usePlatform,
   VKCOM,
   Textarea,
+  CellButton,
 } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
@@ -57,6 +58,7 @@ import {
   Icon28StoryAddOutline,
   Icon24Qr,
   Icon24Dismiss,
+  Icon56GhostOutline,
 
 
 } from '@vkontakte/icons'
@@ -66,7 +68,7 @@ import ValidQR from './images/qr_valid.svg'
 
 
 import { API_URL, LINK_APP } from '../../config';
-import { alertCreator, errorAlertCreator, goOtherProfileCreator, goPanelCreator, setActiveModalCreator } from '../../Utils';
+import { alertCreator, errorAlertCreator, goOtherProfileCreator, goPanelCreator, recog_number, setActiveModalCreator } from '../../Utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewsActions } from '../../store/main';
 
@@ -147,7 +149,11 @@ export default props => {
   const [typeres, setTyperes] = useState(0);
   const [id_rep, setIdRep] = useState(0);
   const platform = usePlatform()
+  const levels = account.levels;
+  const exp_to_next_lvl = levels.exp_to_lvl - levels.exp;
+
   const goPanel = useCallback((panel) => {
+    setSnackbar(null)
     goPanelCreator(setHistory, setActivePanel, historyPanelsState, panel)
     if (panel === 'profile') {
       bridge.send('VKWebAppEnableSwipeBack');
@@ -169,6 +175,7 @@ export default props => {
   }
   const goBack = useCallback(() => {
     const history = [...historyPanelsState]
+    setSnackbar(null)
     if (!ignore_back) {
       ignore_back = true;
       if (history.length === 1) {
@@ -326,6 +333,16 @@ export default props => {
         onClose={() => setActiveModal(null)}
         comment={comment}
         reporting={setReport} />
+
+      <ModalCard 
+      id='fantoms'
+      onClose={() => setActiveModal(null)}
+      icon={<Icon56GhostOutline/>}
+      header={`Вы собрали ${recog_number(levels.exp)} фантомов и заработали ${levels.lvl} уровень`}
+      subheader={`Чтобы начать собирать фантомов, перейдите в магазин и приобретите.\nДо следующего уровня не хватает ${exp_to_next_lvl} фантомов`}
+      actions={<Button stretched size='l' onClick={() => setActiveModal(null)}>Понятно</Button>}>
+        <CellButton expandable centered hasActive={false} hasHover={false} onClick={() => {goPanel('market');setActiveModal(null)}}>Приобретите их</CellButton>
+      </ModalCard>
 
       <ModalCard
         id='send'

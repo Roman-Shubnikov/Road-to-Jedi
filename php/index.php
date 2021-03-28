@@ -26,7 +26,7 @@ require("Utils.php");
 require 'api/db.php';
 require 'vkapi.php';
 
-set_exception_handler('exceptionerror');
+// set_exception_handler('exceptionerror');
 
 require 'api/api/users.php';
 require 'api/api/account.php';
@@ -37,6 +37,8 @@ require 'api/api/reports.php';
 require 'api/api/folowers.php';
 require 'api/api/recommendations.php';
 require 'api/api/settings.php';
+require 'api/api/levels.php';
+require 'api/api/shop.php';
 
 session_id($_GET['vk_user_id']);
 session_start();
@@ -397,6 +399,12 @@ $params = [
 			'required' => true
 		]
 	],
+	'shop.buyGhosts' => [
+		'count' => [
+			'type' => 'int',
+			'required' => true
+		]
+	],
 	'shop.resetId' => [],
 	'shop.buyDiamond' => [],
 	'shop.buyRecommendations' => [],
@@ -584,9 +592,6 @@ $method = $_GET['method'];
 
 $data = file_get_contents('php://input');
 $data = json_decode($data, true);
-// if($user_id == 413636725){
-// 	var_dump($data);
-// }
 
 if (!$data) {
 	$data = $_POST;
@@ -608,6 +613,8 @@ $promocodes = new Promocodes($users, $Connect, $sysnotifications);
 $reports = new Reports($users, $Connect, $account);
 $followers = new Followers($users, $Connect);
 $recommended = new Recomendations($users, $Connect, $followers);
+$levels = new Levels($users, $Connect);
+
 
 
 
@@ -653,6 +660,8 @@ switch ($method) {
 			'change_color_donut' => $settings->getOneSetting('change_color_donut'),
 
 		];
+		$res['levels']['exp_to_lvl'] = $levels->getLevelInfo($res['levels']['lvl'])['exp_to_lvl'];
+		$res['levels']['exp'] = $res['levels']['exp'] - $levels->getLevelInfo($res['levels']['lvl'])['exp_total'];
 		if ($users->info['generator']) {
 			$res['settings']['generator_noty'] = $settings->getOneSetting('generator_noty');
 		}
@@ -916,34 +925,14 @@ switch ($method) {
 		Show::response($notifications->demiss());
 
 	case 'shop.changeId':
-		$id = trim($data['change_id']);
-		$len = mb_strlen($id);
-		if (is_numeric($id)) {
-			Show::error(1013);
-		}
-		if (preg_match(CONFIG::REGEXP_VALID_NAME, $id)) {
-			if ($len < 11 && $len > 0) {
-				$balance_profile = getBalance();
-				if ($balance_profile >= CONFIG::NICKNAME_CHANGE_PRICE) {
-					$check_id = $Connect->db_get("SELECT id FROM users WHERE nickname = ?", [$id, $id]);
-					if (count($check_id) == 0) {
-						$Connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$balance_profile - CONFIG::NICKNAME_CHANGE_PRICE, $user_id]);
-						$Connect->query("UPDATE users SET nickname=? WHERE vk_user_id=?", [$id, $user_id]);
-						Show::response(
-							['balance' => $balance_profile - 2]
-						);
-					} else {
-						Show::error(1003);
-					}
-				} else {
-					Show::error(1002);
-				}
-			} else {
-				Show::error(1004);
-			}
-		} else {
-			Show::error(1012);
-		}
+		$shop = new Shop($users, $Connect, $levels);
+		$nick = trim($data['change_id']);
+		Show::response(['balance' => $shop->changeNickname($nick)]);
+		break;
+	case 'shop.buyGhosts':
+		$shop = new Shop($users, $Connect, $levels);
+		$count = (int) $data['count'];
+		Show::response($shop->buyGhosts($count));
 		break;
 	case 'shop.resetId':
 		$Connect->query("UPDATE users SET nickname=? WHERE vk_user_id=?", [null, $user_id]);

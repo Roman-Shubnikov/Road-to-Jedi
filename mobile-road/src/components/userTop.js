@@ -14,34 +14,32 @@ import {
   Icon28DiamondOutline,
 
 } from '@vkontakte/icons'
-function enumerate (num, dec) {
-    if (num > 100) num = num % 100;
-    if (num <= 20 && num >= 10) return dec[2];
-    if (num > 20) num = num % 10;
-    return num === 1 ? dec[0] : num > 1 && num < 5 ? dec[1] : dec[2];
-  }
+import { enumerate } from '../Utils';
+
+const Forms = {
+  good_answers: ['хороший ответ', 'хороших ответа', 'хороших ответов'],
+  marked_answers: ['оценённый ответ', 'оценённых ответа', 'оценённых ответов'],
+  bad_answers: ['плохой ответ', 'плохих ответа', 'плохих ответов'],
+}
 
 export default props => {
-  const {disabled,special, nickname, good_answers, bad_answers, key, id, avatar, flash,donut,verified,diamond, onClick, change_color_donut} = props;
+  const {disabled, description, nickname, good_answers, bad_answers, key, id, avatar, flash,donut,verified,diamond, onClick, change_color_donut} = props;
   return (
     <SimpleCell
         disabled={disabled ? disabled : !onClick}
         key={key || id}
         onClick={!disabled ? onClick : undefined}
         description={
-            special ? 
+          description ? description :
           <div className="top_moderator_desc">
-            {good_answers + enumerate(good_answers, [' оценённый ответ', ' оценённых ответа', ' оценённых ответов'])}
-          </div>
-          :
-          <div className="top_moderator_desc">
-            {good_answers + enumerate(good_answers, [' хороший ответ, ', ' хороших ответа, ', ' хороших ответов, ']) 
-            + bad_answers + enumerate(bad_answers, [' плохой ответ', ' плохих ответа', ' плохих ответов'])}
+            {good_answers + " " + enumerate(good_answers, Forms.good_answers) + ", " 
+            + bad_answers + enumerate(bad_answers, Forms.bad_answers)}
           </div>
         }
             before={diamond ?
-                <div style={{position:'relative', marginRight: 10}}><Avatar src={avatar.url} style={{position: 'relative'}} />
-                <Icon28DiamondOutline width={16} height={16} className='Diamond_top' />
+                <div style={{position:'relative', marginRight: 10}}>
+                  <Avatar src={avatar.url} style={{position: 'relative'}} />
+                  <Icon28DiamondOutline width={16} height={16} className='Diamond_top' />
                 </div> : <Avatar src={avatar.url} style={{position: 'relative'}} /> }
           >
         <div className="top_moderator_name" style={{color: (donut && change_color_donut) ? "var(--top_moderator_name_donut)" : "var(--top_moderator_name)"}}>

@@ -59,7 +59,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useState } from 'react';
 import { accountActions, viewsActions } from '../store/main';
-import { API_URL, AVATARS_URL } from '../config';
+import { API_URL, AVATARS_URL, LINK_APP } from '../config';
 import { isEmptyObject } from 'jquery';
 import { getHumanyTime, enumerate, recog_number } from '../Utils';
 import { DonutTooltip, FlashTooltip, FlashVerifTooltip, VerifTooltip } from './Tooltips';
@@ -127,7 +127,7 @@ export default props => {
     
     const subscribeUnsubscribe = () => {
         setPopout(<ScreenSpinner />)
-        let method = OtherProfileData.subscribe ? "followers.unsubscribe&" : "followers.subscribe&"
+        let method = subscribe ? "followers.unsubscribe&" : "followers.subscribe&"
         fetch(API_URL + `method=${method}` + window.location.search.replace('?', ''),
             {
                 method: 'post',
@@ -139,7 +139,9 @@ export default props => {
             .then(res => res.json())
             .then(data => {
                 if (data.result) {
-                    dispatch(accountActions.getOtherProfile(agent_id))
+                    let DataProf = {...OtherProfileData};
+                    DataProf.subscribe = !subscribe;
+                    dispatch(accountActions.setOtherProfile(DataProf))
                     setPopout(null);
 
                 } else {
@@ -147,6 +149,7 @@ export default props => {
                 }
             })
             .catch(err => {
+                console.log(err)
                 setActiveStory('disconnect')
             })
     }
@@ -176,7 +179,7 @@ export default props => {
                     : null}
                 <ActionSheetItem autoclose
                     onClick={() => {
-                        bridge.send("VKWebAppCopyText", { text: "https://vk.com/app7409818#agent_id=" + id });
+                        bridge.send("VKWebAppCopyText", { text: LINK_APP + "#agent_id=" + id });
                         setSnackbar(<Snackbar
                             layout="vertical"
                             onClose={() => setSnackbar(null)}

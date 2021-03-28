@@ -19,6 +19,7 @@ import {
     HorizontalScroll,
     HorizontalCell,
     FormItem,
+    Slider,
     } from '@vkontakte/vkui';
 
 
@@ -30,6 +31,7 @@ import {
   Icon24BlockOutline,
   Icon24Repeat,
   Icon28MoneyCircleOutline,
+  Icon28GhostOutline,
 
 } from '@vkontakte/icons';
 
@@ -38,6 +40,7 @@ import UserTopC from '../../../components/userTop';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewsActions } from '../../../store/main';
 import { API_URL, AVATARS_URL } from '../../../config';
+import { enumerate } from '../../../Utils';
 
 
 const avatars = [
@@ -75,6 +78,14 @@ const avatars = [
     "32.png",
     "33.png",
     "34.png",
+    "35.png",
+    "36.png",
+    "37.png",
+    "38.png",
+    "39.png",
+    "40.png",
+    "41.png",
+    "42.png",
     
 ]
 
@@ -90,6 +101,8 @@ export default props => {
 
   const [selectedAvatar, setSelectedAvatar] = useState(0);
   const [changed_id, setChangedId] = useState('');
+  const [fantom_count, setFantoms] = useState(5);
+
   const MarketManager = (type, data) => {
     let method,jsonData,textSnack;
     switch(type){
@@ -121,6 +134,13 @@ export default props => {
         textSnack = "Вы успешно купили алмаз"
         jsonData = {}
         method = "shop.buyDiamond&";
+        break;
+      case 'fantoms':
+        textSnack = `Вы успешно купили ${fantom_count} ` + enumerate(fantom_count, ['фантом','фантома', 'фантомов'])
+        jsonData = {
+          count: fantom_count,
+        }
+        method = "shop.buyGhosts&";
         break;
       default:
         method = "shop.changeAvatar&";
@@ -266,6 +286,7 @@ export default props => {
         </FormLayout>
 
       </Group>
+
       {account ? !account.is_recommended ? <Group header={<Header>Попасть в рекомедации</Header>}>
         <Div>
           <Text weight='medium'>После приобретения этого товара, ваш профиль попадёт на вторую вкладку в "Обзор", так вы сможете привлечь больше подписчиков</Text>
@@ -279,7 +300,34 @@ export default props => {
         </Div>
       </Group> : null : null}
 
-
+      <Group header={<Header>Купить фантомов</Header>}>
+          <Div>
+            <Text weight='medium'>Здесь вы можете купить фантомов для повышения своего уровня</Text>
+          </Div>
+          <FormLayout>
+            <FormItem top={`Укажите количество: ${fantom_count}`}>
+              <Slider 
+                value={Number(fantom_count)}
+                onChange={e => setFantoms(e)}
+                min={1}
+                step={1}
+                max={500} />
+            </FormItem>
+          </FormLayout>
+          <SimpleCell
+          expandable
+          target="_blank" rel="noopener noreferrer" 
+          href='https://vk.com/@jedi_road-ohota-na-fantomov-nevidimovichei'
+          before={<Icon28GhostOutline />}>
+            Подробнее о Фантомах
+          </SimpleCell>
+          <Div>
+            <Button
+              onClick={() => MarketManager('fantoms')}
+              stretched
+              before={<Icon28MoneyHistoryBackwardOutline />} size="l">Купить за {5 * fantom_count} монеток</Button>
+          </Div>
+        </Group>           
 
       {account ? !account.diamond ?
         <Group header={<Header>Купить алмаз</Header>}>

@@ -16,12 +16,13 @@ import {
 
 
 import SclidePlaceholder from '../../../images/start_slide_2.svg'
+import { API_URL } from '../../../config';
 export default props => {
   const [age, setAge] = useState(0);
   const { setPopout, reloadProfile, setActiveStory, showErrorAlert } = props.callbacks;
   const ChangeAge = (age) => {
     setPopout(<ScreenSpinner />)
-    fetch(this.state.api_url + "method=account.setAge&" + window.location.search.replace('?', ''),
+    fetch(API_URL + "method=account.setAge&" + window.location.search.replace('?', ''),
       {
         method: 'post',
         headers: { "Content-type": "application/json; charset=UTF-8" },

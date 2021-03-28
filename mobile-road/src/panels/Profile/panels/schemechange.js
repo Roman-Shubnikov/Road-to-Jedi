@@ -100,6 +100,7 @@ export default props => {
                 <FormLayout>
                     {themes.map((res, i) => 
                         <Radio name="radio" 
+                        key={i}
                         onChange={ChangeScheme}
                         disabled={platform === VKCOM} 
                         value={res.val} 

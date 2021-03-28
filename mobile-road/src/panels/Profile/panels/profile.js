@@ -11,15 +11,25 @@ import {
     Div,
     FormStatus,
     PullToRefresh,
-    RichCell,
     Header,
     HorizontalScroll,
     HorizontalCell,
     MiniInfoCell,
+    // Gradient,
+    // Title,
+    // Button,
+    // Text,
+    RichCell,
+    Progress,
+    InfoRow,
+
+
+
+
     } from '@vkontakte/vkui';
 
 import {
-    Icon12Fire,
+    // Icon16Fire,
     Icon16Verified,
     Icon28PollSquareOutline,
     Icon28MarketOutline,
@@ -28,23 +38,32 @@ import {
     Icon16StarCircleFillYellow,
     Icon28Messages,
     Icon28DiamondOutline,
-    Icon28SettingsOutline,
     Icon20ArticleOutline,
-    
+    Icon12Fire,
+    Icon28SettingsOutline,
+    Icon20Ghost,
+
 } from '@vkontakte/icons';
-import { enumerate } from '../../../Utils';
+
+import { 
+    enumerate, recog_number, 
+    // recog_number
+} from '../../../Utils';
 import { isEmptyObject } from 'jquery';
 import { useDispatch, useSelector } from 'react-redux';
 import { AVATARS_URL, CONVERSATION_LINK } from '../../../config';
 import { viewsActions } from '../../../store/main';
-
-
 export default props => {
     const dispatch = useDispatch();
     const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
     const account = useSelector((state) => state.account.account)
     const { setActiveModal, goOtherProfile, goPanel, setNewStatus } = props.callbacks;
     const [fetching, setFetching] = useState(false);
+    const levels = account.levels;
+    const exp_to_next_lvl = levels.exp_to_lvl - levels.exp;
+
+
+    // const total_answers = account.good_answers + account.bad_answers;
 
     const changeStatus = useCallback(() => {
         setNewStatus(account.publicStatus);
@@ -69,7 +88,7 @@ export default props => {
                             <Icon28Notifications />
                         </PanelHeaderButton></>}>Профиль</PanelHeader>
                 <PullToRefresh onRefresh={() => { setFetching(true); props.reloadProfile(); setTimeout(() => { setFetching(false) }, 1000) }} isFetching={fetching}>
-                    <Group>
+                <Group>
                         <RichCell
                             disabled
                             before={account.diamond ?
@@ -104,7 +123,82 @@ export default props => {
                             }}>
                             {account.publicStatus || "Играю в любимую игру"}
                         </MiniInfoCell>
+                        
+                        
                     </Group>
+                    <Group>
+                        <Div
+                        onClick={() => setActiveModal('fantoms')}>
+                            <InfoRow  header={<div style={{display: 'flex', justifyContent: 'space-between'}}><div style={{display: 'flex', marginBottom: 5}}>
+                                <Icon20Ghost style={{ marginTop: 0, marginRight: 3}} />
+                                {levels.lvl} уровень · {recog_number(levels.exp)} фантомов</div><div>Осталось ещё {exp_to_next_lvl}</div></div>}>
+                                <Progress value={levels.exp / levels.exp_to_lvl * 100} />
+                            </InfoRow>
+                        </Div>
+                    </Group>
+                    {/* <Group>
+                        <Gradient style={{
+                            // margin: '-7px -7px 0 -7px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            textAlign: 'center',
+                            padding: 32,
+                        }}
+                        mode='white'>
+                            <div style={{ position: 'relative', margin: 10 }}>
+                                <Avatar src={account.avatar.url} size={96} style={{ position: 'relative' }} />
+                                {account.diamond && <Icon28DiamondOutline width={25} height={25} className='Diamond_profile_new' />}
+                            </div>
+                            <Title 
+                            style={{ marginBottom: 8, marginTop: 20 }} 
+                            level="2" 
+                            weight="medium">
+                                {account['nickname'] ? account['nickname'] : `Агент Поддержки #${account['id']}`}
+                            </Title>
+                            <Text style={{ marginBottom: 24, display: 'flex' }}>
+                                {account.flash &&
+                                    <Icon16Fire 
+                                    style={{color: 'var(--prom_icon)'}}
+                                    width={16} height={16} 
+                                    onClick={() => setActiveModal('prom')} />}
+                                {account.donut &&
+                                    <Icon16StarCircleFillYellow 
+                                    width={16} height={16}
+                                    onClick={() => setActiveModal('donut')} />}
+
+                                {account.verified &&
+                                    <Icon16Verified 
+                                    style={{color: 'var(--dynamic_blue)', marginLeft: 2}}
+                                    width={16} height={16}
+                                    onClick={() => setActiveModal('verif')} />}
+                            </Text>
+                            <Text style={{ marginBottom: 24, display: 'flex' }}>
+                                {account.followers[0] + " " + enumerate(account.followers[0], 
+                                ['подписчик', 'подписчика', 'подписчиков'])} · {recog_number(total_answers) + " " + enumerate(total_answers,
+                                    ['Ответ', 'Ответа', 'Ответов'])}
+                            </Text>
+                            <Button 
+                            onClick={() => {
+                                goPanel('settings');
+                            }}
+                            size="m" 
+                            mode="secondary">Настройки</Button>
+
+                        </Gradient>
+                        <Group mode='plain'>
+                            <MiniInfoCell
+                                before={<Icon20ArticleOutline />}
+                                textWrap='full'
+                                onClick={() => {
+                                    changeStatus()
+                                }}>
+                                {account.publicStatus || "Играю в любимую игру"}
+                            </MiniInfoCell>
+                        </Group>
+                        
+                    </Group> */}
                     {account.followers[0] ?
                         <Group header={
                             <Header

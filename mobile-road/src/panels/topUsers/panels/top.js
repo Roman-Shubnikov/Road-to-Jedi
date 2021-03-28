@@ -27,13 +27,24 @@ import {
   Icon56DonateOutline,
   Icon56FireOutline,
   Icon56Users3Outline,
+  Icon56GhostOutline,
 
 } from '@vkontakte/icons'
 import UserTopC from '../../../components/userTop';
 import { useDispatch, useSelector } from 'react-redux';
 import { topUsersActions, viewsActions } from '../../../store/main';
 import { API_URL } from '../../../config';
-import { isEmptyObject } from 'jquery';
+import { inArray, isEmptyObject } from 'jquery';
+import { enumerate } from '../../../Utils';
+
+const Forms = {
+  good_answers: ['хороший ответ', 'хороших ответа', 'хороших ответов'],
+  marked_answers: ['оценённый ответ', 'оценённых ответа', 'оценённых ответов'],
+  bad_answers: ['плохой ответ', 'плохих ответа', 'плохих ответов'],
+  ghosts: ['фантом', 'фантома', 'фантомов'],
+
+}
+const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
 export default props => {
   const dispatch = useDispatch();
@@ -83,20 +94,42 @@ export default props => {
     dispatch(topUsersActions.setMode(mode))
     requestAnimationFrame(() => setContextOpened(prev => !prev));
     setActiveTab('all')
-    getTopUsers(activeTab, mode, fetching)
+    getTopUsers('all', mode, true)
   }
   const getCurrStub = () => {
     switch(activeTab){
       case 'verif':
-        return [<Icon36Done width={56} height={56} />, 'Пантеон верифицированных агентов пуст.\n\nДумаем, в ближайшее время тут кто-то появится.']
+        return [<Icon36Done width={56} height={56} />, 'Топ верифицированных агентов пуст.\n\nДумаем, в ближайшее время тут кто-то появится.']
       case 'donut':
-        return [<Icon56DonateOutline />, 'Пантеон агентов с отметкой VK Donut пуст.\n\nДумаем, в ближайшее время тут кто-то появится.']
+        return [<Icon56DonateOutline />, 'Топ агентов с отметкой VK Donut пуст.\n\nДумаем, в ближайшее время тут кто-то появится.']
       case 'flash':
-        return [<Icon56FireOutline />, 'Пантеон агентов с отметкой огня Прометея пуст.\n\nДумаем, в ближайшее время тут кто-то появится.']
+        return [<Icon56FireOutline />, 'Топ агентов с отметкой огня Прометея пуст.\n\nДумаем, в ближайшее время тут кто-то появится.']
+      case 'ghosts':
+        return [<Icon56GhostOutline />, 'Топ агентов с фантомами пуст.\n\nДумаем, в ближайшее время тут кто-то появится.']
       case 'all':
-        return [<Icon56Users3Outline />, 'Общий раздел пантеона пуст.']
+        return [<Icon56Users3Outline />, 'Общий раздел пантеона пуст.\n\nДумаем, в ближайшее время тут кто-то появится.']
       default:
-        return [<Icon56Users3Outline />, 'Этот раздел пантеона пуст.']
+        return [<Icon56Users3Outline />, 'Этот раздел пантеона пуст.\n\nДумаем, в ближайшее время тут кто-то появится.']
+    }
+  }
+  const getCurrDescriptionAgent = (result) => {
+    if(inArray(activeTab, ['verif', 'donut', 'flash', 'all']) !== -1){
+      return(result.special ? 
+        <div className="top_moderator_desc">
+          {result.good_answers + " " + enumerate(result.good_answers, Forms.marked_answers)}
+        </div>
+        :
+        <div className="top_moderator_desc">
+            {result.good_answers + " " + enumerate(result.good_answers, Forms.good_answers) + ", " 
+            + result.bad_answers + " " + enumerate(result.bad_answers, Forms.bad_answers)}
+        </div>)
+    }
+    if(inArray(activeTab, ['ghosts']) !== -1){
+      return(
+        <div className="top_moderator_desc">
+          {result.levels.exp + " " + enumerate(result.levels.exp, Forms.ghosts)}
+        </div>
+      )
     }
   }
   useEffect(() => {
@@ -106,6 +139,7 @@ export default props => {
   return (
     <Panel id={props.id}>
     <PanelHeader
+    separator={!platformname}
     >
       {account.special ? <PanelHeaderContent
         aside={<Icon16Dropdown style={{ transition: '0.3s',transform: `rotate(${contextOpened ? '180deg' : '0'})` }} />}
@@ -147,6 +181,12 @@ export default props => {
               Общий
             </TabsItem>
             <TabsItem
+              onClick={() => setActiveTab('ghosts')}
+              selected={activeTab === 'ghosts'}
+            >
+              Фантомы
+            </TabsItem>
+            <TabsItem
               onClick={() => setActiveTab('donut')}
               selected={activeTab === 'donut'}
             >
@@ -177,6 +217,9 @@ export default props => {
           {(i === 0) || <Separator/>}
 
         <UserTopC {...result}
+        description={
+          getCurrDescriptionAgent(result)
+      }
         onClick={() => {goOtherProfile(result.id, true);}} />
 
      </React.Fragment>

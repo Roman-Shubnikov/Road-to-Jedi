@@ -693,13 +693,21 @@ class Tickets
 		];
 
 		if (!empty($data['comment']) && $data['comment_author_id'] !== 0) {
-			$res['moderator_comment'] = [
-				'author_id' => (int) $data['comment_author_id'],
-				'nickname' => $data['comment_author_nickname'],
-				'avatar' => $data['comment_author_avatar'],
-				'text' => $data['comment'],
-				'time' => (int)$data['comment_time'],
-			];
+			if($this->user->info['special']){
+				$res['moderator_comment'] = [
+					'author_id' => (int) $data['comment_author_id'],
+					'nickname' => $data['comment_author_nickname'],
+					'avatar' => $data['comment_author_avatar'],
+					'text' => $data['comment'],
+					'time' => (int)$data['comment_time'],
+				];
+			}else{
+				$res['moderator_comment'] = [
+					'text' => $data['comment'],
+					'time' => (int)$data['comment_time'],
+				];
+			}
+			
 		}
 
 		if ($data['edit_time'] > 0) {
