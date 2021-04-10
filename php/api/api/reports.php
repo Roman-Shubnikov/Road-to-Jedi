@@ -70,7 +70,7 @@ class Reports {
                 $fullreason = "Вы были забанены по причине \"$reason\". Будьте внимательны, срок банов может увеличиваться.";
             }elseif($count_bans == 1){
                 $timeban = 3600; // 1h
-                $fullreason = "Вы были забанены по причине \"$reason\". Это уже не первый раз когда мы вас поймали! Будте внимательны";
+                $fullreason = "Вы были забанены по причине \"$reason\". Это уже не первый раз когда мы вас поймали! Будьте внимательны";
             }elseif($count_bans == 2){
                 $timeban = 43200; // 12h
                 $fullreason = "Вы были забанены по причине \"$reason\". Ваше поведение нам очень не нравится";
@@ -90,7 +90,7 @@ class Reports {
         if($type == 1) $this->Connect->query("UPDATE messages SET comment=NULL,comment_author_id=NULL WHERE id=?", [$material_id]);
         if($type == 3) $this->Connect->query("DELETE FROM messages WHERE id=?", [$material_id]);
         if($type == 4) $this->Connect->query("DELETE FROM queue_quest WHERE id=?", [$material_id]);
-        Show::response($this->account->Ban_User($info_req['id_reporting'], $fullreason, $timeban));        
+        Show::response($this->account->Ban_User($info_req['id_reporting'], $fullreason, $timeban));
     }
 
     public function deny($id_request){
@@ -125,6 +125,7 @@ class Reports {
         // 
         // comment - Дополнительный комментарий модератору
         if($name == 8 && !(bool) $comment) Show::error(1202);
+        if($name < 1 || $name > 8) Show::error(1201);
 
         $comment = ($comment != '') ? $comment : NULL;
 
@@ -133,15 +134,11 @@ class Reports {
         if($type == 1){
             $shortinfo = $this->Connect->db_get("SELECT id,ticket_id,text,comment,comment_author_id FROM messages WHERE id=?", [$id]);
             if(!$shortinfo) Show::error(404);
-            if($this->Connect->db_get("SELECT id FROM reports WHERE vk_id=? and type=? and id_reporting=?", [$this->users->vk_id, 
-            $type, 
-            $shortinfo[0]['comment_author_id'] 
-            ])) Show::error(1200);
 
             if($this->checkDuplicates($this->users->vk_id, $type, $shortinfo[0]['comment_author_id'], $id )) Show::error(1200);
-
+            if($shortinfo[0]['comment_author_id'] == -1) Show::error(1203);
             $report_user_info = $this->Connect->db_get("SELECT id,vk_user_id FROM users WHERE id=?", [$shortinfo[0]['comment_author_id']]);
-
+            
             $response_user = $this->Connect->query("INSERT INTO reports 
             (aid, vk_id, type, comment, time, id_reporting, vk_id_reporting, material_id, name, materials) 
             VALUES (?,?,?,?,?,?,?,?,?,?)",

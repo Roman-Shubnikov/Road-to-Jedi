@@ -33,7 +33,6 @@ export default props => {
         if (data.result) {
           setTimeout(() => {
             reloadProfile();
-            setActiveStory('questions');
           }, 2000);
         } else {
           showErrorAlert(data.error.message)

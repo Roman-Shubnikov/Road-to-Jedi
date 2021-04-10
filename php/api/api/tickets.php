@@ -303,8 +303,11 @@ class Tickets
 					users.nickname, 
 					users.special, 
 					avatars.name as avatar_name, 
-					messages.approved, 
-					messages.comment, messages.comment_author_id, messages.edit_time,
+					messages.approved,
+					messages.chance_posit,
+					messages.comment, 
+					messages.comment_author_id, 
+					messages.edit_time,
 					specials.nickname as comment_author_nickname,
 					avatars_special.name as comment_author_avatar,
 					messages.comment_time
@@ -689,24 +692,38 @@ class Tickets
 			'text' => $data['text'],
 			'author' => $data['user'],
 			'mark' => (int) $data['mark'],
+			'chance_posit' => (int) $data['chance_posit'],
 			'approved' => isset($data['approved']) ? (bool) $data['approved'] : null
 		];
 
 		if (!empty($data['comment']) && $data['comment_author_id'] !== 0) {
+			$bomb_time = 0;
+			if($data['comment_time'] > $data['edit_time']){
+				$bomb_time = $data['comment_time'] + 86400;
+			}
+			if($bomb_time < time()) $bomb_time = 0;
+			$comment_data = [];
+			$comment_data += [
+				'text' => $data['comment'],
+				'time' => (int)$data['comment_time'],
+				'bomb_time' => (int) $bomb_time,
+			];
 			if($this->user->info['special']){
-				$res['moderator_comment'] = [
+				$comment_data += [
 					'author_id' => (int) $data['comment_author_id'],
 					'nickname' => $data['comment_author_nickname'],
 					'avatar' => $data['comment_author_avatar'],
-					'text' => $data['comment'],
-					'time' => (int)$data['comment_time'],
 				];
-			}else{
-				$res['moderator_comment'] = [
-					'text' => $data['comment'],
-					'time' => (int)$data['comment_time'],
-				];
+				
 			}
+			if($data['comment_author_id'] == -1){
+				$comment_data = array_replace($comment_data, [
+					'author_id' => -1,
+					'nickname' => CONFIG::NAME_COMMENT_CLEANER,
+					'avatar' => CONFIG::AVATAR_COMMENT_CLEANER,
+				]);
+			}
+			$res['moderator_comment'] = $comment_data;
 			
 		}
 

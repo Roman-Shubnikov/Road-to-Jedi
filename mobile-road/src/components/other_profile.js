@@ -51,6 +51,10 @@ import {
     Icon20UserOutline,
     Icon20CalendarOutline,
     Icon16FireVerified,
+    Icon28BlockOutline,
+    Icon28CopyOutline,
+    Icon28ReportOutline,
+    Icon28UserIncomingOutline,
 
  } from '@vkontakte/icons';
 import {
@@ -159,7 +163,9 @@ export default props => {
                 <ActionSheet onClose={() => setPopout(null)}
                     toggleRef={profRef.current}
                     iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
-                    <ActionSheetItem mode='destructive' onClick={() => {
+                    <ActionSheetItem mode='destructive' 
+                    before={<Icon28UserIncomingOutline />}
+                    onClick={() => {
                         subscribeUnsubscribe()
                     }}>Отписаться</ActionSheetItem>
                 </ActionSheet>)
@@ -173,11 +179,13 @@ export default props => {
                 toggleRef={profRef.current}
                 iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
                 {account.special ?
-                    <ActionSheetItem autoclose onClick={() => { setActiveModal('ban_user'); }}>
+                    <ActionSheetItem autoclose onClick={() => { setActiveModal('ban_user'); }}
+                    before={<Icon28BlockOutline />}>
                         Заблокировать
                 </ActionSheetItem>
                     : null}
                 <ActionSheetItem autoclose
+                    before={<Icon28CopyOutline />}
                     onClick={() => {
                         bridge.send("VKWebAppCopyText", { text: LINK_APP + "#agent_id=" + id });
                         setSnackbar(<Snackbar
@@ -190,6 +198,7 @@ export default props => {
                     Скопировать ссылку
                 </ActionSheetItem>
                 <ActionSheetItem autoclose
+                    before={<Icon28ReportOutline />}
                     mode='destructive'
                     onClick={() => {
                         setReport(2, agent_id)

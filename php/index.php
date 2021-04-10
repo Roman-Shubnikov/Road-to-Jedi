@@ -1068,7 +1068,7 @@ switch ($method) {
 			"SELECT tickets.id, COUNT(messages.id) as count_unmark
 			FROM tickets 
 			LEFT JOIN messages on tickets.id=messages.ticket_id
-			WHERE messages.mark=-1 AND messages.author_id>0
+			WHERE messages.mark=-1 AND messages.author_id>0 AND (messages.comment_author_id = 0 OR messages.comment_author_id IS NULL OR comment_time<edit_time)
 			GROUP BY tickets.id ORDER BY COUNT(messages.id) DESC LIMIT $offset, $count"
 		);
 		$out = [];

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import $ from 'jquery';
-import bridge from '@vkontakte/vk-bridge';
 import { viewsActions, ticketActions } from '../../../store/main'
 import {API_URL} from '../../../config';
 import { enumerate } from '../../../Utils';
@@ -41,8 +40,6 @@ import BannerAvatarMobile from '../../../images/question_banner_mobile.png'
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
 var loadingContent = false;
-
-var adsCounter = 0;
 
 export default props => {
     const dispatch = useDispatch();
@@ -148,12 +145,7 @@ export default props => {
         // eslint-disable-next-line
     }, [offset, ticketsCurrent, account])
     useEffect(() => {
-        if(adsCounter % 2 === 0 && account.donut && !account.donut){
-            bridge.send("VKWebAppShowNativeAds", {ad_format:"reward"})
-            // .then(data => console.log(data.result))
-            // .catch(error => console.log(error));
-        }
-        adsCounter++
+        
         
     }, [account])
 

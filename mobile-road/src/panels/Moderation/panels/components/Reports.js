@@ -10,23 +10,27 @@ import {
     List,
     PanelSpinner,
     MiniInfoCell,
-    Separator,
     Link,
     Snackbar,
     Avatar
 
 
     } from '@vkontakte/vkui';
-import Icon24Spinner                      from '@vkontakte/icons/dist/24/spinner';
-import Icon56InboxOutline                 from '@vkontakte/icons/dist/56/inbox_outline';
-import Icon16CheckCircle                  from '@vkontakte/icons/dist/16/check_circle';
-import Icon20CancelCircleFillRed          from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
-import Icon20ArticleOutline               from '@vkontakte/icons/dist/20/article_outline';
-import Icon20UserOutline                  from '@vkontakte/icons/dist/20/user_outline';
-import Icon20ServicesOutline              from '@vkontakte/icons/dist/20/services_outline';
-import Icon28TargetOutline                from '@vkontakte/icons/dist/28/target_outline';
-import Icon20CommentOutline               from '@vkontakte/icons/dist/20/comment_outline';
-import Icon20CommunityName                from '@vkontakte/icons/dist/20/community_name';
+
+import {
+  Icon24Spinner,
+  Icon56InboxOutline,
+  Icon16CheckCircle,
+  Icon20CancelCircleFillRed,
+  Icon20ArticleOutline,
+  Icon20UserOutline,
+  Icon20ServicesOutline,
+  Icon28TargetOutline,
+  Icon20CommentOutline,
+  Icon20CommunityName,
+
+} from '@vkontakte/icons'
+
 import { API_URL } from '../../../../config';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewsActions } from '../../../../store/main';
@@ -139,71 +143,72 @@ export default props => {
           <List>
             {reports.data ? (reports.data.length > 0) ? reports.data.map((result, i) =>
               <React.Fragment key={result.id}>
-                {(i === 0) || <Separator />}
-                <MiniInfoCell
-                  textWrap='full'
-                  before={<Icon20CommentOutline />}
-                >
-                  {result.comment || "Без комментария"}
+                <Group mode='plain'>
+                  <MiniInfoCell
+                    textWrap='full'
+                    before={<Icon20CommentOutline />}
+                  >
+                    {result.comment || "Без комментария"}
 
-                </MiniInfoCell>
-                {result.materials ? <MiniInfoCell
-                  textWrap='full'
-                  before={<Icon20ArticleOutline />}
-                >
-                  {result.materials}
+                  </MiniInfoCell>
+                  {result.materials ? <MiniInfoCell
+                    textWrap='full'
+                    before={<Icon20ArticleOutline />}
+                  >
+                    {result.materials}
 
-                </MiniInfoCell> : null}
+                  </MiniInfoCell> : null}
 
-                {result.vk_id ? <MiniInfoCell
-                  mode='base'
-                  before={<Icon20UserOutline />}>
-                  <Link href={'https://vk.com/id' + result.vk_id}
-                    target="_blank" rel="noopener noreferrer">1 Страница ВКонтакте</Link>
-                </MiniInfoCell> : null}
-                <MiniInfoCell
-                  mode='base'
-                  before={<Icon20ServicesOutline />}>
-                  <Link href={'https://vk.com/jedi_road_app#agent_id=' + result.aid}
-                    target="_blank" rel="noopener noreferrer">1 Профиль в приложении</Link>
-                </MiniInfoCell>
-                {result.vk_id ? <MiniInfoCell
-                  mode='base'
-                  textWrap='full'
-                  before={<Icon20UserOutline />}>
-                  <Link href={'https://vk.com/id' + result.vk_id_reporting}
-                    target="_blank" rel="noopener noreferrer">2 ВКонтакте</Link>
-                </MiniInfoCell> : null}
-                <MiniInfoCell
-                  mode='base'
-                  before={<Icon20ServicesOutline />}>
-                  <Link href={'https://vk.com/jedi_road_app#agent_id=' + result.id_reporting}
-                    target="_blank" rel="noopener noreferrer">2 Профиль в приложении</Link>
-                </MiniInfoCell>
-                <MiniInfoCell
-                  mode='base'
-                  before={<Icon28TargetOutline height={20} width={20} />}>
-                  {reasonConverter(result.name)}
-                </MiniInfoCell>
-                <MiniInfoCell
-                  textWrap='full'
-                  before={<Icon20CommunityName />}
-                >
-                  {typeReportConverter(result.type)}
+                  {result.vk_id ? <MiniInfoCell
+                    mode='base'
+                    before={<Icon20UserOutline />}>
+                    <Link href={'https://vk.com/id' + result.vk_id}
+                      target="_blank" rel="noopener noreferrer">1 Страница ВКонтакте</Link>
+                  </MiniInfoCell> : null}
+                  <MiniInfoCell
+                    mode='base'
+                    before={<Icon20ServicesOutline />}>
+                    <Link href={'https://vk.com/jedi_road_app#agent_id=' + result.aid}
+                      target="_blank" rel="noopener noreferrer">1 Профиль в приложении</Link>
+                  </MiniInfoCell>
+                  {result.vk_id ? <MiniInfoCell
+                    mode='base'
+                    textWrap='full'
+                    before={<Icon20UserOutline />}>
+                    <Link href={'https://vk.com/id' + result.vk_id_reporting}
+                      target="_blank" rel="noopener noreferrer">2 ВКонтакте</Link>
+                  </MiniInfoCell> : null}
+                  <MiniInfoCell
+                    mode='base'
+                    before={<Icon20ServicesOutline />}>
+                    <Link href={'https://vk.com/jedi_road_app#agent_id=' + result.id_reporting}
+                      target="_blank" rel="noopener noreferrer">2 Профиль в приложении</Link>
+                  </MiniInfoCell>
+                  <MiniInfoCell
+                    mode='base'
+                    before={<Icon28TargetOutline height={20} width={20} />}>
+                    {reasonConverter(result.name)}
+                  </MiniInfoCell>
+                  <MiniInfoCell
+                    textWrap='full'
+                    before={<Icon20CommunityName />}
+                  >
+                    {typeReportConverter(result.type)}
 
-                </MiniInfoCell>
-                <Div style={{ display: 'flex' }}>
-                  <Button size="m"
-                    onClick={() => {
-                      approveDenyReport(result.id, 'approve')
-                    }}>Принять</Button>
-                  <Button size="m"
-                    mode="secondary"
-                    style={{ marginLeft: 8 }}
-                    onClick={() => {
-                      approveDenyReport(result.id, 'deny')
-                    }}>Отклонить</Button>
-                </Div>
+                  </MiniInfoCell>
+                  <Div style={{ display: 'flex' }}>
+                    <Button size="m"
+                      onClick={() => {
+                        approveDenyReport(result.id, 'approve')
+                      }}>Принять</Button>
+                    <Button size="m"
+                      mode="secondary"
+                      style={{ marginLeft: 8 }}
+                      onClick={() => {
+                        approveDenyReport(result.id, 'deny')
+                      }}>Отклонить</Button>
+                  </Div>
+                </Group>
               </React.Fragment>
             ) : <Placeholder
               icon={<Icon56InboxOutline />}>

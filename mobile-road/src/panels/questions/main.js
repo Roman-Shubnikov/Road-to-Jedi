@@ -24,8 +24,9 @@ import ModalBan from '../../Modals/Ban';
 import ModalVerif from '../../Modals/Verif'
 import { useDispatch, useSelector } from 'react-redux';
 import { errorAlertCreator, alertCreator, setActiveModalCreator, goPanelCreator, goOtherProfileCreator } from '../../Utils';
+import { isEmptyObject } from 'jquery';
 
-
+var adsCounter = 0;
 const queryString = require('query-string');
 // const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 // const parsedHash = queryString.parse(window.location.search.replace('?', ''));
@@ -43,7 +44,8 @@ export default props => {
   const [activeModal, setModal] = useState(null);
   const [modalHistory, setModalHistory] = useState(null);
   const { 
-    other_profile: OtherProfileData 
+    other_profile: OtherProfileData,
+    account, 
   } = useSelector((state) => state.account)
   const comment = useSelector((state) => state.tickets.comment)
 
@@ -97,8 +99,14 @@ export default props => {
     setPopout(<ScreenSpinner/>)
     setTicket(id)
     goPanel('ticket');
+    if(adsCounter !== 0 && adsCounter % 2 === 0 && !isEmptyObject(account) && !account.donut){
+      bridge.send("VKWebAppShowNativeAds", {ad_format:"reward"})
+      // .then(data => console.log(data.result))
+      // .catch(error => console.log(error));
+    }
+    adsCounter++
     setPopout(null);
-  }, [goPanel, setPopout])
+  }, [goPanel, setPopout, account])
 
   const goOtherProfile = useCallback((id) => {
       goOtherProfileCreator(goPanel, setActiveStory, showErrorAlert, OtherProfileData, dispatch, id)

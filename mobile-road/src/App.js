@@ -55,6 +55,7 @@ import {
 } from '@vkontakte/icons'
 
 import EpicItemPC from './components/EpicItem';
+import { isEmptyObject } from 'jquery';
 
 
 const queryString = require('query-string');
@@ -222,23 +223,26 @@ const App = () => {
     // eslint-disable-next-line
   }, [])
   useEffect(() => {
-    if (account.is_first_start) { 
-      setActiveStory('start')
-    }else{
-      if (hash.promo !== undefined && !ignore_promo) {
-        ignore_promo = true;
-        setActiveStory('profile');
+    if(!isEmptyObject(account)){
+      if (account.is_first_start) { 
+        setActiveStory('start')
+      }else{
+        if (hash.promo !== undefined && !ignore_promo) {
+          ignore_promo = true;
+          setActiveStory('profile');
+        }
+        if (activeStory === 'loading' || activeStory === 'start'){
+          setActiveStory('questions');
+        }
+        
       }
-      if (activeStory === 'loading'){
-        setActiveStory('questions');
-      }
-      
+      setLoadWebView(true)
+      // if(activeStory !== 'disconnect'){
+      //   dispatch(viewsActions.setNeedEpic(true))
+      // }
     }
-    setLoadWebView(true)
-    if(activeStory !== 'disconnect'){
-      dispatch(viewsActions.setNeedEpic(true))
-    }
-  }, [account.is_first_start, dispatch, setActiveStory, activeStory])
+    
+  }, [account, dispatch, setActiveStory, activeStory])
   useEffect(() => {
     bridge.subscribe(bridgecallback);
     

@@ -20,6 +20,7 @@ import {
     Group,
     PanelSpinner,
     PanelHeaderButton,
+    Text,
     } from '@vkontakte/vkui';
 
 import { 
@@ -27,6 +28,18 @@ import {
   Icon16StarCircleFillYellow,
   Icon16CheckCircle,
   Icon16ReplyOutline,
+  Icon28UserSquareOutline,
+  Icon28ReportOutline,
+  Icon28CopyOutline,
+  Icon28CommentOutline,
+  Icon28DoneOutline,
+  Icon28CancelOutline,
+  Icon28CheckCircleOutline,
+  Icon28DeleteOutline,
+  Icon28WriteOutline,
+  Icon28CommentDisableOutline,
+
+  
 
  } from '@vkontakte/icons';
 
@@ -35,7 +48,7 @@ import {
 import Message from './message'
 import { useDispatch, useSelector } from 'react-redux';
 import { accountActions, FetchFatalError, ForceErrorBackend, ticketActions, viewsActions } from '../store/main';
-import { getHumanyTime } from '../Utils';
+import { getHumanyTime, LinkHandler } from '../Utils';
 import { API_URL } from '../config';
 // const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 const queryString = require('query-string');
@@ -139,7 +152,7 @@ export default props => {
 
         })
       }
-  const Admin = (approved, id, author_id, text, comment, avatar = null, mark = -1) => {
+  const Admin = (approved, id, chance_posit, author_id, text, comment, avatar = null, mark = -1) => {
     let special = account.special;
     if (author_id > 0) {
       setPopout(
@@ -147,66 +160,88 @@ export default props => {
           toggleRef={MessageRef.current}
           iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
           {author_id > 0 ?
-            <ActionSheetItem autoclose onClick={() => { goOtherProfile(author_id); }}>
+            <ActionSheetItem 
+            before={<Icon28UserSquareOutline />}
+            autoclose onClick={() => { goOtherProfile(author_id); }}>
               Профиль
               </ActionSheetItem>
             : null}
           {special && mark === -1 && author_id > 0 ?
-            <ActionSheetItem autoclose onClick={() => markMessage(1, id, "mark")}>
+            <ActionSheetItem autoclose onClick={() => markMessage(1, id, "mark")}
+            subtitle={<Text onClick={(e) => e.stopPropagation()} style={{whiteSpace: "pre-wrap"}}>Вероятность положительной оценки: {chance_posit / 10}%{"\n"}<LinkHandler href='https://vk.com/@team.jedi-glossarik-dlya-specialnyh-agentov?anchor=veroyatnost-otsenivania-otvetov-eto-chto-takoe'>
+              Подробнее
+              </LinkHandler></Text>}
+            before={<Icon28DoneOutline />}>
               Оценить положительно
               </ActionSheetItem>
             : null}
           {special && mark === -1 && author_id > 0 && !(comment === null || comment === undefined) ?
-            <ActionSheetItem autoclose onClick={() => markMessage(0, id, "mark")}>
+            <ActionSheetItem autoclose 
+            before={<Icon28CancelOutline />}
+            onClick={() => markMessage(0, id, "mark")}>
               Оценить отрицательно
               </ActionSheetItem>
             : null}
           {special && mark !== -1 && author_id > 0 ?
-            <ActionSheetItem autoclose onClick={() => markMessage(0, id, "unmark")}>
+            <ActionSheetItem autoclose
+            before={<Icon28DeleteOutline />} 
+            onClick={() => markMessage(0, id, "unmark")}>
               Удалить оценку
               </ActionSheetItem>
             : null}
           {(special && author_id > 0 && !approved) ?
-            <ActionSheetItem autoclose onClick={() => markMessage(0, id, "approve")}>
+            <ActionSheetItem autoclose 
+            before={<Icon28CheckCircleOutline />}
+            onClick={() => markMessage(0, id, "approve")}>
               Одобрить
               </ActionSheetItem>
             : null}
           {(special && (comment === null || comment === undefined)) ?
-            <ActionSheetItem autoclose onClick={() => {setAddComment(true); setMessageIdChanged(id)}}>
+            <ActionSheetItem autoclose 
+            before={<Icon28CommentOutline/>}
+            onClick={() => {setAddComment(true); setMessageIdChanged(id)}}>
               Добавить комментарий
               </ActionSheetItem>
             : null}
           {(special && !(comment === null || comment === undefined)) ?
-            <ActionSheetItem autoclose onClick={() => { setSendfield(comment);setMessageIdChanged(id);setEditComment(true)}}>
+            <ActionSheetItem autoclose 
+            before={<Icon28WriteOutline />}
+            onClick={() => { setSendfield(comment);setMessageIdChanged(id);setEditComment(true)}}>
               Редактировать комментарий
               </ActionSheetItem>
             : null}
           {(special && !(comment === null || comment === undefined)) ?
-            <ActionSheetItem autoclose onClick={() => QuickMenagerMessages(id, 'delete_coment')}>
+            <ActionSheetItem autoclose 
+            before={<Icon28CommentDisableOutline />} 
+            onClick={() => QuickMenagerMessages(id, 'delete_coment')}>
               Удалить комментарий
               </ActionSheetItem>
             : null}
           {(Number(author_id === account.id) && info['status'] === 0 && mark === -1 && !approved) ?
-            <ActionSheetItem autoclose onClick={() => { setRedaction(true); setMessageIdChanged(id); setSendfield(text)}}>
+            <ActionSheetItem autoclose 
+            onClick={() => { setRedaction(true); setMessageIdChanged(id); setSendfield(text)}}>
               Редактировать
              </ActionSheetItem>
             : null}
           <ActionSheetItem autoclose onClick={() => {
             bridge.send("VKWebAppCopyText", { text: text });
             setContinueSnack("Текст скопирован")
-          }}>
+          }}
+          before={<Icon28CopyOutline/>}>
             Скопировать текст
                 </ActionSheetItem>
           {(Number(author_id) === Number(account.id) && mark !== -1) ?
             <ActionSheetItem 
             autoclose 
             mode='destructive'
+            before={<Icon28DeleteOutline />} 
             onClick={() => markMessage(0, id, "delete")}>
               Удалить сообщение
                 </ActionSheetItem>
             : null}
           {account.special ?
             <ActionSheetItem autoclose mode='destructive'
+            before={<Icon28ReportOutline />}
               onClick={() => setReport(3, id)}>
               Пожаловаться
               </ActionSheetItem>
@@ -223,14 +258,17 @@ export default props => {
               Забанить пользователя
                 </ActionSheetItem>
             {(Number(author_id === account.id) && info.status === 0) ?
-              <ActionSheetItem autoclose onClick={() => {setRedaction(true);setMessageIdChanged(id);setSendfield(text)}}>
+              <ActionSheetItem autoclose 
+              before={<Icon28WriteOutline />}
+              onClick={() => {setRedaction(true);setMessageIdChanged(id);setSendfield(text)}}>
                 Редактировать
                </ActionSheetItem>
               : null}
             <ActionSheetItem autoclose onClick={() => {
               bridge.send("VKWebAppCopyText", { text: text });
               setContinueSnack("Текст скопирован")
-            }}>
+            }}
+            before={<Icon28CopyOutline/>}>
               Скопировать текст
             </ActionSheetItem>
             <ActionSheetItem autoclose mode='destructive' onClick={() => markMessage(0, id, "delete")}>
@@ -245,14 +283,17 @@ export default props => {
               toggleRef={MessageRef.current}
               iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
               {(Number(author_id === account.id) && info['status'] === 0) ?
-                <ActionSheetItem autoclose onClick={() => { setRedaction(true); setMessageIdChanged(id); setSendfield(text) }}>
+                <ActionSheetItem autoclose 
+                before={<Icon28WriteOutline />}
+                onClick={() => { setRedaction(true); setMessageIdChanged(id); setSendfield(text) }}>
                   Редактировать
                  </ActionSheetItem>
                 : null}
               <ActionSheetItem autoclose onClick={() => {
                 bridge.send("VKWebAppCopyText", { text: text });
                 setContinueSnack("Текст скопирован")
-              }}>
+              }}
+              before={<Icon28CopyOutline/>}>
                 Скопировать текст
                 </ActionSheetItem>
             </ActionSheet>
@@ -435,7 +476,7 @@ export default props => {
                     avatar={getAvatar(result)}
                     time={getHumanyTime(result.time).time}
                     onClick={(e) => {
-                      Admin(result.approved, result.id,
+                      Admin(result.approved, result.id, result.chance_posit,
                         result['author'].first_name ? -result['author']['id'] : result['author']['id'], result['text'],
                         result.moderator_comment !== undefined ? result['moderator_comment']['text'] : null,
                         getAvatar(result),

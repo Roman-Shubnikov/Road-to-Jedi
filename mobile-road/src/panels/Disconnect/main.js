@@ -44,7 +44,7 @@ export default props => {
     bridge.send('VKWebAppEnableSwipeBack');
     window.addEventListener('popstate', handlePopstate);
     dispatch(viewsActions.setNeedEpic(false))
-    setPopout(null)
+    // setPopout(null)
     return () => {
       bridge.send('VKWebAppDisableSwipeBack');
       window.removeEventListener('popstate', handlePopstate)
