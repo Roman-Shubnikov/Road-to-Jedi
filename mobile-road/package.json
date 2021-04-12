@@ -17,7 +17,8 @@
     "@babel/plugin-proposal-class-properties": "^7.13.0",
     "cross-env": "^5.2.0",
     "react-hot-loader": "^4.9.0",
-    "react-scripts": "^3.4.1"
+    "react-scripts": "^3.4.1",
+    "terser-brunch": "^4.0.0"
   },
   "dependencies": {
     "@sentry/node": "^5.26.0",

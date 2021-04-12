@@ -597,7 +597,7 @@ class Tickets
 		if (mb_strlen($text) < CONFIG::MIN_MESSAGE_LEN) {
 			Show::error(23);
 		}
-		return $this->Connect->query("UPDATE messages SET edit_time=?, text=? WHERE id=?", [time(), str_replace("XD", "😆", $text), $message_id]);
+		return $this->Connect->query("UPDATE messages SET edit_time=?, text=?, comment=NULL, comment_author_id=0, comment_time=0 WHERE id=?", [time(), str_replace("XD", "😆", $text), $message_id]);
 	}
 
 	public function close(int $ticket_id)

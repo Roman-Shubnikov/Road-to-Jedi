@@ -118,8 +118,8 @@ const App = () => {
   const setBanObject = useCallback((payload) => dispatch(accountActions.setBanObject(payload)), [dispatch])
   const setScheme = useCallback((payload) => dispatch(accountActions.setScheme(payload)), [dispatch])
   const need_epic = useSelector((state) => state.views.need_epic)
-  // const adress_token = "vk_access_token_settings=&vk_app_id=7409818&vk_are_notifications_enabled=0&vk_is_app_user=1&vk_is_favorite=0&vk_language=ru&vk_platform=desktop_web&vk_ref=other&vk_ts=1614870020&vk_user_id=413636725&sign=jlrDcgr_3Eru2vMajX5MJZYEk-XYZ51RBmbQ4ce8B1I";
 
+  
   const fetchAccount = useCallback(() => {
     fetch(API_URL + "method=account.get&" + window.location.search.replace('?', ''))
     .then(res => res.json())
