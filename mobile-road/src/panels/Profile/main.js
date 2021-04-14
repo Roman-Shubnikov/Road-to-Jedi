@@ -417,7 +417,7 @@ export default props => {
         id='statuschange'
         onClose={() => setActiveModal(null)}
         header='Введите новый статус'
-        subheader='Будте креативны, но не нарушайте правила'
+        subheader='Будьте креативны, но не нарушайте правила'
         actions={[
           <Button mode='secondary'
           key={1}
