@@ -20,15 +20,14 @@ class Users {
 
 			$this->_get();
 		}
-		if (!$this->info['age']){
-			$this->is_first_start = true;
-		}
+		// if (!$this->info['age']){
+		// 	$this->is_first_start = true;
+		// }
 		$this->id = $this->info['id'];
 
 		if ( $this->info['banned'] ) {
 			$ban = $this->info['banned'];
 			Show::error(5, ['reason' => $ban['reason'], 'time_end' => (int)$ban['time_end']]);
-			// throw new Exception( ERRORS[5] . $this->info['ban_reason'], 5 );
 		}
 	}
 

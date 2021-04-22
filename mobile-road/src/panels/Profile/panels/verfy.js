@@ -16,7 +16,7 @@ import {
     FormItem,
 
     } from '@vkontakte/vkui';
-import VerfIcon from '../../../images/verfload.svg';
+import { Icon56CheckCircleOutline } from '@vkontakte/icons';
 import { API_URL } from '../../../config';
 import { useDispatch } from 'react-redux';
 import { viewsActions } from '../../../store/main';
@@ -93,8 +93,6 @@ export default props => {
   useEffect(() => {
     setPopout(<ScreenSpinner/>)
     checkVerfStatus()
-    const img = new Image();
-    img.src = VerfIcon;
 // eslint-disable-next-line
   }, [setPopout])
 
@@ -107,7 +105,7 @@ export default props => {
         Верификация
                 </PanelHeader>
       {(status !== -1) ? (status === 2) ? <><Group><Placeholder
-        icon={<img src={VerfIcon} alt='Ожидайте рассмотрения' style={{ width: 250, height: 200 }} />}
+        icon={<Icon56CheckCircleOutline  />}
         header='Вы отправили заявку на верификацию'>Вы отправили заявку на верификацию, по
         окончании проверки — мы сообщим Вам
                                                             о результатах официального статуса.</Placeholder>

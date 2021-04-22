@@ -821,10 +821,11 @@ switch ($method) {
 		$text = trim($data['text']);
 		$userQue = (int) $data['user'];
 		$donut = (bool) $data['donut_only'];
+		$real_author = isset($data['real_author']) ? (int) $data['real_author'] : $users->vk_id;
 		if ($userQue > 0) {
 			$userQue = -$userQue;
 		}
-		Show::response($tickets->add($title, $text, $userQue, $donut));
+		Show::response($tickets->add($title, $text, $userQue, $donut, $real_author));
 
 	case 'ticket.getById':
 		$id = (int) $data['ticket_id'];

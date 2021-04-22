@@ -37,7 +37,7 @@ export default props => {
                     'title': title,
                     'text': text,
                     'user': getRandomInRange(501, 624429367),
-                    'donut_only': check1
+                    'donut_only': check1,
                 })
             })
             .then(res => res.json())

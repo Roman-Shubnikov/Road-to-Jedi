@@ -38,7 +38,7 @@ import Advice         from './panels/Advice/main';
 import Top            from './panels/topUsers/main';
 import Notification   from './panels/notify/main';
 import Profile        from './panels/Profile/main';
-import Start          from './panels/Start/main';
+// import Start          from './panels/Start/main';
 import Banned         from './panels/Banned/main';
 import LoadingScreen  from './panels/Loading/main';
 import Unsupport      from './panels/Unsupport/main';
@@ -224,22 +224,14 @@ const App = () => {
   }, [])
   useEffect(() => {
     if(!isEmptyObject(account)){
-      if (account.is_first_start) { 
-        setActiveStory('start')
-      }else{
         if (hash.promo !== undefined && !ignore_promo) {
           ignore_promo = true;
           setActiveStory('profile');
         }
-        if (activeStory === 'loading' || activeStory === 'start'){
+        if (activeStory === 'loading'){
           setActiveStory('questions');
         }
-        
-      }
       setLoadWebView(true)
-      // if(activeStory !== 'disconnect'){
-      //   dispatch(viewsActions.setNeedEpic(true))
-      // }
     }
     
   }, [account, dispatch, setActiveStory, activeStory])
@@ -284,8 +276,8 @@ const App = () => {
               > 
               <AppRoot>
                 <SplitLayout
-              header={hasHeader.current && <PanelHeader separator={false} />}
-                style={{ justifyContent: "center" }}>
+              // header={!platformname && <PanelHeader separator={false} />}
+              style={{ justifyContent: "center" }}>
 
               {isDesktop.current && need_epic && (<SplitCol fixed width="280px" maxWidth="280px">
                     <Panel>
@@ -415,11 +407,11 @@ const App = () => {
                       reloadProfile={fetchAccount}
                       />
                       
-                      <Start 
+                      {/* <Start 
                       id="start"
                       reloadProfile={fetchAccount}
                       scheme={scheme}
-                      popout={popout} />
+                      popout={popout} /> */}
 
                       <Banned 
                       id="banned"
@@ -479,11 +471,11 @@ const App = () => {
                       reloadProfile={fetchAccount}
                       />
                       
-                      <Start 
+                      {/* <Start 
                       id="start"
                       reloadProfile={fetchAccount}
                       scheme={scheme}
-                      popout={popout} />
+                      popout={popout} /> */}
 
                       <Banned 
                       id="banned"

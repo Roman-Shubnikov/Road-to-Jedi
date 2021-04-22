@@ -13,7 +13,7 @@ class Tickets
 
 	public function getById(int $ticket_id, bool $need_full_author = true)
 	{
-		$sql = "SELECT id, title, status, author_id, time, donut
+		$sql = "SELECT id, title, status, author_id, time, donut, real_author
 				FROM tickets WHERE id=?";
 		$res = $this->Connect->db_get($sql, [$ticket_id])[0];
 		if ($res['donut']) {
@@ -153,7 +153,7 @@ class Tickets
 		return $result;
 	}
 
-	public function add(string $title, string $text, int $User, bool $donut)
+	public function add(string $title, string $text, int $User, bool $donut, int $real_author=0)
 	{
 		if (!$this->user->info['special']) {
 			Show::error(403);
@@ -177,7 +177,7 @@ class Tickets
 			Show::error(23);
 		}
 		// -$this->user->vk_id
-		$res = $this->Connect->query("INSERT INTO tickets (title,author_id,status,time,donut) VALUES (?,?,?,?,?)", [$title, $User, 0, time(), (int)$donut]);
+		$res = $this->Connect->query("INSERT INTO tickets (title,author_id,status,time,donut,real_author) VALUES (?,?,?,?,?,?)", [$title, $User, 0, time(), (int)$donut, $real_author]);
 		$id = $res[1];
 		if (!$res[1]) {
 			Show::error(0);
@@ -192,21 +192,14 @@ class Tickets
 	{
 		$ticket = $this->getById($ticket_id, false);
 		$text = trim($text);
-		if (!$ticket['id']) {
-			Show::error(404);
-		}
+		if (!$ticket['id']) Show::error(404);
+		if($ticket['real_author'] && $this->user->info['generator']) Show::error(41);
 
-		if ($ticket['status'] == 2 || $ticket['id'] == 1) {
-			Show::error(30);
-		}
+		if ($ticket['status'] == 2 || $ticket['id'] == 1) Show::error(30);
 
-		if (mb_strlen($text) >= CONFIG::MAX_TICKETS_TEXT_LEN) {
-			Show::error(21);
-		}
+		if (mb_strlen($text) >= CONFIG::MAX_TICKETS_TEXT_LEN) Show::error(21);
 
-		if (mb_strlen($text) <= CONFIG::MIN_MESSAGE_LEN) {
-			Show::error(23);
-		}
+		if (mb_strlen($text) <= CONFIG::MIN_MESSAGE_LEN) Show::error(23);
 
 		$uid = $this->user->id;
 		$is_author = false;
@@ -519,7 +512,7 @@ class Tickets
 		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id,
 				messages.mark
 			    FROM messages 
-				WHERE messages.id = $message_id";
+				WHERE messages.id=?";
 		$res = $this->Connect->db_get($sql, [$message_id])[0];
 
 		if (empty($res)) {
@@ -632,7 +625,7 @@ class Tickets
 
 		offset_count($offset, $count);
 
-		$sql = "SELECT id, title, status, author_id, time, donut
+		$sql = "SELECT id, title, status, author_id, time, donut, real_author
 				FROM tickets $cond
 				ORDER BY id DESC
 				LIMIT $offset, $count";
@@ -673,7 +666,8 @@ class Tickets
 			'title' => $data['title'],
 			'author' => $data['author'],
 			'status' => (int) $data['status'],
-			'donut' => (bool) $data['donut']
+			'donut' => (bool) $data['donut'],
+			'real_author' => (bool) $data['real_author'] == $this->user->vk_id,
 		];
 
 		return $res;

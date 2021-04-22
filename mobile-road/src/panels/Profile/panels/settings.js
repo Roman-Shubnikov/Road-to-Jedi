@@ -21,7 +21,7 @@ import {
   Icon28DoneOutline,
   Icon28CoinsOutline,
   Icon28PaletteOutline,
-  Icon28TargetOutline,
+  // Icon28TargetOutline,
   Icon28InfoOutline,
   Icon28FavoriteOutline,
   Icon28Notifications,
@@ -175,12 +175,12 @@ export default props => {
         }>
         Настройки
                 </PanelHeader>
-      <Group>
+      {/* <Group>
         <SimpleCell
           disabled
           indicator={account.age}
           before={<Icon28TargetOutline />}>Ваш возраст</SimpleCell>
-      </Group>
+      </Group> */}
 
       <Group>
         <SimpleCell

@@ -219,6 +219,7 @@ export default props => {
             : null}
           {(Number(author_id === account.id) && info['status'] === 0 && mark === -1 && !approved) ?
             <ActionSheetItem autoclose 
+            before={<Icon28WriteOutline />}
             onClick={() => { setRedaction(true); setMessageIdChanged(id); setSendfield(text)}}>
               Редактировать
              </ActionSheetItem>
@@ -230,7 +231,7 @@ export default props => {
           before={<Icon28CopyOutline/>}>
             Скопировать текст
                 </ActionSheetItem>
-          {(Number(author_id) === Number(account.id) && mark !== -1) ?
+          {(Number(author_id) === Number(account.id) && mark === -1) ?
             <ActionSheetItem 
             autoclose 
             mode='destructive'
@@ -513,12 +514,12 @@ export default props => {
                 </Div>
               </Group>
             </FixedLayout> :
-            account.generator ?
+            (account.generator && info.real_author) ?
               <FixedLayout filled vertical='bottom' style={{ zIndex: 20 }}>
                 <Group>
                   <Div>
                     <FormStatus header='Внимание!' mode='default'>
-                      Вы являетесь генератором. Вам запрещено отвечать на вопросы
+                      Вы являетесь генератором. Вам запрещено отвечать на свои вопросы
                       </FormStatus>
                   </Div>
                 </Group>
