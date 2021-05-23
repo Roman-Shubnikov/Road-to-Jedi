@@ -31,7 +31,7 @@ import {
 
 } from '@vkontakte/icons';
 
-import Don from '../images/donut.svg';
+// import Don from '../images/donut.svg';
 import { useDispatch, useSelector } from 'react-redux';
 import { API_URL, AVATARS_URL, LINKS_VK } from '../../../config';
 import { viewsActions } from '../../../store/main';
@@ -149,9 +149,9 @@ export default props => {
         Premium
                 </PanelHeader>
       <Group>
-        <Placeholder
+        {/* <Placeholder
           icon={<img src={Don} alt='jedi' />}>
-        </Placeholder>
+        </Placeholder> */}
         <SimpleCell
           disabled
           after={

@@ -304,6 +304,7 @@ export default props => {
       window.removeEventListener('popstate', handlePopstate)
     }
   }, [handlePopstate, dispatch, goPanel])
+  const callbacks = { setPopout, goPanel, setReport, showErrorAlert, goTiket, setActiveModal, showAlert, goOtherProfile, setSnackbar, setNewStatus }
   const modal = (
     <ModalRoot
       activeModal={activeModal}
@@ -330,6 +331,7 @@ export default props => {
       <ModalBan
         id='ban_user'
         onClose={() => setActiveModal(null)}
+        callbacks={callbacks}
       />
       <ModalComment
         id='comment'
@@ -558,7 +560,7 @@ export default props => {
     </ModalRoot>
   )
   
-  const callbacks = { setPopout, goPanel, setReport, showErrorAlert, goTiket, setActiveModal, showAlert, goOtherProfile, setSnackbar, setNewStatus }
+  
   return (
     <View
       id={props.id}
