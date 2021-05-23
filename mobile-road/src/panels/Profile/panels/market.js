@@ -51,14 +51,14 @@ import { API_URL, AVATARS_URL, LINKS_VK } from '../../../config';
 import { enumerate } from '../../../Utils';
 
 
-// const avatars = [
-    // "1.png",
-    // "2.png",
-    // "3.png",
-    // "4.png",
-    // "5.png",
-    // "6.png",
-    // "7.png",
+const avatars = [
+    "1.png",
+    "2.png",
+    "3.png",
+    "4.png",
+    "5.png",
+    "6.png",
+    "7.png",
     // "8.png",
     // "9.png",
     // "10.png",
@@ -95,54 +95,7 @@ import { enumerate } from '../../../Utils';
     // "41.png",
     // "42.png",
     
-// ]
-
-const avatars = [
-  "1.jpg",
-  "2.jpg",
-  "3.jpg",
-  "4.jpg",
-  "5.jpg",
-  "6.jpg",
-  "7.jpg",
-  "8.jpg",
-  "9.jpg",
-  "10.jpg",
-  "11.jpg",
-  "12.jpg",
-  "13.jpg",
-  "14.jpg",
-  "15.jpg",
-  "16.jpg",
-  "17.jpg",
-  "18.jpg",
-  "19.jpg",
-  "20.jpg",
-  "21.jpg",
-  "22.jpg",
-  "23.jpg",
-  "24.jpg",
-  "25.jpg",
-  "26.jpg",
-  "27.jpg",
-  // "28.png",
-  // "29.png",
-  // "30.png",
-  // "31.png",
-  // "32.png",
-  // "33.png",
-  // "34.png",
-  // "35.png",
-  // "36.png",
-  // "37.png",
-  // "38.png",
-  // "39.png",
-  // "40.png",
-  // "41.png",
-  // "42.png",
-  
 ]
-
 
 const blueBackground = {
     backgroundColor: 'var(--accent)'

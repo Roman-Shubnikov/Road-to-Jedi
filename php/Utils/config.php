@@ -14,7 +14,7 @@ class CONFIG {
 	const MAX_ITEMS_COUNT = 30;
 	
 	const AVATAR_PATH = 'https://xelene.ru/road/php/images/avatars';
-	const AVATARS_COUNT = 27;
+	const AVATARS_COUNT = 7;
 	const DONUT_AVATARS_COUNT = 0;
 	const DONUT_CHAT_LINK = 'https://vk.me/join/bdWXBlYwHFXjmNksi3y03DRPTQPebMwOufM=';
 	
