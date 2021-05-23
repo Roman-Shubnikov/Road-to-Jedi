@@ -17,6 +17,7 @@ import Notif from './panels/notif';
 import Tiket from '../../components/tiket';
 import OtherProfile from '../../components/other_profile'
 import Reports from '../../components/report';
+import AnswerAdded    from '../../components/AnswerAdded';
 
 //Импортируем модальные карточки
 import ModalPrometay from '../../Modals/Prometay';
@@ -201,6 +202,8 @@ export default props => {
       callbacks={callbacks}
       id_rep={id_rep} 
       typeres={typeres} />
+
+      <AnswerAdded id="answer_added" goQuestions={() => {setActiveStory('questions');goPanel('questions')}} />
 
     </View>   
   )

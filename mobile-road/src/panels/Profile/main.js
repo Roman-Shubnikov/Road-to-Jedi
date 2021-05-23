@@ -41,6 +41,7 @@ import Promocodes from './panels/promocode';
 import Tiket from '../../components/tiket';
 import OtherProfile from '../../components/other_profile'
 import Reports from '../../components/report';
+import AnswerAdded    from '../../components/AnswerAdded';
 
 //Импортируем модальные карточки
 import ModalPrometay from '../../Modals/Prometay';
@@ -187,6 +188,7 @@ export default props => {
         }
         history.pop()
         setActivePanel(history[history.length - 1])
+        setActiveModal(null)
         setPopout(<ScreenSpinner />)
         setTimeout(() => {
           setPopout(null)
@@ -287,6 +289,7 @@ export default props => {
   useEffect(() => {
     bridge.send('VKWebAppEnableSwipeBack');
     window.addEventListener('popstate', handlePopstate);
+    dispatch(viewsActions.setNeedEpic(true))
     if (hash.promo !== undefined && !ignore_promo) {
       ignore_promo = true
       goPanel('promocodes');
@@ -609,6 +612,8 @@ export default props => {
       callbacks={callbacks}
         id_rep={id_rep}
         typeres={typeres} />
+
+      <AnswerAdded id="answer_added" goQuestions={() => {setActiveStory('questions');goPanel('questions')}} />
 
     </View>
   )

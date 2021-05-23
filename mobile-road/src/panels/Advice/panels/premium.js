@@ -26,6 +26,7 @@ import {
     Icon28UserStarBadgeOutline,
     Icon16CheckCircle,
     Icon20CancelCircleFillRed,
+    Icon56ErrorTriangleOutline
 
 
 } from '@vkontakte/icons';
@@ -201,8 +202,13 @@ export default props => {
 
       </Group>
       <Group header={<Header>Эксклюзивные аватарки</Header>}>
+        <Placeholder
+        icon={<Icon56ErrorTriangleOutline />}>
+          Раздел временно недоступен
+        </Placeholder>
 
-        <HorizontalScroll showArrows getScrollToLeft={(i) => i - 190} getScrollToRight={(i) => i + 190}>
+
+        {/* <HorizontalScroll showArrows getScrollToLeft={(i) => i - 190} getScrollToRight={(i) => i + 190}>
           <div style={{ display: 'flex' }}>
             {donutAvatars.map((ava, i) =>
               <HorizontalCell key={i} size='m'
@@ -227,7 +233,7 @@ export default props => {
             stretched
             mode="secondary"
             disabled={selectedAvatar === 0}>Сменить за 50 пончиков</Button>
-        </Div>
+        </Div> */}
       </Group>
       {snackbar}
     </Panel>

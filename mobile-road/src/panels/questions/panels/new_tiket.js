@@ -82,7 +82,9 @@ export default props => {
                             value={text}
                         />
                     </FormItem>
-
+                    <Checkbox checked={check1} onChange={() => setCheck1(prev => !prev)}>
+                        Разрешить оценивать вопрос
+                    </Checkbox>
                     <Checkbox checked={check1} onChange={() => setCheck1(!check1)}>
                         Только для донов
                     </Checkbox>

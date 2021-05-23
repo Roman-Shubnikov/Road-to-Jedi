@@ -13,6 +13,7 @@ import Answers from './components/answers';
 import Verification from './components/verification';
 import Reports from './components/Reports';
 import { useSelector } from 'react-redux';
+import { PERMISSIONS } from '../../../config';
 
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 export default props => {
@@ -21,6 +22,8 @@ export default props => {
   const {
     account,
   } = useSelector((state) => state.account)
+  const permissions = account.permissions;
+  const admin_permission = permissions >= PERMISSIONS.admin;
   const callbacks = { ...props.callbacks, setSnackbar}
 
   const getActualPage = (activeTab) => {
@@ -63,13 +66,13 @@ export default props => {
             >
               Вопросы
                         </TabsItem>
-            {account.special2 ? <TabsItem
+            {admin_permission ? <TabsItem
               onClick={() => setActivetab('reports')}
               selected={activeTab === 'reports'}
             >
               Жалобы
                         </TabsItem> : null}
-            {account.special2 ? <TabsItem
+            {admin_permission ? <TabsItem
               onClick={() => setActivetab('verification')}
               selected={activeTab === 'verification'}
             >

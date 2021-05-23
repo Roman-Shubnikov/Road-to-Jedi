@@ -72,7 +72,7 @@ class Users {
 	}
 
 	public function getById( int $id ) {
-		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator, users.publicStatus, users.coff_active,
+		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.permissions, users.generator, users.publicStatus, users.coff_active,
 				users.bad_answers, users.avatar_id, avatars.name as avatar_name, users.flash, users.verified, users.donut, users.diamond, users.nickname,
 				users.money, users.age, users.scheme, users.vk_user_id, users.donuts,
 				users.lvl, users.exp
@@ -114,7 +114,7 @@ class Users {
 		$s_ids = implode( ',', $ids );
 		$result = [];
 
-		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator,
+		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.permissions, users.generator,
 						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme, users.publicStatus,users.coff_active,
 						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname, users.donuts,
 						users.lvl, users.exp
@@ -132,10 +132,13 @@ class Users {
 
 	public function getTop($type, $staff) {
 		$count = CONFIG::MAX_ITEMS_COUNT;
-		$order = 'ORDER BY coff_active DESC';
+		$order = 'ORDER BY users.good_answers DESC';
 		switch($type){
 			case 'all':
-				$order = 'ORDER BY coff_active DESC';
+				$order = 'ORDER BY users.good_answers DESC';
+				break;
+			case 'rating':
+				$order = 'AND coff_active > 0 ORDER BY coff_active DESC';
 				break;
 			case 'donut':
 				$order = 'AND donut != 0 ORDER BY coff_active DESC';
@@ -150,14 +153,15 @@ class Users {
 				$order = 'AND users.exp > 0 ORDER BY users.exp DESC';
 				break;
 		}
+		$staff = $staff ? CONFIG::PERMISSIONS['special'] : 0;
 
-		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.special, users.generator,
+		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.permissions, users.generator,
 						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme, users.publicStatus,users.coff_active,
 						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname, users.donuts,
 						users.lvl, users.exp
 				FROM users
 				LEFT JOIN avatars ON users.avatar_id=avatars.id
-				WHERE users.vk_user_id NOT IN (SELECT vk_user_id FROM banned where time_end>?) AND users.special=? $order LIMIT $count";
+				WHERE users.vk_user_id NOT IN (SELECT vk_user_id FROM banned where time_end>?) AND users.permissions=? $order LIMIT $count";
 		$res = $this->Connect->db_get( $sql, [time(), (int) $staff] );
 		$result = [];
 		foreach ( $res as $item ) {
@@ -182,9 +186,9 @@ class Users {
 		$time = time();
 		$user_id = $this->vk_id;
 		$this->Connect->query("UPDATE users SET last_activity=? WHERE vk_user_id=?", [$time,$user_id]);
-		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,users.age,users.vk_user_id,
+		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,users.age,users.vk_user_id,users.permissions,
 						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.scheme, users.publicStatus,users.coff_active,
-						users.special, users.generator, users.flash, users.verified, users.donut, users.nickname, users.diamond, avatars.name as avatar_name, users.donuts,
+						users.generator, users.flash, users.verified, users.donut, users.nickname, users.diamond, avatars.name as avatar_name, users.donuts,
 						users.lvl, users.exp
 				FROM users
 				LEFT JOIN avatars
@@ -194,9 +198,6 @@ class Users {
 		$ban = $this->checkBanned($user_id);
 		if($ban){
 			$res['banned'] = $ban[0];
-		}
-		if ( !$res['special'] ) {
-			unset( $res['special'] );
 		}
 		
 		$this->info = $res ?? [];
@@ -222,7 +223,7 @@ class Users {
 		$is_hide_donut = $info_settings ? (bool) $info_settings[0]['hide_donut'] : FALSE;
 		$changeColorNick = $info_settings ? $info_settings[0]['change_color_donut'] : FALSE;
 
-		if( empty($data['banned']) || !$data['special']) {
+		if( empty($data['banned']) || !($data['permissions'] < CONFIG::PERMISSIONS['special'])) {
 			$res = [
 				'id' => (int) $data['id'],
 				'online' => [
@@ -251,18 +252,13 @@ class Users {
 				
 			];	
 		}
+		$res['permissions'] = (int) $data['permissions'];
 		if(!empty($data['banned'])){
 			$res['banned'] = $data['banned'];
 		}
-		if ( $this->info['special']) { 
-			if(isset($data['vk_user_id'])){
-				$res['vk_id'] = (int)$data['vk_user_id'];
-			}
+		if (!($this->info['permissions'] < CONFIG::PERMISSIONS['special'])) { 
+			$res['vk_id'] = (int)$data['vk_user_id'];
 			$res['marked'] = (int) $data['good_answers'];
-			
-		}
-		if($data['special'] == 2) {
-			$res['special2'] = TRUE;
 		}
 
 		if ( isset( $data['is_first_start'] ) ) {
@@ -271,10 +267,7 @@ class Users {
 
 		if ( !empty( $data['nickname'] ) ) $res['nickname'] = $data['nickname'];
 
-		if ( isset( $data['special'] ) ) {
-			$res['special'] = (bool) $data['special'];
-		}
-		if((int) $data['id'] == $this->id || $this->info['special']){
+		if((int) $data['id'] == $this->id || !($this->info['permissions'] < CONFIG::PERMISSIONS['special'])){
 			$res['noti'] = (bool)$data['noti'];
 			$res['balance'] = (int)$data['money'];
 			$res['donuts'] = (int)$data['donuts'];

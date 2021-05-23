@@ -25,9 +25,6 @@ class Reports {
 
     
     public function get($count, $offset){
-        if ( $this->users->info['special'] < 2 ) {
-			Show::error(403);
-		}
 		$res = $this->Connect->db_get(
 			"SELECT id, aid, vk_id, type, comment, time, id_reporting, vk_id_reporting, material_id, name, materials
 			FROM reports 
@@ -51,7 +48,6 @@ class Reports {
 		return $out;
     }
     public function approve($id_request){
-        if ( $this->users->info['special'] < 2 ) Show::error(403);
 
         $info_req = $this->Connect->db_get(
 			"SELECT id, aid, vk_id, type, comment, time, id_reporting, name, material_id
@@ -94,9 +90,6 @@ class Reports {
     }
 
     public function deny($id_request){
-        if ( $this->users->info['special'] < 2 ) {
-			Show::error(403);
-        }
         $info_req = $this->Connect->db_get(
 			"SELECT id, aid, vk_id, type, comment, time, material_id, name
             FROM reports WHERE id=?", [$id_request]);

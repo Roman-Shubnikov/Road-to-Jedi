@@ -24,9 +24,6 @@ class Account {
 	}
 	public function Ban_User($agent_id, $ban_reason=NULL, $timeban=0){
 		$moderator_id = $this->user->vk_id;
-		if ( !$this->user->info['special'] ) {
-			Show::error(403);
-		}
 		$shortInfo = $this->user->getById($agent_id);
 		if(!empty($shortInfo['banned'])){
 			Show::error(8);
@@ -42,9 +39,6 @@ class Account {
 		return $this->Connect->db_get("SELECT COUNT(*) FROM banned WHERE vk_user_id=?", [$shortInfo['vk_id']]);
 	}
 	public function Verification($agent_id, $give=TRUE){
-		if ( !$this->user->info['special'] ) {
-			Show::error(403);
-		}
 		
 		if ($give) {
 			return $this->Connect->query("UPDATE users SET verified=? WHERE id=?", [time(),$agent_id])[0];

@@ -14,13 +14,17 @@ class CONFIG {
 	const MAX_ITEMS_COUNT = 30;
 	
 	const AVATAR_PATH = 'https://xelene.ru/road/php/images/avatars';
-	const AVATARS_COUNT = 42;
-	const DONUT_AVATARS_COUNT = 12;
+	const AVATARS_COUNT = 27;
+	const DONUT_AVATARS_COUNT = 0;
 	const DONUT_CHAT_LINK = 'https://vk.me/join/bdWXBlYwHFXjmNksi3y03DRPTQPebMwOufM=';
 	
 	const MAX_TICKETS_TITLE_LEN = 80;
 	const MAX_TICKETS_TEXT_LEN = 4040;
 	const MIN_MESSAGE_LEN = 4;
+
+	const MAX_FAQ_CATEGORY_LEN = 30;
+	const MAX_FAQ_QUESTION_LEN = 100;
+	const MAX_FAQ_ANSWER_LEN = 5000;
 	
 	const APP_ID = 7409818;
 	const SECRET_KEY = 'Xb10AoQB1SVlDsjnp9Sv';
@@ -30,12 +34,14 @@ class CONFIG {
 	const FLOOD_CONTROL = 25;
 	const FLOOD_CONTROL_BAN = 60;
 
-	const REGEXP_VALID_NAME = "/^[a-zA-ZА-Яа-яё0-9_ ]*$/u";
-	const REGEXP_VALID_TEXT = "/^[a-zA-ZА-Яа-яё0-9_ \.,\"'!?+=-]*$/ui";
+	const REGEXP_VALID_NAME = "/^[a-zа-яё0-9_ ]*$/ui";
+	const REGEXP_VALID_TEXT = "/^[a-zа-яё0-9_ \.,\"'!?+=-]*$/ui";
+	const REGEXP_VALID_HEX_COLOR = "/^#[a-z0-9]{3,6}$/ui";
 
 
 	const TYPES_TOP_GET = [
 		'all',
+		'rating',
 		'donut',
 		'verif',
 		'flash',
@@ -57,6 +63,14 @@ class CONFIG {
 	const RECOMMENDATIONS_PRICE = 150;
 	const GHOST_PRICE = 5;
 
+
+	//Permissions
+	const PERMISSIONS = [
+		"user" => 0,
+		"special" => 1,
+		"admin" => 20,
+	];
+
 	
 	const ERRORS = [
 
@@ -70,6 +84,7 @@ class CONFIG {
 		6 => 'Ошибка работы с базой. Попробуйте позже.',
 		7 => 'нельзя оставить коментарий больше 100 символов',
 		8 => 'У пользователя уже есть активная блокировка.',
+		9 => 'Строка поика не может быть пустой',
 
 		// New Tickets
 	
@@ -150,6 +165,16 @@ class CONFIG {
 
 		// Top
 		1550 => "Такой выборки данных не существует",
+
+		// FAQ
+		1600 => "Неверно введён цвет",
+		1601 => "Превышена максимально допустимая длина категории",
+		1602 => "Такой категории не существует",
+		1603 => "Превышена максимально допустимая длина ответа",
+		1604 => "Превышена максимально допустимая длина вопроса",
+		1605 => "Поля не могут быть пустыми",
+		
+
 		// Server
 
 		403 => 'Доступ запрещен.',

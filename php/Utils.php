@@ -5,7 +5,6 @@ class Utils {
 
     function __construct($vk) {
        $this->VK = $vk;
-    //    $this->DB = new DB();
     }
     public static function checkParams( $params, $data ) {
         $newdata = [];

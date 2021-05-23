@@ -63,7 +63,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useState } from 'react';
 import { accountActions, viewsActions } from '../store/main';
-import { API_URL, AVATARS_URL, LINK_APP } from '../config';
+import { API_URL, AVATARS_URL, LINK_APP, PERMISSIONS } from '../config';
 import { isEmptyObject } from 'jquery';
 import { getHumanyTime, enumerate, recog_number } from '../Utils';
 import { DonutTooltip, FlashTooltip, FlashVerifTooltip, VerifTooltip } from './Tooltips';
@@ -125,7 +125,8 @@ export default props => {
 
     } = OtherProfileData;
     const total_answers = good_answers + bad_answers;
-
+    const permissions = account.permissions;
+    const moderator_permission = permissions >= PERMISSIONS.special;
     
 
     
@@ -178,7 +179,7 @@ export default props => {
             <ActionSheet onClose={() => setPopout(null)}
                 toggleRef={profRef.current}
                 iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
-                {account.special ?
+                {moderator_permission ?
                     <ActionSheetItem autoclose onClick={() => { setActiveModal('ban_user'); }}
                     before={<Icon28BlockOutline />}>
                         Заблокировать
@@ -322,7 +323,7 @@ export default props => {
                 </Group>
 
                 {
-                    (OtherProfileData.special || OtherProfileData.generator || banned) ?
+                    ((OtherProfileData.permissions >= PERMISSIONS.special) || OtherProfileData.generator || banned) ?
                         <div style={{ marginTop: 20, marginBottom: 20 }} className="help_title_profile">{banned ?
                             'Этот профиль заблокирован' :
                             'Вы не можете просматривать этот профиль'}
@@ -372,7 +373,7 @@ export default props => {
                                     <Link href={'https://vk.com/id' + vk_id}
                                         target="_blank" rel="noopener noreferrer">Страница ВКонтакте</Link>
                                 </MiniInfoCell>}
-                                {account.special && <MiniInfoCell
+                                {moderator_permission && <MiniInfoCell
                                     before={<Icon20Add style={{ transform: ShowServiceInfo ? "rotate(45deg)" : '', transition: 'all 0.3s' }} />}
                                     mode="more"
                                     onClick={() => { setShowServiceInfo(prevState => !prevState) }}
@@ -432,7 +433,7 @@ export default props => {
                         </>
                 }
 
-                {!account.special &&
+                {!moderator_permission &&
                     <Group>
                         <Div>
                             <FormStatus header="Внимание! Важная информация" mode="default">

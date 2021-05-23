@@ -17,11 +17,11 @@ class Tickets
 				FROM tickets WHERE id=?";
 		$res = $this->Connect->db_get($sql, [$ticket_id])[0];
 		if ($res['donut']) {
-			if (!$this->user->info['donut'] && !$this->user->info['special']) {
+			if (!$this->user->info['donut'] && ($this->user->info['permissions'] < CONFIG::PERMISSIONS['special'])) {
 				Show::error(403);
 			}
 		}
-		if ($res['status'] != 0 && !$this->user->info['special']) {
+		if ($res['status'] != 0 && ($this->user->info['permissions'] < CONFIG::PERMISSIONS['special'])) {
 			$sql = "SELECT author_id FROM messages WHERE author_id=? AND ticket_id=?";
 			if (count($this->Connect->db_get($sql, [$this->user->id, $ticket_id])) == 0) {
 				Show::error(403);
@@ -45,13 +45,13 @@ class Tickets
 		$cond = '';
 
 		if ($unanswered) {
-			if ($this->user->info['special'] || $this->user->info['donut']) {
+			if (($this->user->info['permissions'] >= CONFIG::PERMISSIONS['special']) || $this->user->info['donut']) {
 				$cond = "WHERE status=0";
 			} else {
 				$cond = "WHERE status=0 and donut=0";
 			}
 		} else {
-			if (!$this->user->info['special'] && !$this->user->info['donut']) {
+			if (($this->user->info['permissions'] < CONFIG::PERMISSIONS['special']) && !$this->user->info['donut']) {
 				$cond = "WHERE donut=0";
 			}
 		}
@@ -109,7 +109,7 @@ class Tickets
 
 		$ticket = $this->getById($res['ticket_id']);
 
-		if (!$this->user->info['special']) {
+		if ($this->user->info['permissions'] < CONFIG::PERMISSIONS['special']) {
 			Show::error(32);
 		}
 
@@ -155,9 +155,6 @@ class Tickets
 
 	public function add(string $title, string $text, int $User, bool $donut, int $real_author=0)
 	{
-		if (!$this->user->info['special']) {
-			Show::error(403);
-		}
 		$title = trim($title);
 		$text = trim($text);
 
@@ -204,11 +201,7 @@ class Tickets
 		$uid = $this->user->id;
 		$is_author = false;
 
-		// if ( $ticket['author']['id'] == $this->user->vk_id ) {
-		// 	$uid = -$this->user->vk_id;
-		// 	$is_author = true;
-		// }
-		if ($this->user->info['special']) {
+		if ($this->user->info['permissions'] >= CONFIG::PERMISSIONS['special']) {
 			$is_author = true;
 			if ($User) {
 				$uid = $User;
@@ -226,23 +219,6 @@ class Tickets
 		if ($is_author) {
 			$this->Connect->query("UPDATE tickets SET status=0 WHERE id=?", [$ticket_id]);
 		}
-
-
-		// Сомнительная фича, непонятно зачем. Однажды может сломаться. Хардкод да и только
-		// if ( !$this->user->info['special'] && !$is_author ) {
-		// 	$data = [
-		// 		'peer_id' => 2000000004,
-		// 		'random_id' => time(),
-		// 		'message' => "Поступил новый ответ на вопрос!\nСкорей беги проверять.\nhttps://vk.com/app7409818#ticket_id={$ticket_id}\n\nТвой Витёк...",
-		// 		'access_token' =>'f8373822789d677c55a24c195cb74bd4b97ee014e00adc7a3c8a1985d31c5527c281cd2936dc2ff76a31b',
-		// 		'v' => 5.103
-		// 	];
-
-		// 	$query = http_build_query( $data );
-		// 	$url = "https://api.vk.com/method/messages.send?{$query}";
-		// 	file_get_contents( $url );
-		// }
-
 
 		return [
 			'message_id' => $id
@@ -278,10 +254,9 @@ class Tickets
 		if ($is_author) {
 			$cond = "AND ( messages.author_id < 0 OR messages.approved = 1 )";
 		} else {
-			if (!$this->user->info['special']) {
+			if ($this->user->info['permissions'] < CONFIG::PERMISSIONS['special']) {
 				$cond = "AND (messages.author_id = $author_ticket OR messages.author_id = $viewer OR messages.approved = 1)";
 			} else {
-				// $cond = "AND (messages.mark=-1 or messages.mark=1 or messages.author_id = $viewer)";
 				$cond = "AND (messages.mark=-1 or messages.mark=1 or messages.author_id = $viewer) OR (messages.mark=0 AND comment=null)";
 			}
 		}
@@ -294,7 +269,6 @@ class Tickets
 					messages.text,
 					users.avatar_id, 
 					users.nickname, 
-					users.special, 
 					avatars.name as avatar_name, 
 					messages.approved,
 					messages.chance_posit,
@@ -303,7 +277,9 @@ class Tickets
 					messages.edit_time,
 					specials.nickname as comment_author_nickname,
 					avatars_special.name as comment_author_avatar,
-					messages.comment_time
+					messages.comment_time,
+					mark_authors.id as mark_author_id,
+					mark_authors.nickname as mark_author_nickname
 			    FROM messages 
 				LEFT JOIN users
 				ON messages.author_id > 0 AND messages.author_id = users.id
@@ -313,6 +289,8 @@ class Tickets
 				ON users.avatar_id = avatars.id
 				LEFT JOIN avatars as avatars_special
 				ON specials.avatar_id = avatars_special.id
+				LEFT JOIN users as mark_authors
+				ON messages.approve_author_id = mark_authors.vk_user_id
 				WHERE messages.ticket_id=? $cond
 				LIMIT $offset, $count";
 		$res = $this->Connect->db_get($sql, [$ticket_id]);
@@ -332,7 +310,7 @@ class Tickets
 						'url' => $message['avatar_name'] ? CONFIG::AVATAR_PATH . '/' . $message['avatar_name'] : CONFIG::AVATAR_PATH . '/10007.png',
 					],
 					'is_moderator' => true,
-					'is_special' => (bool) $message['special'],
+					'is_special' => (bool) $this->user->info['permissions'] >= CONFIG::PERMISSIONS['special'],
 
 				];
 			}
@@ -349,12 +327,9 @@ class Tickets
 
 	public function approve(int $message_id)
 	{
-		if (!$this->user->info['special']) {
-			Show::error(403);
-		}
 
 		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.mark, messages.time, messages.text,
-					   users.avatar_id, users.nickname, users.special, avatars.name as avatar_name, messages.approved
+					   users.avatar_id, users.nickname, avatars.name as avatar_name, messages.approved
 			    FROM messages 
 				LEFT JOIN users
 				ON messages.author_id > 0 AND messages.author_id = users.id
@@ -407,10 +382,6 @@ class Tickets
 
 	public function commentMessage(int $message_id, string $text)
 	{
-		if (!$this->user->info['special']) {
-			Show::error(403);
-		}
-
 		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.comment
 				FROM messages WHERE messages.id=?";
 		$res = $this->Connect->db_get($sql, [$message_id])[0];
@@ -454,10 +425,6 @@ class Tickets
 
 	public function editComment(int $message_id, string $new_text)
 	{
-		if (!$this->user->info['special']) {
-			Show::error(403);
-		}
-
 		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.comment, messages.comment_author_id
 			    FROM messages 
 				WHERE messages.id=?";
@@ -487,9 +454,6 @@ class Tickets
 
 	public function deleteComment(int $message_id)
 	{
-		if (!$this->user->info['special']) {
-			Show::error(403);
-		}
 
 		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.comment, messages.comment_author_id
 			    FROM messages 
@@ -522,7 +486,7 @@ class Tickets
 		if ($res['mark'] != -1) {
 			Show::error(403);
 		}
-		if ($res['author_id'] == $this->user->id || $res['author_id'] < 0 && $this->user->info['special']) {
+		if ($res['author_id'] == $this->user->id || $res['author_id'] < 0 && ($this->user->info['permissions'] >= CONFIG::PERMISSIONS['special'])) {
 			return $this->Connect->query("DELETE FROM messages WHERE id=?", [$message_id]);
 		}
 		Show::error(403);
@@ -611,7 +575,7 @@ class Tickets
 			Show::error(404);
 		}
 
-		if ($this->user->vk_id !== $ticket['author']['id'] && !$this->user->info['special']) {
+		if ($this->user->vk_id !== $ticket['author']['id'] && ($this->user->info['permissions'] < CONFIG::PERMISSIONS['special'])) {
 			Show::error(403);
 		}
 		return $this->Connect->query("UPDATE tickets SET status=? WHERE id=?", [$status, $ticket_id]);
@@ -678,14 +642,12 @@ class Tickets
 		if (!$data['id']) {
 			return [];
 		}
-
 		$res = [
 			'id' => (int) $data['id'],
 			'time' => (int) $data['time'],
 			'ticket_id' => (int) $data['ticket_id'],
 			'text' => $data['text'],
 			'author' => $data['user'],
-			'mark' => (int) $data['mark'],
 			'chance_posit' => (int) $data['chance_posit'],
 			'approved' => isset($data['approved']) ? (bool) $data['approved'] : null
 		];
@@ -702,7 +664,7 @@ class Tickets
 				'time' => (int)$data['comment_time'],
 				'bomb_time' => (int) $bomb_time,
 			];
-			if($this->user->info['special']){
+			if($this->user->info['permissions'] >= CONFIG::PERMISSIONS['special']){
 				$comment_data += [
 					'author_id' => (int) $data['comment_author_id'],
 					'nickname' => $data['comment_author_nickname'],
@@ -736,8 +698,19 @@ class Tickets
 			unset($res['approved']);
 		}
 
-		if ($data['mark'] == -1) {
-			unset($res['mark']);
+		if ($data['mark'] != -1) {
+			$mark_info = [
+				'mark' => (int) $data['mark']
+			];
+			if($this->user->info['permissions'] >= CONFIG::PERMISSIONS['special']){
+				$mark_specials = [
+					'mark_author_id' => (int) $data['mark_author_id'],
+					'mark_author_nickname' => $data['mark_author_nickname'],
+				];
+				$mark_info = array_merge($mark_info, $mark_specials);
+				
+			}
+			$res['mark'] = $mark_info;
 		}
 
 		return $res;

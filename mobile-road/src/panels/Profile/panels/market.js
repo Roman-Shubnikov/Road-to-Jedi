@@ -11,15 +11,19 @@ import {
     PanelHeaderBack,
     Text,
     SimpleCell,
-    PanelHeaderButton,
     Alert,
     FormLayout,
-    CellButton,
     Group,
     HorizontalScroll,
     HorizontalCell,
     FormItem,
     Slider,
+    Tabs,
+    TabsItem,
+    Headline,
+    TabbarItem,
+    IconButton,
+    Tappable,
     } from '@vkontakte/vkui';
 
 
@@ -27,19 +31,23 @@ import {
   Icon28MoneyHistoryBackwardOutline,
   Icon16CheckCircle,
   Icon20CancelCircleFillRed,
-  Icon28InfoCircleOutline,
   Icon24BlockOutline,
   Icon24Repeat,
   Icon28MoneyCircleOutline,
   Icon28GhostOutline,
+  Icon28RoubleCircleFillBlue,
+  Icon28DonateCircleFillYellow,
+  Icon28TicketOutline,
+  Icon28MoneyRequestOutline,
+  Icon28UserOutgoingOutline,
+  Icon28InfoOutline,
 
 } from '@vkontakte/icons';
-
 
 import UserTopC from '../../../components/userTop';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewsActions } from '../../../store/main';
-import { API_URL, AVATARS_URL } from '../../../config';
+import { API_URL, AVATARS_URL, LINKS_VK } from '../../../config';
 import { enumerate } from '../../../Utils';
 
 
@@ -71,21 +79,21 @@ const avatars = [
     "25.png",
     "26.png",
     "27.png",
-    "28.png",
-    "29.png",
-    "30.png",
-    "31.png",
-    "32.png",
-    "33.png",
-    "34.png",
-    "35.png",
-    "36.png",
-    "37.png",
-    "38.png",
-    "39.png",
-    "40.png",
-    "41.png",
-    "42.png",
+    // "28.png",
+    // "29.png",
+    // "30.png",
+    // "31.png",
+    // "32.png",
+    // "33.png",
+    // "34.png",
+    // "35.png",
+    // "36.png",
+    // "37.png",
+    // "38.png",
+    // "39.png",
+    // "40.png",
+    // "41.png",
+    // "42.png",
     
 ]
 
@@ -93,11 +101,130 @@ const avatars = [
 const blueBackground = {
     backgroundColor: 'var(--accent)'
   };
+
 export default props => {
+  const [activeTab, setActivetab] = useState('market');
+
+  const getCurrPanel = () => {
+    if(activeTab === 'market') return <Market callbacks={props.callbacks} reloadProfile={props.reloadProfile} />
+    if(activeTab === 'invoices') return <Invoices callbacks={props.callbacks} reloadProfile={props.reloadProfile} />
+  }
+  return(
+    <Panel id={props.id}>
+      <PanelHeader
+      separator={false}
+        left={
+          <><PanelHeaderBack onClick={() => window.history.back()} /> </>
+        }>
+        Маркет
+      </PanelHeader>
+      <Group>
+        <Tabs>
+          <HorizontalScroll getScrollToLeft={(i) => i - 50} getScrollToRight={(i) => i + 50}>
+            <TabsItem onClick={() => setActivetab('market')}
+            selected={activeTab === 'market'}>
+              Товары
+            </TabsItem>
+            <TabsItem onClick={() => setActivetab('invoices')}
+            selected={activeTab === 'invoices'}>
+              Счета
+            </TabsItem>
+          </HorizontalScroll>
+        </Tabs>
+      </Group>
+      {getCurrPanel()}
+      {props.snackbar}
+    </Panel>
+  )
+}
+
+const Invoices = props => {
+  const account = useSelector((state) => state.account.account);
+
+  const { goPanel, setActiveModal } = props.callbacks;
+
+  const genereCardId= (nickname) => {
+    nickname = String(nickname)
+    let hash = 0, i,chr;
+    let chars = nickname.split('')
+    for (i = 0; i < chars.length; i++) {
+      chr   = chars[i].charCodeAt(0);
+      hash  = hash + chr;
+    }
+    return String(hash + 1000).substring(0,4);
+  }
+  return(
+    <>
+    <Group>
+      <SimpleCell before={<Icon28RoubleCircleFillBlue />}
+        disabled
+        after={<IconButton target="_blank" rel="noopener noreferrer" href={LINKS_VK.market_info_article}><Icon28InfoOutline /></IconButton>}
+        multiline
+        description={
+        <div>
+          <span>• • • • {genereCardId(account.nickname ? account.nickname : String(account.id))}</span>
+          <br/>
+          <span>Основной баланс</span>
+        </div>
+      }>
+        <Headline>{account.balance} $</Headline>
+      </SimpleCell>
+      <Div 
+      className='vkuiTabbar--l-vertical' 
+      style={{display: 'flex', justifyContent: 'space-around'}}>
+        <Tappable disabled>
+          <TabbarItem
+          text='Пополнить'>
+            <Icon28MoneyRequestOutline />
+          </TabbarItem>
+        </Tappable>
+        
+        <Tappable
+        onClick={() => goPanel('promocodes')}>
+          <TabbarItem selected
+          text='Промокоды'>
+            <Icon28TicketOutline />
+          </TabbarItem>
+        </Tappable>
+        <Tappable 
+        onClick={() => setActiveModal('send')}>
+          <TabbarItem selected
+          text='Перевести'>
+            <Icon28UserOutgoingOutline />
+          </TabbarItem>
+        </Tappable>
+        
+        
+      </Div>
+    </Group>
+    <Group>
+      <SimpleCell before={<Icon28DonateCircleFillYellow />}
+        multiline
+        disabled
+        after={<IconButton target="_blank" rel="noopener noreferrer" href={LINKS_VK.market_info_donut_article}><Icon28InfoOutline /></IconButton>}
+        description={
+        <div>
+          <span>• • • • {genereCardId(account.vk_id)}</span>
+          <br/>
+          <span>Эксклюзивный баланс</span>
+        </div>
+      }>
+        <Headline>{account.donuts} $</Headline>
+      </SimpleCell>
+      <Div>
+          <Text weight='medium' style={{color: 'var(--text_profile)'}}>
+            Данный баланс нельзя пополнить настоящей валютой, получить её можно только отвечая на вопросы с эксклюзивной отметкой.
+          </Text>
+      </Div>
+    </Group>
+    </>
+  )
+}
+const Market = props => {
   const dispatch = useDispatch();
   const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
   const account = useSelector((state) => state.account.account);
-  const { setPopout, setActiveModal, goPanel, setSnackbar } = props.callbacks;
+  const { setPopout, setSnackbar } = props.callbacks;
 
   const [selectedAvatar, setSelectedAvatar] = useState(0);
   const [changed_id, setChangedId] = useState('');
@@ -187,33 +314,14 @@ export default props => {
 
   }
   return (
-    <Panel id={props.id}>
-      <PanelHeader
-        left={
-          <><PanelHeaderBack onClick={() => window.history.back()} />
-            <PanelHeaderButton
-              href='https://vk.com/@jedi_road-sistema-nachisleniya-ballov-i-shop'
-              target="_blank" rel="noopener noreferrer">
-              <Icon28InfoCircleOutline />
-            </PanelHeaderButton> </>
-        }>
-        Магазин
-                </PanelHeader>
-
-      <Group>
-        <Div>
-          <Text weight='medium'>Монетки — это универсальная условная единица для приобретения различных товаров в магазине</Text>
-        </Div>
-        <SimpleCell disabled indicator={account.balance}>Ваш баланс</SimpleCell>
-        <CellButton onClick={() => goPanel('promocodes')}>Активировать промокод</CellButton>
-      </Group>
+    <>
 
       {/* <Div>
                   <FormStatus >
                     Скидки для тестеровщиков
                   </FormStatus>
                 </Div> */}
-      <Group header={<Header>Сменить аватар</Header>}>
+      <Group header={<Header>Фотография профиля</Header>}>
         <HorizontalScroll showArrows getScrollToLeft={(i) => i - 190} getScrollToRight={(i) => i + 190}>
           <div style={{ display: 'flex' }}>
             {avatars.map((ava, i) =>
@@ -242,7 +350,7 @@ export default props => {
         </Div>
       </Group>
 
-      <Group header={<Header>Сменить свой ник</Header>}>
+      <Group header={<Header>Сменить никнейм</Header>}>
         <FormLayout>
           <FormItem>
             <Input placeholder="Введите желаемый ник"
@@ -300,7 +408,7 @@ export default props => {
         </Div>
       </Group> : null : null}
 
-      <Group header={<Header>Купить фантомов</Header>}>
+      <Group header={<Header>Фантомы</Header>}>
           <Div>
             <Text weight='medium'>Здесь вы можете купить фантомов для повышения своего уровня</Text>
           </Div>
@@ -317,7 +425,7 @@ export default props => {
           <SimpleCell
           expandable
           target="_blank" rel="noopener noreferrer" 
-          href='https://vk.com/@jedi_road-ohota-na-fantomov-nevidimovichei'
+          href={LINKS_VK.fantoms_article}
           before={<Icon28GhostOutline />}>
             Подробнее о Фантомах
           </SimpleCell>
@@ -343,18 +451,6 @@ export default props => {
               before={<Icon28MoneyHistoryBackwardOutline />} size="l" mode='destructive'>Купить за 10 000 монеток</Button>
           </Div>
         </Group> : null : null}
-      <Group header={<Header>Опции</Header>}>
-        <Div>
-          <Button
-            onClick={() => setActiveModal('send')}
-            before={<Icon28MoneyHistoryBackwardOutline />}
-            size="l"
-            mode="secondary"
-            stretched>Перевести</Button>
-        </Div>
-      </Group>
-
-      {props.snackbar}
-    </Panel>
+      </>   
   )
 }

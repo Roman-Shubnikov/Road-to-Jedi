@@ -18,6 +18,7 @@ import Questions    from './panels/panelconstruct';
 import OtherProfile from '../../components/other_profile';
 import Tiket        from '../../components/tiket';
 import Reports      from '../../components/report';
+import AnswerAdded    from '../../components/AnswerAdded';
 
 //Импортируем модальные карточки
 import ModalPrometay  from '../../Modals/Prometay';
@@ -252,6 +253,7 @@ export default props => {
         id_rep={id_rep}
         typeres={typeres} />
 
+      <AnswerAdded id="answer_added" goQuestions={() => {setActiveStory('questions');goPanel('questions')}} />
     </View>
   )
 }

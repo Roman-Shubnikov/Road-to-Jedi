@@ -5,6 +5,7 @@ import {
     tiketsActionTypes,
     moderationActionTypes,
     topUserActionTypes,
+    faqActionTypes,
     } from './ActionTypes';
 import { ForceErrorBackend, FetchFatalError } from './Errors'
 
@@ -57,6 +58,15 @@ export const ticketActions = {
     },
     setComment: (payload) => ({ type: tiketsActionTypes.SET_COMMENT, payload }),
     setOffset: (payload) => ({ type: tiketsActionTypes.SET_OFFSET, payload }),
+}
+
+export const faqActions = {
+    setCategories: (payload) => ({type: faqActionTypes.SET_CATEGORIES, payload}),
+    setActiveCategory: (payload) => ({type: faqActionTypes.SET_ACTIVE_CATEGORY, payload}),
+    setActiveQuestion: (payload) => ({type: faqActionTypes.SET_ACTIVE_QUESTION, payload}),
+    setQuestions: (payload) => ({type: faqActionTypes.SET_QUESTIONS, payload}),
+    setSearchResultQuestions: (payload) => ({type: faqActionTypes.SET_SEARCH_RESULT_QUESTION, payload}),
+
 }
 
 export const moderationActions = {

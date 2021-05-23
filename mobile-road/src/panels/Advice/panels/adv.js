@@ -11,8 +11,7 @@ import {
     Separator,
     UsersStack,
     Header,
-    Div,
-    FormStatus,
+    SimpleCell,
 
     } from '@vkontakte/vkui';
 
@@ -21,17 +20,14 @@ import {
     Icon16StarCircleFillYellow,
     Icon16Verified,
     Icon16Fire,
-    Icon24LifebuoyOutline,
-    Icon36Users3Outline,
-    Icon28UserStarBadgeOutline,
     Icon28BrainOutline,
-
+    Icon28Users3Outline,
+    Icon28DonateOutline,
 
 } from '@vkontakte/icons';
 
-import Tiles from '../../../components/menutiles';
 import { useDispatch, useSelector } from 'react-redux';
-import { API_URL, AVATARS_URL } from '../../../config';
+import { API_URL, AVATARS_URL, LINKS_VK, MESSAGE_NO_VK, PERMISSIONS } from '../../../config';
 import { accountActions, viewsActions } from '../../../store/main';
 import { enumerate, recog_number } from '../../../Utils';
 
@@ -39,6 +35,8 @@ export default props => {
   const dispatch = useDispatch();
   const { account, recomendations } = useSelector((state) => state.account)
   const { setPopout, showErrorAlert, goPanel, goOtherProfile } = props.callbacks;
+  const permissions = account.permissions;
+  const moderator_permission = permissions >= PERMISSIONS.special;
   const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
   const getRecomendations = useCallback(() => {
     fetch(API_URL + "method=recommendations.get&" + window.location.search.replace('?', ''))
@@ -68,56 +66,33 @@ export default props => {
         Обзор
                 </PanelHeader>
       <Group>
-        <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-          <a
-            href='https://vk.me/special_help'
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'inherit' }}>
-            <Tiles
-              icon={<Icon24LifebuoyOutline width={36} height={36} style={{ color: '#4BB34B' }} />}>
-              Поддержка
-                      </Tiles>
-          </a>
-          <a
-            href='https://vk.com/jedi_road'
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'inherit' }}>
-            <Tiles
-              icon={<Icon36Users3Outline width={36} height={36} style={{ color: '#63B9BA' }} />}>
-              Сообщество
-                      </Tiles>
-          </a>
-          <Tiles
-            onClick={() => goPanel(account.donut ? 'premium' : 'donuts')}
-            icon={<Icon28UserStarBadgeOutline width={36} height={36} style={{ color: '#792EC0' }} />}>
-            Premium
-                    </Tiles>
-
-
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 10 }}>
-          {account['generator'] && <><Tiles
-            onClick={() => goPanel('new_ticket')}
-            icon={<Icon28BrainOutline width={36} height={36} style={{ color: '#FFA000' }} />}>
-            Генератор
-                      </Tiles>
-            <div style={{ visibility: 'hidden' }}>
-              <Tiles
-                icon={<Icon24LifebuoyOutline width={36} height={36} style={{ color: '#4BB34B' }} />}>
-                Поддержка
-                      </Tiles>
-            </div>
-            <div style={{ visibility: 'hidden' }}>
-              <Tiles
-                icon={<Icon24LifebuoyOutline width={36} height={36} style={{ color: '#4BB34B' }} />}>
-                Поддержка
-                      </Tiles>
-            </div>
-          </>}
-
-        </div>
+        {account['generator'] && 
+        <SimpleCell
+        expandable
+        onClick={() => goPanel('new_ticket')}
+        before={<Icon28BrainOutline style={{ color: '#818C99' }} />}>
+          Генератор
+        </SimpleCell>}
+        <SimpleCell
+        expandable
+        href={LINKS_VK.communuty_jedi}
+        target="_blank"
+        rel="noopener noreferrer"
+        before={<Icon28Users3Outline />}>
+          Сообщество
+        </SimpleCell>
+        <SimpleCell
+        expandable
+        onClick={() => goPanel('faqMain')}
+        before={<Icon56Stars3Outline width={28} height={28} style={{ color: '#FFB73D' }} />}>
+          Поддержка
+        </SimpleCell>
+        <SimpleCell 
+        expandable
+        onClick={() => goPanel(account.donut ? 'premium' : 'donuts')}
+        before={<Icon28DonateOutline style={{ color: '#4BB34B' }} />}>
+          VK Donut
+        </SimpleCell>
 
       </Group>
       <Group header={<Header>Рекомендации</Header>}>
@@ -163,11 +138,7 @@ export default props => {
                   </Placeholder>
           :
           <PanelSpinner />}
-          {!account.special ? <Div>
-            <FormStatus header="Внимание! Важная информация" mode="default">
-            Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
-            </FormStatus>
-          </Div> : null}
+          {!moderator_permission ? MESSAGE_NO_VK : null}
       </Group>
     </Panel>
   )

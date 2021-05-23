@@ -3,6 +3,7 @@
 @import './vkcom.css';
 @import './menutiles.css';
 @import './fonts/fonts-connect.css';
+
 :root{
     --font-common: "VK Medium";
     /* --font-tt: "VK Medium"; */
@@ -593,4 +594,15 @@ a{
 }
 .icon_donut_questions {
     margin: 20% 0px 0px 60%;
+}
+.header_fix {
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+.thumb_default {
+    color: 'var(--content_placeholder_icon)';
+}
+.thumb_active {
+    color: #FFB73D;
 }

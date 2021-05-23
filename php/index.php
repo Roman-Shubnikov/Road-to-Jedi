@@ -39,6 +39,7 @@ require 'api/api/recommendations.php';
 require 'api/api/settings.php';
 require 'api/api/levels.php';
 require 'api/api/shop.php';
+require 'api/api/faq.php';
 
 session_id($_GET['vk_user_id']);
 session_start();
@@ -75,517 +76,765 @@ new FludControl();
 
 $params = [
 	'settings.get' => [
-		'setting' => [
-			'type' => 'string',
-			'required' => true
-		]
+		'parameters' => [
+			'setting' => [
+				'type' => 'string',
+				'required' => true
+			]
+		],
 	],
 	'settings.set' => [
-		'setting' => [
-			'type' => 'string',
-			'required' => true
-		],
-		'value' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'setting' => [
+				'type' => 'string',
+				'required' => true
+			],
+			'value' => [
+				'type' => 'int',
+				'required' => true
+			]
 		]
 	],
 
-	'account.get' => [],
+	'account.get' => [
+		'parameters' => [],
+
+	],
 	// 'account.delete' => [],
 	'account.setAge' => [
-		'age' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'age' => [
+				'type' => 'int',
+				'required' => true
+			]
 		]
 	],
-	'account.getVerfStatus' => [],
+	'account.getVerfStatus' => [
+		'parameters' => [],
+	],
 	'account.sendRequestVerf' => [
-		'title' => [
-			'type' => 'string',
-			'required' => true
-		],
-		'description' => [
-			'type' => 'string',
-			'required' => true
-		],
-		'cond1' => [
-			'type' => 'bool',
-			'required' => true
-		],
+		'parameters' => [
+			'title' => [
+				'type' => 'string',
+				'required' => true
+			],
+			'description' => [
+				'type' => 'string',
+				'required' => true
+			],
+			'cond1' => [
+				'type' => 'bool',
+				'required' => true
+			],
+		]
 	],
 	'account.changeScheme' => [
-		'scheme' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'scheme' => [
+				'type' => 'int',
+				'required' => true
+			]
 		]
 	],
 	'account.ban' => [
-		'agent_id' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'agent_id' => [
+				'type' => 'int',
+				'required' => true
+			],
+			'timeban' => [
+				'type' => 'int',
+				'required' => true,
+			],
+			'reason' => [
+				'type' => 'string',
+				'required' => false,
+				'default' => NULL
+			]
 		],
-		'timeban' => [
-			'type' => 'int',
-			'required' => true,
-		],
-		'reason' => [
-			'type' => 'string',
-			'required' => false,
-			'default' => NULL
-		]
+		'perms' => CONFIG::PERMISSIONS['special']
 	],
 	'account.public' => [
-		'public' => [
-			'type' => 'bool',
-			'required' => true
+		'parameters' => [
+			'public' => [
+				'type' => 'bool',
+				'required' => true
+			]
 		]
+
 	],
 	'account.changeStatus' => [
-		'status' => [
-			'type' => 'string',
-			'required' => true
+		'parameters' => [
+			'status' => [
+				'type' => 'string',
+				'required' => true
+			]
 		]
 	],
 	'user.getById' => [
-		'id' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'id' => [
+				'type' => 'int',
+				'required' => true
+			]
 		]
 	],
 
 	'users.getByIds' => [
-		'ids' => [
-			'type' => 'string',
-			'required' => true
+		'parameters' => [
+			'ids' => [
+				'type' => 'string',
+				'required' => true
+			]
 		]
 	],
-	'users.getRandom' => [],
+	'users.getRandom' => [
+		'parameters' => []
+	],
 	'users.getTop' => [
-		'staff' => [
-			'type' => 'bool',
-			'required' => false
-		],
-		'type' => [
-			'type' => 'string',
-			'required' => false,
-			'default' => 'all',
-		],
+		'parameters' => [
+			'staff' => [
+				'type' => 'bool',
+				'required' => false
+			],
+			'type' => [
+				'type' => 'string',
+				'required' => false,
+				'default' => 'all',
+			],
+		]
 	],
 
-	'ticket.getRandom' => [],
+	'ticket.getRandom' => [
+		'parameters' => []
+	],
 
 	'tickets.getMy' => [
-		'offset' => [
-			'type' => 'int',
-			'required' => false
-		],
+		'parameters' => [
+			'offset' => [
+				'type' => 'int',
+				'required' => false
+			],
 
-		'count' => [
-			'type' => 'int',
-			'required' => false
+			'count' => [
+				'type' => 'int',
+				'required' => false
+			]
 		]
 	],
 
 	'tickets.get' => [
-		'offset' => [
-			'type' => 'int',
-			'required' => false
-		],
+		'parameters' => [
+			'offset' => [
+				'type' => 'int',
+				'required' => false
+			],
 
-		'count' => [
-			'type' => 'int',
-			'required' => false
-		],
+			'count' => [
+				'type' => 'int',
+				'required' => false
+			],
 
-		'unanswered' => [
-			'type' => 'int',
-			'required' => false
+			'unanswered' => [
+				'type' => 'int',
+				'required' => false
+			]
 		]
 	],
 	'tickets.getByModeratorAnswers' => [
-		'offset' => [
-			'type' => 'int',
-			'required' => false
-		],
+		'parameters' => [
+			'offset' => [
+				'type' => 'int',
+				'required' => false
+			],
 
-		'count' => [
-			'type' => 'int',
-			'required' => false
-		],
+			'count' => [
+				'type' => 'int',
+				'required' => false
+			],
+		]
 	],
 
 	'ticket.markMessage' => [
-		'message_id' => [
-			'type' => 'int',
-			'required' => true
-		],
+		'parameters' => [
+			'message_id' => [
+				'type' => 'int',
+				'required' => true
+			],
 
-		'mark' => [
-			'type' => 'int',
-			'required' => true
+			'mark' => [
+				'type' => 'int',
+				'required' => true
+			]
 		]
 	],
 	'ticket.unmarkMessage' => [
-		'message_id' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'message_id' => [
+				'type' => 'int',
+				'required' => true
+			],
 		],
+		'perms' => CONFIG::PERMISSIONS['special'],
 	],
 
 	'ticket.add' => [
-		'title' => [
-			'type' => 'string',
-			'required' => true
-		],
+		'parameters' => [
+			'title' => [
+				'type' => 'string',
+				'required' => true
+			],
 
-		'text' => [
-			'type' => 'string',
-			'required' => true
+			'text' => [
+				'type' => 'string',
+				'required' => true
+			],
+			'user' => [
+				'type' => 'int',
+				'required' => true,
+			],
+			'donut_only' => [
+				'type' => 'bool',
+				'required' => true,
+			],
 		],
-		'user' => [
-			'type' => 'int',
-			'required' => true,
-		],
-		'donut_only' => [
-			'type' => 'bool',
-			'required' => true,
-		],
+		'perms' => CONFIG::PERMISSIONS['special'],
 	],
 
 	'ticket.sendMessage' => [
-		'ticket_id' => [
-			'type' => 'int',
-			'required' => true
-		],
+		'parameters' => [
+			'ticket_id' => [
+				'type' => 'int',
+				'required' => true
+			],
 
-		'text' => [
-			'type' => 'string',
-			'required' => true
+			'text' => [
+				'type' => 'string',
+				'required' => true
+			]
 		]
 	],
 
 	'ticket.editMessage' => [
-		'message_id' => [
-			'type' => 'int',
-			'required' => true
-		],
+		'parameters' => [
+			'message_id' => [
+				'type' => 'int',
+				'required' => true
+			],
 
-		'text' => [
-			'type' => 'string',
-			'required' => true
+			'text' => [
+				'type' => 'string',
+				'required' => true
+			]
 		]
 	],
 
 	'ticket.commentMessage' => [
-		'message_id' => [
-			'type' => 'int',
-			'required' => true
-		],
+		'parameters' => [
+			'message_id' => [
+				'type' => 'int',
+				'required' => true
+			],
 
-		'text' => [
-			'type' => 'string',
-			'required' => true
-		]
+			'text' => [
+				'type' => 'string',
+				'required' => true
+			]
+		],
+		'perms' => CONFIG::PERMISSIONS['special'],
 	],
 
 	'ticket.editComment' => [
-		'message_id' => [
-			'type' => 'int',
-			'required' => true
-		],
+		'parameters' => [
+			'message_id' => [
+				'type' => 'int',
+				'required' => true
+			],
 
-		'text' => [
-			'type' => 'string',
-			'required' => true
-		]
+			'text' => [
+				'type' => 'string',
+				'required' => true
+			]
+		],
+		'perms' => CONFIG::PERMISSIONS['special'],
 	],
 
 	'ticket.deleteComment' => [
-		'message_id' => [
-			'type' => 'int',
-			'required' => true
-		]
+		'parameters' => [
+			'message_id' => [
+				'type' => 'int',
+				'required' => true
+			]
+		],
+		'perms' => CONFIG::PERMISSIONS['special'],
 	],
 
 	'ticket.getMessages' => [
-		'ticket_id' => [
-			'type' => 'int',
-			'required' => true
-		],
+		'parameters' => [
+			'ticket_id' => [
+				'type' => 'int',
+				'required' => true
+			],
 
-		'offset' => [
-			'type' => 'int',
-			'required' => false
-		],
+			'offset' => [
+				'type' => 'int',
+				'required' => false
+			],
 
-		'count' => [
-			'type' => 'int',
-			'required' => false
-		],
+			'count' => [
+				'type' => 'int',
+				'required' => false
+			],
+		]
 	],
 
 	'ticket.getById' => [
-		'ticket_id' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'ticket_id' => [
+				'type' => 'int',
+				'required' => true
+			]
 		]
 	],
 
 	'ticket.approveReply' => [
-		'message_id' => [
-			'type' => 'int',
-			'required' => true
-		]
+		'parameters' => [
+			'message_id' => [
+				'type' => 'int',
+				'required' => true
+			],
+		],
+		'perms' => CONFIG::PERMISSIONS['special'],
+		
 	],
 
 	'tickets.getByModerator' => [
-		'moderator_id' => [
-			'type' => 'int',
-			'required' => true
-		],
+		'parameters' => [
+			'moderator_id' => [
+				'type' => 'int',
+				'required' => true
+			],
 
-		'mark' => [
-			'type' => 'int',
-			'required' => false
-		],
+			'mark' => [
+				'type' => 'int',
+				'required' => false
+			],
 
-		'offset' => [
-			'type' => 'int',
-			'required' => false
-		],
+			'offset' => [
+				'type' => 'int',
+				'required' => false
+			],
 
-		'count' => [
-			'type' => 'int',
-			'required' => false
-		],
+			'count' => [
+				'type' => 'int',
+				'required' => false
+			],
+		]
 	],
 
 	'ticket.deleteMessage' => [
-		'message_id' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'message_id' => [
+				'type' => 'int',
+				'required' => true
+			]
 		]
 	],
 
 	'ticket.close' => [
-		'ticket_id' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'ticket_id' => [
+				'type' => 'int',
+				'required' => true
+			]
 		]
 	],
 
 	'ticket.open' => [
-		'ticket_id' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'ticket_id' => [
+				'type' => 'int',
+				'required' => true
+			]
 		]
 	],
 	'shop.changeAvatar' => [
-		'avatar_id' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'avatar_id' => [
+				'type' => 'int',
+				'required' => true
+			]
 		]
 	],
 	'shop.changeDonutAvatars' => [
-		'avatar_id' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'avatar_id' => [
+				'type' => 'int',
+				'required' => true
+			]
 		]
 	],
 	'shop.changeId' => [
-		'change_id' => [
-			'type' => 'string',
-			'required' => true
+		'parameters' => [
+			'change_id' => [
+				'type' => 'string',
+				'required' => true
+			]
 		]
 	],
 	'shop.buyGhosts' => [
-		'count' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'count' => [
+				'type' => 'int',
+				'required' => true
+			]
 		]
 	],
-	'shop.resetId' => [],
-	'shop.buyDiamond' => [],
-	'shop.buyRecommendations' => [],
+	'shop.resetId' => [
+		'parameters' => []
+	],
+	'shop.buyDiamond' => [
+		'parameters' => []
+	],
+	'shop.buyRecommendations' => [
+		'parameters' => []
+	],
 	'shop.checkPromo' => [
-		'promocode' => [
-			'type' => 'string',
-			'required' => true
-		],
+		'parameters' => [
+			'promocode' => [
+				'type' => 'string',
+				'required' => true
+			],
+		]
 	],
 	'shop.activatePromo' => [
-		'promocode' => [
-			'type' => 'string',
-			'required' => true
-		],
+		'parameters' => [
+			'promocode' => [
+				'type' => 'string',
+				'required' => true
+			],
+		]
 	],
 	'transfers.send' => [
-		'send_to' => [
-			'type' => 'intorstr',
-			'required' => true
-		],
-		'summa' => [
-			'type' => 'int',
-			'required' => true
-		],
-		'comment' => [
-			'type' => 'string',
-			'required' => true
+		'parameters' => [
+			'send_to' => [
+				'type' => 'intorstr',
+				'required' => true
+			],
+			'summa' => [
+				'type' => 'int',
+				'required' => true
+			],
+			'comment' => [
+				'type' => 'string',
+				'required' => true
+			]
 		]
 	],
 	'followers.subscribe' => [
-		'agent_id' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'agent_id' => [
+				'type' => 'int',
+				'required' => true
+			]
 		]
 	],
 	'followers.unsubscribe' => [
-		'agent_id' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'agent_id' => [
+				'type' => 'int',
+				'required' => true
+			]
 		]
 	],
 	'followers.getFollowers' => [
-		'offset' => [
-			'type' => 'int',
-			'required' => true
-		],
-		'count' => [
-			'type' => 'int',
-			'required' => true
-		],
-		'agent_id' => [
-			'type' => 'int',
-			'required' => false
+		'parameters' => [
+			'offset' => [
+				'type' => 'int',
+				'required' => true
+			],
+			'count' => [
+				'type' => 'int',
+				'required' => true
+			],
+			'agent_id' => [
+				'type' => 'int',
+				'required' => false
+			]
 		]
 	],
-	'notifications.get' => [],
-	'notifications.markAsViewed' => [],
-	'notifications.getCount' => [],
-	'notifications.approve' => [],
-	'notifications.demiss' => [],
+	'notifications.get' => [
+		'parameters' => []
+	],
+	'notifications.markAsViewed' => [
+		'parameters' => []
+	],
+	'notifications.getCount' => [
+		'parameters' => []
+	],
+	'notifications.approve' => [
+		'parameters' => []
+	],
+	'notifications.demiss' => [
+		'parameters' => []
+	],
 
 
 	'special.getAllMessages' => [
-		'offset' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'offset' => [
+				'type' => 'int',
+				'required' => true
+			],
+			'count' => [
+				'type' => 'int',
+				'required' => true
+			],
 		],
-		'count' => [
-			'type' => 'int',
-			'required' => true
-		],
+		'perms' => CONFIG::PERMISSIONS['special'],
 	],
 	'special.getNewMessages' => [
-		'offset' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'offset' => [
+				'type' => 'int',
+				'required' => true
+			],
+			'count' => [
+				'type' => 'int',
+				'required' => true
+			],
 		],
-		'count' => [
-			'type' => 'int',
-			'required' => true
-		],
+		'perms' => CONFIG::PERMISSIONS['special'],
 	],
 	'special.getNewModerationTickets' => [
-		'offset' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'offset' => [
+				'type' => 'int',
+				'required' => true
+			],
+			'count' => [
+				'type' => 'int',
+				'required' => true
+			],
 		],
-		'count' => [
-			'type' => 'int',
-			'required' => true
-		],
+		'perms' => CONFIG::PERMISSIONS['special'],
 	],
 	'special.addNewModerationTicket' => [
-		'title' => [
-			'type' => 'string',
-			'required' => true
-		],
-		'text' => [
-			'type' => 'string',
-			'required' => true
-		],
-		'donut_only' => [
-			'type' => 'bool',
-			'required' => true
-		],
+		'parameters' => [
+			'title' => [
+				'type' => 'string',
+				'required' => true
+			],
+			'text' => [
+				'type' => 'string',
+				'required' => true
+			],
+			'donut_only' => [
+				'type' => 'bool',
+				'required' => true
+			],
+		]
 	],
 	'special.delModerationTicket' => [
-		'id_ans' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'id_ans' => [
+				'type' => 'int',
+				'required' => true
+			],
 		],
+		'perms' => CONFIG::PERMISSIONS['special'],
 	],
 	'special.approveModerationTicket' => [
-		'id_ans' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'id_ans' => [
+				'type' => 'int',
+				'required' => true
+			],
 		],
+		'perms' => CONFIG::PERMISSIONS['special'],
 	],
 	'admin.getVerificationRequests' => [
-		'offset' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'offset' => [
+				'type' => 'int',
+				'required' => true
+			],
+			'count' => [
+				'type' => 'int',
+				'required' => true
+			],
 		],
-		'count' => [
-			'type' => 'int',
-			'required' => true
-		],
+		'perms' => CONFIG::PERMISSIONS['admin'],
 	],
 	'admin.denyVerificationRequest' => [
-		'id_request' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'id_request' => [
+				'type' => 'int',
+				'required' => true
+			],
 		],
+		'perms' => CONFIG::PERMISSIONS['admin'],
 	],
 	'admin.approveVerificationRequest' => [
-		'id_request' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'id_request' => [
+				'type' => 'int',
+				'required' => true
+			],
 		],
+		'perms' => CONFIG::PERMISSIONS['admin'],
 	],
 	'reports.send' => [
-		'type' => [
-			'type' => 'int',
-			'required' => true
-		],
-		'name' => [
-			'type' => 'int',
-			'required' => true
-		],
-		'id_rep' => [
-			'type' => 'int',
-			'required' => true
-		],
-		'comment' => [
-			'type' => 'string',
-			'required' => False,
-		],
+		'parameters' => [
+			'type' => [
+				'type' => 'int',
+				'required' => true
+			],
+			'name' => [
+				'type' => 'int',
+				'required' => true
+			],
+			'id_rep' => [
+				'type' => 'int',
+				'required' => true
+			],
+			'comment' => [
+				'type' => 'string',
+				'required' => False,
+			],
+		]
 	],
 	'reports.getReports' => [
-		'offset' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'offset' => [
+				'type' => 'int',
+				'required' => true
+			],
+			'count' => [
+				'type' => 'int',
+				'required' => true
+			],
 		],
-		'count' => [
-			'type' => 'int',
-			'required' => true
-		],
+		'perms' => CONFIG::PERMISSIONS['admin'],
 	],
 	'reports.denyReport' => [
-		'id_request' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'id_request' => [
+				'type' => 'int',
+				'required' => true
+			],
 		],
+		'perms' => CONFIG::PERMISSIONS['admin'],
 	],
 	'reports.approveReport' => [
-		'id_request' => [
-			'type' => 'int',
-			'required' => true
+		'parameters' => [
+			'id_request' => [
+				'type' => 'int',
+				'required' => true
+			],
+		],
+		'perms' => CONFIG::PERMISSIONS['admin'],
+	],
+	'recommendations.get' => [
+		'parameters' => []
+	],
+	'faq.addCategory' => [
+		'parameters' => [
+			'title' => [
+				'type' => 'string',
+				'required' => true
+			],
+			'icon_id' => [
+				'type' => 'int',
+				'required' => true
+			],
+			'color' => [
+				'type' => 'string',
+				'required' => true
+			],
+		],
+		'perms' => CONFIG::PERMISSIONS['admin'],
+	],
+	'faq.delCategory' => [
+		'parameters' => [
+			'category_id' => [
+				'type' => 'int',
+				'required' => true
+			],
+		],
+		'perms' => CONFIG::PERMISSIONS['admin'],
+	],
+	'faq.addQuestion' => [
+		'parameters' => [
+			'category_id' => [
+				'type' => 'int',
+				'required' => true
+			],
+			'question' => [
+				'type' => 'string',
+				'required' => true
+			],
+			'answer' => [
+				'type' => 'string',
+				'required' => true
+			],
+			'ismarkable' => [
+				'type' => 'bool',
+				'required' => true
+			],
+			'support_need' => [
+				'type' => 'bool',
+				'required' => true
+			],
+		],
+		'perms' => CONFIG::PERMISSIONS['admin'],
+	],
+	'faq.delQuestion' => [
+		'parameters' => [
+			'question_id' => [
+				'type' => 'int',
+				'required' => true
+			],
+		],
+		'perms' => CONFIG::PERMISSIONS['admin'],
+	],
+	'faq.getCategories' => [
+		'parameters' => [],
+	],
+	'faq.getQuestionsByCategory' => [
+		'parameters' => [
+			'category_id' => [
+				'type' => 'int',
+				'required' => true
+			],
+			'offset' => [
+				'type' => 'int',
+				'required' => false,
+				'default' => 0,
+			],
+			'count' => [
+				'type' => 'int',
+				'required' => false,
+				'default' => 200,
+			],
 		],
 	],
-	'recommendations.get' => [],
+	'faq.getQuestionById' => [
+		'parameters' => [
+			'id' => [
+				'type' => 'int',
+				'required' => true
+			],
+		],
+	],
+	'faq.getQuestionByName' => [
+		'parameters' => [
+			'name' => [
+				'type' => 'string',
+				'required' => true
+			],
+		],
+	],
 ];
 $user_id = (int) $_GET['vk_user_id'];
 $method = $_GET['method'];
@@ -600,7 +849,7 @@ if (!$data) {
 if (!isset($params[$method])) {
 	Show::error(405);
 }
-$data = Utils::checkParams($params[$method], $data);
+$data = Utils::checkParams($params[$method]['parameters'], $data);
 
 $Connect = new DB();
 $users = new Users($user_id, $Connect);
@@ -614,10 +863,20 @@ $reports = new Reports($users, $Connect, $account);
 $followers = new Followers($users, $Connect);
 $recommended = new Recomendations($users, $Connect, $followers);
 $levels = new Levels($users, $Connect);
+$faq = new Faq($Connect,$users);
 
 
-
-
+if(isset($params[$method]['perms'])) {
+	if ($users->info['permissions'] < $params[$method]['perms']) {
+		Show::error(403);
+	}
+}
+function checkPermission($permission) {
+	global $users;
+	if ($users->info['special'] < $permission) {
+		Show::error(403);
+	}
+}
 function getBalance()
 {
 	global $Connect, $user_id;
@@ -739,7 +998,7 @@ switch ($method) {
 		$type = $data['type'];
 		if(!in_array($type, CONFIG::TYPES_TOP_GET)) Show::error(1550);
 		if ($staff) {
-			if (!$users->info['special']) {
+			if (!($users->info['permissions'] >= CONFIG::PERMISSIONS['special'])) {
 				$staff = false;
 			}
 		}
@@ -888,9 +1147,6 @@ switch ($method) {
 				ON users.avatar_id = avatars.id
 				WHERE messages.id=?";
 		$res = $Connect->db_get($sql, [$id])[0];
-		if (!$users->info['special']) {
-			Show::error(32);
-		}
 		if ($res['author_id'] < 0) {
 			Show::error(33);
 		}
@@ -1053,18 +1309,12 @@ switch ($method) {
 		$count = (int) $data['count'];
 		if ($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
 		$offset = (int) $data['offset'];
-		if (!$users->info['special']) {
-			Show::error(403);
-		}
 		Show::response($Connect->db_get("SELECT * FROM messages WHERE author_id>0 order by id asc LIMIT $offset, $count"));
 
 	case 'special.getNewMessages':
 		$count = (int) $data['count'];
 		if ($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
 		$offset = (int) $data['offset'];
-		if (!$users->info['special']) {
-			Show::error(403);
-		}
 		$res = $Connect->db_get(
 			"SELECT tickets.id, COUNT(messages.id) as count_unmark
 			FROM tickets 
@@ -1111,9 +1361,6 @@ switch ($method) {
 
 	case 'special.delModerationTicket':
 		$id_answer = $data['id_ans'];
-		if (!$users->info['special']) {
-			Show::error(403);
-		}
 		$res = $Connect->db_get("SELECT author_id,description,time FROM queue_quest WHERE id=?", [$id_answer]);
 		if ($res) {
 			$Connect->query("UPDATE users SET bad_answers=bad_answers+1 WHERE vk_user_id=?", [$res[0]['author_id']]);
@@ -1132,9 +1379,6 @@ switch ($method) {
 
 	case 'special.approveModerationTicket':
 		$id_answer = $data['id_ans'];
-		if (!$users->info['special']) {
-			Show::error(403);
-		}
 		$res = $Connect->db_get("SELECT author_id,description,time FROM queue_quest WHERE id=?", [$id_answer]);
 		if ($res) {
 			$Connect->query("UPDATE users SET bad_answers=bad_answers+1 WHERE vk_user_id=?", [$res[0]['author_id']]);
@@ -1154,9 +1398,6 @@ switch ($method) {
 		$count = (int) $data['count'];
 		if ($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
 		$offset = (int) $data['offset'];
-		if (!$users->info['special']) {
-			Show::error(403);
-		}
 		$res = $Connect->db_get(
 			"SELECT id, title, description, donut, time
 			FROM queue_quest 
@@ -1172,9 +1413,6 @@ switch ($method) {
 		$count = (int) $data['count'];
 		if ($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
 		$offset = (int) $data['offset'];
-		if ($users->info['special'] < 2) {
-			Show::error(403);
-		}
 		$res = $Connect->db_get(
 			"SELECT id, vk_id, aid, title, descverf, time
 			FROM request_verification 
@@ -1196,9 +1434,6 @@ switch ($method) {
 
 	case 'admin.approveVerificationRequest':
 		$id_request = $data['id_request'];
-		if ($users->info['special'] < 2) {
-			Show::error(403);
-		}
 		$res = $Connect->db_get("SELECT id, aid, title, descverf, time FROM request_verification WHERE id=?", [$id_request]);
 		if ($res) {
 			$account->Verification($res[0]['aid']);
@@ -1211,9 +1446,6 @@ switch ($method) {
 
 	case 'admin.denyVerificationRequest':
 		$id_request = $data['id_request'];
-		if ($users->info['special'] < 2) {
-			Show::error(403);
-		}
 		$res = $Connect->db_get("SELECT id, aid, title, descverf, time FROM request_verification WHERE id=?", [$id_request]);
 		if ($res) {
 			$object = [
@@ -1245,9 +1477,48 @@ switch ($method) {
 		$id_request = $data['id_request'];
 		$reports->deny($id_request);
 	case 'recommendations.get':
-		// $count = (int) $data['count'];
-		// if($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
-		// $offset = (int) $data['offset'];
 		$res = $recommended->getRecommendations(0, 3, $users->id);
 		Show::response($res);
+
+	case 'faq.addCategory':
+		$title =  (string) $data['title'];
+		$icon_id = (int) $data['icon_id'];
+		$color = mb_strtolower((string) $data['color']);
+		Show::response($faq->addCategory($title, $icon_id, $color));
+
+	case 'faq.delCategory':
+		$category_id = (int) $data['category_id'];
+		Show::response($faq->delCategory($category_id));
+
+	case 'faq.addQuestion':
+		$category_id = (int) $data['category_id'];
+		$question = (string) $data['question'];
+		$answer = (string) $data['answer'];
+		$ismarkable = (int) $data['ismarkable'];
+		$support_need = (int) $data['support_need'];
+
+		Show::response($faq->addQuestion($category_id, $question, $answer, $ismarkable, $support_need));
+
+	case 'faq.delQuestion':
+		$question_id = (int) $data['question_id'];
+		Show::response($faq->delQuestion($question_id));
+
+	case 'faq.getCategories':
+		Show::response($faq->getCategories()[0]);
+
+	case 'faq.getQuestionsByCategory':
+		$count = (int) $data['count'];
+		if ($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
+		$offset = (int) $data['offset'];
+		$category = (int) $data['category_id'];
+		Show::response($faq->getQuestionsByCategory($category, $offset, $count));
+
+	case 'faq.getQuestionById':
+		$question_id = (int) $data['id'];
+		Show::response($faq->getQuestionById($question_id));
+	
+	case 'faq.getQuestionByName':
+		$name = (string) $data['name'];
+		Show::response($faq->getQuestionsByName($name));
+
 }

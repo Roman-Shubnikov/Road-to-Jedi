@@ -1,4 +1,4 @@
-import {accountActionTypes, viewsActionTypes, tiketsActionTypes, moderationActionTypes, topUserActionTypes} from "./ActionTypes";
+import {accountActionTypes, viewsActionTypes, tiketsActionTypes, moderationActionTypes, topUserActionTypes, faqActionTypes} from "./ActionTypes";
 
 const initalStateAccount = {
     account: {},
@@ -62,12 +62,21 @@ const initalStateModeration = {
 const initalStateTopUsers = {
     topAgents: {
         'all': null,
+        'rating': null,
         'donut': null,
         'verif': null,
         'flash': null,
         'ghosts': null,
     },
     mode: false
+
+}
+const initalStateFaq = {
+    categories: null,
+    questions: null,
+    activeCategory: null,
+    activeQuestion: null, 
+    searchResult: null,
 
 }
 
@@ -130,6 +139,22 @@ export const topUsersReducer = (state = initalStateTopUsers, action) => {
             return { ...state, topAgents: action.payload }
         case topUserActionTypes.SET_MODE:
             return { ...state, mode: action.payload }
+        default:
+            return state
+    }
+}
+export const faqReducer = (state = initalStateFaq, action) => {
+    switch (action.type) {
+        case faqActionTypes.SET_CATEGORIES:
+            return { ...state, categories: action.payload }
+        case faqActionTypes.SET_QUESTIONS:
+            return { ...state, questions: action.payload }
+        case faqActionTypes.SET_ACTIVE_CATEGORY:
+            return { ...state, activeCategory: action.payload }
+        case faqActionTypes.SET_ACTIVE_QUESTION:
+            return { ...state, activeQuestion: action.payload }
+        case faqActionTypes.SET_SEARCH_RESULT_QUESTION:
+            return { ...state, searchResult: action.payload }
         default:
             return state
     }

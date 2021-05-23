@@ -33,7 +33,7 @@ import {
 import UserTopC from '../../../components/userTop';
 import { useDispatch, useSelector } from 'react-redux';
 import { topUsersActions, viewsActions } from '../../../store/main';
-import { API_URL } from '../../../config';
+import { API_URL, PERMISSIONS } from '../../../config';
 import { inArray, isEmptyObject } from 'jquery';
 import { enumerate } from '../../../Utils';
 
@@ -54,10 +54,11 @@ export default props => {
   const [contextOpened, setContextOpened] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
-
   const {
     account,
   } = useSelector((state) => state.account)
+  const permissions = account.permissions;
+  const moderator_permission = permissions >= PERMISSIONS.special;
 
   const getTopUsers = useCallback((type, staff=false, fetching=false) => {
     if(topAgents[type] === null || fetching){
@@ -97,24 +98,25 @@ export default props => {
     getTopUsers('all', mode, true)
   }
   const getCurrStub = () => {
+    let time_think = "\n\nДумаем, в ближайшее время тут кто-то появится."
     switch(activeTab){
       case 'verif':
-        return [<Icon36Done width={56} height={56} />, 'Топ верифицированных агентов пуст.\n\nДумаем, в ближайшее время тут кто-то появится.']
+        return [<Icon36Done width={56} height={56} />, 'Топ верифицированных агентов пуст.'+time_think]
       case 'donut':
-        return [<Icon56DonateOutline />, 'Топ агентов с отметкой VK Donut пуст.\n\nДумаем, в ближайшее время тут кто-то появится.']
+        return [<Icon56DonateOutline />, 'Топ агентов с отметкой VK Donut пуст.'+time_think]
       case 'flash':
-        return [<Icon56FireOutline />, 'Топ агентов с отметкой огня Прометея пуст.\n\nДумаем, в ближайшее время тут кто-то появится.']
+        return [<Icon56FireOutline />, 'Топ агентов с отметкой огня Прометея пуст.'+time_think]
       case 'ghosts':
-        return [<Icon56GhostOutline />, 'Топ агентов с фантомами пуст.\n\nДумаем, в ближайшее время тут кто-то появится.']
+        return [<Icon56GhostOutline />, 'Топ агентов с фантомами пуст.'+time_think]
       case 'all':
-        return [<Icon56Users3Outline />, 'Общий раздел пантеона пуст.\n\nДумаем, в ближайшее время тут кто-то появится.']
+        return [<Icon56Users3Outline />, 'Общий раздел пантеона пуст.'+time_think]
       default:
-        return [<Icon56Users3Outline />, 'Этот раздел пантеона пуст.\n\nДумаем, в ближайшее время тут кто-то появится.']
+        return [<Icon56Users3Outline />, 'Этот раздел пантеона пуст.'+time_think]
     }
   }
   const getCurrDescriptionAgent = (result) => {
-    if(inArray(activeTab, ['verif', 'donut', 'flash', 'all']) !== -1){
-      return(result.special ? 
+    if(inArray(activeTab, ['verif', 'donut', 'flash', 'rating', 'all']) !== -1){
+      return((result.permissions >= PERMISSIONS.special) ? 
         <div className="top_moderator_desc">
           {result.good_answers + " " + enumerate(result.good_answers, Forms.marked_answers)}
         </div>
@@ -141,7 +143,7 @@ export default props => {
     <PanelHeader
     separator={!platformname}
     >
-      {account.special ? <PanelHeaderContent
+      {moderator_permission ? <PanelHeaderContent
         aside={<Icon16Dropdown style={{ transition: '0.3s',transform: `rotate(${contextOpened ? '180deg' : '0'})` }} />}
         onClick={() => setContextOpened(prev => !prev)}
       >
@@ -173,12 +175,18 @@ export default props => {
     </PanelHeaderContext>
     <Group>
         <Tabs>
-          <HorizontalScroll>
+          <HorizontalScroll getScrollToLeft={(i) => i - 50} getScrollToRight={(i) => i + 50}>
             <TabsItem
               onClick={() => setActiveTab('all')}
               selected={activeTab === 'all'}
             >
               Общий
+            </TabsItem>
+            <TabsItem
+              onClick={() => setActiveTab('rating')}
+              selected={activeTab === 'rating'}
+            >
+              По рейтингу
             </TabsItem>
             <TabsItem
               onClick={() => setActiveTab('ghosts')}
@@ -208,28 +216,28 @@ export default props => {
         </Tabs>
 
       </Group>
-    <Group>
     
-    <><PullToRefresh onRefresh={() => {setFetching(true);getTopUsers(activeTab, mode, true)}} isFetching={fetching}>
-      {topAgents[activeTab] ? !isEmptyObject(topAgents[activeTab]) ? topAgents[activeTab].map((result, i) => 
-        result.banned ? null :
-        <React.Fragment key={result.id}>
-          {(i === 0) || <Separator/>}
+    <PullToRefresh onRefresh={() => {setFetching(true);getTopUsers(activeTab, mode, true)}} isFetching={fetching}>
+      <Group>
+        {topAgents[activeTab] ? !isEmptyObject(topAgents[activeTab]) ? topAgents[activeTab].map((result, i) => 
+          result.banned ? null :
+          <React.Fragment key={result.id}>
+            {(i === 0) || <Separator/>}
 
-        <UserTopC {...result}
-        description={
-          getCurrDescriptionAgent(result)
-      }
-        onClick={() => {goOtherProfile(result.id, true);}} />
+          <UserTopC {...result}
+          description={
+            getCurrDescriptionAgent(result)
+        }
+          onClick={() => {goOtherProfile(result.id, true);}} />
 
-     </React.Fragment>
-      ) : <Placeholder
-          icon={getCurrStub()[0]}
-          >
-        {getCurrStub()[1]}
-      </Placeholder> : <PanelSpinner />}
-    </PullToRefresh></>
-    </Group>
+      </React.Fragment>
+        ) : <Placeholder
+            icon={getCurrStub()[0]}
+            >
+          {getCurrStub()[1]}
+        </Placeholder> : <PanelSpinner />}
+      </Group>
+    </PullToRefresh>
 </Panel>
 )
 

@@ -9,12 +9,17 @@ import {
   } from '@vkontakte/vkui';
 
 // Импортируем панели
-import Advice         from './panels/adv';
-import Donuts         from './panels/donuts';
-import Premium        from './panels/premium';
-import NewTicket      from './panels/new_tiket';
-import OtherProfile   from '../../components/other_profile';
-import Reports        from '../../components/report';
+import Advice             from './panels/adv';
+import Donuts             from './panels/donuts';
+import Premium            from './panels/premium';
+import NewTicket          from './panels/new_tiket';
+import FaqMain            from './panels/faq/main';
+import FaqQuestions       from './panels/faq/questionsList';
+import FaqQuestion        from './panels/faq/question';
+import FaqCreateCategory  from './panels/faq/createCategory';
+import FaqCreateQuestion  from './panels/faq/createQuestion';
+import OtherProfile       from '../../components/other_profile';
+import Reports            from '../../components/report';
 
 //Импортируем модальные карточки
 import ModalPrometay  from '../../Modals/Prometay';
@@ -25,8 +30,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { viewsActions } from '../../store/main';
 import { errorAlertCreator, setActiveModalCreator, goPanelCreator, goOtherProfileCreator } from '../../Utils';
 
-
+const queryString = require('query-string');
+const hash = queryString.parse(window.location.hash);
 var ignore_back = false;
+var ignore_promo = false;
 
 export default props => {
   const dispatch = useDispatch();
@@ -97,12 +104,16 @@ export default props => {
     bridge.send('VKWebAppEnableSwipeBack');
     window.addEventListener('popstate', handlePopstate);
     dispatch(viewsActions.setNeedEpic(true))
+    if ("help" in hash && !ignore_promo) {
+      ignore_promo = true
+      goPanel('faqMain');
+    }
 
     return () => {
       bridge.send('VKWebAppDisableSwipeBack');
       window.removeEventListener('popstate', handlePopstate)
     }
-  }, [handlePopstate, dispatch])
+  }, [handlePopstate, dispatch, goPanel])
 
   const callbacks = { setPopout, setReport, showErrorAlert, setActiveModal, goOtherProfile, goPanel }
   const modal = (
@@ -151,6 +162,20 @@ export default props => {
       <NewTicket id='new_ticket'
         callbacks={callbacks}
         reloadProfile={props.reloadProfile} />
+      
+      <FaqMain id="faqMain"
+      callbacks={callbacks}
+      />
+      <FaqQuestions id='faqQuestions'
+      callbacks={callbacks} />
+
+      <FaqCreateCategory id='faqCreateCategory'
+      callbacks={callbacks} />
+      <FaqCreateQuestion id='faqCreateQuestion' 
+      callbacks={callbacks}
+      />
+      <FaqQuestion id='faqQuestion' 
+      callbacks={callbacks} />
 
       <OtherProfile id="other_profile"
         callbacks={callbacks} />

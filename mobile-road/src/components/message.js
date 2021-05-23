@@ -22,11 +22,11 @@ const Message = React.forwardRef(( props, ref ) => (
                 </div>
                 <div style={{display:'flex'}}>
                     {props.is_mark === 1 ? 
-                        <div className="approved animation pointer" onClick={(e) => { e.stopPropagation();props.DoneApp()}}>
+                        <div className="approved animation pointer" onClick={(e) => { e.stopPropagation();props.markAlert()}}>
                         <Icon16Done className="approved_icon green" height={15} width={15} style={{display: "inline-block"}}/>
                     </div>
                     : props.is_mark === 0 ?
-                            <div className="approved animation pointer" onClick={(e) => { e.stopPropagation();props.CanselApp()}}>
+                            <div className="approved animation pointer" onClick={(e) => { e.stopPropagation();props.markAlert()}}>
                         <Icon16Cancel className="approved_icon" height={15} width={15} style={{display: "inline-block"}}/>
                     </div>
                     : null}

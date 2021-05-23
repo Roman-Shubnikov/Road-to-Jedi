@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from "react-redux";
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 
 // import music from './music/Soloriver.mp3';
-import { API_URL } from "./config";
+import { API_URL, PERMISSIONS } from "./config";
 
 import { 
   ScreenSpinner,
@@ -118,6 +118,8 @@ const App = () => {
   const setBanObject = useCallback((payload) => dispatch(accountActions.setBanObject(payload)), [dispatch])
   const setScheme = useCallback((payload) => dispatch(accountActions.setScheme(payload)), [dispatch])
   const need_epic = useSelector((state) => state.views.need_epic)
+  const permissions = account.permissions;
+  const moderator_permission = permissions >= PERMISSIONS.special;
 
   
   const fetchAccount = useCallback(() => {
@@ -145,12 +147,13 @@ const App = () => {
             
           </Alert>
         )
+        dispatch(viewsActions.setActiveStory('disconnect'))
       } else {
         setBanObject(data.error.error_obj)
         setActiveStory('banned')
         setLoadWebView(true)
       }
-      dispatch(viewsActions.setActiveStory('disconnect'))
+      
       }
     })
     .catch(err => {
@@ -227,8 +230,10 @@ const App = () => {
         if (hash.promo !== undefined && !ignore_promo) {
           ignore_promo = true;
           setActiveStory('profile');
-        }
-        if (activeStory === 'loading'){
+        }else if ("help" in hash && !ignore_promo) {
+          ignore_promo = true;
+          setActiveStory('advice');
+        }else if (activeStory === 'loading'){
           setActiveStory('questions');
         }
       setLoadWebView(true)
@@ -274,6 +279,7 @@ const App = () => {
         <ConfigProvider scheme={scheme}
               platform={platform.current}
               > 
+
               <AppRoot>
                 <SplitLayout
               // header={!platformname && <PanelHeader separator={false} />}
@@ -304,7 +310,7 @@ const App = () => {
                         changeActiveStory={setActiveStory}>
                           Пантеон
                         </EpicItemPC>
-                        {account.special && 
+                        {moderator_permission && 
                         <EpicItemPC
                         icon={<Icon28WorkOutline />}
                         story="moderation"
@@ -354,7 +360,7 @@ const App = () => {
                             data-story="top"
                             text='Пантеон'
                           ><Icon28BankOutline /></TabbarItem>
-                          {account.special ? <TabbarItem
+                          {moderator_permission ? <TabbarItem
                             onClick={(e) => {setActiveStory(e.currentTarget.dataset.story)}} 
                             selected={activeStory === 'moderation'}
                             data-story="moderation"

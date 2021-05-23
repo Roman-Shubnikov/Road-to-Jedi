@@ -9,16 +9,11 @@ import {
     Counter,
     SimpleCell,
     Div,
-    FormStatus,
     PullToRefresh,
     Header,
     HorizontalScroll,
     HorizontalCell,
     MiniInfoCell,
-    // Gradient,
-    // Title,
-    // Button,
-    // Text,
     RichCell,
     Progress,
     InfoRow,
@@ -29,7 +24,6 @@ import {
     } from '@vkontakte/vkui';
 
 import {
-    // Icon16Fire,
     Icon16Verified,
     Icon28PollSquareOutline,
     Icon28MarketOutline,
@@ -47,11 +41,10 @@ import {
 
 import { 
     enumerate, recog_number, 
-    // recog_number
 } from '../../../Utils';
 import { isEmptyObject } from 'jquery';
 import { useDispatch, useSelector } from 'react-redux';
-import { AVATARS_URL, CONVERSATION_LINK } from '../../../config';
+import { AVATARS_URL, CONVERSATION_LINK, MESSAGE_NO_VK, PERMISSIONS } from '../../../config';
 import { viewsActions } from '../../../store/main';
 export default props => {
     const dispatch = useDispatch();
@@ -61,9 +54,9 @@ export default props => {
     const [fetching, setFetching] = useState(false);
     const levels = account.levels;
     const exp_to_next_lvl = levels.exp_to_lvl - levels.exp;
+    const permissions = account.permissions;
+    const moderator_permission = permissions >= PERMISSIONS.special;
 
-
-    // const total_answers = account.good_answers + account.bad_answers;
 
     const changeStatus = useCallback(() => {
         setNewStatus(account.publicStatus);
@@ -136,69 +129,6 @@ export default props => {
                             </InfoRow>
                         </Div>
                     </Group>
-                    {/* <Group>
-                        <Gradient style={{
-                            // margin: '-7px -7px 0 -7px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            textAlign: 'center',
-                            padding: 32,
-                        }}
-                        mode='white'>
-                            <div style={{ position: 'relative', margin: 10 }}>
-                                <Avatar src={account.avatar.url} size={96} style={{ position: 'relative' }} />
-                                {account.diamond && <Icon28DiamondOutline width={25} height={25} className='Diamond_profile_new' />}
-                            </div>
-                            <Title 
-                            style={{ marginBottom: 8, marginTop: 20 }} 
-                            level="2" 
-                            weight="medium">
-                                {account['nickname'] ? account['nickname'] : `Агент Поддержки #${account['id']}`}
-                            </Title>
-                            <Text style={{ marginBottom: 24, display: 'flex' }}>
-                                {account.flash &&
-                                    <Icon16Fire 
-                                    style={{color: 'var(--prom_icon)'}}
-                                    width={16} height={16} 
-                                    onClick={() => setActiveModal('prom')} />}
-                                {account.donut &&
-                                    <Icon16StarCircleFillYellow 
-                                    width={16} height={16}
-                                    onClick={() => setActiveModal('donut')} />}
-
-                                {account.verified &&
-                                    <Icon16Verified 
-                                    style={{color: 'var(--dynamic_blue)', marginLeft: 2}}
-                                    width={16} height={16}
-                                    onClick={() => setActiveModal('verif')} />}
-                            </Text>
-                            <Text style={{ marginBottom: 24, display: 'flex' }}>
-                                {account.followers[0] + " " + enumerate(account.followers[0], 
-                                ['подписчик', 'подписчика', 'подписчиков'])} · {recog_number(total_answers) + " " + enumerate(total_answers,
-                                    ['Ответ', 'Ответа', 'Ответов'])}
-                            </Text>
-                            <Button 
-                            onClick={() => {
-                                goPanel('settings');
-                            }}
-                            size="m" 
-                            mode="secondary">Настройки</Button>
-
-                        </Gradient>
-                        <Group mode='plain'>
-                            <MiniInfoCell
-                                before={<Icon20ArticleOutline />}
-                                textWrap='full'
-                                onClick={() => {
-                                    changeStatus()
-                                }}>
-                                {account.publicStatus || "Играю в любимую игру"}
-                            </MiniInfoCell>
-                        </Group>
-                        
-                    </Group> */}
                     {account.followers[0] ?
                         <Group header={
                             <Header
@@ -234,7 +164,7 @@ export default props => {
                             before={<Icon28Messages />}>
                             Чат
                             </SimpleCell>
-                        {(account.special || account.generator) || <SimpleCell
+                        {(moderator_permission || account.generator) || <SimpleCell
                             expandable
                             onClick={() => {
                                 goPanel('qu');
@@ -245,7 +175,7 @@ export default props => {
                             onClick={() => {
                                 goPanel('market');
                             }}
-                            before={<Icon28MarketOutline />}>Магазин</SimpleCell>
+                            before={<Icon28MarketOutline />}>Маркет</SimpleCell>
 
                         <SimpleCell
                             expandable
@@ -255,11 +185,7 @@ export default props => {
                             before={<Icon28SettingsOutline />}>Настройки</SimpleCell>
 
 
-                        {!account.special ? <Div>
-                            <FormStatus header="Внимание! Важная информация" mode="default">
-                                Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
-                                </FormStatus>
-                        </Div> : null}
+                        {!moderator_permission ? MESSAGE_NO_VK : null}
                     </Group>
                 </PullToRefresh>
                 {props.snackbar}

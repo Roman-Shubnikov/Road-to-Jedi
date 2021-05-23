@@ -19,7 +19,15 @@ export const tiketsActionTypes = {
 export const moderationActionTypes = {
     SET_DATA: 'MODERATION.SET_DATA',
 }
-export const topUserActionTypes ={ 
+export const topUserActionTypes = { 
     SET_TOP: 'TOP_USERS.SET_TOP',
     SET_MODE: 'TOP_USERS.SET_MODE',
+}
+export const faqActionTypes = {
+    SET_CATEGORIES: 'FAQ.SET_CATEGORIES',
+    SET_QUESTIONS: 'FAQ.SET_QUESTIONS',
+    SET_ACTIVE_CATEGORY: 'FAQ.SET_ACTIVE_CATEGORY',
+    SET_ACTIVE_QUESTION: 'FAQ.SET_ACTIVE_QUESTION',
+    SET_SEARCH_RESULT_QUESTION: 'FAQ.SET_SEARCH_RESULT_QUESTION',
+
 }

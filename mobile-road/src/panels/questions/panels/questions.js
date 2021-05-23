@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import $ from 'jquery';
 import { viewsActions, ticketActions } from '../../../store/main'
-import {API_URL} from '../../../config';
+import {API_URL, PERMISSIONS} from '../../../config';
 import { enumerate } from '../../../Utils';
 
 import { 
@@ -193,7 +193,7 @@ export default props => {
                 </Group>
 
                 : null}
-            {account.special ?
+            {account.permissions >= PERMISSIONS.special ?
                 <Group>
                     <Div>
                         <Button onClick={() => goPanel('new_ticket')}
