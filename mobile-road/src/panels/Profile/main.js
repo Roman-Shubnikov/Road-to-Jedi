@@ -60,12 +60,10 @@ import {
   Icon24Qr,
   Icon24Dismiss,
   Icon56GhostOutline,
-
+  Icon56ErrorOutline,
+  Icon56CheckCircleOutline,
 
 } from '@vkontakte/icons'
-
-import InvalidQR from './images/qr_invalid.svg'
-import ValidQR from './images/qr_valid.svg'
 
 
 import { API_URL, LINK_APP } from '../../config';
@@ -294,10 +292,6 @@ export default props => {
       ignore_promo = true
       goPanel('promocodes');
     }
-    const img1 = new Image();
-    const img2 = new Image();
-    img1.src = InvalidQR;
-    img2.src = ValidQR;
 
     return () => {
       bridge.send('VKWebAppDisableSwipeBack');
@@ -535,7 +529,7 @@ export default props => {
       <ModalCard
         id='invalid_qr'
         onClose={() => setActiveModal(null)}
-        icon={<img src={InvalidQR} alt='QR' />}
+        icon={<Icon56ErrorOutline />}
         header="Промокод недействительный"
         caption={
           <span>
@@ -548,7 +542,7 @@ export default props => {
       <ModalCard
         id='valid_qr'
         onClose={() => setActiveModal(null)}
-        icon={<img src={ValidQR} alt='QR' />}
+        icon={<Icon56CheckCircleOutline />}
         header="Вы активировали промокод!"
         caption={
           <span>

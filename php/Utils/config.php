@@ -3,7 +3,7 @@
 ini_set( 'date.timezone', 'UTC' ); // Время по гринвичу
 
 class CONFIG {
-	const DB_HOST = '188.225.47.17';
+	const DB_HOST = '188.225.45.112';
 	const DB_NAME = 'roadjedi';
 	const DB_USER = 'work';
 	const DB_PASS = '1qazse45';
@@ -14,8 +14,8 @@ class CONFIG {
 	const MAX_ITEMS_COUNT = 30;
 	
 	const AVATAR_PATH = 'https://xelene.ru/road/php/images/avatars';
-	const AVATARS_COUNT = 7;
-	const DONUT_AVATARS_COUNT = 0;
+	const AVATARS_COUNT = 41;
+	const DONUT_AVATARS_COUNT = 12;
 	const DONUT_CHAT_LINK = 'https://vk.me/join/bdWXBlYwHFXjmNksi3y03DRPTQPebMwOufM=';
 	
 	const MAX_TICKETS_TITLE_LEN = 80;
