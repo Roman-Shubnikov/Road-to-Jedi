@@ -22,6 +22,7 @@ export default props => {
     const dispatch = useDispatch();
     const { activeCategory, questions } = useSelector((state) => state.Faq)
     const [editing, setEditing] = useState(false);
+    const [loading, setLoading] = useState(true);
     const setQuestions = (questions) => dispatch(faqActions.setQuestions(questions));
     const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
     const { showErrorAlert, goPanel } = props.callbacks;
@@ -45,6 +46,7 @@ export default props => {
             .then(data => {
             if (data.result) {
                 setQuestions(data.response)
+                setLoading(false)
             } else {
                 showErrorAlert(data.error.message)
             }
@@ -83,7 +85,7 @@ export default props => {
         })
     }
     const Questions = () => {
-        if(!questions) return <PanelSpinner />
+        if(!questions || loading) return <PanelSpinner />
         if(questions.length > 0){
             return <Group>{questions.map((res, i) => 
             <Cell

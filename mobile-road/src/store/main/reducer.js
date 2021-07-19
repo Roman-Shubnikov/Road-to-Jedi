@@ -1,4 +1,12 @@
-import {accountActionTypes, viewsActionTypes, tiketsActionTypes, moderationActionTypes, topUserActionTypes, faqActionTypes} from "./ActionTypes";
+import {
+    accountActionTypes, 
+    viewsActionTypes, 
+    tiketsActionTypes, 
+    moderationActionTypes, 
+    topUserActionTypes, 
+    faqActionTypes,
+    reportsActionTypes,
+} from "./ActionTypes";
 
 const initalStateAccount = {
     account: {},
@@ -79,6 +87,10 @@ const initalStateFaq = {
     searchResult: null,
 
 }
+const initalStateReports = {
+    source: 0,
+    type_rep: 0,
+}
 
 export const accountReducer = (state = initalStateAccount, action) => {
     switch(action.type) {
@@ -155,6 +167,16 @@ export const faqReducer = (state = initalStateFaq, action) => {
             return { ...state, activeQuestion: action.payload }
         case faqActionTypes.SET_SEARCH_RESULT_QUESTION:
             return { ...state, searchResult: action.payload }
+        default:
+            return state
+    }
+}
+export const reportReducer = (state = initalStateReports, action) => {
+    switch (action.type) {
+        case reportsActionTypes.SET_RESOURCE_REPORT:
+            return { ...state, source: action.payload }
+        case reportsActionTypes.SET_TYPE_REPORT:
+            return { ...state, type_rep: action.payload }
         default:
             return state
     }

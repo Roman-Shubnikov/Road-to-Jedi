@@ -6,6 +6,7 @@ import {
     moderationReducer as moderation,
     topUsersReducer as topUsers,
     faqReducer as Faq,
+    reportReducer as Reports,
 
 } from "./main";
 
@@ -16,4 +17,5 @@ export const reducers = combineReducers({
     moderation,
     topUsers,
     Faq,
+    Reports,
 })

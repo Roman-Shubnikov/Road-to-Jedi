@@ -15,6 +15,17 @@ class Shop {
     public function logger($cost, $product){
         $this->Connect->query("INSERT INTO purchases (aid, product_id, cost, time) VALUES (?,?,?,?)", [$this->users->id, $this->products[$product], $cost, time()]);
     }
+    private function formatProducts($object) {
+        return [
+            'item_id' => (int) $object['item_id'],
+            'title' => (string) $object['title'],
+            'photo_id' => (int) $object['photo_id'],
+            'price' => (int) $object['price'],
+            'discount' => (int) $object['discount'],
+            'item_name' => (string) $object['item_name'],
+            'in_stock' => (bool) $object['in_stock'],
+        ];
+    }
 
     public function changeNickname($nickname){
         $length = mb_strlen($nickname);
@@ -51,6 +62,26 @@ class Shop {
         $this->logger($all_price, 'ghosts');
         $this->Connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$new_balance, $this->users->vk_id]);
         return $this->levels->addExp($this->users->id, $count);
+    }
+
+    function getProductByName($name) {
+        $res = $this->Connect->db_get("SELECT id as item_id,title,photo_id,price,discount,item_name,in_stock FROM products WHERE item_name=?", [$name]);
+        if(!$res) Show::error(1019);
+        $res = formatProducts($res[0]);
+        if(!$res['in_stock']) Show::error(1020);
+        $res['photo_url'] = CONFIG::PRODUCTS_AVATAR_PATH . "/" . $res['photo_id'] . 'png';
+        return $res;
+    }
+    public function getProductsVoices() {
+        $res = $this->Connect->db_get("SELECT id as item_id,title,photo_id,price,discount,item_name,in_stock FROM products");
+        $out = [];
+        foreach($res as $item) {
+            $pre_out = $this->formatProducts($item);
+            $pre_out['photo_url'] = CONFIG::PRODUCTS_AVATAR_PATH . "/" . $pre_out['photo_id'] . '.png';
+            unset($pre_out['photo_id']);
+            $out[] = $pre_out;
+        }
+        return $out;
     }
 
 

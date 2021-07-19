@@ -5,7 +5,6 @@ import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { 
   View,
   ScreenSpinner,
-  ModalRoot,
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
@@ -18,13 +17,8 @@ import Reports        from '../../components/report';
 import AnswerAdded    from '../../components/AnswerAdded';
 import { viewsActions } from '../../store/main'
 //Импортируем модальные карточки
-import ModalPrometay from '../../Modals/Prometay';
-import ModalDonut from '../../Modals/Donut'
-import ModalComment from '../../Modals/Comment';
-import ModalBan from '../../Modals/Ban';
-import ModalVerif from '../../Modals/Verif'
 import { useDispatch, useSelector } from 'react-redux';
-import { errorAlertCreator, alertCreator, setActiveModalCreator, goPanelCreator, goOtherProfileCreator } from '../../Utils';
+import { goPanelCreator, goOtherProfileCreator } from '../../Utils';
 import { isEmptyObject } from 'jquery';
 
 var adsCounter = 0;
@@ -38,17 +32,14 @@ var ignore_back = false;
 export default props => {
   const dispatch = useDispatch();
   const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
-  const [popout, setPopout] = useState(null);
   const [ticket_id, setTicket] = useState(null);
   const [historyPanelsState, setHistory] = useState(['questions']);
   const [activePanel, setActivePanel] = useState('questions');
-  const [activeModal, setModal] = useState(null);
-  const [modalHistory, setModalHistory] = useState(null);
   const { 
     other_profile: OtherProfileData,
     account, 
   } = useSelector((state) => state.account)
-  const comment = useSelector((state) => state.tickets.comment)
+  const {showAlert, showErrorAlert, setActiveModal, updateSetReport, setCallbacks, setPopout} = props.popouts_and_modals
 
   const [typeres, setTyperes] = useState(0);
   const [id_rep, setIdRep] = useState(0);
@@ -113,16 +104,7 @@ export default props => {
       goOtherProfileCreator(goPanel, setActiveStory, showErrorAlert, OtherProfileData, dispatch, id)
     }, [dispatch, goPanel, OtherProfileData, setActiveStory])
     
-  const setActiveModal = (activeModal) => {
-    setActiveModalCreator(setModal, setModalHistory, modalHistory, activeModal)
-  }
-  const showErrorAlert = (error = null, action = null) => {
-    errorAlertCreator(setPopout, error, action)
-  }
-  const showAlert = (title, text) => {
-    alertCreator(setPopout, title, text)
-  }
-  
+  const callbacks = { setPopout, goPanel, setReport, showErrorAlert, goTiket, setActiveModal, showAlert, goOtherProfile }
   useEffect(() => {
     bridge.send('VKWebAppEnableSwipeBack');
     window.addEventListener('popstate', handlePopstate);
@@ -136,53 +118,22 @@ export default props => {
       }
       ignore_hash = true;
     }
+    updateSetReport(setReport);
+    setCallbacks(callbacks);
     
     return () => {
       bridge.send('VKWebAppDisableSwipeBack');
       window.removeEventListener('popstate', handlePopstate)
     }
   }, [handlePopstate, dispatch, goOtherProfile, goTiket])
-  const callbacks = { setPopout, goPanel, setReport, showErrorAlert, goTiket, setActiveModal, showAlert, goOtherProfile }
-  const modal = (
-    <ModalRoot
-      activeModal={activeModal}
-    >
-      <ModalPrometay
-        id='prom'
-        onClose={() => setActiveModal(null)}
-        action={() => setActiveModal(null)} />
-
-      <ModalDonut
-        id='donut'
-        onClose={() => setActiveModal(null)}
-        action={() => setActiveModal(null)} />
-
-      <ModalVerif
-        id='verif'
-        onClose={() => setActiveModal(null)}
-        action={() => setActiveModal(null)} />
-
-      <ModalBan
-        id='ban_user'
-        onClose={() => setActiveModal(null)}
-        callbacks={callbacks}
-      />
-      <ModalComment
-        id='comment'
-        comment={comment}
-        onClose={() => setActiveModal(null)}
-        reporting={setReport} />
-    </ModalRoot>
-  )
+  
   
   return(
     <View
       id={props.id}
       activePanel={activePanel}
-      modal={modal}
       history={historyPanelsState}
       onSwipeBack={() => window.history.back()}
-      popout={popout}
     >
       <Questions id='questions'
         callbacks={callbacks}/>

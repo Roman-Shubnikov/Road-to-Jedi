@@ -31,3 +31,7 @@ export const faqActionTypes = {
     SET_SEARCH_RESULT_QUESTION: 'FAQ.SET_SEARCH_RESULT_QUESTION',
 
 }
+export const reportsActionTypes = {
+    SET_TYPE_REPORT: 'REP.SET_TYPE_REPORT',
+    SET_RESOURCE_REPORT: 'REP.SET_RESOURCE_REPORT',
+}

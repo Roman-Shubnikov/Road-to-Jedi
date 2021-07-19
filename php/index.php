@@ -1,6 +1,6 @@
 <?php
 
-// ini_set('error_reporting', E_ERROR);
+// error_reporting(E_ALL);
 // ini_set('display_errors', 1);
 // ini_set('display_startup_errors', 1);
 // mysqli_report(MYSQLI_REPORT_STRICT); 
@@ -40,6 +40,7 @@ require 'api/api/settings.php';
 require 'api/api/levels.php';
 require 'api/api/shop.php';
 require 'api/api/faq.php';
+require 'api/api/testsInspector.php';
 
 session_id($_GET['vk_user_id']);
 session_start();
@@ -82,6 +83,7 @@ $params = [
 				'required' => true
 			]
 		],
+		'perms' => CONFIG::PERMISSIONS['user']
 	],
 	'settings.set' => [
 		'parameters' => [
@@ -93,12 +95,13 @@ $params = [
 				'type' => 'int',
 				'required' => true
 			]
-		]
+		],
+		'perms' => CONFIG::PERMISSIONS['user']
 	],
 
 	'account.get' => [
 		'parameters' => [],
-
+		'perms' => CONFIG::PERMISSIONS['user']
 	],
 	// 'account.delete' => [],
 	'account.setAge' => [
@@ -134,7 +137,8 @@ $params = [
 				'type' => 'int',
 				'required' => true
 			]
-		]
+		],
+		'perms' => CONFIG::PERMISSIONS['user']
 	],
 	'account.ban' => [
 		'parameters' => [
@@ -220,7 +224,12 @@ $params = [
 				'type' => 'int',
 				'required' => false
 			]
-		]
+		],
+		'perms' => CONFIG::PERMISSIONS['user']
+	],
+	'tickets.getMyModeration' => [
+		'parameters' => [],
+		'perms' => CONFIG::PERMISSIONS['user']
 	],
 
 	'tickets.get' => [
@@ -239,7 +248,8 @@ $params = [
 				'type' => 'int',
 				'required' => false
 			]
-		]
+		],
+		'perms' => CONFIG::PERMISSIONS['agent']
 	],
 	'tickets.getByModeratorAnswers' => [
 		'parameters' => [
@@ -254,7 +264,20 @@ $params = [
 			],
 		]
 	],
+	'ticket.rate' => [
+		'parameters' => [
+			'ticket_id' => [
+				'type' => 'int',
+				'required' => true
+			],
 
+			'rate' => [
+				'type' => 'int',
+				'required' => true
+			]
+		],
+		'perms' => CONFIG::PERMISSIONS['user']
+	],
 	'ticket.markMessage' => [
 		'parameters' => [
 			'message_id' => [
@@ -266,7 +289,8 @@ $params = [
 				'type' => 'int',
 				'required' => true
 			]
-		]
+		],
+		'perms' => CONFIG::PERMISSIONS['special']
 	],
 	'ticket.unmarkMessage' => [
 		'parameters' => [
@@ -278,28 +302,28 @@ $params = [
 		'perms' => CONFIG::PERMISSIONS['special'],
 	],
 
-	'ticket.add' => [
-		'parameters' => [
-			'title' => [
-				'type' => 'string',
-				'required' => true
-			],
+	// 'ticket.add' => [
+	// 	'parameters' => [
+	// 		'title' => [
+	// 			'type' => 'string',
+	// 			'required' => true
+	// 		],
 
-			'text' => [
-				'type' => 'string',
-				'required' => true
-			],
-			'user' => [
-				'type' => 'int',
-				'required' => true,
-			],
-			'donut_only' => [
-				'type' => 'bool',
-				'required' => true,
-			],
-		],
-		'perms' => CONFIG::PERMISSIONS['special'],
-	],
+	// 		'text' => [
+	// 			'type' => 'string',
+	// 			'required' => true
+	// 		],
+	// 		'user' => [
+	// 			'type' => 'int',
+	// 			'required' => true,
+	// 		],
+	// 		'donut_only' => [
+	// 			'type' => 'bool',
+	// 			'required' => true,
+	// 		],
+	// 	],
+	// 	'perms' => CONFIG::PERMISSIONS['special'],
+	// ],
 
 	'ticket.sendMessage' => [
 		'parameters' => [
@@ -312,7 +336,8 @@ $params = [
 				'type' => 'string',
 				'required' => true
 			]
-		]
+		],
+		'perms' => CONFIG::PERMISSIONS['user']
 	],
 
 	'ticket.editMessage' => [
@@ -326,7 +351,8 @@ $params = [
 				'type' => 'string',
 				'required' => true
 			]
-		]
+		],
+		'perms' => CONFIG::PERMISSIONS['user']
 	],
 
 	'ticket.commentMessage' => [
@@ -385,7 +411,8 @@ $params = [
 				'type' => 'int',
 				'required' => false
 			],
-		]
+		],
+		'perms' => CONFIG::PERMISSIONS['user']
 	],
 
 	'ticket.getById' => [
@@ -394,7 +421,8 @@ $params = [
 				'type' => 'int',
 				'required' => true
 			]
-		]
+		],
+		'perms' => CONFIG::PERMISSIONS['user']
 	],
 
 	'ticket.approveReply' => [
@@ -438,7 +466,8 @@ $params = [
 				'type' => 'int',
 				'required' => true
 			]
-		]
+		],
+		'perms' => CONFIG::PERMISSIONS['user']
 	],
 
 	'ticket.close' => [
@@ -447,7 +476,8 @@ $params = [
 				'type' => 'int',
 				'required' => true
 			]
-		]
+		],
+		'perms' => CONFIG::PERMISSIONS['special'],
 	],
 
 	'ticket.open' => [
@@ -456,7 +486,8 @@ $params = [
 				'type' => 'int',
 				'required' => true
 			]
-		]
+		],
+		'perms' => CONFIG::PERMISSIONS['special'],
 	],
 	'shop.changeAvatar' => [
 		'parameters' => [
@@ -514,6 +545,9 @@ $params = [
 				'required' => true
 			],
 		]
+	],
+	'shop.getProducts' => [
+		'parameters' => [],
 	],
 	'transfers.send' => [
 		'parameters' => [
@@ -619,7 +653,7 @@ $params = [
 		],
 		'perms' => CONFIG::PERMISSIONS['special'],
 	],
-	'special.addNewModerationTicket' => [
+	'ticket.addNewModerationTicket' => [
 		'parameters' => [
 			'title' => [
 				'type' => 'string',
@@ -629,11 +663,8 @@ $params = [
 				'type' => 'string',
 				'required' => true
 			],
-			'donut_only' => [
-				'type' => 'bool',
-				'required' => true
-			],
-		]
+		],
+		'perms' => CONFIG::PERMISSIONS['user']
 	],
 	'special.delModerationTicket' => [
 		'parameters' => [
@@ -800,6 +831,7 @@ $params = [
 	],
 	'faq.getCategories' => [
 		'parameters' => [],
+		'perms' => CONFIG::PERMISSIONS['user']
 	],
 	'faq.getQuestionsByCategory' => [
 		'parameters' => [
@@ -818,6 +850,7 @@ $params = [
 				'default' => 200,
 			],
 		],
+		'perms' => CONFIG::PERMISSIONS['user']
 	],
 	'faq.getQuestionById' => [
 		'parameters' => [
@@ -826,6 +859,7 @@ $params = [
 				'required' => true
 			],
 		],
+		'perms' => CONFIG::PERMISSIONS['user']
 	],
 	'faq.getQuestionByName' => [
 		'parameters' => [
@@ -834,6 +868,25 @@ $params = [
 				'required' => true
 			],
 		],
+		'perms' => CONFIG::PERMISSIONS['user']
+	],
+	'tests.sendAnswers' => [
+		'parameters' => [
+			'answers' => [
+				'type' => 'array',
+				'required' => true
+			],
+		],
+		'perms' => CONFIG::PERMISSIONS['user']
+	],
+	'tests.startTest' => [
+		'parameters' => [
+			'test_id' => [
+				'type' => 'int',
+				'required' => true
+			],
+		],
+		'perms' => CONFIG::PERMISSIONS['user']
 	],
 ];
 $user_id = (int) $_GET['vk_user_id'];
@@ -864,23 +917,25 @@ $followers = new Followers($users, $Connect);
 $recommended = new Recomendations($users, $Connect, $followers);
 $levels = new Levels($users, $Connect);
 $faq = new Faq($Connect,$users);
+$testsInspector = new TestsInspector($users, $Connect);
 
-
+$perms_need = CONFIG::PERMISSIONS['agent'];
 if(isset($params[$method]['perms'])) {
-	if ($users->info['permissions'] < $params[$method]['perms']) {
-		Show::error(403);
-	}
+	$perms_need = $params[$method]['perms'];
 }
-function checkPermission($permission) {
-	global $users;
-	if ($users->info['special'] < $permission) {
-		Show::error(403);
-	}
+if ($users->info['permissions'] < $perms_need) {
+	Show::error(403);
 }
+
 function getBalance()
 {
 	global $Connect, $user_id;
 	return $Connect->db_get("SELECT money FROM users WHERE vk_user_id=?", [$user_id])[0]['money'];
+}
+if($users->info['permissions'] >= CONFIG::PERMISSIONS['special']) {
+	error_reporting(E_ALL);
+	ini_set('display_errors', 1);
+	ini_set('display_startup_errors', 1);
 }
 
 
@@ -1020,6 +1075,9 @@ switch ($method) {
 		if ($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
 
 		Show::response($tickets->getMy($offset, $count));
+	
+	case 'tickets.getMyModeration':
+		Show::response($tickets->getMyModeration());
 
 	case 'tickets.getByModeratorAnswers':
 		$offset = isset($data['offset']) ? (int) $data['offset'] : 0;
@@ -1075,16 +1133,16 @@ switch ($method) {
 
 		Show::response($tickets->deleteComment($id));
 
-	case 'ticket.add':
-		$title = $data['title'];
-		$text = trim($data['text']);
-		$userQue = (int) $data['user'];
-		$donut = (bool) $data['donut_only'];
-		$real_author = isset($data['real_author']) ? (int) $data['real_author'] : $users->vk_id;
-		if ($userQue > 0) {
-			$userQue = -$userQue;
-		}
-		Show::response($tickets->add($title, $text, $userQue, $donut, $real_author));
+	// case 'ticket.add':
+	// 	$title = $data['title'];
+	// 	$text = trim($data['text']);
+	// 	$userQue = (int) $data['user'];
+	// 	$donut = (bool) $data['donut_only'];
+	// 	$real_author = isset($data['real_author']) ? (int) $data['real_author'] : $users->vk_id;
+	// 	if ($userQue > 0) {
+	// 		$userQue = -$userQue;
+	// 	}
+	// 	Show::response($tickets->add($title, $text, $userQue, $donut, $real_author));
 
 	case 'ticket.getById':
 		$id = (int) $data['ticket_id'];
@@ -1110,6 +1168,12 @@ switch ($method) {
 		$id = (int) $data['message_id'];
 
 		Show::response($tickets->approve($id));
+
+	case 'ticket.rate':
+		$id = (int) $data['ticket_id'];
+		$rate = (int) $data['rate'];
+
+		Show::response($tickets->rate($id, $rate));
 
 	case 'ticket.close':
 		$id = (int) $data['ticket_id'];
@@ -1243,6 +1307,10 @@ switch ($method) {
 		$promo = (string)$data['promocode'];
 		Show::response($promocodes->activate($promo));
 
+	case 'shop.getProducts':
+		$shop = new Shop($users, $Connect, $levels);
+		Show::response($shop->getProductsVoices());
+
 	case 'transfers.send':
 		$summa = (int) $data['summa'];
 		$send_to = trim($data['send_to']);
@@ -1276,14 +1344,14 @@ switch ($method) {
 
 		$help = $Connect->query("UPDATE users SET money=? WHERE id=?", [$balanceTo['money'] + $summa, $idTo]);
 
-		$sysnotifications->send($idTo, "Вам поступил перевод в размере $summa монеток от агента #$idWhoSend", $avatar, [
+		$sysnotifications->send($idTo, "Вам поступил перевод в размере $summa монеток от агента #$idWhoSend", [
 			'type' => 'money_transfer_give',
 			'object' => 0
-		], $comment);
-		$sysnotifications->send($idWhoSend, "Вы успешно перевели $summa монеток агенту #$idTo", $avatarTo, [
+		], $avatar, $comment);
+		$sysnotifications->send($idWhoSend, "Вы успешно перевели $summa монеток агенту #$idTo", [
 			'type' => 'money_transfer_send',
 			'object' => 0
-		]);
+		], $avatarTo);
 		$Connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$balance_profile - $summa, $user_id]);
 		Show::response(['money' => $balance_profile - $summa, 'help' => $help, 'avatar' => $avatarTo]);
 
@@ -1329,12 +1397,19 @@ switch ($method) {
 		Show::response($out);
 
 
-	case 'special.addNewModerationTicket':
+	case 'ticket.addNewModerationTicket':
 		$title = trim($data['title']);
 		$text = trim($data['text']);
-		$donut = (bool) $data['donut_only'];
-		if (!$users->info['generator']) {
+		if ($users->info['permissions'] != -1) {
 			Show::error(403);
+		}
+
+		$res = $Connect->db_get("SELECT COUNT(*) as count_q FROM queue_quest WHERE author_id=?", [$users->vk_id]);
+		if($res){
+			$count = $res[0]['count_q'];
+			if($count > CONFIG::MAX_QUESTIONS_BY_PERSON){
+				Show::error(42);
+			}
 		}
 
 		if (mb_strlen($title) >= CONFIG::MAX_TICKETS_TITLE_LEN) {
@@ -1352,7 +1427,7 @@ switch ($method) {
 		if (mb_strlen($text) <= CONFIG::MIN_MESSAGE_LEN) {
 			Show::error(23);
 		}
-		$res = $Connect->query("INSERT INTO queue_quest (title, description, donut, time, author_id) VALUES (?,?,?,?,?)", [$title, $text, (int)$donut, time(), $users->vk_id]);
+		$res = $Connect->query("INSERT INTO queue_quest (title, description, time, author_id) VALUES (?,?,?,?)", [$title, $text, time(), $users->vk_id]);
 		$id = $res[1];
 		if (!$res[1]) {
 			Show::error(0);
@@ -1363,15 +1438,19 @@ switch ($method) {
 		$id_answer = $data['id_ans'];
 		$res = $Connect->db_get("SELECT author_id,description,time FROM queue_quest WHERE id=?", [$id_answer]);
 		if ($res) {
-			$Connect->query("UPDATE users SET bad_answers=bad_answers+1 WHERE vk_user_id=?", [$res[0]['author_id']]);
 			$Connect->query("UPDATE users SET bad_answers=bad_answers+1 WHERE vk_user_id=?", [$users->vk_id]);
 			if ($settings->getOneSetting('generator_noty')) {
-				$vk = new VkApi(CONFIG::GENERATOR_TOKEN);
-				$substractingText = substr($res[0]['description'], 0, 200);
-				if (mb_strlen($res[0]['description']) > 200) {
-					$substractingText .= '...';
+				try {
+					$vk = new VkApi(CONFIG::GENERATOR_TOKEN);
+					$substractingText = substr($res[0]['description'], 0, 200);
+					if (mb_strlen($res[0]['description']) > 200) {
+						$substractingText .= '...';
+					}
+					$vk->sendMessage($res[0]['author_id'], 
+					"Ваш вопрос рассмотрен нашими модераторами и был отклонен, рекомендуем прочитать правила составления ответов:\n\n» $substractingText");
+				} catch (Exception $e) {
+
 				}
-				$vk->sendMessage($res[0]['author_id'], "Ваш вопрос рассмотрен нашими модераторами и был отклонен, рекомендуем прочитать правила составления ответов:\n\n» $substractingText");
 			}
 		}
 
@@ -1379,29 +1458,41 @@ switch ($method) {
 
 	case 'special.approveModerationTicket':
 		$id_answer = $data['id_ans'];
-		$res = $Connect->db_get("SELECT author_id,description,time FROM queue_quest WHERE id=?", [$id_answer]);
+		$res = $Connect->db_get("SELECT author_id,title,description,time FROM queue_quest WHERE id=?", [$id_answer]);
 		if ($res) {
-			$Connect->query("UPDATE users SET bad_answers=bad_answers+1 WHERE vk_user_id=?", [$res[0]['author_id']]);
+			$res = $res[0];
+			$title = $res['title'];
+			$desc = $res['description'];
+			$author = $res['author_id'];
 			$Connect->query("UPDATE users SET bad_answers=bad_answers+1 WHERE vk_user_id=?", [$users->vk_id]);
-			if ($settings->getOneSetting('generator_noty')) {
-				$vk = new VkApi(CONFIG::GENERATOR_TOKEN);
-				$substractingText = substr($res[0]['description'], 0, 200);
-				if (mb_strlen($res[0]['description']) > 200) {
+			try{
+				$vk = new VkApi(CONFIG::VK_GROUP_TOKEN);
+				$substractingText = substr($desc, 0, 200);
+				if (mb_strlen($desc) > 200) {
 					$substractingText .= '...';
 				}
-				$vk->sendMessage($res[0]['author_id'], "Ваш вопрос рассмотрен нашими модераторами и был принят на очередь для агентов поддержки:\n\n» $substractingText");
+				$vk->sendMessage($author, "Ваш вопрос рассмотрен нашими модераторами и был принят на очередь для агентов поддержки:\n\n» $substractingText");
+			} catch (Exception $e) { 
+
 			}
+			$donut_rand = false;
+			$rnd = rand(0,99);
+			if ($rnd>80){
+				$donut_rand = true;
+			}
+			$tickets->add($title, $desc, $author, $donut_rand);
+			
 		}
-		Show::response($Connect->query("UPDATE queue_quest SET moder=1 WHERE id=?", [$id_answer]));
+		Show::response($Connect->query('DELETE FROM queue_quest WHERE id=?', [$id_answer]));
+		
 
 	case 'special.getNewModerationTickets':
 		$count = (int) $data['count'];
 		if ($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
 		$offset = (int) $data['offset'];
 		$res = $Connect->db_get(
-			"SELECT id, title, description, donut, time
-			FROM queue_quest 
-			WHERE moder=0 ORDER BY time DESC LIMIT $offset, $count"
+			"SELECT id, title, description, time
+			FROM queue_quest ORDER BY time DESC LIMIT $offset, $count"
 		);
 		$out = [];
 		foreach ($res as $val) {
@@ -1440,7 +1531,7 @@ switch ($method) {
 			$object = [
 				'type' => 'verification_approve'
 			];
-			$sysnotifications->send($res[0]['aid'], "Запрос на верификацию одобрен", null, $object);
+			$sysnotifications->send($res[0]['aid'], "Запрос на верификацию одобрен", $object);
 		}
 		Show::response($Connect->query("UPDATE request_verification SET inactive=1 WHERE id=?", [$id_request]));
 
@@ -1451,7 +1542,7 @@ switch ($method) {
 			$object = [
 				'type' => 'verification_demiss'
 			];
-			$sysnotifications->send($res[0]['aid'], "Запрос на верификацию отклонён", null, $object);
+			$sysnotifications->send($res[0]['aid'], "Запрос на верификацию отклонён", $object);
 		}
 		Show::response($Connect->query("UPDATE request_verification SET inactive=1 WHERE id=?", [$id_request]));
 
@@ -1520,5 +1611,13 @@ switch ($method) {
 	case 'faq.getQuestionByName':
 		$name = (string) $data['name'];
 		Show::response($faq->getQuestionsByName($name));
+	
+	case 'tests.startTest':
+		$test_id = $data['test_id'];
+		Show::response($testsInspector->startTest($test_id));
+
+	case 'tests.sendAnswers':
+		$answers = $data['answers'];
+		Show::response($testsInspector->checkAnswers($answers));
 
 }

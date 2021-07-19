@@ -1,4 +1,3 @@
-import {API_URL} from '../../config';
 import {
     accountActionTypes,
     viewsActionTypes,
@@ -6,8 +5,8 @@ import {
     moderationActionTypes,
     topUserActionTypes,
     faqActionTypes,
+    reportsActionTypes,
     } from './ActionTypes';
-import { ForceErrorBackend, FetchFatalError } from './Errors'
 
 export const accountActions = {
     setAccount: (payload) => ({type: accountActionTypes.SET_ACCOUNT, payload}),
@@ -30,32 +29,7 @@ export const topUsersActions = {
 }
 export const ticketActions = {
     setTickets: (payload) => ({ type: tiketsActionTypes.SET_TICKETS, payload }),
-    setTicket: (payload) => (getTicketSuccess(payload)),
-    getTicket: (payload) => {
-        return (dispatch) => {
-            fetch(API_URL + "method=ticket.getById&" + window.location.search.replace('?', ''),
-                {
-                    method: 'post',
-                    headers: { "Content-type": "application/json; charset=UTF-8" },
-                    body: JSON.stringify({
-                        'ticket_id': payload,
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.result) {
-                        return data.response;
-                    } else {
-                        throw new ForceErrorBackend(data.error.message)
-                    }
-                })
-                .then((data) => dispatch(getTicketSuccess(data)))
-                .catch(err => {
-                    throw new FetchFatalError("Ошибка запроса")
-
-                })
-        }
-    },
+    setTicket: (payload) => ({ type: tiketsActionTypes.SET_TICKET, payload: payload }),
     setComment: (payload) => ({ type: tiketsActionTypes.SET_COMMENT, payload }),
     setOffset: (payload) => ({ type: tiketsActionTypes.SET_OFFSET, payload }),
 }
@@ -72,7 +46,7 @@ export const faqActions = {
 export const moderationActions = {
     setData: (payload) => ({ type: moderationActionTypes.SET_DATA, payload }),
 }
-
-const getTicketSuccess = (data) => {
-    return ({ type: tiketsActionTypes.SET_TICKET, payload: data })
+export const reportsActions = {
+    setTypeReport: (payload) => ({type: reportsActionTypes.SET_TYPE_REPORT, payload}),
+    setResourceReport: (payload) => ({type: reportsActionTypes.SET_RESOURCE_REPORT, payload}),
 }

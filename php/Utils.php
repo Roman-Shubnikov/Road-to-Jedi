@@ -38,6 +38,9 @@ class Utils {
                 case 'bool':
                     if (!is_bool($data[$name])) $ok_type = false;
                     break;
+                case 'array':
+                    if (!is_array($data[$name])) $ok_type = false;
+                    break;
                 case 'intorstr':
                     if (!is_string($data[$name]) && !is_numeric($data[$name])) $ok_type = false;
             }

@@ -49,6 +49,8 @@ export default props => {
     const account = useSelector((state) => state.account.account)
     const { tickets, ticketsCurrent, offset } = useSelector((state) => state.tickets)
     const setTickets = useCallback((tickets, ticketsCurrent) => dispatch(ticketActions.setTickets({ tickets, ticketsCurrent })), [dispatch])
+    const permissions = account.permissions;
+    const agent_permission = permissions >= PERMISSIONS.agent;
 
     const {setPopout, showErrorAlert, goTiket, goPanel} = props.callbacks;
     const getQuestions = useCallback((need_offset = false) => {
@@ -56,7 +58,8 @@ export default props => {
             dispatch(ticketActions.setOffset(20))
         }
         let offsetData = need_offset ? offset : 0;
-        fetch(API_URL + "method=tickets.get&" + window.location.search.replace('?', ''),
+        let method = agent_permission ? 'tickets.get&' : 'tickets.getMy&';
+        fetch(API_URL + 'method=' + method + window.location.search.replace('?', ''),
             {
                 method: 'post',
                 headers: { "Content-type": "application/json; charset=UTF-8" },
@@ -100,7 +103,7 @@ export default props => {
 
             })
         
-    }, [dispatch, offset, setActiveStory, setTickets, showErrorAlert, tickets])
+    }, [dispatch, offset, setActiveStory, setTickets, showErrorAlert, tickets, agent_permission])
     const getRandomTiket = () => {
         fetch(API_URL + "method=ticket.getRandom&" + window.location.search.replace('?', ''))
             .then(res => res.json())
@@ -154,7 +157,7 @@ export default props => {
         <Panel id={props.id}>
             <PanelHeader
                 left={<>
-                    {(tickets && tickets.length > 0) ?
+                    {(tickets && tickets.length > 0 && agent_permission) ?
                         <PanelHeaderButton onClick={() => getRandomTiket()}>
                             <Icon28WriteSquareOutline />
                         </PanelHeaderButton> : null}
@@ -163,7 +166,7 @@ export default props => {
                 Вопросы
                 </PanelHeader>
 
-            {(ShowBanner && account.is_first_start) ?
+            {(ShowBanner && account.is_first_start && agent_permission) ?
                 <Group>
                     <Banner
                         mode="image"
@@ -193,7 +196,7 @@ export default props => {
                 </Group>
 
                 : null}
-            {account.permissions >= PERMISSIONS.special ?
+            {account.permissions < PERMISSIONS.agent ?
                 <Group>
                     <Div>
                         <Button onClick={() => goPanel('new_ticket')}
@@ -228,7 +231,7 @@ export default props => {
                             </React.Fragment>
                         ) : <Placeholder
                             icon={<Icon56InboxOutline />}>
-                            Упс, кажется вопросы закончились
+                            {agent_permission ? "Упс, кажется вопросы закончились" : "Вы ещё не создали ни одного вопроса"}
                                 </Placeholder>
                             : <PanelSpinner />}
                     </List>

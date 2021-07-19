@@ -1,4 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import bridge from '@vkontakte/vk-bridge'; // VK Brige
+
 import { 
     Panel,
     PanelHeader,
@@ -24,6 +26,12 @@ import {
     TabbarItem,
     IconButton,
     Tappable,
+    List,
+    Placeholder,
+    PanelSpinner,
+    usePlatform,
+    IOS,
+    FormStatus,
     } from '@vkontakte/vkui';
 
 
@@ -49,6 +57,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { viewsActions } from '../../../store/main';
 import { API_URL, AVATARS_URL, LINKS_VK } from '../../../config';
 import { enumerate } from '../../../Utils';
+import { isEmptyObject } from 'jquery';
 
 
 const avatars = [
@@ -103,10 +112,12 @@ const blueBackground = {
 
 export default props => {
   const [activeTab, setActivetab] = useState('market');
+  const platform = usePlatform();
 
   const getCurrPanel = () => {
     if(activeTab === 'market') return <Market callbacks={props.callbacks} reloadProfile={props.reloadProfile} />
-    if(activeTab === 'invoices') return <Invoices callbacks={props.callbacks} reloadProfile={props.reloadProfile} />
+    if(activeTab === 'invoices') return <Invoices callbacks={props.callbacks} reloadProfile={props.reloadProfile} setActivetab={setActivetab} />
+    if(activeTab === 'treasures') return <Treasures callbacks={props.callbacks} reloadProfile={props.reloadProfile} />
   }
   return(
     <Panel id={props.id}>
@@ -128,6 +139,10 @@ export default props => {
             selected={activeTab === 'invoices'}>
               Счета
             </TabsItem>
+            {platform !== IOS && <TabsItem onClick={() => setActivetab('treasures')}
+            selected={activeTab === 'treasures'}>
+              Ценности
+            </TabsItem>}
           </HorizontalScroll>
         </Tabs>
       </Group>
@@ -136,12 +151,73 @@ export default props => {
     </Panel>
   )
 }
-
+const Treasures = props => {
+  const [products, setProducts] = useState(null);
+  const dispatch = useDispatch();
+  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
+  const { setSnackbar } = props.callbacks;
+  const getProducts = () => {
+    fetch(API_URL + `method=shop.getProducts&` + window.location.search.replace('?', ''))
+      .then(data => data.json())
+      .then(data => {
+        if (data.result) {
+          setProducts(data.response)
+        } else {
+          setSnackbar(
+            <Snackbar
+              layout="vertical"
+              onClose={() => setSnackbar(null)}
+              before={<Icon20CancelCircleFillRed width={24} height={24} />}
+            >
+              {data.error.message}
+            </Snackbar>);
+        }
+      })
+      .catch(err => {
+        setActiveStory('disconnect');
+      })
+  }
+  useEffect(() => {
+    getProducts()
+  }, [])
+  return(
+    <>
+    <Group>
+      <FormStatus>
+        В данный момент магазин закрыт!
+      </FormStatus>
+    </Group>
+    <Group>
+      <List>
+        {products ? !isEmptyObject(products) ? 
+        products.map((res, i) => 
+        <SimpleCell
+        key={i}
+        onClick={() => {
+          bridge.send('VKWebAppShowOrderBox', {type: 'item', item: res.item_name})
+          .then(data => {if(data.success) {props.reloadProfile()}})
+        }}
+        before={<Avatar mode="image" src={res.photo_url} shadow={false} style={{backgroundColor: 'var(--background_page_my)'}} />}
+        description={
+          (res.discount !== 0) ? <span>Стоимость: <span style={{textDecoration: 'line-through'}}>{res.price}</span> {res.price-res.discount} {enumerate(res.price-res.discount , ['голос', 'голоса', 'голосов'])}</span>:
+          "Стоимость: " + res.price + " " + enumerate(res.price, ['голос', 'голоса', 'голосов'])
+        }>
+          {res.title}
+        </SimpleCell>
+        )
+        : 
+        <Placeholder>
+          Все товары, кажется разобрали. Сейчас их нет в наличии. Скоро появятся.
+        </Placeholder> : <PanelSpinner/>}
+      </List>
+    </Group></>
+  )
+}
 const Invoices = props => {
   const account = useSelector((state) => state.account.account);
-
+  const platform = usePlatform();
   const { goPanel, setActiveModal } = props.callbacks;
-
+  
   const genereCardId= (nickname) => {
     nickname = String(nickname)
     let hash = 0, i,chr;
@@ -171,8 +247,8 @@ const Invoices = props => {
       <Div 
       className='vkuiTabbar--l-vertical' 
       style={{display: 'flex', justifyContent: 'space-around'}}>
-        <Tappable disabled>
-          <TabbarItem
+        <Tappable disabled={platform === IOS} onClick={platform !== IOS ? () => props.setActivetab('treasures') : undefined}>
+          <TabbarItem selected={platform !== IOS}
           text='Пополнить'>
             <Icon28MoneyRequestOutline />
           </TabbarItem>

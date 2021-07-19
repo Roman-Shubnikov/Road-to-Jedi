@@ -22,6 +22,7 @@ import {
     PanelHeaderButton,
     Text,
     Link,
+    Button,
     } from '@vkontakte/vkui';
 
 import { 
@@ -47,7 +48,7 @@ import {
 
 import Message from './message'
 import { useDispatch, useSelector } from 'react-redux';
-import { FetchFatalError, ForceErrorBackend, ticketActions, viewsActions } from '../store/main';
+import { ticketActions, viewsActions } from '../store/main';
 import { getHumanyTime, LinkHandler } from '../Utils';
 import { API_URL, LINKS_VK, PERMISSIONS } from '../config';
 // const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
@@ -61,15 +62,6 @@ export default props => {
   const dispatch = useDispatch();
   const { setPopout, showErrorAlert, setReport, setActiveModal, showAlert, goOtherProfile, goPanel } = props.callbacks;
   const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
-  const getTicket = useCallback((id) => {
-    try {
-      dispatch(ticketActions.getTicket(id))
-    } catch (error) {
-      if (error instanceof FetchFatalError) setActiveStory('disconnect');
-      if (error instanceof ForceErrorBackend) showErrorAlert(error.message);
-    }
-    // eslint-disable-next-line
-  }, [dispatch])
   const setComment = useCallback((comment) => dispatch(ticketActions.setComment(comment)), [dispatch])
   const MessageRef = useRef(null);
   const [add_comment, setAddComment] = useState(false);
@@ -86,6 +78,7 @@ export default props => {
   const { info, messages, limitReach} = TicketData;
   const permissions = account.permissions;
   const moderator_permission = permissions >= PERMISSIONS.special;
+  const agent_permission = permissions >= PERMISSIONS.agent;
   const setContinueSnack = (text) => {
     setSnackbar(<Snackbar
       layout="vertical"
@@ -93,6 +86,28 @@ export default props => {
       onClose={() => setSnackbar(null)}>
       {text}
             </Snackbar>)
+  }
+  const getTicket = (id) => {
+    fetch(API_URL + "method=ticket.getById&" + window.location.search.replace('?', ''),
+      {
+          method: 'post',
+          headers: { "Content-type": "application/json; charset=UTF-8" },
+          body: JSON.stringify({
+              'ticket_id': id,
+          })
+      })
+      .then(res => res.json())
+      .then((data) => {
+        if(data.result) {
+          dispatch(ticketActions.setTicket(data.response))
+        } else {
+          showErrorAlert(data.error.message);
+        }
+      })
+      .catch(err => {
+        setActiveStory('disconnect');
+
+      })
   }
   const getAvatar = (result) => {
     if (result.author.is_moderator){
@@ -233,22 +248,22 @@ export default props => {
                   </ActionSheetItem>
                 : null}
               
-              {(special && (comment === null || comment === undefined)) ?
-                <><ActionSheetItem autoclose 
+              {special ?
+                <>{comment === null && <ActionSheetItem autoclose 
                   before={<Icon28CommentOutline/>}
                   onClick={() => {setAddComment(true); setMessageIdChanged(id)}}>
                   Добавить комментарий
-                </ActionSheetItem>
-                <ActionSheetItem autoclose 
+                </ActionSheetItem>}
+                {comment && <ActionSheetItem autoclose 
                   before={<Icon28WriteOutline />}
                   onClick={() => { setSendfield(comment);setMessageIdChanged(id);setEditComment(true)}}>
                   Редактировать комментарий
-                </ActionSheetItem>
-                <ActionSheetItem autoclose 
+                </ActionSheetItem>}
+                {comment && <ActionSheetItem autoclose 
                   before={<Icon28CommentDisableOutline />} 
                   onClick={() => QuickMenagerMessages(id, 'delete_coment')}>
                     Удалить комментарий
-                </ActionSheetItem>
+                </ActionSheetItem>}
                 </>
                 : null}
               {(Number(author_id === account.id) && info['status'] === 0 && mark === -1 && !approved) ?
@@ -274,15 +289,16 @@ export default props => {
               </ActionSheet>
             )
           } else {
-            if (Number(author_id === account.id)) {
+            if (author_id === account.id || author_id === -account.vk_id) {
               setPopout(
                 <ActionSheet onClose={() => setPopout(null)}
                   toggleRef={MessageRef.current}
                   iosCloseItem={shotItems.cancel_item}>
-                  {(Number(author_id === account.id) && info['status'] === 0) ?
+                  {info['status'] === 0 ?
                     shotItems.edit_message
                     : null}
                   {shotItems.copy_message}
+                  {shotItems.delete_message}
                 </ActionSheet>
               )
             }
@@ -311,18 +327,19 @@ export default props => {
     setAddComment(false);
     setEditComment(false);
   }
-  const QuickMenagerMessages = (id, typeSend) => {
+  const QuickMenagerMessages = (id, typeSend, customField=null) => {
     let method,typetick;
     const types = {
       ticket: "ticket_id",
       message: "message_id"
     }
     let complete_callback = () => undefined;
+    let customjson = null;
     switch (typeSend) {
       case "send":
         method = 'method=ticket.sendMessage&';
         typetick = types.ticket;
-        complete_callback = () => {if(!moderator_permission) goPanel('answer_added')}
+        complete_callback = () => {if(!moderator_permission && !info.author.id === account.vk_id) goPanel('answer_added')}
         break;
       case "redaction":
         method = 'method=ticket.editMessage&';
@@ -340,10 +357,18 @@ export default props => {
         method = 'method=ticket.deleteComment&';
         typetick = types.message
         break;
+      case "rate_ticket":
+        method = 'method=ticket.rate&';
+        typetick = types.ticket
+        customjson = {
+          'ticket_id': id,
+          'rate': customField
+        }
+        break;
       default:
         throw new Error("Такого значения не существует")
     }
-    let json = (typetick === types.ticket) ? {
+    let json = customjson !== null ? customjson : (typetick === types.ticket) ? {
       'ticket_id': id,
       'text': sendfield.trim(),
     } : {
@@ -441,11 +466,34 @@ export default props => {
     return message
   }
   useEffect(() => {
+    const getTicket = (id) => {
+      fetch(API_URL + "method=ticket.getById&" + window.location.search.replace('?', ''),
+        {
+            method: 'post',
+            headers: { "Content-type": "application/json; charset=UTF-8" },
+            body: JSON.stringify({
+                'ticket_id': id,
+            })
+        })
+        .then(res => res.json())
+        .then((data) => {
+          if(data.result) {
+            dispatch(ticketActions.setTicket(data.response))
+          } else {
+            showErrorAlert(data.error.message);
+          }
+        })
+        .catch(err => {
+          setActiveStory('disconnect');
+  
+        })
+    }
     getTicket(props.ticket_id)
     return () => {
       dispatch(ticketActions.setTicket( {} ))
     }
-  }, [props.ticket_id, getTicket, dispatch])
+     // eslint-disable-next-line 
+  }, [props.ticket_id, dispatch, setActiveStory])
   return(
     <Panel id={props.id}>
       <PanelHeader
@@ -466,7 +514,7 @@ export default props => {
                   <Message
                     clickable={moderator_permission}
                     title={getAuthorName(result)}
-                    is_mine={result.author.is_moderator}
+                    is_mine={(agent_permission && result.author.is_moderator) || result.author.id === account.vk_id}
                     is_special={moderator_permission}
                     avatar={getAvatar(result)}
                     time={getHumanyTime(result.time).time}
@@ -537,6 +585,30 @@ export default props => {
 
               </FixedLayout>
 
+          : 
+          (info.status === 1 && account.vk_id === info.author.id) ? 
+          <FixedLayout filled vertical='bottom' style={{ zIndex: 20 }}>
+            <Div>
+              <Button mode='primary'
+                stretched
+                size='m'
+                style={{marginBottom: 8}}
+                onClick={() => {
+                  QuickMenagerMessages(info.id, 'rate_ticket', 2)
+                }}>
+                    Это решает мою проблему
+                </Button>
+                <Button mode='secondary'
+                stretched
+                size='m'
+                onClick={() => {
+                  QuickMenagerMessages(info.id, 'rate_ticket', 0)
+                }}>
+                    Это не решает мою проблему
+              </Button>
+            </Div>
+              
+          </FixedLayout>
           : null}
         {snackbar}
       </> : <Group><PanelSpinner /></Group>}

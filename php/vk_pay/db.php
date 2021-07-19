@@ -1,5 +1,5 @@
 <?php
-class DB {
+class DB_pay {
     public $mysql;
     function __construct()
     {
@@ -14,7 +14,7 @@ class DB {
                     PDO::ATTR_PERSISTENT => true
                 ));
 		} catch (PDOException $e) {
-			Show::error(6,['message' => $e->getMessage()]);
+			Show::error(2, false);
 		}
     }
     public function db_get( $sql, $placeholders=[]) {
@@ -25,7 +25,7 @@ class DB {
         $response = $query->fetchAll(PDO::FETCH_ASSOC);
         $errors = $mysqli->errorInfo();
         if($errors[1] != NULL){
-            Show::error( 5 );
+            Show::error(2, false);
 		}
 		// if($query->errorInfo()[1]){
 		// 	var_dump($query->errorInfo());
@@ -41,7 +41,7 @@ class DB {
         $query->execute($placeholders);
         $errors = $query->errorInfo();
         if($errors[1] != NULL){
-            Show::error( 6,['message' => $errors[2]] );
+            Show::error(2, false);
 		}
 		try{
 			$insert_id = $mysqli->lastInsertId();

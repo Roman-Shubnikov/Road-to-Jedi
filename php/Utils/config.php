@@ -14,13 +14,15 @@ class CONFIG {
 	const MAX_ITEMS_COUNT = 30;
 	
 	const AVATAR_PATH = 'https://xelene.ru/road/php/images/avatars';
+	const PRODUCTS_AVATAR_PATH = 'https://xelene.ru/road/php/images/products';
 	const AVATARS_COUNT = 41;
 	const DONUT_AVATARS_COUNT = 12;
-	const DONUT_CHAT_LINK = 'https://vk.me/join/bdWXBlYwHFXjmNksi3y03DRPTQPebMwOufM=';
+	const DONUT_CHAT_LINK = 'https://vk.me/join/twwhnnyRTYfVZx2QEjjCNW8OLm2nyNEypqQ=';
 	
 	const MAX_TICKETS_TITLE_LEN = 80;
 	const MAX_TICKETS_TEXT_LEN = 4040;
 	const MIN_MESSAGE_LEN = 4;
+	const MAX_QUESTIONS_BY_PERSON = 3;
 
 	const MAX_FAQ_CATEGORY_LEN = 30;
 	const MAX_FAQ_QUESTION_LEN = 100;
@@ -29,6 +31,7 @@ class CONFIG {
 	const APP_ID = 7409818;
 	const SECRET_KEY = 'Xb10AoQB1SVlDsjnp9Sv';
 	const VK_APP_TOKEN = '7954165a7954165a7954165ad7792506c0779547954165a1926e608a1edb10e7f73972f';
+	const VK_GROUP_TOKEN = '9e1740c170fe79333a5512e6513f6036ba361fcc0dead0588f0a320e53831679b9bc7adc80208f370e11a';
 	const GENERATOR_TOKEN = '1fe917c48a35d8666646ed394ded7605460f82270c963b102cb3593c64f9837f1930ca45da43263e3f5cd';
 	
 	const FLOOD_CONTROL = 25;
@@ -63,10 +66,14 @@ class CONFIG {
 	const RECOMMENDATIONS_PRICE = 150;
 	const GHOST_PRICE = 5;
 
+	//Tests
+	const TIME_LIMITER = 259200; // 3 дня
+	const MISTAKES_PERSENT = 0.4;
 
 	//Permissions
 	const PERMISSIONS = [
-		"user" => 0,
+		"user" => -1,
+		"agent" => 0,
 		"special" => 1,
 		"admin" => 20,
 	];
@@ -82,9 +89,10 @@ class CONFIG {
 		4 => 'Неверные параметры запуска.',
 		5 => 'Ваш аккаунт заблокирован :-(.',
 		6 => 'Ошибка работы с базой. Попробуйте позже.',
-		7 => 'нельзя оставить коментарий больше 100 символов',
+		7 => 'Нельзя оставить коментарий больше 100 символов',
 		8 => 'У пользователя уже есть активная блокировка.',
-		9 => 'Строка поика не может быть пустой',
+		9 => 'Строка поиcка не может быть пустой',
+		10 => 'Неизвестное значение параметра',
 
 		// New Tickets
 	
@@ -110,6 +118,9 @@ class CONFIG {
 
 		40 => 'Профиль не найден.',
 		41 => 'Вы генератор и не можете писать в вопросы составленные вами',
+		42 => 'Вы не можете задать столько вопросов. Дождитесь рассмотрения предыдущих',
+		43 => '2 минуты уже прошли. Вы не можете удалить данное сообщение',
+
 
 		// Market
 		1001 => 'Вы пытаетесь сменить id на текстовый.',
@@ -130,6 +141,8 @@ class CONFIG {
 		1016 => 'Некорректный промокод',
 		1017 => 'Вы не являетесь доном нашего сообщества',
 		1018 => 'Вы уже имеете данный аватар',
+		1019 => "Товара не существует.",
+		1020 => "Товара нет в наличии.",
 
 		// Verification
 
@@ -173,7 +186,13 @@ class CONFIG {
 		1603 => "Превышена максимально допустимая длина ответа",
 		1604 => "Превышена максимально допустимая длина вопроса",
 		1605 => "Поля не могут быть пустыми",
-		
+
+		// Tests
+		1700 => "Такого теста не существует",
+		1701 => "Вы уже прошли этот тест успешно",
+		1702 => "Ещё не прошло достаточно времени с прохождения предыдущего теста",
+		1703 => "Передано неверное кол-во ответов",
+		1704 => "Переданы не все заявленные в тесте ответы",
 
 		// Server
 

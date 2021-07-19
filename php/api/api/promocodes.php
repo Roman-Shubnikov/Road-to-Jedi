@@ -33,7 +33,7 @@ class Promocodes {
 			'type' => 'promo_activate'
         ];
         $notif = "Вы активировали промокод на $cost монет(ок)";
-        $this->SYSNOTIF->send($this->user->id, $notif, null, $object);
+        $this->SYSNOTIF->send($this->user->id, $notif, $object);
         return ['id' => $check['id'], 'cost' => $check['cost'], 'edit' => $edit];
     }
 }

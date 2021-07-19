@@ -25,7 +25,7 @@ class Users {
 		// }
 		$this->id = $this->info['id'];
 
-		if ( $this->info['banned'] ) {
+		if ( isset($this->info['banned']) && $this->info['banned']) {
 			$ban = $this->info['banned'];
 			Show::error(5, ['reason' => $ban['reason'], 'time_end' => (int)$ban['time_end']]);
 		}
@@ -114,7 +114,7 @@ class Users {
 		$s_ids = implode( ',', $ids );
 		$result = [];
 
-		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.permissions, users.generator,
+		$sql = "SELECT users.id, users.vk_user_id,users.last_activity, users.registered, users.good_answers, users.permissions, users.generator,
 						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme, users.publicStatus,users.coff_active,
 						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname, users.donuts,
 						users.lvl, users.exp
@@ -155,7 +155,7 @@ class Users {
 		}
 		$staff = $staff ? CONFIG::PERMISSIONS['special'] : 0;
 
-		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.permissions, users.generator,
+		$sql = "SELECT users.id, users.last_activity, users.vk_user_id, users.registered, users.good_answers, users.permissions, users.generator,
 						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme, users.publicStatus,users.coff_active,
 						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname, users.donuts,
 						users.lvl, users.exp
@@ -268,7 +268,7 @@ class Users {
 		if ( !empty( $data['nickname'] ) ) $res['nickname'] = $data['nickname'];
 
 		if((int) $data['id'] == $this->id || !($this->info['permissions'] < CONFIG::PERMISSIONS['special'])){
-			$res['noti'] = (bool)$data['noti'];
+			$res['noti'] = isset($data['noti']) ? (bool)$data['noti'] : false;
 			$res['balance'] = (int)$data['money'];
 			$res['donuts'] = (int)$data['donuts'];
 			$res['age'] = (int)$data['age'];
@@ -280,7 +280,7 @@ class Users {
 		if ( isset( $data['notifications_count'] ) ) {
 			$res['notif_count'] = (int) $data['notifications_count'];
 		}
-		if(!array_key_exists('vk_id', $res) && $is_public) $res['vk_id'] = (int)$data['vk_user_id'];
+		if((!array_key_exists('vk_id', $res) && $is_public) || $this->vk_id) $res['vk_id'] = (int)$data['vk_user_id'];
 
 		return $res;
 	}

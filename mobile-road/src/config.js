@@ -43,7 +43,8 @@ export const CONVERSATION_LINK = "https://vk.me/join/zyWQzsgQ9iw6V2YAfbwiGtuO883
 export const SPECIAL_NORM = 50;
 export const GENERATOR_NORM = 200;
 export const PERMISSIONS = {
-    user: 0,
+    user: -1,
+    agent: 0,
     special: 1,
     admin: 20,
 };

@@ -15,13 +15,15 @@ class Tickets
 	{
 		$sql = "SELECT id, title, status, author_id, time, donut, real_author
 				FROM tickets WHERE id=?";
-		$res = $this->Connect->db_get($sql, [$ticket_id])[0];
+		$res = $this->Connect->db_get($sql, [$ticket_id]);
+		if(!$res) Show::error(404);
+		$res = $res[0];
 		if ($res['donut']) {
 			if (!$this->user->info['donut'] && ($this->user->info['permissions'] < CONFIG::PERMISSIONS['special'])) {
 				Show::error(403);
 			}
 		}
-		if ($res['status'] != 0 && ($this->user->info['permissions'] < CONFIG::PERMISSIONS['special'])) {
+		if ($res['status'] != 0 && ($this->user->info['permissions'] < CONFIG::PERMISSIONS['special']) && ((int)$res['author_id']) != -$this->user->vk_id) {
 			$sql = "SELECT author_id FROM messages WHERE author_id=? AND ticket_id=?";
 			if (count($this->Connect->db_get($sql, [$this->user->id, $ticket_id])) == 0) {
 				Show::error(403);
@@ -61,7 +63,7 @@ class Tickets
 		}
 		return $this->_get($cond, $offset, $count);
 	}
-	public function getByModeratorAnswers(int $offset = 0, int $count = null, int $id)
+	public function getByModeratorAnswers(int $id, int $offset = 0, int $count = null)
 	{
 		$author = $this->user->id;
 		$sql = "SELECT id,text,ticket_id,mark,time FROM messages WHERE author_id > 0 and author_id=? ORDER BY time desc";
@@ -92,7 +94,31 @@ class Tickets
 
 		return $this->_get($cond, $offset, $count);
 	}
-
+	public function getMyModeration() {
+		$sql = "SELECT id,title,description,time FROM queue_quest WHERE author_id=? ORDER BY time desc";
+		$res = $this->Connect->db_get($sql, [$this->user->vk_id]);
+		$ans = [];
+		if($res){
+			foreach ($res as $question) {
+				$ans[] = ['id' => (int)$question['id'], 'title' => $question['title'], 'description' => $question['description'], 'time' => (int)$question['time']];
+			}
+		}
+		return $ans;
+	}
+	public function rate(int $ticket_id, int $rate) {
+		if(!in_array($rate, [0,2])){
+			Show::error(10, ['param' => 'rate']);
+		}
+		$res = $this->getById($ticket_id);
+		if((int)$res['status'] == 1){
+			return $this->_changeStatus($ticket_id, $rate);
+		} else {
+			Show::customError('Дождитесь получения ответа');
+		}
+		
+		Show::error(403);
+		
+	}
 	public function markMessage(int $message_id, int $mark)
 	{
 		if ($mark < 0 || $mark > 1) return false;
@@ -125,7 +151,7 @@ class Tickets
 		}
 		// Сохраняем оценку в бд
 		$this->Connect->query("UPDATE users SET good_answers=good_answers+1 WHERE id=?", [(int) $this->user->id]);
-		$result = $this->Connect->query("UPDATE messages SET mark=?,approve_author_id=? WHERE id=?", [(int) $mark, (int) $this->user->vk_id, $message_id]);
+		$result = $this->Connect->query("UPDATE messages SET mark=?,approve_author_id=?,comment_time=0 WHERE id=?", [(int) $mark, (int) $this->user->vk_id, $message_id]);
 
 		// Увеличиваем счетчик оцененных ответов
 		$auid = $res['author_id'];
@@ -148,49 +174,31 @@ class Tickets
 		];
 
 		$avatar = CONFIG::AVATAR_PATH . '/' . $res['avatar_name'];
-		$this->SYSNOTIF->send($auid, $notification, $avatar, $object);
+		$this->SYSNOTIF->send($auid, $notification, $object, $avatar);
 
 		return $result;
 	}
 
-	public function add(string $title, string $text, int $User, bool $donut, int $real_author=0)
+	public function add(string $title, string $text, int $author, bool $donut)
 	{
-		$title = trim($title);
-		$text = trim($text);
-
-		if (mb_strlen($title) >= CONFIG::MAX_TICKETS_TITLE_LEN) {
-			Show::error(20);
-		}
-
-		if (mb_strlen($text) >= CONFIG::MAX_TICKETS_TEXT_LEN) {
-			Show::error(21);
-		}
-
-		if (mb_strlen($title) <= CONFIG::MIN_MESSAGE_LEN) {
-			Show::error(24);
-		}
-
-		if (mb_strlen($text) <= CONFIG::MIN_MESSAGE_LEN) {
-			Show::error(23);
-		}
 		// -$this->user->vk_id
-		$res = $this->Connect->query("INSERT INTO tickets (title,author_id,status,time,donut,real_author) VALUES (?,?,?,?,?,?)", [$title, $User, 0, time(), (int)$donut, $real_author]);
+		$res = $this->Connect->query("INSERT INTO tickets (title,author_id,status,time,donut) VALUES (?,?,?,?,?)", 
+		[$title, -$author, 0, time(), (int)$donut]);
 		$id = $res[1];
 		if (!$res[1]) {
 			Show::error(0);
 		}
 
-		$this->sendMessage($id, $text, $User);
+		$this->sendMessage($id, $text, -$author);
 
 		return ['ticket_id' => $id];
 	}
 
-	public function sendMessage(int $ticket_id, string $text, int $User = null)
+	public function sendMessage(int $ticket_id, string $text, int $author = null)
 	{
 		$ticket = $this->getById($ticket_id, false);
 		$text = trim($text);
 		if (!$ticket['id']) Show::error(404);
-		if($ticket['real_author'] && $this->user->info['generator']) Show::error(41);
 
 		if ($ticket['status'] == 2 || $ticket['id'] == 1) Show::error(30);
 
@@ -199,18 +207,15 @@ class Tickets
 		if (mb_strlen($text) <= CONFIG::MIN_MESSAGE_LEN) Show::error(23);
 
 		$uid = $this->user->id;
+		$author = $author ? $author : -$this->user->vk_id;
 		$is_author = false;
 
-		if ($this->user->info['permissions'] >= CONFIG::PERMISSIONS['special']) {
+		if($ticket['author']['id'] == -$author){
 			$is_author = true;
-			if ($User) {
-				$uid = $User;
-			} else {
-				$uid = -$ticket['author']['id'];
-			}
+			$uid = $author;
 		}
-
-		$res = $this->Connect->query("INSERT INTO messages (ticket_id, author_id, approved, mark, time, text) VALUES (?,?,?,?,?,?)", [$ticket_id, $uid, 0, -1, time(), str_replace("XD", "😆", $text)]);
+		$res = $this->Connect->query("INSERT INTO messages (ticket_id, author_id, approved, mark, time, text) VALUES (?,?,?,?,?,?)", 
+		[$ticket_id, $uid, 0, -1, time(), str_replace("XD", "😆", $text)]);
 		if (!$res[1]) {
 			Show::error(0);
 		}
@@ -227,11 +232,12 @@ class Tickets
 	public function isLimitReach(int $ticket_id)
 	{
 		$viewer = $this->user->id;
+		$viewer_user = $this->user->vk_id;
 		$special_time = time() - 7200;
 		$sql = "SELECT id
 			    FROM messages 
-				WHERE ticket_id=? and author_id=? and time>?";
-		$res = $this->Connect->db_get($sql, [$ticket_id, $viewer, $special_time]);
+				WHERE ticket_id=? and (author_id=? OR author_id=?) and time>?";
+		$res = $this->Connect->db_get($sql, [$ticket_id, $viewer, $viewer_user, $special_time]);
 		if (count($res) > 3) {
 			return true;
 		}
@@ -240,6 +246,7 @@ class Tickets
 	public function getMessages(int $ticket_id, int $offset = 0, int $count = null)
 	{
 		$viewer = $this->user->id;
+		$vk_view = -$this->user->vk_id;
 		if ($count === null) {
 			$count = CONFIG::ITEMS_PER_PAGE;
 		}
@@ -252,7 +259,7 @@ class Tickets
 		$cond = '';
 
 		if ($is_author) {
-			$cond = "AND ( messages.author_id < 0 OR messages.approved = 1 )";
+			$cond = "AND ( messages.author_id < 0 OR messages.approved = 1 OR messages.author_id=$vk_view )";
 		} else {
 			if ($this->user->info['permissions'] < CONFIG::PERMISSIONS['special']) {
 				$cond = "AND (messages.author_id = $author_ticket OR messages.author_id = $viewer OR messages.approved = 1)";
@@ -341,7 +348,6 @@ class Tickets
 		if (empty($res)) {
 			Show::error(404);
 		}
-
 		if ($res['author_id'] < 0) {
 			Show::error(22);
 		}
@@ -360,7 +366,7 @@ class Tickets
 		];
 
 		$avatar = CONFIG::AVATAR_PATH . '/' . $this->user->info['avatar_name'];
-		$this->SYSNOTIF->send($auid, $notification, $avatar, $object);
+		$this->SYSNOTIF->send($auid, $notification, $object, $avatar);
 
 		$ticket_id = $ticket['id'];
 
@@ -419,7 +425,7 @@ class Tickets
 			'object' => $res['ticket_id']
 		];
 
-		$this->SYSNOTIF->send($res['author_id'], $notification, CONFIG::AVATAR_PATH . '/' . $avatar_name, $object);
+		$this->SYSNOTIF->send($res['author_id'], $notification, $object, CONFIG::AVATAR_PATH . '/' . $avatar_name);
 		return $this->Connect->query("UPDATE messages SET comment=?, comment_author_id=?, comment_time=? WHERE id=?", [$text, $auid, time(), $message_id])[0];
 	}
 
@@ -473,20 +479,22 @@ class Tickets
 
 	public function deleteMessage(int $message_id)
 	{
-		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id,
+
+		$sql = "SELECT messages.id, messages.time, messages.ticket_id, messages.author_id,
 				messages.mark
 			    FROM messages 
 				WHERE messages.id=?";
 		$res = $this->Connect->db_get($sql, [$message_id])[0];
-
+		$author = (int)$res['author_id'];
+		$time_create = (int) $res['time'];
+		if($time_create < time() - 120) Show::error(43); // Нельзя удалять сообщение если прошло 2 минуты
 		if (empty($res)) {
 			Show::error(404);
 		}
-
 		if ($res['mark'] != -1) {
 			Show::error(403);
 		}
-		if ($res['author_id'] == $this->user->id || $res['author_id'] < 0 && ($this->user->info['permissions'] >= CONFIG::PERMISSIONS['special'])) {
+		if ($author == $this->user->id || ($author < 0 && ($this->user->info['permissions'] >= CONFIG::PERMISSIONS['special'])) || $author == -$this->user->vk_id) {
 			return $this->Connect->query("DELETE FROM messages WHERE id=?", [$message_id]);
 		}
 		Show::error(403);
@@ -532,12 +540,12 @@ class Tickets
 				ON messages.ticket_id = tickets.id
 				WHERE messages.id=?";
 		$res = $this->Connect->db_get($sql, [$message_id])[0];
-
+		$author = (int)$res['author_id'];
 		if (empty($res)) {
 			Show::error(404);
 		}
-
-		if ($res['author_id'] !== $this->user->id && $res['author_id'] !== -$this->user->vk_id) {
+		
+		if ($author != $this->user->id && $author != -$this->user->vk_id) {
 			Show::error(403);
 		}
 		if ($res['status'] == 1 || $res['status'] == 2) {
@@ -589,7 +597,7 @@ class Tickets
 
 		offset_count($offset, $count);
 
-		$sql = "SELECT id, title, status, author_id, time, donut, real_author
+		$sql = "SELECT id, title, status, author_id, time, donut
 				FROM tickets $cond
 				ORDER BY id DESC
 				LIMIT $offset, $count";
@@ -631,7 +639,6 @@ class Tickets
 			'author' => $data['author'],
 			'status' => (int) $data['status'],
 			'donut' => (bool) $data['donut'],
-			'real_author' => (bool) $data['real_author'] == $this->user->vk_id,
 		];
 
 		return $res;

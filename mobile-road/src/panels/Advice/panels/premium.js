@@ -5,7 +5,6 @@ import {
     Panel,
     PanelHeader,
     PanelHeaderBack,
-    Placeholder,
     SimpleCell,
     HorizontalCell,
     HorizontalScroll,
@@ -26,8 +25,6 @@ import {
     Icon28UserStarBadgeOutline,
     Icon16CheckCircle,
     Icon20CancelCircleFillRed,
-    Icon56ErrorTriangleOutline
-
 
 } from '@vkontakte/icons';
 

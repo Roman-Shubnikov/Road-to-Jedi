@@ -27,10 +27,16 @@ import {
   useAdaptivity,
   Alert,
   Badge,
+  ModalRoot,
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
-import './styles/style.css'
+import './styles/style.css';
+import ModalComment from './Modals/Comment';
+import ModalPrometay from './Modals/Prometay';
+import ModalDonut from './Modals/Donut';
+import ModalBan from './Modals/Ban';
+import ModalVerif from './Modals/Verif'
 import {accountActions, viewsActions} from './store/main'
 // Импортируем панели
 import Questions      from './panels/questions/main';
@@ -53,9 +59,10 @@ import {
   Icon28BankOutline,
 
 } from '@vkontakte/icons'
-
+import { modalslist } from './modals';
 import EpicItemPC from './components/EpicItem';
 import { isEmptyObject } from 'jquery';
+import { alertCreator, errorAlertCreator, setActiveModalCreator } from './Utils';
 
 
 const queryString = require('query-string');
@@ -110,6 +117,8 @@ function calculateAdaptivity(windowWidth, windowHeight) {
 const App = () => {
   const [popout, setPopout] = useState(() => <ScreenSpinner/>);
   const [LoadWebView, setLoadWebView] = useState(false);
+  const [activeModal, setModal] = useState(null);
+  const [modalHistory, setModalHistory] = useState(null);
   const dispatch = useDispatch();
   const { account, schemeSettings } = useSelector((state) => state.account)
   const { scheme, default_scheme } = schemeSettings;
@@ -120,8 +129,23 @@ const App = () => {
   const need_epic = useSelector((state) => state.views.need_epic)
   const permissions = account.permissions;
   const moderator_permission = permissions >= PERMISSIONS.special;
-
-  
+  const agent_permission = permissions >= PERMISSIONS.agent;
+  const comment_special = useSelector((state) => state.tickets.comment)
+  // const [setReport, updateSetReport] = useState(() => undefined)
+  const [callbacks, setCallbacks] = useState({});
+  const setReport = useRef(null);
+  const updateSetReport = (func) => {
+    setReport.current = func;
+  }
+  const setActiveModal = (activeModal) => {
+    setActiveModalCreator(setModal, setModalHistory, modalHistory, activeModal)
+  }
+  const showErrorAlert = (error = null, action = null) => {
+    errorAlertCreator(setPopout, error, action)
+  }
+  const showAlert = (title, text) => {
+    alertCreator(setPopout, title, text)
+  }
   const fetchAccount = useCallback(() => {
     fetch(API_URL + "method=account.get&" + window.location.search.replace('?', ''))
     .then(res => res.json())
@@ -266,6 +290,39 @@ const App = () => {
     isDesktop.current = viewWidth >= ViewWidth.SMALL_TABLET;
   }, [viewWidth, platform])
 
+  const popouts_and_modals = {showAlert, showErrorAlert, setActiveModal, updateSetReport, setCallbacks, setPopout}
+  const modals = (
+    <ModalRoot
+    activeModal={activeModal}>
+      <ModalComment
+        id='comment'
+        comment={comment_special}
+        onClose={() => setActiveModal(null)}
+        reporting={setReport.current} />
+      <ModalPrometay
+        id='prom'
+        onClose={() => setActiveModal(null)}
+        action={() => setActiveModal(null)} />
+
+      <ModalDonut
+        id='donut'
+        onClose={() => setActiveModal(null)}
+        action={() => setActiveModal(null)} />
+
+      <ModalVerif
+        id='verif'
+        onClose={() => setActiveModal(null)}
+        action={() => setActiveModal(null)} />
+
+      <ModalBan
+        id='ban_user'
+        onClose={() => setActiveModal(null)}
+        callbacks={callbacks}
+      />
+      {modalslist}
+    </ModalRoot>
+  )
+
   return(
     <>
         {!LoadWebView ? <div style={{width: '100vw', height: '100vh', backgroundColor: 'var(--background_page_my)', zIndex: 20, position: 'absolute', textAlign:'center'}}>
@@ -283,10 +340,12 @@ const App = () => {
               <AppRoot>
                 <SplitLayout
               // header={!platformname && <PanelHeader separator={false} />}
-              style={{ justifyContent: "center" }}>
+              style={{ justifyContent: "center" }}
+              popout={popout}
+              modal={modals}>
 
               {isDesktop.current && need_epic && (<SplitCol fixed width="280px" maxWidth="280px">
-                    <Panel>
+                    <Panel id='menu_epic'>
                   {hasHeader.current && <PanelHeader/>}
                       <Group>
                         <EpicItemPC
@@ -303,13 +362,13 @@ const App = () => {
                         changeActiveStory={setActiveStory}>
                           Обзор
                         </EpicItemPC>
-                        <EpicItemPC
+                        {agent_permission && <EpicItemPC
                         icon={<Icon28BankOutline />}
                         story="top"
                         activeStory={activeStory}
                         changeActiveStory={setActiveStory}>
                           Пантеон
-                        </EpicItemPC>
+                        </EpicItemPC>}
                         {moderator_permission && 
                         <EpicItemPC
                         icon={<Icon28WorkOutline />}
@@ -354,12 +413,12 @@ const App = () => {
                             data-story="advice"
                             text='Обзор'
                           ><Icon28CompassOutline/></TabbarItem>
-                          <TabbarItem
+                          {agent_permission && <TabbarItem
                             onClick={(e) => {setActiveStory(e.currentTarget.dataset.story)}} 
                             selected={activeStory === 'top'}
                             data-story="top"
                             text='Пантеон'
-                          ><Icon28BankOutline /></TabbarItem>
+                          ><Icon28BankOutline /></TabbarItem>}
                           {moderator_permission ? <TabbarItem
                             onClick={(e) => {setActiveStory(e.currentTarget.dataset.story)}} 
                             selected={activeStory === 'moderation'}
@@ -379,6 +438,7 @@ const App = () => {
                       >
                       <Questions 
                       id='questions'
+                      popouts_and_modals={popouts_and_modals}
                       scheme={scheme}
                       reloadProfile={fetchAccount}
                       popout={popout} />
@@ -440,10 +500,12 @@ const App = () => {
                       id="loading" />
                     </Epic>
                      : 
-                    <Root activeView={activeStory}>
+                    <Root activeView={activeStory}
+                    id='root_inter'>
                       <Questions 
                       id='questions'
                       scheme={scheme}
+                      popouts_and_modals={popouts_and_modals}
                       reloadProfile={fetchAccount}
                       popout={popout} />
 

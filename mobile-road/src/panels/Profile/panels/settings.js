@@ -11,9 +11,9 @@ import {
     SimpleCell,
     PanelHeaderBack,
     Switch,
-    ScreenSpinner,
-    platform, 
+    ScreenSpinner, 
     IOS,
+    usePlatform,
     } from '@vkontakte/vkui';
 
     
@@ -30,7 +30,7 @@ import {
 } from '@vkontakte/icons'
 
 import { useDispatch, useSelector } from 'react-redux';
-import { API_URL } from '../../../config';
+import { API_URL, PERMISSIONS } from '../../../config';
 import { viewsActions } from '../../../store/main';
 
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
@@ -42,6 +42,9 @@ export default props => {
   const [notify, setNotify] = useState(account ? account.settings.notify : false)
   const [publicProfile, setPublic] = useState(account ? account.settings.public : false)
   const { setPopout, showErrorAlert, goPanel } = props.callbacks;
+  const permissions = account.permissions;
+  const agent_permission = permissions >= PERMISSIONS.agent;
+  const platform = usePlatform();
 
   const notifyMenager = (value) => {
     fetch(API_URL + "method=settings.set&" + window.location.search.replace('?', ''),
@@ -188,12 +191,12 @@ export default props => {
           expandable
           onClick={() => goPanel('schemechange')}>Смена темы</SimpleCell>
 
-        <SimpleCell
+        {agent_permission && <SimpleCell
           indicator={account.verified ? 'Присвоена' : null}
           disabled={account.verified}
           expandable={!account.verified}
           onClick={!account.verified ? () => goPanel('verf') : undefined}
-          before={<Icon28DoneOutline />}>Верификация</SimpleCell>
+          before={<Icon28DoneOutline />}>Верификация</SimpleCell>}
 
         <SimpleCell
           before={<Icon28Notifications />}
@@ -204,7 +207,7 @@ export default props => {
               onChange={(e) => changeNotifStatus(e)} />
           }>Получать уведомления</SimpleCell>
 
-        <SimpleCell
+        {agent_permission && <SimpleCell
           before={<Icon28GestureOutline />}
           disabled
           after={
@@ -214,15 +217,15 @@ export default props => {
           }
         >
           Публичный профиль
-                  </SimpleCell>
+                  </SimpleCell>}
       </Group>
       <Group>
-        <SimpleCell
+        {agent_permission && <SimpleCell
           disabled
           indicator={<Counter>{account.balance}</Counter>}
-          before={<Icon28CoinsOutline />}>Баланс</SimpleCell>
+          before={<Icon28CoinsOutline />}>Баланс</SimpleCell>}
 
-        {(platform() === IOS && platformname) ? null :
+        {(platform === IOS && platformname) ? null :
           <SimpleCell
             expandable
             href="https://vk.com/jedi_road?source=description&w=donut_payment-188280516"

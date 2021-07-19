@@ -37,6 +37,7 @@ export default props => {
   const { setPopout, showErrorAlert, goPanel, goOtherProfile } = props.callbacks;
   const permissions = account.permissions;
   const moderator_permission = permissions >= PERMISSIONS.special;
+  const agent_permission = permissions >= PERMISSIONS.agent;
   const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
   const getRecomendations = useCallback(() => {
     fetch(API_URL + "method=recommendations.get&" + window.location.search.replace('?', ''))
@@ -55,7 +56,10 @@ export default props => {
       })
   }, [dispatch, setActiveStory, setPopout, showErrorAlert])
   useEffect(() => {
-    getRecomendations();
+    if(agent_permission){
+      getRecomendations();
+    }
+    
     // eslint-disable-next-line
   }, [])
 
@@ -95,7 +99,7 @@ export default props => {
         </SimpleCell>
 
       </Group>
-      <Group header={<Header>Рекомендации</Header>}>
+      {agent_permission && <Group header={<Header>Рекомендации</Header>}>
         {recomendations ? (recomendations.length > 0) ? recomendations.map((result, i) =>
           <React.Fragment key={result.id}>
             {(i === 0) || <Separator />}
@@ -139,7 +143,7 @@ export default props => {
           :
           <PanelSpinner />}
           {!moderator_permission ? MESSAGE_NO_VK : null}
-      </Group>
+      </Group>}
     </Panel>
   )
 }

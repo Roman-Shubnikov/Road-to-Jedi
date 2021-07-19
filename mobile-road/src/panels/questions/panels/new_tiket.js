@@ -10,9 +10,9 @@ import {
     FormLayout,
     Textarea,
     PanelHeaderBack,
-    Checkbox,
     Group,
     FormItem,
+    FormStatus,
     } from '@vkontakte/vkui';
 import { viewsActions } from '../../../store/main';
 import { useDispatch } from 'react-redux';
@@ -21,23 +21,16 @@ export default props => {
     const dispatch = useDispatch();
     const [title, setTitle] = useState('');
     const [text, setText] = useState('');
-    const [check1, setCheck1] = useState(false);
-    const { setPopout, showErrorAlert } = props.callbacks;
-
-    const getRandomInRange = (min, max) => {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+    const { setPopout, showErrorAlert, showAlert } = props.callbacks;
     const sendNewTiket = () => {
         setPopout(<ScreenSpinner />)
-        fetch(API_URL + "method=ticket.add&" + window.location.search.replace('?', ''),
+        fetch(API_URL + "method=ticket.addNewModerationTicket&" + window.location.search.replace('?', ''),
             {
                 method: 'post',
                 headers: { "Content-type": "application/json; charset=UTF-8" },
                 body: JSON.stringify({
                     'title': title,
                     'text': text,
-                    'user': getRandomInRange(501, 624429367),
-                    'donut_only': check1,
                 })
             })
             .then(res => res.json())
@@ -45,8 +38,7 @@ export default props => {
                 if (data.result) {
                     setTitle("");
                     setText("");
-                    setCheck1(false);
-                    setPopout(null)
+                    showAlert('Успех', "Ваш вопрос отправлен в модерацию, ожидайте")
                 } else {
                     showErrorAlert(data.error.message)
                 }
@@ -64,6 +56,11 @@ export default props => {
                 </PanelHeader>
             <Group>
                 <FormLayout>
+                    <FormStatus>
+                        Когда вы задаёте вопрос, помните, что нельзя помещать в него нецензурные выражения. Старайтесь быть вежливыми.
+                        Когда вам ответят, вы сможете выбрать решил ли ответ вашу проблему или нет. Пожалуйста, не забывайте выбирать это. Так мы сможем понять помогли ли мы вам.
+                        Вы можете сами отвечать на вопросы пользователей, став агентом. Для этого нужно перейти на вкладку «Профиль» и пройти тест на агента.
+                    </FormStatus>
                     <FormItem top={"Суть проблемы (" + title.length + "/80). Не менее 5 символов"}
                     >
                         <Input
@@ -82,9 +79,6 @@ export default props => {
                             value={text}
                         />
                     </FormItem>
-                    <Checkbox checked={check1} onChange={() => setCheck1(!check1)}>
-                        Только для донов
-                    </Checkbox>
                     <FormItem>
                         <Button
                             size="l"

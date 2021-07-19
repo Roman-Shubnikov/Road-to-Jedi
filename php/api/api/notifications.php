@@ -9,7 +9,7 @@ class SystemNotifications {
 		$this->Connect = $Connect;
 	}
 
-	public function send( int $owner_id, string $text, $image=null, array $object, string $comment=null ) {
+	public function send( int $owner_id, string $text, array $object, $image=null, string $comment=null ) {
 		// $owner_id - id агента НЕ vk_id
 		// $text - Текст в уведомлении который увидит пользователь
 		// $image - Чаще всего требуется для money_transfer_send | money_transfer_give чтобы показать аватарку переводящего
@@ -59,7 +59,7 @@ class SystemNotifications {
 				'random_id' => 0,
 				'message' => "$text\n$object_lol",
 				'dont_parse_links' => 1,
-				'access_token' =>'9e1740c170fe79333a5512e6513f6036ba361fcc0dead0588f0a320e53831679b9bc7adc80208f370e11a',
+				'access_token' => CONFIG::VK_GROUP_TOKEN,
 				'v' => '5.120'
 			];
 
