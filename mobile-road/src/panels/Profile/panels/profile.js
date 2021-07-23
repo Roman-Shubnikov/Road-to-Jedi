@@ -30,7 +30,6 @@ import {
     Icon28Notifications,
     Icon28ShareExternalOutline,
     Icon16StarCircleFillYellow,
-    Icon28Messages,
     Icon28DiamondOutline,
     Icon20ArticleOutline,
     Icon12Fire,
@@ -38,6 +37,7 @@ import {
     Icon20Ghost,
     Icon56HistoryOutline,
     Icon28TicketOutline,
+    Icon28MessagesOutline,
 
 } from '@vkontakte/icons';
 import { 
@@ -199,7 +199,7 @@ export default props => {
                             expandable
                             href={CONVERSATION_LINK}
                             target="_blank" rel="noopener noreferrer"
-                            before={<Icon28Messages />}>
+                            before={<Icon28MessagesOutline />}>
                             Чат
                             </SimpleCell>
                         {agent_permission && ((moderator_permission || account.generator) || <SimpleCell

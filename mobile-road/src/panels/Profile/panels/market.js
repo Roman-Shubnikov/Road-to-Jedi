@@ -177,6 +177,16 @@ const Treasures = props => {
         setActiveStory('disconnect');
       })
   }
+  const getCost = (price, discount, enum_list) => {
+    let total_price = price - discount;
+    let price_show;
+    if(discount !== 0 && discount !== undefined) {
+      price_show = <span>Стоимость: <span style={{textDecoration: 'line-through'}}>{price}</span> {total_price} {enumerate(total_price, enum_list)}</span>
+    }else{
+      price_show = "Стоимость: " + price + " " + enumerate(total_price, enum_list);
+    }
+    return price_show
+  }
   useEffect(() => {
     getProducts()
   }, [])
@@ -199,15 +209,14 @@ const Treasures = props => {
         }}
         before={<Avatar mode="image" src={res.photo_url} shadow={false} style={{backgroundColor: 'var(--background_page_my)'}} />}
         description={
-          (res.discount !== 0) ? <span>Стоимость: <span style={{textDecoration: 'line-through'}}>{res.price}</span> {res.price-res.discount} {enumerate(res.price-res.discount , ['голос', 'голоса', 'голосов'])}</span>:
-          "Стоимость: " + res.price + " " + enumerate(res.price, ['голос', 'голоса', 'голосов'])
+          getCost(res.price, res.discount, ['голос', 'голоса', 'голосов'])
         }>
           {res.title}
         </SimpleCell>
         )
         : 
         <Placeholder>
-          Все товары, кажется разобрали. Сейчас их нет в наличии. Скоро появятся.
+          Все товары, кажется, разобрали. Сейчас их нет в наличии. Скоро появятся.
         </Placeholder> : <PanelSpinner/>}
       </List>
     </Group></>

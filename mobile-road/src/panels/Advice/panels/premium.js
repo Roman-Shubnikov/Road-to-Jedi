@@ -22,7 +22,6 @@ import {
 
 import {
     Icon48DonateOutline,
-    Icon28UserStarBadgeOutline,
     Icon16CheckCircle,
     Icon20CancelCircleFillRed,
 
@@ -30,7 +29,7 @@ import {
 
 // import Don from '../images/donut.svg';
 import { useDispatch, useSelector } from 'react-redux';
-import { API_URL, AVATARS_URL, LINKS_VK } from '../../../config';
+import { API_URL, AVATARS_URL } from '../../../config';
 import { viewsActions } from '../../../store/main';
 const donutAvatars = [
   "1001.png",
@@ -182,7 +181,7 @@ export default props => {
         </Div>
         <SimpleCell disabled indicator={account.donuts}>Пончики</SimpleCell>
       </Group>
-      <Group>
+      {/* <Group>
         {account.donut_chat_link && <SimpleCell
           expandable
           href={account.donut_chat_link}
@@ -197,7 +196,7 @@ export default props => {
           Уникальный контент VK Donut
                     </SimpleCell>
 
-      </Group>
+      </Group> */}
       <Group header={<Header>Эксклюзивные аватарки</Header>}>
         {/* <Placeholder
         icon={<Icon56ErrorTriangleOutline />}>

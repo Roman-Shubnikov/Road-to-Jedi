@@ -964,7 +964,7 @@ switch ($method) {
 		$followsUser = $followers->getFollowers($users->id, 20, 0);
 		$res['followers'] = $followsUser;
 		$res['is_recommended'] = $recommended->is_recommended($users->id);
-		if ($users->info['donut']) {
+		if ($users->donut) {
 			$res['donut_chat_link'] = CONFIG::DONUT_CHAT_LINK;
 		}
 		$res['settings'] = [
@@ -1273,7 +1273,7 @@ switch ($method) {
 	case 'shop.changeDonutAvatars':
 		$id = (int)$data['avatar_id'];
 		$balance = $users->info['donuts'];
-		if (!$users->info['donut']) Show::error(1017);
+		if (!$users->donut) Show::error(1017);
 		if ($id > CONFIG::DONUT_AVATARS_COUNT || $id <= 0) Show::error(1008);
 		if ($balance < CONFIG::DONUT_AVATAR_PRICE) Show::error(1002);
 		$id += 1000;

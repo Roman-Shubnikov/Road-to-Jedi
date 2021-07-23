@@ -15,6 +15,7 @@ class CONFIG {
 	
 	const AVATAR_PATH = 'https://xelene.ru/road/php/images/avatars';
 	const PRODUCTS_AVATAR_PATH = 'https://xelene.ru/road/php/images/products';
+	const SUBSCRIBTIONS_AVATAR_PATH = 'https://xelene.ru/road/php/images/subscriptions';
 	const AVATARS_COUNT = 41;
 	const DONUT_AVATARS_COUNT = 12;
 	const DONUT_CHAT_LINK = 'https://vk.me/join/twwhnnyRTYfVZx2QEjjCNW8OLm2nyNEypqQ=';
@@ -78,6 +79,9 @@ class CONFIG {
 		"admin" => 20,
 	];
 
+	const TIMES = [
+		'month' => 2592000
+	];
 	
 	const ERRORS = [
 

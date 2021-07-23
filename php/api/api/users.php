@@ -24,14 +24,13 @@ class Users {
 		// 	$this->is_first_start = true;
 		// }
 		$this->id = $this->info['id'];
+		$this->donut = $this->info['donut'] > time() || $this->info['donut'] == 1;
 
 		if ( isset($this->info['banned']) && $this->info['banned']) {
 			$ban = $this->info['banned'];
 			Show::error(5, ['reason' => $ban['reason'], 'time_end' => (int)$ban['time_end']]);
 		}
 	}
-
-	
 	public function getMy() {
 		$info = $this->info;
 		$info['is_first_start'] = $this->is_first_start;
@@ -141,7 +140,7 @@ class Users {
 				$order = 'AND coff_active > 0 ORDER BY coff_active DESC';
 				break;
 			case 'donut':
-				$order = 'AND donut != 0 ORDER BY coff_active DESC';
+				$order = 'AND (donut == 1 OR donut > ' . time() . ') ORDER BY coff_active DESC';
 				break;
 			case 'verif':
 				$order = 'AND verified != 0 ORDER BY coff_active DESC';
@@ -239,7 +238,7 @@ class Users {
 				'registered' => (int) $data['registered'],
 				'flash' => (bool) $data['flash'],
 				'verified' => (bool) $data['verified'],
-				'donut' => $is_hide_donut ? FALSE : (bool) $data['donut'],
+				'donut' => $is_hide_donut ? FALSE : $data['donut'] > time() || $data['donut'] == 1,
 				'change_color_donut' => (bool)$changeColorNick,
 				'diamond' => (bool) $data['diamond'],
 				'generator' => (bool) $data['generator'],
@@ -273,7 +272,7 @@ class Users {
 			$res['donuts'] = (int)$data['donuts'];
 			$res['age'] = (int)$data['age'];
 			$res['scheme'] = (int)$data['scheme'];
-			$res['donut'] = (bool) $data['donut'];
+			$res['donut'] = (bool) $data['donut'] > time() || $data['donut'] == 1;
 			$res['coff_active'] = $data['coff_active'] / 10;
 			
 		}

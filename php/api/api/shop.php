@@ -26,6 +26,18 @@ class Shop {
             'in_stock' => (bool) $object['in_stock'],
         ];
     }
+    public static function formatSubscription($object) {
+        return [
+            'item_id' => (int) $object['item_id'],
+            'title' => (string) $object['title'],
+            'photo_id' => (int) $object['photo_id'],
+            'photo_url' => CONFIG::SUBSCRIBTIONS_AVATAR_PATH . "/" . $object['photo_id'] . '.png',
+            'price' => (int) $object['price'],
+            'period' => (int) $object['period'],
+            'name' => (string) $object['name'],
+            'trial_duration' => (int) $object['trial_duration'],
+        ];
+    }
 
     public function changeNickname($nickname){
         $length = mb_strlen($nickname);
@@ -64,24 +76,39 @@ class Shop {
         return $this->levels->addExp($this->users->id, $count);
     }
 
-    function getProductByName($name) {
+    public function getProductByName($name) {
         $res = $this->Connect->db_get("SELECT id as item_id,title,photo_id,price,discount,item_name,in_stock FROM products WHERE item_name=?", [$name]);
         if(!$res) Show::error(1019);
-        $res = formatProducts($res[0]);
+        $res = $this->formatProducts($res[0]);
         if(!$res['in_stock']) Show::error(1020);
         $res['photo_url'] = CONFIG::PRODUCTS_AVATAR_PATH . "/" . $res['photo_id'] . 'png';
         return $res;
     }
     public function getProductsVoices() {
         $res = $this->Connect->db_get("SELECT id as item_id,title,photo_id,price,discount,item_name,in_stock FROM products");
-        $out = [];
+        $products = [];
+        // $subscriptions = [];
         foreach($res as $item) {
             $pre_out = $this->formatProducts($item);
             $pre_out['photo_url'] = CONFIG::PRODUCTS_AVATAR_PATH . "/" . $pre_out['photo_id'] . '.png';
             unset($pre_out['photo_id']);
-            $out[] = $pre_out;
+            if(!($this->users->donut && $item['item_name'] == 'subscription_donut')){
+                $products[] = $pre_out;
+            } 
+            
         }
-        return $out;
+        // $res = $this->Connect->db_get("SELECT id as item_id,title,photo_id,price,period,trial_duration,name FROM subscriptions_info");
+        // foreach($res as $item) {
+        //     $pre_out = $this->formatSubscription($item);
+        //     unset($pre_out['photo_id']);
+        //     $subscriptions[] = $pre_out;
+        // }
+        // $out = [
+        //     'products' => $products,
+        //     'subscriptions' => $subscriptions,
+        // ];
+
+        return $products;
     }
 
 

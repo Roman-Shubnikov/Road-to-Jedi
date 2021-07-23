@@ -19,7 +19,7 @@ class Tickets
 		if(!$res) Show::error(404);
 		$res = $res[0];
 		if ($res['donut']) {
-			if (!$this->user->info['donut'] && ($this->user->info['permissions'] < CONFIG::PERMISSIONS['special'])) {
+			if (!$this->user->donut && ($this->user->info['permissions'] < CONFIG::PERMISSIONS['special'])) {
 				Show::error(403);
 			}
 		}
@@ -47,13 +47,13 @@ class Tickets
 		$cond = '';
 
 		if ($unanswered) {
-			if (($this->user->info['permissions'] >= CONFIG::PERMISSIONS['special']) || $this->user->info['donut']) {
+			if (($this->user->info['permissions'] >= CONFIG::PERMISSIONS['special']) || $this->user->donut) {
 				$cond = "WHERE status=0";
 			} else {
 				$cond = "WHERE status=0 and donut=0";
 			}
 		} else {
-			if (($this->user->info['permissions'] < CONFIG::PERMISSIONS['special']) && !$this->user->info['donut']) {
+			if (($this->user->info['permissions'] < CONFIG::PERMISSIONS['special']) && !$this->user->donut) {
 				$cond = "WHERE donut=0";
 			}
 		}

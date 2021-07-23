@@ -91,12 +91,12 @@ export default props => {
         before={<Icon56Stars3Outline width={28} height={28} style={{ color: '#FFB73D' }} />}>
           Поддержка
         </SimpleCell>
-        <SimpleCell 
+        {agent_permission && <SimpleCell 
         expandable
         onClick={() => goPanel(account.donut ? 'premium' : 'donuts')}
         before={<Icon28DonateOutline style={{ color: '#4BB34B' }} />}>
-          VK Donut
-        </SimpleCell>
+          Эксклюзивные настройки
+        </SimpleCell>}
 
       </Group>
       {agent_permission && <Group header={<Header>Рекомендации</Header>}>

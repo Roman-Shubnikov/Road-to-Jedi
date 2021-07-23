@@ -39,17 +39,32 @@ class Show_pay {
         exit;
     }
 }
-function formatProducts($object) {
-    return [
-        'item_id' => (int) $object['item_id'],
-        'title' => (string) $object['title'],
-        'photo_id' => (int) $object['photo_id'],
-        'price' => (int) $object['price'],
-        'discount' => (int) $object['discount'],
-        'item_name' => (string) $object['item_name'],
-        'in_stock' => (bool) $object['in_stock'],
-    ];
+class Products {
+    public static function formatProducts($object) {
+        return [
+            'item_id' => (int) $object['item_id'],
+            'title' => (string) $object['title'],
+            'photo_id' => (int) $object['photo_id'],
+            'photo_url' => CONFIG::PRODUCTS_AVATAR_PATH . "/" . $object['photo_id'] . '.png',
+            'price' => (int) $object['price'],
+            'discount' => (int) $object['discount'],
+            'item_name' => (string) $object['item_name'],
+            'in_stock' => (bool) $object['in_stock'],
+        ];
+    }
+
+    public static function getProductByName($name) {
+        global $connect;
+        $res = $connect->db_get("SELECT id as item_id,title,photo_id,price,discount,item_name,in_stock FROM products WHERE item_name=?", [$name]);
+        if(!$res) Show_pay::error(20, true);
+        $res = Products::formatProducts($res[0]);
+        if(!$res['in_stock']) Show_pay::error(21, true);
+        
+        return $res;
+    
+    }
 }
+
 function formatNotify($object) {
     return [
         'notification_type' => (string)$object['notification_type'],
@@ -62,17 +77,7 @@ function formatNotify($object) {
     ];
 }
 
-function getProductByName($name) {
-    global $connect;
-    $res = $connect->db_get("SELECT id as item_id,title,photo_id,price,discount,item_name,in_stock FROM products WHERE item_name=?", [$name]);
-    if(!$res) Show_pay::error(20, true);
-    $res = formatProducts($res[0]);
-    if(!$res['in_stock']) Show_pay::error(21, true);
-    $res['photo_url'] = CONFIG::PRODUCTS_AVATAR_PATH . "/" . $res['photo_id'] . '.png';
-    
-    return $res;
 
-}
 
 function getOrderByIdVk($id) {
     global $connect;
@@ -94,7 +99,6 @@ function getOrderByIdVk($id) {
 
     if(!$res) Show_pay::error(101, true);
     return $res[0];
-
 }
 
 function getUserByVkId($user_id) {
@@ -102,6 +106,56 @@ function getUserByVkId($user_id) {
     $res = $connect->db_get("SELECT id,vk_user_id,money FROM users WHERE vk_user_id=?", [$user_id]);
     if(!$res) Show_pay::error(22, true);
     return $res[0];
+}
+
+class Subscriptions {
+    public static function formatSubscription($object) {
+        return [
+            'item_id' => (int) $object['item_id'],
+            'title' => (string) $object['title'],
+            'photo_id' => (int) $object['photo_id'],
+            'photo_url' => CONFIG::SUBSCRIBTIONS_AVATAR_PATH . "/" . $object['photo_id'] . '.png',
+            'price' => (int) $object['price'],
+            'period' => (int) $object['period'],
+            'name' => (string) $object['name'],
+            'trial_duration' => (int) $object['trial_duration'],
+        ];
+    }
+
+    public static function getSubscriptionByName($name) {
+        global $connect;
+        $res = $connect->db_get("SELECT id as item_id,title,photo_id,price,period,trial_duration,name FROM subscriptions_info WHERE name=?", [$name]);
+        if(!$res) Show_pay::error(20, true);
+        $res = Subscriptions::formatSubscription($res[0]);
+        return $res;
+    
+    }
+    public static function getSubscriptionInfoById($id) {
+        global $connect;
+        $res = $connect->db_get("SELECT id as item_id,title,photo_id,price,period,trial_duration,name FROM subscriptions_info WHERE id=?", [$id]);
+        if(!$res) Show_pay::error(20, true);
+        $res = Subscriptions::formatSubscription($res[0]);
+        return $res;
+    
+    }
+    public static function getSubscriptionById($id) {
+        global $connect;
+        $res = $connect->db_get("SELECT 
+        app_order_id,
+        cancel_reason,
+        item_id,
+        item_price,
+        status,
+        next_bill_time,
+        pending_cancel,
+        subscription_id,
+        user_id
+        FROM purchases_subscriptions
+        WHERE subscription_id=?", 
+        [$id]);
+        return $res;
+    }
+
 }
 
 
@@ -128,19 +182,97 @@ switch ($input['notification_type']) {
     case 'get_item_test':
         // Получение информации о товаре
         $item_name = $input['item']; // наименование товара
-        $item = getProductByName($item_name);
+        $item = Products::getProductByName($item_name);
         $item['expiration'] = 600;
-        if(str_starts_with($item_name, 'money_')) {
-            Show_pay::response($item);
-        }
+        Show_pay::response($item);
         break;
+    case 'get_subscription':
+    case 'get_subscription_test':
+        $item_name = $input['item'];
+        $item = Subscriptions::getSubscriptionByName($item_name);
+        $item['expiration'] = 600;
+        Show_pay::response($item);
+        break;
+    case 'subscription_status_change':
+    case 'subscription_status_change_test':
+        $subscription_id = $input['subscription_id'];
+        $status = $input['status'];
+        $pre_info = Subscriptions::getSubscriptionById($subscription_id);
 
+        if(!!$pre_info && $pre_info['status'] == $status) {
+            $app_order_id = (int)$pre_info['app_order_id'];
+        } else{
+            if ($status == 'chargeable') {
+                $user_info = getUserByVkId($base_notify['user_id']);
+                $item = Subscriptions::getSubscriptionInfoById($input['item_id']);
+                $res = $connect->query("INSERT INTO 
+                purchases_subscriptions 
+                (
+                    cancel_reason,
+                    item_id,
+                    item_price,
+                    status,
+                    next_bill_time,
+                    pending_cancel,
+                    subscription_id,
+                    user_id
+                )
+                VALUES 
+                (?,?,?,?,?,?,?,?)",
+                [
+                    $input['cancel_reason'],
+                    $input['item_id'],
+                    $input['item_price'],
+                    $status,
+                    $input['next_bill_time'],
+                    $base_notify['pending_cancel'],
+                    $base_notify['subscription_id'],
+                    $input['user_id']
+                ]);
+                $app_order_id = $res[1];
+            } elseif($status == 'active'){
+                $res = Subscriptions::getSubscriptionById($subscription_id);
+                if(!$res) Show_pay::error(101, true);
+                $app_order_id = (int)$res[0]['app_order_id'];
+                $connect->query("UPDATE purchases_subscriptions 
+                SET status=? WHERE subscription_id=?", 
+                [$status, $subscription_id]);
+                
+                if($item_name == 'subsription_donut') {
+                    $connect->query("UPDATE users SET donut=1 WHERE vk_user_id=?", 
+                    [$base_notify['user_id']]);
+                }
+            }elseif($status == 'cancelled') {
+                $res = Subscriptions::getSubscriptionById($subscription_id);
+                if(!$res) Show_pay::error(101, true);
+                $app_order_id = (int)$res[0]['app_order_id'];
+                $connect->query("UPDATE purchases_subscriptions 
+                SET cancel_reason=?, status=? WHERE subscription_id=?", 
+                [$input['cancel_reason'], $status, $subscription_id]);
+                if($item_name == 'subsription_donut') {
+                    $connect->query("UPDATE users SET donut=0 WHERE vk_user_id=?", 
+                    [$base_notify['user_id']]);
+                }
+            }
+        }
+        
+        
+        
+        Show_pay::response([
+            'subscription_id' => (int)$subscription_id,
+            'app_order_id' => (int)$app_order_id,
+        ]);
+        
+        break;
     case 'order_status_change_test':
     case 'order_status_change':
+        $status = $input['status'];
+        $item_name = $input['item'];
+        $order_id = $base_notify['order_id'];
+        $receiver_id = $base_notify['receiver_id'];
         if ($input['status'] == 'chargeable') {
-            $order_id = $base_notify['order_id'];
             $reciver_info = getUserByVkId($base_notify['receiver_id']);
-            $item = getProductByName($input['item']);
+            $item = Products::getProductByName($input['item']);
             $res = $connect->query("INSERT INTO 
             purchases_voices 
             (
@@ -160,7 +292,7 @@ switch ($input['notification_type']) {
             (?,?,?,?,?,?,?,?,?,?,?)",
             [
                 $base_notify['user_id'],
-                $base_notify['receiver_id'],
+                $receiver_id,
                 $input['date'],
                 $input['status'],
                 $input['item_id'],
@@ -175,7 +307,11 @@ switch ($input['notification_type']) {
             if(str_starts_with($item['item_name'], 'money_')) {
                 $pre_cost = explode('_', $item['item_name']);
                 $cost = intval(end($pre_cost));
-                $connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$reciver_info['money']+$cost, $base_notify['receiver_id']]);
+                $connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$receiver_id['money']+$cost, $reciver_id]);
+            }
+            if($item_name == 'subscription_donut') {
+                $connect->query("UPDATE users SET donut=? WHERE vk_user_id=?", 
+                    [time() + CONFIG::TIMES['month'], $receiver_id]);
             }
             // Код проверки товара, включая его стоимость
             // Получающийся у вас идентификатор заказа.
@@ -186,12 +322,18 @@ switch ($input['notification_type']) {
                 'app_order_id' => (int)$app_order_id,
             ]);
         }elseif($input['status'] == 'refunded') {
-            $order_id = $base_notify['order_id'];
+            $connect->query("UPDATE purchases_voices 
+                SET status=? WHERE receiver_id=?", 
+                [$status, $receiver_id]);
             $order_info = getOrderByIdVk($order_id);
-            $reciver_info = getUserByVkId($base_notify['receiver_id']);
+            $reciver_info = getUserByVkId($receiver_id);
             if(str_starts_with($item['item_name'], 'money_')) {
                 $cost = intval(end(explode('_', $item['item_name'])));
-                $connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$reciver_info['money']-$cost, $base_notify['receiver_id']]);
+                $connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$reciver_info['money']-$cost, $receiver_id]);
+            }
+            if($item_name == 'subscription_donut') {
+                $connect->query("UPDATE users SET donut=? WHERE vk_user_id=?", 
+                    [0, $receiver_id]);
             }
             Show_pay::response([
                 'order_id' => (int)$order_id,

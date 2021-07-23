@@ -157,6 +157,7 @@ export default props => {
         reloadProfile={props.reloadProfile} />
 
       <Donuts id="donuts"
+      setActiveStory={setActiveStory}
         callbacks={callbacks} />
 
       <NewTicket id='new_ticket'
