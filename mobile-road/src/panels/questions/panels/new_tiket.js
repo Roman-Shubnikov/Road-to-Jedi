@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import bridge from '@vkontakte/vk-bridge';
 import {API_URL} from '../../../config';
 
 import { 
@@ -13,15 +14,63 @@ import {
     Group,
     FormItem,
     FormStatus,
+    SimpleCell,
+    Switch,
+    Div,
+    Subhead,
+
     } from '@vkontakte/vkui';
 import { viewsActions } from '../../../store/main';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default props => {
     const dispatch = useDispatch();
+    const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
     const [title, setTitle] = useState('');
     const [text, setText] = useState('');
+    const { account } = useSelector((state) => state.account)
     const { setPopout, showErrorAlert, showAlert } = props.callbacks;
+    const [noty, setNoty] = useState(() => (account.settings.generator_noty));
+    const saveSettings = (setting, value) => {
+        setPopout(<ScreenSpinner />)
+        fetch(API_URL + "method=settings.set&" + window.location.search.replace('?', ''),
+            {
+                method: 'post',
+                headers: { "Content-type": "application/json; charset=UTF-8" },
+                body: JSON.stringify({
+                    'setting': setting,
+                    'value': value,
+                })
+            })
+            .then(data => data.json())
+            .then(data => {
+                if (data.result) {
+                    setPopout(null)
+                    setTimeout(() => {
+                        props.reloadProfile();
+                    }, 4000)
+                } else {
+                    showErrorAlert(data.error.message);
+                }
+            })
+            .catch(err => {
+                setActiveStory('disconnect');
+            })
+    }
+    const setNotify = (check) => {
+        check = check.currentTarget.checked;
+        console.log(check);
+        if (check) {
+            bridge.send("VKWebAppAllowMessagesFromGroup", { "group_id": 188280516 }).then(data => {
+                setNoty(check)
+                saveSettings('generator_noty', Number(check))
+            }).catch(() => showErrorAlert("Вы не разрешили сообщения группы"))
+        } else {
+            setNoty(check)
+            saveSettings('generator_noty', Number(check))
+        }
+
+    }
     const sendNewTiket = () => {
         setPopout(<ScreenSpinner />)
         fetch(API_URL + "method=ticket.addNewModerationTicket&" + window.location.search.replace('?', ''),
@@ -54,6 +103,23 @@ export default props => {
                 left={<PanelHeaderBack onClick={() => window.history.back()} />}>
                 Новый вопрос
                 </PanelHeader>
+            <Group>
+                <SimpleCell
+                    disabled
+                    after={
+                        <Switch
+                            checked={noty}
+                            onChange={(e) => setNotify(e)} />
+                    }
+                >
+                    Уведомления
+                    </SimpleCell>
+                <Div>
+                    <Subhead weight='regular' className='SimpleCell__description'>
+                        После активации данной функции Вам будут поступать в личные сообщения результаты рассмотрения вопросов
+                      </Subhead>
+                </Div>
+            </Group>
             <Group>
                 <FormLayout>
                     <FormStatus>

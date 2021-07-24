@@ -29,7 +29,7 @@ class TestsInspector {
         if($passed) {
             switch($test_id) {
                 case 1:
-                    $this->Connect->query("UPDATE users SET permissions=0 WHERE vk_user_id=?", [$vk_id]);
+                    $this->Connect->query("UPDATE users SET generator=1 WHERE vk_user_id=?", [$vk_id]);
                     break;
             }
         }
@@ -70,7 +70,7 @@ class TestsInspector {
             return $this->reasonGenerator(false, "Слишком много ошибок в тесте ($mistakes)");
         }
         $this->testUpdater($this->users->vk_id, (int)$activeTest['id'], (int)$activeTest['test_id'], true);
-        return $this->reasonGenerator(true, 'Вы успешно прошли тест и стали агентом. Сбросьте кеш приложения, чтобы получить новые права');
+        return $this->reasonGenerator(true, $test_info['done_finish']);
     }
     
 
@@ -169,7 +169,7 @@ class TestsInspector {
         return $response;
     }
     public function getTestInfo(int $testId) {
-        $res = $this->Connect->db_get("SELECT id,name,count_questions,time_test FROM tests_info WHERE id=?", [$testId]);
+        $res = $this->Connect->db_get("SELECT id,name,count_questions,time_test,done_finish FROM tests_info WHERE id=?", [$testId]);
         return ($res) ? $res[0] : NULL;
     }
     public function checkActiveTest($vk_id) {

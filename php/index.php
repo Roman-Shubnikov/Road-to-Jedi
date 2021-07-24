@@ -1400,7 +1400,7 @@ switch ($method) {
 	case 'ticket.addNewModerationTicket':
 		$title = trim($data['title']);
 		$text = trim($data['text']);
-		if ($users->info['permissions'] != -1) {
+		if ($users->info['generator'] != 1) {
 			Show::error(403);
 		}
 
@@ -1411,7 +1411,6 @@ switch ($method) {
 				Show::error(42);
 			}
 		}
-
 		if (mb_strlen($title) >= CONFIG::MAX_TICKETS_TITLE_LEN) {
 			Show::error(20);
 		}
@@ -1441,7 +1440,7 @@ switch ($method) {
 			$Connect->query("UPDATE users SET bad_answers=bad_answers+1 WHERE vk_user_id=?", [$users->vk_id]);
 			if ($settings->getOneSetting('generator_noty')) {
 				try {
-					$vk = new VkApi(CONFIG::GENERATOR_TOKEN);
+					$vk = new VkApi(CONFIG::VK_GROUP_TOKEN);
 					$substractingText = substr($res[0]['description'], 0, 200);
 					if (mb_strlen($res[0]['description']) > 200) {
 						$substractingText .= '...';
@@ -1463,24 +1462,28 @@ switch ($method) {
 			$res = $res[0];
 			$title = $res['title'];
 			$desc = $res['description'];
-			$author = $res['author_id'];
+			$real_author = $res['author_id'];
+			$author = rand(1000, 659999999);
 			$Connect->query("UPDATE users SET bad_answers=bad_answers+1 WHERE vk_user_id=?", [$users->vk_id]);
-			try{
-				$vk = new VkApi(CONFIG::VK_GROUP_TOKEN);
-				$substractingText = substr($desc, 0, 200);
-				if (mb_strlen($desc) > 200) {
-					$substractingText .= '...';
-				}
-				$vk->sendMessage($author, "Ваш вопрос рассмотрен нашими модераторами и был принят на очередь для агентов поддержки:\n\n» $substractingText");
-			} catch (Exception $e) { 
+			if ($settings->getOneSetting('generator_noty')) {
+				try{
+					$vk = new VkApi(CONFIG::VK_GROUP_TOKEN);
+					$substractingText = substr($desc, 0, 200);
+					if (mb_strlen($desc) > 200) {
+						$substractingText .= '...';
+					}
+					$vk->sendMessage($real_author, "Ваш вопрос рассмотрен нашими модераторами и был принят на очередь для агентов поддержки:\n\n» $substractingText");
+				} catch (Exception $e) { 
 
+				}
 			}
+			
 			$donut_rand = false;
 			$rnd = rand(0,99);
 			if ($rnd>80){
 				$donut_rand = true;
 			}
-			$tickets->add($title, $desc, $author, $donut_rand);
+			$tickets->add($title, $desc, $author, $donut_rand, $real_author);
 			
 		}
 		Show::response($Connect->query('DELETE FROM queue_quest WHERE id=?', [$id_answer]));

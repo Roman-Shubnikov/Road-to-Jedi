@@ -196,7 +196,7 @@ export default props => {
                 </Group>
 
                 : null}
-            {account.permissions < PERMISSIONS.agent ?
+            {account.generator ?
                 <Group>
                     <Div>
                         <Button onClick={() => goPanel('new_ticket')}

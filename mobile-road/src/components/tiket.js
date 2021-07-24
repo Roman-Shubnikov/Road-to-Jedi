@@ -514,7 +514,7 @@ export default props => {
                   <Message
                     clickable={moderator_permission}
                     title={getAuthorName(result)}
-                    is_mine={(agent_permission && result.author.is_moderator) || result.author.id === account.vk_id}
+                    is_mine={(agent_permission && result.author.is_moderator)}
                     is_special={moderator_permission}
                     avatar={getAvatar(result)}
                     time={getHumanyTime(result.time).time}

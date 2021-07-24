@@ -23,7 +23,7 @@ class Tickets
 				Show::error(403);
 			}
 		}
-		if ($res['status'] != 0 && ($this->user->info['permissions'] < CONFIG::PERMISSIONS['special']) && ((int)$res['author_id']) != -$this->user->vk_id) {
+		if ($res['status'] != 0 && ($this->user->info['permissions'] < CONFIG::PERMISSIONS['special'])) {
 			$sql = "SELECT author_id FROM messages WHERE author_id=? AND ticket_id=?";
 			if (count($this->Connect->db_get($sql, [$this->user->id, $ticket_id])) == 0) {
 				Show::error(403);
@@ -37,7 +37,9 @@ class Tickets
 				'id' => -$res['author_id']
 			];
 		}
-
+		if((int)$res['real_author'] != $this->user->vk_id){
+			unset($res['real_author']);
+		}
 		$res['author'] = $user;
 		return $this->_formatType($res);
 	}
@@ -179,11 +181,11 @@ class Tickets
 		return $result;
 	}
 
-	public function add(string $title, string $text, int $author, bool $donut)
+	public function add(string $title, string $text, int $author, bool $donut, $real_author=0)
 	{
 		// -$this->user->vk_id
-		$res = $this->Connect->query("INSERT INTO tickets (title,author_id,status,time,donut) VALUES (?,?,?,?,?)", 
-		[$title, -$author, 0, time(), (int)$donut]);
+		$res = $this->Connect->query("INSERT INTO tickets (title,author_id,status,time,donut,real_author) VALUES (?,?,?,?,?,?)", 
+		[$title, -$author, 0, time(), (int)$donut, $real_author]);
 		$id = $res[1];
 		if (!$res[1]) {
 			Show::error(0);
@@ -200,7 +202,7 @@ class Tickets
 		$text = trim($text);
 		if (!$ticket['id']) Show::error(404);
 
-		if ($ticket['status'] == 2 || $ticket['id'] == 1) Show::error(30);
+		if ($ticket['status'] == 2 || $ticket['status'] == 1) Show::error(30);
 
 		if (mb_strlen($text) >= CONFIG::MAX_TICKETS_TEXT_LEN) Show::error(21);
 
@@ -209,11 +211,14 @@ class Tickets
 		$uid = $this->user->id;
 		$author = $author ? $author : -$this->user->vk_id;
 		$is_author = false;
-
-		if($ticket['author']['id'] == -$author){
+		if($this->user->info['permissions'] >= CONFIG::PERMISSIONS['special']){
 			$is_author = true;
 			$uid = $author;
 		}
+		// if($ticket['author']['id'] == -$author){
+		// 	$is_author = true;
+		// 	$uid = $author;
+		// }
 		$res = $this->Connect->query("INSERT INTO messages (ticket_id, author_id, approved, mark, time, text) VALUES (?,?,?,?,?,?)", 
 		[$ticket_id, $uid, 0, -1, time(), str_replace("XD", "😆", $text)]);
 		if (!$res[1]) {
@@ -640,7 +645,7 @@ class Tickets
 			'status' => (int) $data['status'],
 			'donut' => (bool) $data['donut'],
 		];
-
+		if(isset($data['real_author'])) $res['real_author'] = (int) $data['real_author'];
 		return $res;
 	}
 

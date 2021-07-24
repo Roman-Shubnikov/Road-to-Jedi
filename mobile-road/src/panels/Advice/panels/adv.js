@@ -20,7 +20,6 @@ import {
     Icon16StarCircleFillYellow,
     Icon16Verified,
     Icon16Fire,
-    Icon28BrainOutline,
     Icon28Users3Outline,
     Icon28DonateOutline,
 
@@ -70,13 +69,6 @@ export default props => {
         Обзор
                 </PanelHeader>
       <Group>
-        {account['generator'] && 
-        <SimpleCell
-        expandable
-        onClick={() => goPanel('new_ticket')}
-        before={<Icon28BrainOutline style={{ color: '#818C99' }} />}>
-          Генератор
-        </SimpleCell>}
         <SimpleCell
         expandable
         href={LINKS_VK.communuty_jedi}

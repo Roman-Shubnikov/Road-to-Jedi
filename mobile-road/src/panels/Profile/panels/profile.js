@@ -202,18 +202,18 @@ export default props => {
                             before={<Icon28MessagesOutline />}>
                             Чат
                             </SimpleCell>
-                        {agent_permission && ((moderator_permission || account.generator) || <SimpleCell
+                        {agent_permission && (moderator_permission || <SimpleCell
                             expandable
                             onClick={() => {
                                 goPanel('qu');
                             }}
                             before={<Icon28PollSquareOutline />}>Мои ответы</SimpleCell>)}
-                        {!agent_permission && <SimpleCell
+                        {!account.generator && <SimpleCell
                             expandable
                             onClick={() => {
                                 goPanel('testingagents');
                             }}
-                            before={<Icon28TicketOutline />}>Пройти тест на агента поддержки</SimpleCell>}
+                            before={<Icon28TicketOutline />}>Пройти тест на создателя вопросов</SimpleCell>}
                         {agent_permission && <SimpleCell
                             expandable
                             onClick={() => {

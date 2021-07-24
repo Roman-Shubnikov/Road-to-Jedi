@@ -140,7 +140,7 @@ class Users {
 				$order = 'AND coff_active > 0 ORDER BY coff_active DESC';
 				break;
 			case 'donut':
-				$order = 'AND (donut == 1 OR donut > ' . time() . ') ORDER BY coff_active DESC';
+				$order = 'AND (donut=1 OR donut > ' . time() . ') ORDER BY coff_active DESC';
 				break;
 			case 'verif':
 				$order = 'AND verified != 0 ORDER BY coff_active DESC';
