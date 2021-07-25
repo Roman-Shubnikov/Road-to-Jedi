@@ -21,6 +21,8 @@ import { API_URL } from '../../../config';
 import { viewsActions } from '../../../store/main';
 import { normalizeTime } from '../../../Utils/Helpers';
 
+import Blockquote from '../../../components/Blockquote'
+
 var timer_interval = null;
 
 export default props => {
@@ -106,20 +108,23 @@ export default props => {
         
     }
     const getPage = () => {
-        let greeting = "Хотите задавать вопросы сами для приложения?\n" +
+        let greeting1 = "Хотите задавать вопросы сами для приложения?\n" +
         "Верный шаг! Но для начала Вам необходимо пройти тестирование.\n" +
-        "На прохождение теста из 5 вопросов, даётся 10 минут. После нажатия кнопки «Пройти тест» у вас не будет возможности поставить время на паузу или что-то подобное.\n" +
-        "Примерное оставшееся время будет показано на таймере ниже, но старайтесь пройти тест как можно быстрее.\n" +
-        "Если вы провалите тест, то сможете пересдать его только через 3 дня.\n" +
-        "Ну что, готовы? Тогда начинаем.";
+        "На прохождение теста из 5 вопросов, даётся 10 минут. После нажатия кнопки «Пройти тест» у вас не будет возможности поставить время на паузу или что-то подобное.\n";
+        let greeting2 = "Примерное оставшееся время будет показано на таймере ниже, но старайтесь пройти тест как можно быстрее.\n" +
+                        "Если вы провалите тест, то сможете пересдать его только через 3 дня.\n" +
+                        "Ну что, готовы? Тогда начинаем.";
         if(currPage === 0){
             return(
                 <Group>
-                    <Div> 
-                        <Text style={{whiteSpace: "pre-wrap"}} weight='regular'>
-                            {greeting}
-                        </Text>
-                    </Div>
+                    <Blockquote>
+                        <p style={{marginTop:0}}>
+                            {greeting1}
+                        </p>
+                        <p>
+                            {greeting2}
+                        </p>
+                    </Blockquote>
                     <Div>
                         <Button
                         stretched
@@ -191,7 +196,7 @@ export default props => {
     return(
         <Panel id={props.id}>
             <PanelHeader
-                    left={<PanelHeaderBack onClick={() => window.history.back()} />}>Тест</PanelHeader>
+                    left={<PanelHeaderBack onClick={() => window.history.back()} />}>Тестирование</PanelHeader>
 
 
             {getPage()}

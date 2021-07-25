@@ -14,12 +14,19 @@ import {
     Header,
     HorizontalScroll,
     HorizontalCell,
-    MiniInfoCell,
     RichCell,
     Progress,
     InfoRow,
     PanelSpinner,
     Placeholder,
+    usePlatform,
+    VKCOM,
+    FormItem,
+    FormLayout,
+    Button,
+    ScreenSpinner,
+    Textarea,
+    MiniInfoCell,
 
     } from '@vkontakte/vkui';
 
@@ -31,13 +38,13 @@ import {
     Icon28ShareExternalOutline,
     Icon16StarCircleFillYellow,
     Icon28DiamondOutline,
-    Icon20ArticleOutline,
     Icon12Fire,
     Icon28SettingsOutline,
     Icon20Ghost,
     Icon56HistoryOutline,
-    Icon28TicketOutline,
     Icon28MessagesOutline,
+    Icon20ArticleOutline,
+
 
 } from '@vkontakte/icons';
 import { 
@@ -45,14 +52,18 @@ import {
 } from '../../../Utils';
 import { isEmptyObject } from 'jquery';
 import { useDispatch, useSelector } from 'react-redux';
-import { API_URL, AVATARS_URL, CONVERSATION_LINK, MESSAGE_NO_VK, PERMISSIONS } from '../../../config';
-import { viewsActions } from '../../../store/main';
+import { API_URL, AVATARS_URL, CONVERSATION_LINK, MESSAGE_NO_VK, PERMISSIONS, PUBLIC_STATUS_LIMIT } from '../../../config';
+import InfoArrows from '../../../components/InfoArrows';
+import { accountActions, viewsActions } from '../../../store/main';
 export default props => {
     const dispatch = useDispatch();
+    const platform = usePlatform();
     const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
     const account = useSelector((state) => state.account.account)
-    const { setActiveModal, goOtherProfile, goPanel, setNewStatus, showErrorAlert } = props.callbacks;
+    const { setActiveModal, goOtherProfile, goPanel, showErrorAlert, setPopout } = props.callbacks;
     const [fetching, setFetching] = useState(false);
+    const [editingStatus, setEdititingStatus] = useState(false);
+    const [originalStatus, setOriginalStatus] = useState('');
     const [fetchdata, setFetchdata] = useState(null);
     const [moderationQuestions, setQuestions] = useState(null)
     const levels = account.levels;
@@ -60,13 +71,7 @@ export default props => {
     const permissions = account.permissions;
     const moderator_permission = permissions >= PERMISSIONS.special;
     const agent_permission = permissions >= PERMISSIONS.agent;
-    
-
-    const changeStatus = useCallback(() => {
-        setNewStatus(account.publicStatus);
-        setActiveModal('statuschange');
-
-    }, [account, setActiveModal, setNewStatus])
+    const total_answers = account['good_answers'] + account['bad_answers'];
 
     useEffect(() => {
         if(!agent_permission){
@@ -92,6 +97,36 @@ export default props => {
         
     }, [agent_permission])
 
+    const statusMenager = () => {
+        if(!editingStatus){
+          setEdititingStatus(true);
+          setOriginalStatus(account.publicStatus);
+        } else{
+          setPopout(<ScreenSpinner/>);
+          setEdititingStatus(false)
+          fetch(API_URL + 'method=account.changeStatus&' + window.location.search.replace('?', ''), {
+            method: 'post',
+            headers: { "Content-type": "application/json; charset=UTF-8" },
+            body: JSON.stringify({
+                'status': account.publicStatus.trim(),
+            })
+        })
+          .then(res => res.json())
+          .then(data => {
+              if (data.result) {
+                  setPopout(null)
+              } else {
+                  showErrorAlert(data.error.message)
+              }
+          })
+          .catch(err => {
+              setActiveStory('disconnect');
+    
+          })
+    
+        }
+      }
+
     return (
         <Panel id={props.id}>
             {!isEmptyObject(account) ? <>
@@ -109,7 +144,7 @@ export default props => {
                             <Icon28Notifications />
                         </PanelHeaderButton></>}>Профиль</PanelHeader>
                 <PullToRefresh onRefresh={() => { setFetching(true); props.reloadProfile(); setTimeout(() => { setFetching(false) }, 1000) }} isFetching={fetching}>
-                {agent_permission ? <Group>
+                {agent_permission && platform!==VKCOM ? <Group>
                         <RichCell
                             disabled
                             before={account.diamond ?
@@ -119,33 +154,23 @@ export default props => {
                         >
                             <div style={{ display: "flex" }}>
                                 {account['nickname'] ? account['nickname'] : `Агент Поддержки #${account['id']}`}
-                                {account['flash'] === true ?
+                                {account['flash'] ?
                                     <div className="profile_icon">
                                         <Icon12Fire width={12} height={12} onClick={() => setActiveModal('prom')} />
                                     </div>
                                     : null}
-                                {account['donut'] === true ?
+                                {account['donut'] ?
                                     <div className="profile_icon">
                                         <Icon16StarCircleFillYellow width={12} height={12} onClick={() => setActiveModal('donut')} />
                                     </div>
                                     : null}
-                                {account['verified'] === true ?
+                                {account['verified'] ?
                                     <div className="profile_icon_ver">
                                         <Icon16Verified onClick={() => setActiveModal('verif')} />
                                     </div>
                                     : null}
                             </div>
                         </RichCell>
-                        <MiniInfoCell
-                            before={<Icon20ArticleOutline />}
-                            textWrap='full'
-                            onClick={() => {
-                                changeStatus()
-                            }}>
-                            {account.publicStatus || "Играю в любимую игру"}
-                        </MiniInfoCell>
-                        
-                        
                     </Group> :
                     fetchdata &&
                     <Group>
@@ -156,11 +181,56 @@ export default props => {
                             {fetchdata.first_name + " " + fetchdata.last_name}
                         </RichCell>
                     </Group>}
-
                     {agent_permission && <Group>
+                        {editingStatus ? 
+                        <FormLayout>
+                            <FormItem bottom={account.publicStatus.trim().length + '/' + PUBLIC_STATUS_LIMIT}>
+                                <Textarea 
+                                placeholder="Введите статус тут..."
+                                maxLength={PUBLIC_STATUS_LIMIT}
+                                value={account.publicStatus}
+                                onChange={e => {dispatch(accountActions.setPublicStatus(e.currentTarget.value))}}
+                                />
+                            </FormItem>
+                            <FormItem>
+                                <div style={{display: 'flex'}}>
+                                    <Button
+                                    style={{marginRight: 5}}
+                                    onClick={() => {dispatch(accountActions.setPublicStatus(originalStatus));setEdititingStatus(false)}}
+                                    mode='secondary'
+                                    size='s'>
+                                        Отменить
+                                    </Button>
+                                    <Button
+                                    onClick={() => statusMenager()}
+                                    mode='primary'
+                                    size='s'>
+                                        Сохранить
+                                    </Button>
+                                </div>
+                            </FormItem>
+                        </FormLayout>
+                        : 
+                        <MiniInfoCell
+                        before={<Icon20ArticleOutline/>}
+                        textWrap='full'
+                        onClick={() => {
+                            statusMenager();
+                        }}>
+                            {account.publicStatus || "Играю в любимую игру"}
+                        </MiniInfoCell>
+                        }
+                        
+                    </Group>}
+                    
+                    {agent_permission && <Group header={<Header mode="secondary">Основная информация</Header>}>
+                        <InfoArrows 
+                        good_answers={account['good_answers']}
+                        bad_answers={account['bad_answers']}
+                        total_answers={total_answers} />
                         <Div
                         onClick={() => setActiveModal('fantoms')}>
-                            <InfoRow  header={<div style={{display: 'flex', justifyContent: 'space-between'}}><div style={{display: 'flex', marginBottom: 5}}>
+                            <InfoRow header={<div style={{display: 'flex', justifyContent: 'space-between'}}><div style={{display: 'flex', marginBottom: 5}}>
                                 <Icon20Ghost style={{ marginTop: 0, marginRight: 3}} />
                                 {levels.lvl} уровень · {recog_number(levels.exp)} фантомов</div><div>Осталось ещё {exp_to_next_lvl}</div></div>}>
                                 <Progress value={levels.exp / levels.exp_to_lvl * 100} />
@@ -208,12 +278,7 @@ export default props => {
                                 goPanel('qu');
                             }}
                             before={<Icon28PollSquareOutline />}>Мои ответы</SimpleCell>)}
-                        {!account.generator && <SimpleCell
-                            expandable
-                            onClick={() => {
-                                goPanel('testingagents');
-                            }}
-                            before={<Icon28TicketOutline />}>Пройти тест на создателя вопросов</SimpleCell>}
+                        
                         {agent_permission && <SimpleCell
                             expandable
                             onClick={() => {

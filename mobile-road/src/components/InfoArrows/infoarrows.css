@@ -1,0 +1,9 @@
+.blue_arrows_profile {
+    color: var(--accent);
+    margin: auto;
+}
+.info_arrows_block {
+    min-width: 120;
+    color: #626D7A;
+    /* font-weight: 500; */
+}

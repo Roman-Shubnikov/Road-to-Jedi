@@ -12,7 +12,6 @@ import {
 import Advice             from './panels/adv';
 import Donuts             from './panels/donuts';
 import Premium            from './panels/premium';
-import NewTicket          from './panels/new_tiket';
 import FaqMain            from './panels/faq/main';
 import FaqQuestions       from './panels/faq/questionsList';
 import FaqQuestion        from './panels/faq/question';
@@ -20,6 +19,7 @@ import FaqCreateCategory  from './panels/faq/createCategory';
 import FaqCreateQuestion  from './panels/faq/createQuestion';
 import OtherProfile       from '../../components/other_profile';
 import Reports            from '../../components/report';
+import TestingAgents from './panels/testbyagent';
 
 //Импортируем модальные карточки
 import ModalPrometay  from '../../Modals/Prometay';
@@ -159,10 +159,10 @@ export default props => {
       <Donuts id="donuts"
       setActiveStory={setActiveStory}
         callbacks={callbacks} />
-
-      <NewTicket id='new_ticket'
-        callbacks={callbacks}
-        reloadProfile={props.reloadProfile} />
+      <TestingAgents 
+      id="testingagents"
+      callbacks={callbacks}
+      />
       
       <FaqMain id="faqMain"
       callbacks={callbacks}

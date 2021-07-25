@@ -22,6 +22,7 @@ import {
     Icon16Fire,
     Icon28Users3Outline,
     Icon28DonateOutline,
+    Icon28TicketOutline,
 
 } from '@vkontakte/icons';
 
@@ -89,6 +90,13 @@ export default props => {
         before={<Icon28DonateOutline style={{ color: '#4BB34B' }} />}>
           Эксклюзивные настройки
         </SimpleCell>}
+        {!account.generator && 
+        <SimpleCell
+        expandable
+        onClick={() => {
+            goPanel('testingagents');
+        }}
+        before={<Icon28TicketOutline style={{color: '#F05C44'}} />}>Пройти тест на создателя вопросов</SimpleCell>}
 
       </Group>
       {agent_permission && <Group header={<Header>Рекомендации</Header>}>

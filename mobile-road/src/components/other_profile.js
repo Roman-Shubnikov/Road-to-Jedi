@@ -3,7 +3,7 @@ import bridge from '@vkontakte/vk-bridge'; // VK Brige
 
 import $ from 'jquery';
 
-import { 
+import {
     Panel,
     PanelHeader,
     Group,
@@ -26,40 +26,37 @@ import {
     SimpleCell,
     usePlatform,
     VKCOM,
-    } from '@vkontakte/vkui';
+} from '@vkontakte/vkui';
 
 
-import { 
-    Icon20StatisticsOutline,
-    Icon20BookOutline,
+import {
     Icon16Fire,
     Icon16Verified,
     Icon16StarCircleFillYellow,
     Icon28WalletOutline,
-    Icon28PaletteOutline,
-    Icon28Notifications,
     Icon56DurationOutline,
     Icon28DiamondOutline,
     Icon16CheckCircle,
     Icon24MoreVertical,
     Icon20ArticleOutline,
     Icon20FollowersOutline,
-    Icon20Info,
-    Icon20GlobeOutline,
-    Icon20WorkOutline,
     Icon20Add,
-    Icon20UserOutline,
-    Icon20CalendarOutline,
     Icon16FireVerified,
     Icon28BlockOutline,
     Icon28CopyOutline,
     Icon28ReportOutline,
     Icon28UserIncomingOutline,
+    Icon28MentionOutline,
+    Icon28HashtagOutline,
+    Icon28FaceIdOutline,
+    Icon28DonateOutline,
+    Icon28PaletteOutline,
+    Icon28Notifications,
+    Icon28StatisticsOutline,
+    Icon28LogoVkOutline,
 
- } from '@vkontakte/icons';
-import {
-    Icon48DonateOutline,
 } from '@vkontakte/icons';
+
 import { useDispatch, useSelector } from 'react-redux';
 import { useState } from 'react';
 import { accountActions, viewsActions } from '../store/main';
@@ -67,7 +64,10 @@ import { API_URL, AVATARS_URL, LINK_APP, PERMISSIONS } from '../config';
 import { isEmptyObject } from 'jquery';
 import { getHumanyTime, enumerate, recog_number } from '../Utils';
 import { DonutTooltip, FlashTooltip, FlashVerifTooltip, VerifTooltip } from './Tooltips';
-
+import InfoArrows from './InfoArrows';
+import { rubberBand } from 'react-animations';
+import styled, { keyframes } from 'styled-components';
+const RubberBand = styled.div`animation: .8s ${keyframes`${rubberBand}`}`;
 const SCHEMES = [
     'Автоматическая',
     'Light',
@@ -80,7 +80,7 @@ const NOTI = [
 
 const blueBackground = {
     backgroundColor: 'var(--accent)'
-  };
+};
 
 export default props => {
     const dispatch = useDispatch();
@@ -93,29 +93,29 @@ export default props => {
     const platform = usePlatform();
     const profRef = useRef(null);
     const { setPopout, showErrorAlert, setActiveModal, setReport } = props.callbacks;
-    const {other_profile: OtherProfileData, account} = useSelector((state) => (state.account))
+    const { other_profile: OtherProfileData, account } = useSelector((state) => (state.account))
     const setActiveStory = (story) => dispatch(viewsActions.setActiveStory(story))
 
-    const [ref1,setRef1] = useState(null);
-    const [ref2,setRef2] = useState(null);
-    const [ref3,setRef3] = useState(null);
-    const [ref4,setRef4] = useState(null);
+    const [ref1, setRef1] = useState(null);
+    const [ref2, setRef2] = useState(null);
+    const [ref3, setRef3] = useState(null);
+    const [ref4, setRef4] = useState(null);
 
-    const ref1Setter = node => {setRef1(node)};
-    const ref2Setter = node => {setRef2(node)};
-    const ref3Setter = node => {setRef3(node)};
-    const ref4Setter = node => {setRef4(node)};
+    const ref1Setter = node => { setRef1(node) };
+    const ref2Setter = node => { setRef2(node) };
+    const ref3Setter = node => { setRef3(node) };
+    const ref4Setter = node => { setRef4(node) };
 
-    const { online, id: agent_id, 
-        nickname, 
-        flash, 
-        verified: verif, 
-        vk_id, 
-        banned, 
-        diamond, 
-        avatar, 
-        donut, 
-        subscribe, 
+    const { online, id: agent_id,
+        nickname,
+        flash,
+        verified: verif,
+        vk_id,
+        banned,
+        diamond,
+        avatar,
+        donut,
+        subscribe,
         followers,
         good_answers,
         bad_answers,
@@ -127,9 +127,9 @@ export default props => {
     const total_answers = good_answers + bad_answers;
     const permissions = account.permissions;
     const moderator_permission = permissions >= PERMISSIONS.special;
-    
 
-    
+
+
     const subscribeUnsubscribe = () => {
         setPopout(<ScreenSpinner />)
         let method = subscribe ? "followers.unsubscribe&" : "followers.subscribe&"
@@ -144,7 +144,7 @@ export default props => {
             .then(res => res.json())
             .then(data => {
                 if (data.result) {
-                    let DataProf = {...OtherProfileData};
+                    let DataProf = { ...OtherProfileData };
                     DataProf.subscribe = !subscribe;
                     dispatch(accountActions.setOtherProfile(DataProf))
                     setPopout(null);
@@ -164,11 +164,11 @@ export default props => {
                 <ActionSheet onClose={() => setPopout(null)}
                     toggleRef={profRef.current}
                     iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
-                    <ActionSheetItem mode='destructive' 
-                    before={<Icon28UserIncomingOutline />}
-                    onClick={() => {
-                        subscribeUnsubscribe()
-                    }}>Отписаться</ActionSheetItem>
+                    <ActionSheetItem mode='destructive'
+                        before={<Icon28UserIncomingOutline />}
+                        onClick={() => {
+                            subscribeUnsubscribe()
+                        }}>Отписаться</ActionSheetItem>
                 </ActionSheet>)
         } else {
             subscribeUnsubscribe()
@@ -181,9 +181,9 @@ export default props => {
                 iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
                 {moderator_permission ?
                     <ActionSheetItem autoclose onClick={() => { setActiveModal('ban_user'); }}
-                    before={<Icon28BlockOutline />}>
+                        before={<Icon28BlockOutline />}>
                         Заблокировать
-                </ActionSheetItem>
+                    </ActionSheetItem>
                     : null}
                 <ActionSheetItem autoclose
                     before={<Icon28CopyOutline />}
@@ -209,7 +209,7 @@ export default props => {
             </ActionSheet>)
     }
     useLayoutEffect(() => {
-        if(platform === VKCOM){
+        if (platform === VKCOM) {
             $(ref1).on('mouseover.ref1_otherProf', () => {
                 setTooltip1(true)
             })
@@ -223,19 +223,19 @@ export default props => {
                 setTooltip4(true)
             })
         }
-        
+
         return () => {
             $(ref1).off('mouseover.ref1_otherProf');
             $(ref2).off('mouseover.ref2_otherProf');
             $(ref3).off('mouseover.ref3_otherProf');
             $(ref4).off('mouseover.ref4_otherProf');
         }
-    }, [ref1,ref2, ref3, ref4, platform])
+    }, [ref1, ref2, ref3, ref4, platform])
 
-    return(
+    return (
         <Panel id={props.id}>
             <PanelHeader
-            left={<PanelHeaderBack onClick={() => window.history.back()} />}>
+                left={<PanelHeaderBack onClick={() => window.history.back()} />}>
                 Профиль
             </PanelHeader>
 
@@ -245,62 +245,62 @@ export default props => {
                         disabled
                         after={
                             <>
-                            <IconButton
-                                onClick={() => infoMenu(agent_id)}
-                                getRootRef={profRef}
-                                icon={<Icon24MoreVertical/>}>
-                            </IconButton>
-                                </>
-                            
+                                <IconButton
+                                    onClick={() => infoMenu(agent_id)}
+                                    getRootRef={profRef}
+                                    icon={<Icon24MoreVertical />}>
+                                </IconButton>
+                            </>
+
                         }
                         description={online.is_online ? "online" : getHumanyTime(online.last_seen).date + " в " + getHumanyTime(online.last_seen).time}
                         before={diamond ?
                             <div style={{ position: 'relative', margin: 10 }}><Avatar src={avatar.url} size={70} style={{ position: 'relative' }} />
                                 <Icon28DiamondOutline width={25} height={25} className='Diamond_profile' />
-                            </div> : <Avatar size={70} src={avatar.url} style={{ position: 'relative'}} />}
+                            </div> : <Avatar size={70} src={avatar.url} style={{ position: 'relative' }} />}
                     >
                         <div style={{ display: 'flex' }}>
                             {nickname ? nickname : `Агент Поддержки #${agent_id}`}
                             {flash && verif &&
-                            <FlashVerifTooltip
-                            isShown={tooltip1}
-                            offsetX={-23}
-                            onClose={() => setTooltip1(false)}>
-                                <div ref={ref1Setter} className="profile_moderator_name_icon">
-                                    <Icon16FireVerified width={12} height={12} style={{ color: "var(--prom_icon)" }} onClick={() => setActiveModal('prom')} />
-                                </div>
-                            </FlashVerifTooltip>
-                                }
+                                <FlashVerifTooltip
+                                    isShown={tooltip1}
+                                    offsetX={-23}
+                                    onClose={() => setTooltip1(false)}>
+                                    <div ref={ref1Setter} className="profile_moderator_name_icon">
+                                        <Icon16FireVerified width={12} height={12} style={{ color: "var(--prom_icon)" }} onClick={() => setActiveModal('prom')} />
+                                    </div>
+                                </FlashVerifTooltip>
+                            }
                             {flash && !verif &&
-                            <FlashTooltip
-                            offsetX={-23}
-                            isShown={tooltip2}
-                            onClose={() => setTooltip2(false)}>
-                                <div ref={ref2Setter} className="profile_moderator_name_icon">
-                                    <Icon16Fire width={12} height={12} style={{ color: "var(--prom_icon)" }} onClick={() => setActiveModal('prom')} />
-                                </div>
-                            </FlashTooltip>
-                                }
+                                <FlashTooltip
+                                    offsetX={-23}
+                                    isShown={tooltip2}
+                                    onClose={() => setTooltip2(false)}>
+                                    <div ref={ref2Setter} className="profile_moderator_name_icon">
+                                        <Icon16Fire width={12} height={12} style={{ color: "var(--prom_icon)" }} onClick={() => setActiveModal('prom')} />
+                                    </div>
+                                </FlashTooltip>
+                            }
                             {donut &&
-                            <DonutTooltip
-                            isShown={tooltip3}
-                            offsetX={-23}
-                            onClose={() => setTooltip3(false)}>
-                                <div ref={ref3Setter} className="profile_moderator_name_icon">
-                                    <Icon16StarCircleFillYellow width={12} height={12} onClick={() => setActiveModal('donut')} />
-                                </div>
-                            </DonutTooltip>
-                                }
+                                <DonutTooltip
+                                    isShown={tooltip3}
+                                    offsetX={-23}
+                                    onClose={() => setTooltip3(false)}>
+                                    <div ref={ref3Setter} className="profile_moderator_name_icon">
+                                        <Icon16StarCircleFillYellow width={12} height={12} onClick={() => setActiveModal('donut')} />
+                                    </div>
+                                </DonutTooltip>
+                            }
                             {verif && !flash &&
-                            <VerifTooltip
-                            offsetX={-23}
-                            isShown={tooltip4}
-                            onClose={() => setTooltip4(false)}>
-                                <div ref={ref4Setter} className="profile_moderator_name_icon_ver">
-                                    <Icon16Verified style={{ color: "var(--dynamic_blue)" }} onClick={() => setActiveModal('verif')} />
-                                </div>
-                            </VerifTooltip>
-                                }
+                                <VerifTooltip
+                                    offsetX={-23}
+                                    isShown={tooltip4}
+                                    onClose={() => setTooltip4(false)}>
+                                    <div ref={ref4Setter} className="profile_moderator_name_icon_ver">
+                                        <Icon16Verified style={{ color: "var(--dynamic_blue)" }} onClick={() => setActiveModal('verif')} />
+                                    </div>
+                                </VerifTooltip>
+                            }
                         </div>
                     </SimpleCell>
                     <Div style={{ display: 'flex' }}>
@@ -328,107 +328,151 @@ export default props => {
                             'Этот профиль заблокирован' :
                             'Вы не можете просматривать этот профиль'}
                         </div> :
+                        //     <>
+                        //         <Group header={<Header mode='tertiary'>Основная информация</Header>}>
+                        //             <MiniInfoCell
+                        //                 before={<Icon20ArticleOutline />}
+                        //                 textWrap='full'>
+                        //                 {OtherProfileData.publicStatus || "Играю в любимую игру"}
+                        //             </MiniInfoCell>
+                        //             <MiniInfoCell
+                        //                 before={<Icon20FollowersOutline />}
+                        //                 after={
+                        //                     <UsersStack
+                        //                         photos={OtherProfileData.followers[2].map((user, i) => AVATARS_URL + user.avatar_name)} />
+                        //                 }>
+                        //                 {followers[0] ? followers[0] + " " + enumerate(followers[0],
+                        //                     ['подписчик', 'подписчика', 'подписчиков']) : "нет подписчиков"}
+                        //                 {followers[1] ? " · " +
+                        //                     followers[1] + " " + enumerate(followers[1],
+                        //                         ['новый', 'новых', 'новых']) : ''}
+                        //             </MiniInfoCell>
+                        //             <MiniInfoCell
+                        //                 mode='full'
+                        //                 before={<Icon20WorkOutline />}>
+                        //                 Дата регистрации: {getHumanyTime(OtherProfileData.registered).date}
+
+                        //             </MiniInfoCell>
+                        //             <MiniInfoCell
+                        //                 textWrap='full'
+                        //                 before={<Icon20BookOutline />}>
+                        //                 {recog_number(total_answers) + " " + enumerate(total_answers,
+                        //                         ['Ответ', 'Ответа', 'Ответов'])}
+                        //             </MiniInfoCell>
+                        //             <MiniInfoCell
+                        //                 textWrap='full'
+                        //                 before={<Icon20Info />}>
+                        //                 {recog_number(good_answers) + " " + enumerate(good_answers,
+                        //                         ['Положительный', 'Положительныx', 'Положительных'])} · {recog_number(
+                        //                             bad_answers) + " " + enumerate(bad_answers,
+                        //                                 ['Отрицательный', 'Отрицательных', 'Отрицательных'])}
+                        //             </MiniInfoCell>
+                        //             {OtherProfileData.public && <MiniInfoCell
+                        //                 mode='base'
+                        //                 before={<Icon20GlobeOutline />}>
+                        //                 <Link href={'https://vk.com/id' + vk_id}
+                        //                     target="_blank" rel="noopener noreferrer">Страница ВКонтакте</Link>
+                        //             </MiniInfoCell>}
+                                    
+
+                        //         </Group>
+
+                        //     </>
                         <>
-                            <Group header={<Header mode='tertiary'>Основная информация</Header>}>
+                            <Group header={<Header>Общая информация</Header>}>
                                 <MiniInfoCell
                                     before={<Icon20ArticleOutline />}
                                     textWrap='full'>
                                     {OtherProfileData.publicStatus || "Играю в любимую игру"}
                                 </MiniInfoCell>
-                                <MiniInfoCell
-                                    before={<Icon20FollowersOutline />}
-                                    after={
-                                        <UsersStack
-                                            photos={OtherProfileData.followers[2].map((user, i) => AVATARS_URL + user.avatar_name)} />
-                                    }>
+                                <InfoArrows
+                                    good_answers={good_answers}
+                                    bad_answers={bad_answers}
+                                    total_answers={total_answers}
+                                />
+                                <SimpleCell
+                                disabled
+                                before={<Icon20FollowersOutline width={28} height={28} />}
+                                after={
+                                    <UsersStack
+                                        photos={OtherProfileData.followers[2].map((user, i) => AVATARS_URL + user.avatar_name)} />
+                                }>
                                     {followers[0] ? followers[0] + " " + enumerate(followers[0],
-                                        ['подписчик', 'подписчика', 'подписчиков']) : "нет подписчиков"}
+                                        ['подписчик', 'подписчика', 'подписчиков']) : "Нет подписчиков"}
                                     {followers[1] ? " · " +
                                         followers[1] + " " + enumerate(followers[1],
                                             ['новый', 'новых', 'новых']) : ''}
-                                </MiniInfoCell>
+                                </SimpleCell>
+                                <SimpleCell
+                                    disabled
+                                    before={<Icon28MentionOutline />}
+                                    after={getHumanyTime(OtherProfileData.registered).date}>
+                                        Дата регистрации
+                                </SimpleCell>
+                                {moderator_permission && 
                                 <MiniInfoCell
-                                    mode='full'
-                                    before={<Icon20WorkOutline />}>
-                                    Дата регистрации: {getHumanyTime(OtherProfileData.registered).date}
-
-                                </MiniInfoCell>
-                                <MiniInfoCell
-                                    textWrap='full'
-                                    before={<Icon20BookOutline />}>
-                                    {recog_number(total_answers) + " " + enumerate(total_answers,
-                                            ['Ответ', 'Ответа', 'Ответов'])}
-                                </MiniInfoCell>
-                                <MiniInfoCell
-                                    textWrap='full'
-                                    before={<Icon20Info />}>
-                                    {recog_number(good_answers) + " " + enumerate(good_answers,
-                                            ['Положительный', 'Положительныx', 'Положительных'])} · {recog_number(
-                                                bad_answers) + " " + enumerate(bad_answers,
-                                                    ['Отрицательный', 'Отрицательных', 'Отрицательных'])}
-                                </MiniInfoCell>
-                                {OtherProfileData.public && <MiniInfoCell
-                                    mode='base'
-                                    before={<Icon20GlobeOutline />}>
-                                    <Link href={'https://vk.com/id' + vk_id}
-                                        target="_blank" rel="noopener noreferrer">Страница ВКонтакте</Link>
-                                </MiniInfoCell>}
-                                {moderator_permission && <MiniInfoCell
                                     before={<Icon20Add style={{ transform: ShowServiceInfo ? "rotate(45deg)" : '', transition: 'all 0.3s' }} />}
                                     mode="more"
                                     onClick={() => { setShowServiceInfo(prevState => !prevState) }}
-                                >
-                                    Подробная информация
-                    </MiniInfoCell>}
-
+                                    >
+                                        Подробная информация
+                                </MiniInfoCell>}
                             </Group>
                             {ShowServiceInfo &&
-                                <Group>
-                                    <MiniInfoCell
-                                        before={<Icon20UserOutline />}
-                                        after={agent_id}>
+                                <RubberBand><Group>
+                                    <SimpleCell
+                                    disabled
+                                    before={<Icon28HashtagOutline />}
+                                    after={agent_id}>
                                         Id Агента
-                        </MiniInfoCell>
-                                    <MiniInfoCell
-                                        before={<Icon20CalendarOutline />}
+                                    </SimpleCell>
+                                    <SimpleCell
+                                    disabled
+                                    before={<Icon28FaceIdOutline />}
                                     after={age + " " + enumerate(age, ['год', 'года', 'лет'])}>
                                         Возраст
-                        </MiniInfoCell>
-                                    <MiniInfoCell
-                                        before={<Icon28WalletOutline width={20} height={20} />}
+                                    </SimpleCell>
+                                    <SimpleCell
+                                    disabled
+                                    before={<Icon28WalletOutline />}
                                     after={recog_number(balance)}>
                                         Баланс
-                        </MiniInfoCell>
-                                    <MiniInfoCell
-                                        before={<Icon48DonateOutline width={20} height={20} />}
+                                    </SimpleCell>
+                                    <SimpleCell
+                                    disabled
+                                    before={<Icon28DonateOutline />}
                                     after={recog_number(donuts)}>
                                         Пончики
-                        </MiniInfoCell>
-                                    <MiniInfoCell
-                                        before={<Icon28PaletteOutline width={20} height={20} />}
-                                        after={SCHEMES[OtherProfileData.scheme]}>
+                                    </SimpleCell>
+                                    <SimpleCell
+                                    disabled
+                                    before={<Icon28PaletteOutline />}
+                                    after={SCHEMES[OtherProfileData.scheme]}>
                                         Используемая тема
-                        </MiniInfoCell>
-                                    <MiniInfoCell
-                                        before={<Icon28Notifications width={20} height={20} />}
+                                    </SimpleCell>
+                                    <SimpleCell
+                                    disabled
+                                    before={<Icon28Notifications />}
                                     after={NOTI[Number(OtherProfileData.noti)]}>
                                         Уведомления
-                        </MiniInfoCell>
-                                    <MiniInfoCell
-                                        before={<Icon20StatisticsOutline width={20} height={20} />}
+                                    </SimpleCell>
+                                    <SimpleCell
+                                    disabled
+                                    before={<Icon28StatisticsOutline />}
                                     after={OtherProfileData.coff_active}>
                                         Рейтинг Престижности
-                        </MiniInfoCell>
-                                    <MiniInfoCell
-                                        mode='base'
-                                        before={<Icon20GlobeOutline />}>
+                                    </SimpleCell>
+                                    <SimpleCell
+                                    disabled
+                                    before={<Icon28LogoVkOutline />}>
                                         <Link href={'https://vk.com/id' + vk_id}
                                             target="_blank"
                                             rel="noopener noreferrer">
                                             Страница ВКонтакте
-                            </Link>
-                                    </MiniInfoCell>
-                                </Group>
+                                        </Link>
+                                    </SimpleCell>
+                                   
+                                </Group></RubberBand>
                             }
                         </>
                 }
@@ -438,19 +482,19 @@ export default props => {
                         <Div>
                             <FormStatus header="Внимание! Важная информация" mode="default">
                                 Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
-                        </FormStatus>
+                            </FormStatus>
                         </Div>
                     </Group>}
             </> :
                 OtherProfileData && banned ?
-                <Placeholder
-                    stretched
-                    icon={<Icon56DurationOutline style={{ color: 'var(--dynamic_red)' }} />}>
-                    {!banned.time_end ? "Этот аккаунт был заблокирован навсегда" : "Этот аккаунт был временно заблокирован"}
-                    <br />
-                    {banned.time_end ? <p>До: {getHumanyTime(banned.time_end).datetime}<br /></p> : null}
-                    {banned.reason ? "Причина: " + banned.reason : null}
-                </Placeholder> : <PanelSpinner/>}
+                    <Placeholder
+                        stretched
+                        icon={<Icon56DurationOutline style={{ color: 'var(--dynamic_red)' }} />}>
+                        {!banned.time_end ? "Этот аккаунт был заблокирован навсегда" : "Этот аккаунт был временно заблокирован"}
+                        <br />
+                        {banned.time_end ? <p>До: {getHumanyTime(banned.time_end).datetime}<br /></p> : null}
+                        {banned.reason ? "Причина: " + banned.reason : null}
+                    </Placeholder> : <PanelSpinner />}
             {snackbar}
         </Panel>
     )

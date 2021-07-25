@@ -39,7 +39,7 @@ export default props => {
     other_profile: OtherProfileData,
     account, 
   } = useSelector((state) => state.account)
-  const {showAlert, showErrorAlert, setActiveModal, updateSetReport, setCallbacks, setPopout} = props.popouts_and_modals
+  const {showAlert, showErrorAlert, setActiveModal, updateSetReport, setCallbacks, setPopout} = props.popouts_and_modals;
 
   const [typeres, setTyperes] = useState(0);
   const [id_rep, setIdRep] = useState(0);

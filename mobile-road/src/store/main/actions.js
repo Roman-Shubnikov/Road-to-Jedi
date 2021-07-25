@@ -15,7 +15,7 @@ export const accountActions = {
     setBanObject: (payload) => ({ type: accountActionTypes.SET_BAN_OBJECT, payload }),
     setRecomendations: (payload) => ({ type: accountActionTypes.SET_RECOMENDATIONS, payload }),
     setOtherProfile: (payload) => ({ type: accountActionTypes.SET_OTHER_PROFILE, payload }),
-
+    setPublicStatus: (payload) => ({ type: accountActionTypes.SET_PUBLIC_STATUS, payload }),
     
 }
 

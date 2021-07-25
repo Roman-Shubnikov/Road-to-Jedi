@@ -24,7 +24,6 @@ import {
   FormItem,
   usePlatform,
   VKCOM,
-  Textarea,
   CellButton,
 } from '@vkontakte/vkui';
 
@@ -42,7 +41,6 @@ import Tiket from '../../components/tiket';
 import OtherProfile from '../../components/other_profile'
 import Reports from '../../components/report';
 import AnswerAdded    from '../../components/AnswerAdded';
-import TestingAgents from './panels/testbyagent';
 
 //Импортируем модальные карточки
 import ModalPrometay from '../../Modals/Prometay';
@@ -130,7 +128,6 @@ var ignore_promo = false;
 export default props => {
   const dispatch = useDispatch();
   const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
-  const [popout, setPopout] = useState(null);
   const [ticket_id, setTicket] = useState(null);
   const [historyPanelsState, setHistory] = useState(['profile']);
   const [activePanel, setActivePanel] = useState('profile');
@@ -141,11 +138,11 @@ export default props => {
   const [Transfers, setTransfers] = useState({ to_id: '', count: '', comment: '', dataTrans: null});
   const [snackbar, setSnackbar] = useState(null);
   const [moneyPromo, setMoneyPromo] = useState(0);
-  const [newStatus, setNewStatus] = useState('');
   const {
     other_profile: OtherProfileData,
     account,
   } = useSelector((state) => state.account)
+  const {setPopout} = props.popouts_and_modals;
   const [typeres, setTyperes] = useState(0);
   const [id_rep, setIdRep] = useState(0);
   const platform = usePlatform()
@@ -260,33 +257,6 @@ export default props => {
     return ['default', '']
 
   }
-  const saveNewStatus = () => {
-    setPopout(<ScreenSpinner/>)
-    fetch(API_URL + "method=account.changeStatus&" + window.location.search.replace('?', ''),
-        {
-            method: 'post',
-            headers: { "Content-type": "application/json; charset=UTF-8" },
-            body: JSON.stringify({
-                'status': newStatus.trim(),
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.result) {
-              
-              setActiveModal(null)
-              setTimeout(() => {
-                  props.reloadProfile();
-                  setPopout(null);
-              }, 1000)
-            } else {
-                showErrorAlert(data.error.message)
-            }
-        })
-        .catch(err => {
-            setActiveStory('disconnect');
-        })
-}
   useEffect(() => {
     bridge.send('VKWebAppEnableSwipeBack');
     window.addEventListener('popstate', handlePopstate);
@@ -301,7 +271,7 @@ export default props => {
       window.removeEventListener('popstate', handlePopstate)
     }
   }, [handlePopstate, dispatch, goPanel])
-  const callbacks = { setPopout, goPanel, setReport, showErrorAlert, goTiket, setActiveModal, showAlert, goOtherProfile, setSnackbar, setNewStatus }
+  const callbacks = { setPopout, goPanel, setReport, showErrorAlert, goTiket, setActiveModal, showAlert, goOtherProfile, setSnackbar }
   const modal = (
     <ModalRoot
       activeModal={activeModal}
@@ -413,28 +383,6 @@ export default props => {
             }}>Закрыть</Button>
         }
       >
-      </ModalCard>
-
-      <ModalCard
-        id='statuschange'
-        onClose={() => setActiveModal(null)}
-        header='Введите новый статус'
-        subheader='Будьте креативны, но не нарушайте правила'
-        actions={[
-          <Button mode='secondary'
-          key={1}
-            size='l'
-            stretched
-            onClick={() => setActiveModal(null)}>Отмена</Button>,
-            <Button mode='primary'
-            key={2}
-            size='l'
-            stretched
-            onClick={() => saveNewStatus()}>Сохранить</Button>
-          ]
-        }
-      >
-        <Textarea maxLength="140" onChange={(e) => setNewStatus(e.currentTarget.value)} defaultValue={newStatus} />
       </ModalCard>
 
       <ModalPage
@@ -563,7 +511,6 @@ export default props => {
       id={props.id}
       activePanel={activePanel}
       modal={modal}
-      popout={popout}
       history={historyPanelsState}
       onSwipeBack={() => window.history.back()}
     >
@@ -572,11 +519,6 @@ export default props => {
       snackbar={snackbar}
       reloadProfile={props.reloadProfile}
       callbacks={callbacks} />
-
-      <TestingAgents 
-      id="testingagents"
-      callbacks={callbacks}
-      />
 
       <MYQuest id="qu"
         callbacks={callbacks} />

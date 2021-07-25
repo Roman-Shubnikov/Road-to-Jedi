@@ -117,7 +117,7 @@ export default props => {
                 <Div>
                     <Subhead weight='regular' className='SimpleCell__description'>
                         После активации данной функции Вам будут поступать в личные сообщения результаты рассмотрения вопросов
-                      </Subhead>
+                    </Subhead>
                 </Div>
             </Group>
             <Group>

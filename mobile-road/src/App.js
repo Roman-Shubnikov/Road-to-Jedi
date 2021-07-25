@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from "react-redux";
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 
 // import music from './music/Soloriver.mp3';
-import { API_URL, PERMISSIONS } from "./config";
+import { API_URL, LINK_APP, PERMISSIONS, POST_TEXTS, HISTORY_IMAGES } from "./config";
 
 import { 
   ScreenSpinner,
@@ -28,6 +28,17 @@ import {
   Alert,
   Badge,
   ModalRoot,
+  SimpleCell,
+  Avatar,
+  ModalPage,
+  ModalPageHeader,
+  IOS,
+  ANDROID,
+  Cell,
+  Header,
+  List,
+  PanelHeaderButton,
+
   } from '@vkontakte/vkui';
 
 import '@vkontakte/vkui/dist/vkui.css';
@@ -57,6 +68,13 @@ import {
   Icon28ArticleOutline,
   Icon28Profile,
   Icon28BankOutline,
+  Icon12Fire,
+  Icon16StarCircleFillYellow,
+  Icon16Verified,
+  Icon28DiamondOutline,
+  Icon24Dismiss,
+  Icon28NewsfeedOutline,
+  Icon28StoryAddOutline,
 
 } from '@vkontakte/icons'
 import { modalslist } from './modals';
@@ -126,6 +144,8 @@ const App = () => {
   const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
   const setBanObject = useCallback((payload) => dispatch(accountActions.setBanObject(payload)), [dispatch])
   const setScheme = useCallback((payload) => dispatch(accountActions.setScheme(payload)), [dispatch])
+  const [isMyMark, setIsMyMark] = useState(false);
+  const [sharing_type, setSharingType] = useState('prometay');
   const need_epic = useSelector((state) => state.views.need_epic)
   const permissions = account.permissions;
   const moderator_permission = permissions >= PERMISSIONS.special;
@@ -244,6 +264,7 @@ const App = () => {
       }
     }
   }, [account, default_scheme, setScheme])
+  
   useEffect(() => {
     AppInit();
     bridge.send('VKWebAppInit', {});
@@ -301,24 +322,66 @@ const App = () => {
         reporting={setReport.current} />
       <ModalPrometay
         id='prom'
-        onClose={() => setActiveModal(null)}
-        action={() => setActiveModal(null)} />
+        onClose={() => {setActiveModal(null);setIsMyMark(false)}}
+        action={() => setActiveModal(null)}
+        action2={isMyMark ? () => { setSharingType('prometay'); setActiveModal('share2') } : undefined} />
 
       <ModalDonut
         id='donut'
-        onClose={() => setActiveModal(null)}
-        action={() => setActiveModal(null)} />
+        onClose={() => {setActiveModal(null);setIsMyMark(false)}}
+        action={() => setActiveModal(null)}
+        action2={isMyMark ? () => { setSharingType('donut'); setActiveModal('share2') } : undefined} />
 
       <ModalVerif
         id='verif'
-        onClose={() => setActiveModal(null)}
-        action={() => setActiveModal(null)} />
+        onClose={() => {setActiveModal(null);setIsMyMark(false)}}
+        action={() => setActiveModal(null)}
+        action2={isMyMark ? () => { setSharingType('verif'); setActiveModal('share2') } : undefined} />
 
       <ModalBan
         id='ban_user'
         onClose={() => setActiveModal(null)}
         callbacks={callbacks}
       />
+      <ModalPage
+        id="share2"
+        onClose={() => setActiveModal(null)}
+        header={
+          <ModalPageHeader
+            right={platform === IOS && <Header onClick={() => setActiveModal(null)}><Icon24Dismiss /></Header>}
+            left={platform === ANDROID && <PanelHeaderButton onClick={() => setActiveModal(null)}><Icon24Dismiss /></PanelHeaderButton>}
+          >
+            Рассказать
+                  </ModalPageHeader>
+        }
+      >
+        <List>
+          <Cell
+            onClick={() => bridge.send("VKWebAppShowWallPostBox",
+              {
+                message: POST_TEXTS[sharing_type]['text'],
+                attachments: POST_TEXTS[sharing_type]['image']
+              })}
+            before={<Icon28NewsfeedOutline />}>
+            На стене
+                    </Cell>
+          <Cell before={<Icon28StoryAddOutline />}
+            onClick={() => {
+              bridge.send("VKWebAppShowStoryBox",
+                {
+                  background_type: "image",
+                  url: HISTORY_IMAGES[sharing_type]['image'],
+                  attachment: {
+                    "type": "url",
+                    "url": LINK_APP,
+                    "text": "learn_more"
+                  }
+                })
+            }}>
+            В истории
+                    </Cell>
+        </List>
+      </ModalPage>
       {modalslist}
     </ModalRoot>
   )
@@ -339,7 +402,6 @@ const App = () => {
 
               <AppRoot>
                 <SplitLayout
-              // header={!platformname && <PanelHeader separator={false} />}
               style={{ justifyContent: "center" }}
               popout={popout}
               modal={modals}>
@@ -347,7 +409,44 @@ const App = () => {
               {isDesktop.current && need_epic && (<SplitCol fixed width="280px" maxWidth="280px">
                     <Panel id='menu_epic'>
                   {hasHeader.current && <PanelHeader/>}
+                      <>
                       <Group>
+                        <SimpleCell
+                        disabled={activeStory === "profile"}
+                        style={activeStory === "profile" ? {
+                            backgroundColor: "var(--button_secondary_background)",
+                            borderRadius: 8
+                        } : {}}
+                        data-story="profile"
+                        onClick={(e) => setActiveStory(e.currentTarget.dataset.story)}
+                          description={"#" + account['id']}
+                          before={account.diamond ?
+                            <div style={{ position: 'relative', margin: 10 }}><Avatar src={account['avatar']['url']} size={40} style={{ position: 'relative' }} />
+                                <Icon28DiamondOutline width={15} height={15} className='Diamond_profile_pc' />
+                            </div> : <Avatar size={40} src={account['avatar']['url']} />}>
+                            <div style={{ display: "flex" }}>
+                                  {account['nickname'] ? account['nickname'] : `Агент Поддержки`}
+                                  {account['flash'] ?
+                                      <div className="profile_icon">
+                                          <Icon12Fire width={12} height={12} onClick={(e) => {e.stopPropagation();setActiveModal('prom');setIsMyMark(true)}} />
+                                      </div>
+                                      : null}
+                                  {account['donut'] ?
+                                      <div className="profile_icon">
+                                          <Icon16StarCircleFillYellow width={12} height={12} onClick={(e) => {e.stopPropagation();setActiveModal('donut');setIsMyMark(true)}} />
+                                      </div>
+                                      : null}
+                                  {account['verified'] ?
+                                      <div className="profile_icon_ver">
+                                          <Icon16Verified onClick={(e) => {e.stopPropagation();setActiveModal('verif');setIsMyMark(true)}} />
+                                      </div>
+                                      : null}
+                              </div>
+                          </SimpleCell>
+                          
+                      </Group>
+                      <Group>
+                        
                         <EpicItemPC
                         icon={<Icon28ArticleOutline />}
                         story="questions"
@@ -377,17 +476,8 @@ const App = () => {
                         changeActiveStory={setActiveStory}>
                           Модерация
                         </EpicItemPC>}
-                        <EpicItemPC
-                        icon={<Icon28Profile />}
-                        story="profile"
-                        activeStory={activeStory}
-                        badge={account.notif_count ? <Badge mode="prominent" /> : null}
-                        changeActiveStory={setActiveStory}>
-                        
-                          Профиль
-                        </EpicItemPC>
                       </Group>
-                      
+                      </>
                     </Panel>
                   </SplitCol>)}
 
@@ -463,6 +553,7 @@ const App = () => {
 
                       <Profile 
                       id="profile"
+                      popouts_and_modals={popouts_and_modals}
                       reloadProfile={fetchAccount}
                       scheme={scheme}
                       default_scheme={default_scheme}
@@ -531,8 +622,8 @@ const App = () => {
                       id="profile"
                       reloadProfile={fetchAccount}
                       scheme={scheme}
-                      default_scheme={default_scheme}
-                      popout={popout} />
+                      popouts_and_modals={popouts_and_modals}
+                      default_scheme={default_scheme} />
 
                       <Moderation 
                       id="moderation"

@@ -106,6 +106,8 @@ export const accountReducer = (state = initalStateAccount, action) => {
             return { ...state, recomendations: action.payload }
         case accountActionTypes.SET_MYQUESTIONS:
             return { ...state, myQuestions: action.payload }
+        case accountActionTypes.SET_PUBLIC_STATUS:
+            return { ...state, account: {...state.account, publicStatus: action.payload}}
         default: 
             return state
 

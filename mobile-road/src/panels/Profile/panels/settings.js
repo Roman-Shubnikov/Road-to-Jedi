@@ -12,8 +12,6 @@ import {
     PanelHeaderBack,
     Switch,
     ScreenSpinner, 
-    IOS,
-    usePlatform,
     } from '@vkontakte/vkui';
 
     
@@ -21,9 +19,7 @@ import {
   Icon28DoneOutline,
   Icon28CoinsOutline,
   Icon28PaletteOutline,
-  // Icon28TargetOutline,
   Icon28InfoOutline,
-  Icon28FavoriteOutline,
   Icon28Notifications,
   Icon28GestureOutline,
 
@@ -33,7 +29,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { API_URL, PERMISSIONS } from '../../../config';
 import { viewsActions } from '../../../store/main';
 
-const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
 export default props => {
   const dispatch = useDispatch();
@@ -44,7 +39,6 @@ export default props => {
   const { setPopout, showErrorAlert, goPanel } = props.callbacks;
   const permissions = account.permissions;
   const agent_permission = permissions >= PERMISSIONS.agent;
-  const platform = usePlatform();
 
   const notifyMenager = (value) => {
     fetch(API_URL + "method=settings.set&" + window.location.search.replace('?', ''),
@@ -224,13 +218,6 @@ export default props => {
           disabled
           indicator={<Counter>{account.balance}</Counter>}
           before={<Icon28CoinsOutline />}>Баланс</SimpleCell>}
-
-        {(platform === IOS && platformname) ? null :
-          <SimpleCell
-            expandable
-            href="https://vk.com/jedi_road?source=description&w=donut_payment-188280516"
-            target="_blank" rel="noopener noreferrer"
-            before={<Icon28FavoriteOutline />}>VK Donut</SimpleCell>}
       </Group>
       <Group>
 
