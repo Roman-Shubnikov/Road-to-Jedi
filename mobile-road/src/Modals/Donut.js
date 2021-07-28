@@ -14,8 +14,8 @@ export default class Donut extends React.Component {
                 id={this.props.id}
                 onClose={this.props.onClose}
                 icon={<Icon28FavoriteCircleFillYellow width={72} height={72} />}
-                subheader={<span>Donut — отметка, выдаваемая Агентам за поддержку проекта.<br /><br />
-                        Агенты, которые поддержали проект,
+                subheader={<span>Звезда — отметка, выдаваемая Агентам за поддержку проекта.<br /><br />
+                        Агенты, которые поддержали проект через раздел "Ценности",
                         получают отметку, на весь период подписки. По
                         истечении данного периода отметка пропадает.</span>}
                 actions={this.props.action2 ? [

@@ -1532,7 +1532,8 @@ switch ($method) {
 		if ($res) {
 			$account->Verification($res[0]['aid']);
 			$object = [
-				'type' => 'verification_approve'
+				'type' => 'verification_approve',
+				'object' => 0
 			];
 			$sysnotifications->send($res[0]['aid'], "Запрос на верификацию одобрен", $object);
 		}
@@ -1543,7 +1544,8 @@ switch ($method) {
 		$res = $Connect->db_get("SELECT id, aid, title, descverf, time FROM request_verification WHERE id=?", [$id_request]);
 		if ($res) {
 			$object = [
-				'type' => 'verification_demiss'
+				'type' => 'verification_demiss',
+				'object' => 0,
 			];
 			$sysnotifications->send($res[0]['aid'], "Запрос на верификацию отклонён", $object);
 		}

@@ -50,9 +50,9 @@ export const DonutTooltip = props => (
     offsetX={props.offsetX}
     onClose={props.onClose}
     header={<span>Миром правят <LinkHandler href={LINKS.donut}>
-        пончики
+        звезды
         </LinkHandler></span>}
-    text="Агент поддерживает официальное сообщество платной подпиской."
+    text='Агент поддерживает проект платной подпиской через раздел "Ценности" внутреннего магазина.'
     mode='light'
     >
         {props.children}

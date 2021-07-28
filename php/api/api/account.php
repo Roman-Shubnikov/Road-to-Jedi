@@ -63,7 +63,8 @@ class Account {
 		
 		$notification = 'Вы подали заявку на верификацию';
 		$object = [
-			'type' => 'verification_send'
+			'type' => 'verification_send',
+			'object' => 0,
 		];
 		$this->SYSNOTIF->send( $aid, $notification, $object);
 		return $this->Connect->query("INSERT INTO request_verification (vk_id,aid,title,descverf,time) VALUES (?,?,?,?,?)", 
