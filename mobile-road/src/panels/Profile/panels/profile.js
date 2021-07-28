@@ -64,6 +64,7 @@ export default props => {
     const [fetching, setFetching] = useState(false);
     const [editingStatus, setEdititingStatus] = useState(false);
     const [originalStatus, setOriginalStatus] = useState('');
+    const [publicStatus, setPublicStatus] = useState('');
     const [fetchdata, setFetchdata] = useState(null);
     const [moderationQuestions, setQuestions] = useState(null)
     const levels = account.levels;
@@ -100,21 +101,24 @@ export default props => {
     const statusMenager = () => {
         if(!editingStatus){
           setEdititingStatus(true);
-          setOriginalStatus(account.publicStatus);
+            setOriginalStatus(account.publicStatus||'');
+            setPublicStatus(account.publicStatus||'');
         } else{
           setPopout(<ScreenSpinner/>);
           setEdititingStatus(false)
+          
           fetch(API_URL + 'method=account.changeStatus&' + window.location.search.replace('?', ''), {
             method: 'post',
             headers: { "Content-type": "application/json; charset=UTF-8" },
             body: JSON.stringify({
-                'status': account.publicStatus.trim(),
+                'status': publicStatus.trim(),
             })
         })
           .then(res => res.json())
           .then(data => {
               if (data.result) {
-                  setPopout(null)
+                dispatch(accountActions.setPublicStatus(publicStatus))
+                setPopout(null)
               } else {
                   showErrorAlert(data.error.message)
               }
@@ -184,19 +188,19 @@ export default props => {
                     {agent_permission && <Group>
                         {editingStatus ? 
                         <FormLayout>
-                            <FormItem bottom={account.publicStatus.trim().length + '/' + PUBLIC_STATUS_LIMIT}>
+                            <FormItem bottom={publicStatus.trim().length + '/' + PUBLIC_STATUS_LIMIT}>
                                 <Textarea 
                                 placeholder="Введите статус тут..."
                                 maxLength={PUBLIC_STATUS_LIMIT}
-                                value={account.publicStatus}
-                                onChange={e => {dispatch(accountActions.setPublicStatus(e.currentTarget.value))}}
+                                value={publicStatus}
+                                onChange={e => {setPublicStatus(e.currentTarget.value)}}
                                 />
                             </FormItem>
                             <FormItem>
                                 <div style={{display: 'flex'}}>
                                     <Button
                                     style={{marginRight: 5}}
-                                    onClick={() => {dispatch(accountActions.setPublicStatus(originalStatus));setEdititingStatus(false)}}
+                                    onClick={() => {setEdititingStatus(false);setPublicStatus(originalStatus)}}
                                     mode='secondary'
                                     size='s'>
                                         Отменить
