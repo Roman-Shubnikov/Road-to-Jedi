@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 
 import { 
     Group,
@@ -28,9 +28,8 @@ import {
 } from '@vkontakte/icons';
 
 // import Don from '../images/donut.svg';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { API_URL, AVATARS_URL } from '../../../config';
-import { viewsActions } from '../../../store/main';
 const donutAvatars = [
   "1001.png",
   "1002.png",
@@ -51,15 +50,13 @@ const blueBackground = {
   };
 
 export default props => {
-  const dispatch = useDispatch();
   const [snackbar, setSnackbar] = useState(null);
   const { account } = useSelector((state) => state.account)
   const [selectedAvatar, selectAvatar] = useState(0);
   const [hideDonut, setHidedonut] = useState(() => (account.settings.hide_donut))
   const [colorchangeDonut, setColorchangeDonut] = useState(() => (account.settings.change_color_donut))
-  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
   const { setPopout, showErrorAlert } = props.callbacks;
-
+  const { goDisconnect } = props.navigation;
   const saveSettings = (setting, value) => {
     setPopout(<ScreenSpinner />)
     fetch(API_URL + "method=settings.set&" + window.location.search.replace('?', ''),
@@ -82,9 +79,7 @@ export default props => {
           showErrorAlert(data.error.message);
         }
       })
-      .catch(err => {
-        setActiveStory('disconnect');
-      })
+      .catch(goDisconnect)
   }
 
   const hide_donut = (check) => {
@@ -134,9 +129,7 @@ export default props => {
             </Snackbar>);
         }
       })
-      .catch(err => {
-        setActiveStory('disconnect');
-      })
+      .catch(goDisconnect)
   }
   return (
     <Panel id={props.id}>

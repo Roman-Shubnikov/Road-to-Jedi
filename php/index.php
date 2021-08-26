@@ -1284,8 +1284,6 @@ switch ($method) {
 
 	case 'shop.buyRecommendations':
 		$balance = $users->info['money'];
-
-		if ($users->info['diamond']) Show::error(1014);
 		if ($balance < CONFIG::RECOMMENDATIONS_PRICE) Show::error(1002);
 		$Connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$balance - CONFIG::RECOMMENDATIONS_PRICE, $user_id]);
 		Show::response($recommended->add($users->id));

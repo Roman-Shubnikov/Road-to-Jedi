@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 
 import { 
@@ -31,7 +31,6 @@ import {
     PanelSpinner,
     usePlatform,
     IOS,
-    FormStatus,
     } from '@vkontakte/vkui';
 
 
@@ -53,8 +52,7 @@ import {
 } from '@vkontakte/icons';
 
 import UserTopC from '../../../components/userTop';
-import { useDispatch, useSelector } from 'react-redux';
-import { viewsActions } from '../../../store/main';
+import { useSelector } from 'react-redux';
 import { API_URL, AVATARS_URL, LINKS_VK } from '../../../config';
 import { enumerate } from '../../../Utils';
 import { isEmptyObject } from 'jquery';
@@ -102,7 +100,6 @@ const avatars = [
     "39.png",
     "40.png",
     "41.png",
-    // "42.png",
     
 ]
 
@@ -115,9 +112,9 @@ export default props => {
   const platform = usePlatform();
 
   const getCurrPanel = () => {
-    if(activeTab === 'market') return <Market callbacks={props.callbacks} reloadProfile={props.reloadProfile} />
-    if(activeTab === 'invoices') return <Invoices callbacks={props.callbacks} reloadProfile={props.reloadProfile} setActivetab={setActivetab} />
-    if(activeTab === 'treasures') return <Treasures callbacks={props.callbacks} reloadProfile={props.reloadProfile} />
+    if(activeTab === 'market') return <Market navigation={props.navigation} callbacks={props.callbacks} reloadProfile={props.reloadProfile} />
+    if(activeTab === 'invoices') return <Invoices navigation={props.navigation} callbacks={props.callbacks} reloadProfile={props.reloadProfile} setActivetab={setActivetab} />
+    if(activeTab === 'treasures') return <Treasures navigation={props.navigation} callbacks={props.callbacks} reloadProfile={props.reloadProfile} />
   }
   return(
     <Panel id={props.id}>
@@ -147,36 +144,14 @@ export default props => {
         </Tabs>
       </Group>
       {getCurrPanel()}
-      {props.snackbar}
     </Panel>
   )
 }
 const Treasures = props => {
   const [products, setProducts] = useState(null);
-  const dispatch = useDispatch();
-  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
   const { setSnackbar } = props.callbacks;
-  const getProducts = () => {
-    fetch(API_URL + `method=shop.getProducts&` + window.location.search.replace('?', ''))
-      .then(data => data.json())
-      .then(data => {
-        if (data.result) {
-          setProducts(data.response)
-        } else {
-          setSnackbar(
-            <Snackbar
-              layout="vertical"
-              onClose={() => setSnackbar(null)}
-              before={<Icon20CancelCircleFillRed width={24} height={24} />}
-            >
-              {data.error.message}
-            </Snackbar>);
-        }
-      })
-      .catch(err => {
-        setActiveStory('disconnect');
-      })
-  }
+  const { goDisconnect } = props.navigation;
+  const fetched = useRef(false);
   const getCost = (price, discount, enum_list) => {
     let total_price = price - discount;
     let price_show;
@@ -188,15 +163,33 @@ const Treasures = props => {
     return price_show
   }
   useEffect(() => {
-    getProducts()
-  }, [])
+    const getProducts = () => {
+      fetch(API_URL + `method=shop.getProducts&` + window.location.search.replace('?', ''))
+        .then(data => data.json())
+        .then(data => {
+          if (data.result) {
+            setProducts(data.response)
+            fetched.current = true
+          } else {
+            setSnackbar(
+              <Snackbar
+                layout="vertical"
+                onClose={() => setSnackbar(null)}
+                before={<Icon20CancelCircleFillRed width={24} height={24} />}
+              >
+                {data.error.message}
+              </Snackbar>);
+          }
+        })
+        .catch(goDisconnect)
+    }
+    if(!fetched.current){
+      getProducts()
+    }
+    
+  }, [setSnackbar, goDisconnect])
   return(
     <>
-    <Group>
-      <FormStatus>
-        В данный момент магазин закрыт!
-      </FormStatus>
-    </Group>
     <Group>
       <List>
         {products ? !isEmptyObject(products) ? 
@@ -226,6 +219,7 @@ const Invoices = props => {
   const account = useSelector((state) => state.account.account);
   const platform = usePlatform();
   const { goPanel, setActiveModal } = props.callbacks;
+  const { activeStory } = useSelector((state) => state.views)
   
   const genereCardId= (nickname) => {
     nickname = String(nickname)
@@ -264,14 +258,14 @@ const Invoices = props => {
         </Tappable>
         
         <Tappable
-        onClick={() => goPanel('promocodes')}>
+        onClick={() => goPanel(activeStory, 'promocodes', true)}>
           <TabbarItem selected
           text='Промокоды'>
             <Icon28TicketOutline />
           </TabbarItem>
         </Tappable>
         <Tappable 
-        onClick={() => setActiveModal('send')}>
+        onClick={() => setActiveModal('transfer_send')}>
           <TabbarItem selected
           text='Перевести'>
             <Icon28UserOutgoingOutline />
@@ -305,11 +299,9 @@ const Invoices = props => {
   )
 }
 const Market = props => {
-  const dispatch = useDispatch();
-  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
   const account = useSelector((state) => state.account.account);
   const { setPopout, setSnackbar } = props.callbacks;
-
+  const { goDisconnect } = props.navigation;
   const [selectedAvatar, setSelectedAvatar] = useState(0);
   const [changed_id, setChangedId] = useState('');
   const [fantom_count, setFantoms] = useState(5);
@@ -391,10 +383,7 @@ const Market = props => {
             </Snackbar>);
         }
       })
-      .catch(err => {
-        console.log(err)
-        setActiveStory('disconnect');
-      })
+      .catch(goDisconnect)
 
   }
   return (

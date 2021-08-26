@@ -15,7 +15,7 @@ import {
 
     } from '@vkontakte/vkui';
 import { API_URL } from '../config';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { viewsActions } from '../store/main';
 
 const reasons = [
@@ -31,7 +31,8 @@ const reasons = [
 export default props => {
     const dispatch = useDispatch();
     const [comment, setComment] = useState('');
-    const [typerep, setTyperep] = useState('');
+    const [typeReport, setTyperep] = useState('');
+    const {source: sourceReport, type_rep: nameReport} = useSelector(state => state.Reports)
     
     const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
     const { setPopout, showErrorAlert } = props.callbacks;
@@ -42,9 +43,9 @@ export default props => {
                 headers: {"Content-type": "application/json; charset=UTF-8"},
                     // signal: controllertime.signal,
                 body: JSON.stringify({
-                    'type': props.typeres, // Место нахождение материала
-                    'name': Number(typerep) + 1, // Причина
-                    'id_rep': props.id_rep, 
+                    'type': nameReport, // Место нахождение материала
+                    'name': Number(typeReport) + 1, // Причина
+                    'id_rep': sourceReport, 
                     'comment': comment,
                 })
                 })
@@ -83,7 +84,7 @@ export default props => {
 
               return valid
             }else{
-                if(typerep === "8") return ['error', 'При указании причины "Другое", обязательно укажите комментарий']
+                if(typeReport === "8") return ['error', 'При указании причины "Другое", обязательно укажите комментарий']
             }
             return ['default', '']
 
@@ -120,8 +121,8 @@ export default props => {
                 <FormItem>
                     <Button 
                     disabled={(validateComment(comment)[0] === 'error') ||
-                     (comment === "" && typerep === "8") || 
-                     (typerep !== "8" ? false : validateComment(comment)[0] !== 'valid')}
+                     (comment === "" && typeReport === "8") || 
+                     (typeReport !== "8" ? false : validateComment(comment)[0] !== 'valid')}
                     size='l'
                     stretched
                     type='submit'

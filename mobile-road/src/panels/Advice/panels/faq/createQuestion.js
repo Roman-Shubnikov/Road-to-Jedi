@@ -31,7 +31,8 @@ export default props => {
     const [check2, setCheck2] = useState(false);
     const [category_id, setCategory_id] = useState('');
     const { categories } = useSelector((state) => state.Faq)
-    const { showErrorAlert, setActiveStory } = props.callbacks;
+    const { showErrorAlert } = props.callbacks;
+    const { goDisconnect } = props.navigation;
     const addQuestion = () => {
         fetch(API_URL + "method=faq.addQuestion&" + window.location.search.replace('?', ''),
         {
@@ -65,10 +66,7 @@ export default props => {
                 showErrorAlert(data.error.message)
             }
             })
-            .catch(err => {
-                setActiveStory('disconnect')
-
-            })
+            .catch(goDisconnect)
     }
     return(
         <Panel id={props.id}>

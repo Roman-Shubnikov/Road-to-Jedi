@@ -17,7 +17,7 @@ import Message from '../../../components/message'
 import avaUser from '../../../images/user.png'
 import avaAgent from '../../../images/schemeagent.jpg'
 import { useDispatch, useSelector } from 'react-redux';
-import { accountActions, viewsActions } from '../../../store/main';
+import { accountActions } from '../../../store/main';
 import { API_URL } from '../../../config';
 
 const themes = [
@@ -28,12 +28,12 @@ const themes = [
 
 export default props => {
     const dispatch = useDispatch();
-    const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
     const { account, schemeSettings } = useSelector((state) => state.account)
     const { default_scheme } = schemeSettings;
     const setScheme = useCallback((payload) => dispatch(accountActions.setScheme(payload)), [dispatch])
     const { setPopout, showErrorAlert } = props.callbacks;
     const platform = usePlatform();
+    const { goDisconnect } = props.navigation;
 
 
     const ChangeScheme = (e) => {
@@ -62,10 +62,7 @@ export default props => {
                     showErrorAlert(data.error.message)
                 }
             })
-            .catch(err => {
-                setActiveStory('disconnect')
-
-            })
+            .catch(goDisconnect)
 
     }
     return (

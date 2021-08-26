@@ -24,7 +24,8 @@ export default props => {
     
     // const [liked, setLike] = useState(false);
     // const [liked2, setLike2] = useState(false);
-    const { showErrorAlert, setActiveStory } = props.callbacks;
+    const { showErrorAlert } = props.callbacks;
+    const { goDisconnect } = props.navigation;
     const getQuestion = () => {
         fetch(API_URL + "method=faq.getQuestionById&" + window.location.search.replace('?', ''),
         {
@@ -42,10 +43,7 @@ export default props => {
                 showErrorAlert(data.error.message)
             }
             })
-            .catch(err => {
-                setActiveStory('disconnect')
-
-            })
+            .catch(goDisconnect)
     }
     // const likeMenager = (id, pos) => {
     //     if(id === 1){

@@ -271,7 +271,7 @@ switch ($input['notification_type']) {
         $order_id = $base_notify['order_id'];
         $receiver_id = $base_notify['receiver_id'];
         if ($input['status'] == 'chargeable') {
-            $reciver_info = getUserByVkId($base_notify['receiver_id']);
+            $receiver_info = getUserByVkId($receiver_id);
             $item = Products::getProductByName($input['item']);
             $res = $connect->query("INSERT INTO 
             purchases_voices 
@@ -307,7 +307,7 @@ switch ($input['notification_type']) {
             if(str_starts_with($item['item_name'], 'money_')) {
                 $pre_cost = explode('_', $item['item_name']);
                 $cost = intval(end($pre_cost));
-                $connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$receiver_id['money']+$cost, $reciver_id]);
+                $connect->query("UPDATE users SET money=? WHERE vk_user_id=?", [$receiver_info['money']+$cost, $receiver_id]);
             }
             if($item_name == 'subscription_donut') {
                 $connect->query("UPDATE users SET donut=? WHERE vk_user_id=?", 

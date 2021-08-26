@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     CellButton,
     Group,
@@ -16,7 +16,7 @@ import {
 
 } from '@vkontakte/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { faqActions, viewsActions } from '../../../../store/main';
+import { faqActions } from '../../../../store/main';
 import { API_URL, PERMISSIONS } from '../../../../config';
 export default props => {
     const dispatch = useDispatch();
@@ -24,14 +24,15 @@ export default props => {
     const [editing, setEditing] = useState(false);
     const [loading, setLoading] = useState(true);
     const setQuestions = (questions) => dispatch(faqActions.setQuestions(questions));
-    const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
     const { showErrorAlert, goPanel } = props.callbacks;
     const { account } = useSelector((state) => state.account)
+    const { activeStory } = useSelector((state) => state.views)
+    const { goDisconnect } = props.navigation;
     const permissions = account.permissions;
     const moderator_permission = permissions >= PERMISSIONS.admin;
     const goQuestion = (id) => {
         dispatch(faqActions.setActiveQuestion(id))
-        goPanel('faqQuestion')
+        goPanel(activeStory, 'faqQuestion', true)
     }
     const getQuestions = () => {
         fetch(API_URL + "method=faq.getQuestionsByCategory&" + window.location.search.replace('?', ''),
@@ -51,10 +52,7 @@ export default props => {
                 showErrorAlert(data.error.message)
             }
             })
-            .catch(err => {
-                setActiveStory('disconnect')
-
-            })
+            .catch(goDisconnect)
     }
     useEffect(() => {
         if(activeCategory !== null){
@@ -79,10 +77,7 @@ export default props => {
             showErrorAlert(data.error.message)
         }
         })
-        .catch(err => {
-            setActiveStory('disconnect')
-
-        })
+        .catch(goDisconnect)
     }
     const Questions = () => {
         if(!questions || loading) return <PanelSpinner />

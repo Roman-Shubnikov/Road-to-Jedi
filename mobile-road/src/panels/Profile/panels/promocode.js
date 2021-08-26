@@ -19,13 +19,11 @@ import {
 import Icon20CancelCircleFillRed    from '@vkontakte/icons/dist/20/cancel_circle_fill_red';
 import Icon16CheckCircle            from '@vkontakte/icons/dist/16/check_circle';
 import Icon28ScanViewfinderOutline  from '@vkontakte/icons/dist/28/scan_viewfinder_outline';
-import { useDispatch } from 'react-redux';
-import { viewsActions } from '../../../store/main';
 import { API_URL } from '../../../config';
 import { isEmptyObject } from 'jquery';
 
 const queryString = require('query-string');
-const hash = queryString.parse(window.location.hash);
+
 
 const greenBackground = {
     backgroundColor: 'var(--dynamic_green)'
@@ -36,16 +34,13 @@ var promoInfo = {
   activate: 'activate',
 
 }
-var ignore_promo = false;
 export default props => {
-  const dispatch = useDispatch();
-  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
   const [promocode, setPromocode] = useState('');
-  const [snackbar, setSnackbar] = useState(null);
-  const { setActiveModal } = props.callbacks;
+  const { setActiveModal, setSnackbar } = props.callbacks;
+  const hash = queryString.parse(window.location.hash);
+  const { goDisconnect } = props.navigation;
 
-
-  const setErrorSnackbar = (text) => {
+  const setErrorSnackbar = useCallback((text) => {
     setSnackbar(
       <Snackbar
         layout="vertical"
@@ -55,7 +50,7 @@ export default props => {
         {text}
       </Snackbar>
     )
-  }
+  }, [setSnackbar])
   const promoMenager = (type) => {
     let method = (type === promoInfo.check) ? "method=shop.checkPromo&" : "method=shop.activatePromo&";
     fetch(API_URL + method + window.location.search.replace('?', ''),
@@ -100,9 +95,7 @@ export default props => {
 
         }
       })
-      .catch(err => {
-        setActiveStory('disconnect');
-      })
+      .catch(goDisconnect)
   }
   const validatePromo = (promo) => {
     let valid = ['default', '']
@@ -140,14 +133,14 @@ export default props => {
   }
 
   useEffect(() => {
-    if (hash.promo && !ignore_promo) {
+    if (hash.promo) {
       if (/^[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/ui.test(hash.promo)) {
         setPromocode(hash.promo)
       } else {
         setErrorSnackbar("Некорректный QR-код");
       }
     }
-  }, [setPromocode])
+  }, [setPromocode, setErrorSnackbar, hash.promo])
 
   return (
     <Panel id={props.id}>
@@ -213,9 +206,6 @@ export default props => {
           </FormItem>
         </FormLayout>
       </Group>
-
-
-      {snackbar}
     </Panel>
   )
 }

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import bridge from '@vkontakte/vk-bridge';
 import {API_URL} from '../../../config';
 
@@ -20,12 +20,10 @@ import {
     Subhead,
 
     } from '@vkontakte/vkui';
-import { viewsActions } from '../../../store/main';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 export default props => {
-    const dispatch = useDispatch();
-    const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
+    const { goDisconnect } = props.navigation;
     const [title, setTitle] = useState('');
     const [text, setText] = useState('');
     const { account } = useSelector((state) => state.account)
@@ -53,9 +51,7 @@ export default props => {
                     showErrorAlert(data.error.message);
                 }
             })
-            .catch(err => {
-                setActiveStory('disconnect');
-            })
+            .catch(goDisconnect)
     }
     const setNotify = (check) => {
         check = check.currentTarget.checked;
@@ -92,9 +88,7 @@ export default props => {
                     showErrorAlert(data.error.message)
                 }
             })
-            .catch(err => {
-                dispatch(viewsActions.setActiveStory('disconnect'))
-            })
+            .catch(goDisconnect)
     }
 
     return(

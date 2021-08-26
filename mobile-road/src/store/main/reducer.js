@@ -1,3 +1,4 @@
+import { viewsStructure } from "../../config";
 import {
     accountActionTypes, 
     viewsActionTypes, 
@@ -28,7 +29,11 @@ const initalStateViews = {
     scheme: "bright_light",
     default_scheme: "bright_light",
     activeStory: 'loading',
+    activePanel: 'load',
+    historyPanels: [{view: viewsStructure.Questions.navName, panel: 'questions'}],
+    snackbar: null,
     need_epic: true,
+    historyPanelsView: ['questions'],
 }
 const initalStateTickets = {
     comment: '',
@@ -36,6 +41,7 @@ const initalStateTickets = {
     ticketsCurrent: null,
     ticketInfo: {},
     offset: 0,
+    current_id: 0,
 }
 const initalStateModeration = {
     moderationData: {
@@ -117,8 +123,17 @@ export const viewsReducer = (state = initalStateViews, action) => {
     switch(action.type) {
         case viewsActionTypes.SET_ACTIVE_STORY:
             return {...state, activeStory: action.payload}
+        case viewsActionTypes.SET_ACTIVE_PANEL:
+            return {...state, activePanel: action.payload}
+        case viewsActionTypes.SET_ACTIVE_SCENE:
+            return {...state, activePanel: action.payload.panel, activeStory: action.payload.story}
+        case viewsActionTypes.SET_HISTORY:
+            let viewHistory = action.payload.map((obj, i) => obj.panel)
+            return {...state, historyPanels: action.payload, historyPanelsView: viewHistory}
         case viewsActionTypes.SET_NEED_EPIC:
             return {...state, need_epic: action.payload}
+        case viewsActionTypes.SET_SNACKBAR:
+            return {...state, snackbar: action.payload}
         default: 
             return state
     }
@@ -134,6 +149,8 @@ export const ticketsReducer = (state = initalStateTickets, action) => {
             return { ...state, ticketInfo: action.payload }
         case tiketsActionTypes.SET_OFFSET:
             return { ...state, offset: action.payload }
+        case tiketsActionTypes.SET_TICKET_ID:
+            return { ...state, current_id: action.payload }
         default:
             return state
     }

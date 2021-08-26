@@ -43,6 +43,7 @@ var loadingContent = false;
 
 export default props => {
     const dispatch = useDispatch();
+    const { activeStory } = useSelector((state) => state.views)
     const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
     const [ShowBanner, setShowBanner] = useState(true);
     const [fetching, setFetching] = useState(false);
@@ -199,7 +200,7 @@ export default props => {
             {account.generator ?
                 <Group>
                     <Div>
-                        <Button onClick={() => goPanel('new_ticket')}
+                        <Button onClick={() => {goPanel(activeStory, 'new_ticket', true)}}
                             size="l"
                             mode="outline"
                             stretched>Новый вопрос</Button>

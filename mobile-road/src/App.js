@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from "react-redux";
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 
 // import music from './music/Soloriver.mp3';
-import { API_URL, LINK_APP, PERMISSIONS, POST_TEXTS, HISTORY_IMAGES } from "./config";
+import { API_URL, PERMISSIONS, viewsStructure, SPECIAL_NORM } from "./config";
 
 import { 
   ScreenSpinner,
@@ -30,35 +30,40 @@ import {
   ModalRoot,
   SimpleCell,
   Avatar,
-  ModalPage,
-  ModalPageHeader,
-  IOS,
-  ANDROID,
-  Cell,
-  Header,
-  List,
-  PanelHeaderButton,
+  Button,
+  ModalCard,
 
   } from '@vkontakte/vkui';
-
 import '@vkontakte/vkui/dist/vkui.css';
 import './styles/style.css';
-import ModalComment from './Modals/Comment';
-import ModalPrometay from './Modals/Prometay';
-import ModalDonut from './Modals/Donut';
-import ModalBan from './Modals/Ban';
-import ModalVerif from './Modals/Verif'
-import {accountActions, viewsActions} from './store/main'
+import ModalComment         from './Modals/Comment';
+import ModalPrometay        from './Modals/Prometay';
+import ModalDonut           from './Modals/Donut';
+import ModalBan             from './Modals/Ban';
+import ModalVerif           from './Modals/Verif'
+import { 
+  ModalShare, 
+  ModalShare2 
+}                           from "./Modals/Share";
+import ModalFantoms         from './Modals/Fantoms';
+import { 
+  ModalTransfers, 
+  ModalTransferCard, 
+  ModalTransferCardNotify } from './Modals/Transfers';
+import { 
+  ShowQR, 
+  InvalidQR, 
+  ValidQR 
+}                           from './Modals/QR';
+
+import {accountActions, reportsActions, ticketActions, viewsActions} from './store/main'
 // Импортируем панели
 import Questions      from './panels/questions/main';
 import Advice         from './panels/Advice/main';
 import Top            from './panels/topUsers/main';
-import Notification   from './panels/notify/main';
 import Profile        from './panels/Profile/main';
-// import Start          from './panels/Start/main';
 import Banned         from './panels/Banned/main';
 import LoadingScreen  from './panels/Loading/main';
-import Unsupport      from './panels/Unsupport/main';
 import Disconnect     from './panels/Disconnect/main';
 import Moderation     from './panels/Moderation/main';
 
@@ -72,21 +77,19 @@ import {
   Icon16StarCircleFillYellow,
   Icon16Verified,
   Icon28DiamondOutline,
-  Icon24Dismiss,
-  Icon28NewsfeedOutline,
-  Icon28StoryAddOutline,
+  Icon28SortOutline,
 
 } from '@vkontakte/icons'
 import { modalslist } from './modals';
 import EpicItemPC from './components/EpicItem';
 import { isEmptyObject } from 'jquery';
-import { alertCreator, errorAlertCreator, setActiveModalCreator } from './Utils';
+import { alertCreator, errorAlertCreator, setActiveModalCreator, goOtherProfileCreator, enumerate } from './Utils';
 
 
 const queryString = require('query-string');
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 // const parsedHash = queryString.parse(window.location.search.replace('?', ''));
-const hash = queryString.parse(window.location.hash);
+
 
 function isEmpty(obj) {
   for (let key in obj) {
@@ -100,7 +103,6 @@ var SMALL_TABLET_SIZE = 768;
 var MOBILE_SIZE = 320;
 var MOBILE_LANDSCAPE_HEIGHT = 414;
 var MEDIUM_HEIGHT = 720;
-var ignore_promo = false;
 
 
 function calculateAdaptivity(windowWidth, windowHeight) {
@@ -132,18 +134,37 @@ function calculateAdaptivity(windowWidth, windowHeight) {
   };
 }
 
+const scheme_params = {
+  bright_light: { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" },
+  space_gray: { "status_bar_style": "light", "action_bar_color": "#19191A", 'navigation_bar_color': "#19191A" }
+}
+var adsCounter = 0;
+var backTimeout = false;
 const App = () => {
   const [popout, setPopout] = useState(() => <ScreenSpinner/>);
   const [LoadWebView, setLoadWebView] = useState(false);
   const [activeModal, setModal] = useState(null);
   const [modalHistory, setModalHistory] = useState(null);
+  const [Transfers, setTransfers] = useState(null);
+  const [Transfer, setTransfer] = useState(
+    {
+      avatar: 1,
+      text: '',
+      comment: '', 
+    }
+  )
+  const [moneyPromo, setMoneyPromo] = useState(0);
   const dispatch = useDispatch();
-  const { account, schemeSettings } = useSelector((state) => state.account)
+  const { account, schemeSettings, other_profile: OtherProfileData, } = useSelector((state) => state.account)
   const { scheme, default_scheme } = schemeSettings;
-  const activeStory = useSelector((state) => state.views.activeStory)
-  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
+  const { activeStory, historyPanels, snackbar, activePanel } = useSelector((state) => state.views)
+  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
+  const setActiveScene = useCallback((story, panel) => dispatch(viewsActions.setActiveScene(story, panel)), [dispatch]);
+  const setHistoryPanels = useCallback((history) => dispatch(viewsActions.setHistory(history)), [dispatch]);
   const setBanObject = useCallback((payload) => dispatch(accountActions.setBanObject(payload)), [dispatch])
+  const setSnackbar = useCallback((payload) => dispatch(viewsActions.setSnackbar(payload)), [dispatch])
   const setScheme = useCallback((payload) => dispatch(accountActions.setScheme(payload)), [dispatch])
+  const [ignoreOtherProfile, setIgnoreOtherProfile] = useState(false);
   const [isMyMark, setIsMyMark] = useState(false);
   const [sharing_type, setSharingType] = useState('prometay');
   const need_epic = useSelector((state) => state.views.need_epic)
@@ -151,12 +172,85 @@ const App = () => {
   const moderator_permission = permissions >= PERMISSIONS.special;
   const agent_permission = permissions >= PERMISSIONS.agent;
   const comment_special = useSelector((state) => state.tickets.comment)
-  // const [setReport, updateSetReport] = useState(() => undefined)
-  const [callbacks, setCallbacks] = useState({});
-  const setReport = useRef(null);
-  const updateSetReport = (func) => {
-    setReport.current = func;
+  const hash = queryString.parse(window.location.hash);
+  const setHash = (hash) => {
+    if(window.location.hash !== ''){
+      bridge.send("VKWebAppSetLocation", {"location": hash});
+      window.location.hash = hash
+    }
   }
+  const goPanel = useCallback((view, panel, forcePanel=false, replaceState=false) => {
+    
+    const checkVisitedView = (view) => {
+      let history = [...historyPanels];
+      history.reverse();
+      let index = history.findIndex(item => item.view === view)
+      if(index !== -1) {
+       return history.length - index
+      } else {
+        return null;
+      }
+    }
+    const historyChange = (history, view, panel, replaceState) => {
+      if(replaceState){
+        history.pop();
+        history.push({view, panel });
+        window.history.replaceState({ view, panel }, panel);
+      } else {
+        history.push({view, panel });
+        window.history.pushState({ view, panel }, panel);
+      }
+      return history;
+    }
+    if(view === null) view = activeStory;
+    let history = [...historyPanels];
+    if(forcePanel){
+      history = historyChange(history, view, panel, replaceState)
+    }else{
+      let index = checkVisitedView(view);
+      if(index !== null){
+        let new_history = history.slice(0, index);
+        history = new_history
+        window.history.pushState({ view, panel }, panel);
+        ({view, panel} = history[history.length - 1])
+      } else {
+        history = historyChange(history, view, panel, replaceState)
+      }
+    }
+    setHistoryPanels(history);
+    setActiveScene(view, panel)
+    bridge.send('VKWebAppEnableSwipeBack');
+  }, [setActiveScene, historyPanels, activeStory, setHistoryPanels])
+  const goDisconnect = () => {
+    goPanel(viewsStructure.Disconnect.navName, viewsStructure.Disconnect.panels.homepanel);
+  }
+  const goBack = useCallback(() => {
+    let history = [...historyPanels]
+    if(!backTimeout) {
+      backTimeout = true;
+      if (history.length <= 1) {
+          bridge.send("VKWebAppClose", {"status": "success"});
+      } else {
+        if(history[history.length] >= 2) {
+          bridge.send('VKWebAppDisableSwipeBack');
+        }
+        setHash('');
+        history.pop()
+        let {view, panel} = history[history.length - 1];
+        setActiveScene(view, panel)
+        setPopout(<ScreenSpinner />)
+        setTimeout(() => {
+            setPopout(null)
+          }, 500)
+      }
+      setHistoryPanels(history)
+      setTimeout(() => {backTimeout = false;}, 500)
+      
+    }else{
+      window.history.pushState({ ...history[history.length - 1] }, history[history.length - 1].panel );
+    }
+  }, [historyPanels, setHistoryPanels, setActiveScene])
+
   const setActiveModal = (activeModal) => {
     setActiveModalCreator(setModal, setModalHistory, modalHistory, activeModal)
   }
@@ -166,6 +260,26 @@ const App = () => {
   const showAlert = (title, text) => {
     alertCreator(setPopout, title, text)
   }
+  const setReport = (name, id) => {
+    dispatch(reportsActions.setTypeReport(name))
+    dispatch(reportsActions.setResourceReport(id))
+    goPanel(activeStory, "report", true);
+  }
+  const goOtherProfile = useCallback((id) => {
+    goOtherProfileCreator(goPanel, activeStory, showErrorAlert, OtherProfileData, dispatch, id)
+  }, [dispatch, goPanel, OtherProfileData, activeStory])
+
+  const goTiket = useCallback((id, need_ads=true) => {
+    setPopout(<ScreenSpinner/>)
+    dispatch(ticketActions.setTicketId(id))
+    goPanel(activeStory, 'ticket', true);
+    if(need_ads && adsCounter !== 0 && adsCounter % 2 === 0 && !isEmptyObject(account) && !account.donut){
+      bridge.send("VKWebAppShowNativeAds", {ad_format:"reward"})
+    }
+    adsCounter++
+    setPopout(null);
+  }, [dispatch, goPanel, setPopout, account, activeStory])
+
   const fetchAccount = useCallback(() => {
     fetch(API_URL + "method=account.get&" + window.location.search.replace('?', ''))
     .then(res => res.json())
@@ -191,7 +305,7 @@ const App = () => {
             
           </Alert>
         )
-        dispatch(viewsActions.setActiveStory('disconnect'))
+        goDisconnect()
       } else {
         setBanObject(data.error.error_obj)
         setActiveStory('banned')
@@ -200,10 +314,7 @@ const App = () => {
       
       }
     })
-    .catch(err => {
-      dispatch(viewsActions.setActiveStory('disconnect'))
-
-    })
+    .catch(goDisconnect)
     // eslint-disable-next-line 
   }, [account, activeStory, default_scheme, dispatch, setActiveStory])
 
@@ -211,11 +322,12 @@ const App = () => {
     setBanObject(null);
     fetchAccount()
     if( activeStory === 'disconnect'){
-      setActiveStory('questions')
+      let {view, panel} = historyPanels[historyPanels.length - 1];
+      goPanel(view, panel, false, true)
     }
     
     
-  }, [fetchAccount, setBanObject, setActiveStory, activeStory])
+  }, [historyPanels, fetchAccount, setBanObject, activeStory, goPanel])
 
   const bridgecallback = useCallback(({ detail: { type, data } }) => {
     if (type === 'VKWebAppViewHide') {
@@ -230,6 +342,9 @@ const App = () => {
     }
   }, [AppInit, setScheme, schemeSettings])
   useEffect(() => {
+    const brigeSchemeChange = (params) => {
+      bridge.send("VKWebAppSetViewSettings", params);
+    }
     if (!isEmpty(account)) {
       switch (Number(account.scheme)) {
         case 0:
@@ -237,26 +352,26 @@ const App = () => {
           if (platformname) {
             switch (default_scheme) {
               case 'bright_light':
-                bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" });
+                brigeSchemeChange(scheme_params.bright_light)
                 break;
               case 'space_gray':
-                bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "light", "action_bar_color": "#19191A", 'navigation_bar_color': "#19191A" });
+                brigeSchemeChange(scheme_params.space_gray)
                 break;
               default:
-                bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" });
+                brigeSchemeChange(scheme_params.bright_light)
             }
           }
           break;
         case 1:
           setScheme({ scheme: 'bright_light' })
           if (platformname) {
-            bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" });
+            brigeSchemeChange(scheme_params.bright_light)
           }
           break;
         case 2:
           setScheme({ scheme: 'space_gray' })
           if (platformname) {
-            bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "light", "action_bar_color": "#19191A", 'navigation_bar_color': "#19191A" });
+            brigeSchemeChange(scheme_params.space_gray)
           }
           break;
         default:
@@ -264,27 +379,44 @@ const App = () => {
       }
     }
   }, [account, default_scheme, setScheme])
-  
+  const handlePopstate = useCallback((e) => {
+    e.preventDefault();
+    goBack();
+  }, [goBack]);
   useEffect(() => {
     AppInit();
     bridge.send('VKWebAppInit', {});
     // eslint-disable-next-line
   }, [])
   useEffect(() => {
+    window.addEventListener('popstate', handlePopstate);
+    return () => {
+      window.removeEventListener('popstate', handlePopstate)
+    }
+  }, [handlePopstate])
+  useEffect(() => {
     if(!isEmptyObject(account)){
-        if (hash.promo !== undefined && !ignore_promo) {
-          ignore_promo = true;
-          setActiveStory('profile');
-        }else if ("help" in hash && !ignore_promo) {
-          ignore_promo = true;
-          setActiveStory('advice');
+        if (hash.promo !== undefined && activePanel !== 'promocodes') {
+          goPanel(viewsStructure.Profile.navName, 'promocodes', true)
+        }else if(hash.ticket_id !== undefined && activePanel !== 'ticket') {
+          dispatch(ticketActions.setTicketId(hash.ticket_id))
+          goPanel(viewsStructure.Questions.navName, 'ticket', true);
+        }else if(hash.agent_id !== undefined) {
+          if(activePanel !== 'other_profile' && !ignoreOtherProfile){
+            setIgnoreOtherProfile(true)
+            goOtherProfileCreator(goPanel, viewsStructure.Questions.navName, showErrorAlert, OtherProfileData, dispatch, hash.agent_id)
+            setTimeout(() => setIgnoreOtherProfile(false), 1000)
+          }
+          
+        }else if ("help" in hash && activePanel !== 'faqMain') {
+          goPanel(viewsStructure.Advice.navName, 'faqMain', true);
         }else if (activeStory === 'loading'){
-          setActiveStory('questions');
+          setActiveScene(viewsStructure.Questions.navName, viewsStructure.Questions.panels.homepanel)
         }
       setLoadWebView(true)
     }
     
-  }, [account, dispatch, setActiveStory, activeStory])
+  }, [setActiveScene, account, dispatch, activeStory, activePanel, goTiket, goPanel, hash, OtherProfileData])
   useEffect(() => {
     bridge.subscribe(bridgecallback);
     
@@ -311,79 +443,175 @@ const App = () => {
     isDesktop.current = viewWidth >= ViewWidth.SMALL_TABLET;
   }, [viewWidth, platform])
 
-  const popouts_and_modals = {showAlert, showErrorAlert, setActiveModal, updateSetReport, setCallbacks, setPopout}
+  const popouts_and_modals = {showAlert, showErrorAlert, setActiveModal, setPopout}
+  const navigation = {goPanel, goBack, goDisconnect};
+  const base_functions = { goTiket, setReport, goOtherProfile, setSnackbar, setMoneyPromo, setTransfer }
+  const modalClose = () => setActiveModal(null);
   const modals = (
     <ModalRoot
+    onClose={modalClose}
     activeModal={activeModal}>
       <ModalComment
         id='comment'
         comment={comment_special}
-        onClose={() => setActiveModal(null)}
-        reporting={setReport.current} />
+        onClose={modalClose}
+        reporting={setReport} />
       <ModalPrometay
         id='prom'
         onClose={() => {setActiveModal(null);setIsMyMark(false)}}
-        action={() => setActiveModal(null)}
+        action={modalClose}
         action2={isMyMark ? () => { setSharingType('prometay'); setActiveModal('share2') } : undefined} />
 
       <ModalDonut
         id='donut'
         onClose={() => {setActiveModal(null);setIsMyMark(false)}}
-        action={() => setActiveModal(null)}
+        action={modalClose}
         action2={isMyMark ? () => { setSharingType('donut'); setActiveModal('share2') } : undefined} />
 
       <ModalVerif
         id='verif'
         onClose={() => {setActiveModal(null);setIsMyMark(false)}}
-        action={() => setActiveModal(null)}
+        action={modalClose}
         action2={isMyMark ? () => { setSharingType('verif'); setActiveModal('share2') } : undefined} />
 
       <ModalBan
         id='ban_user'
-        onClose={() => setActiveModal(null)}
-        callbacks={callbacks}
+        onClose={modalClose}
+        callbacks={{ setPopout, showErrorAlert, setActiveModal, showAlert }}
       />
-      <ModalPage
-        id="share2"
-        onClose={() => setActiveModal(null)}
-        header={
-          <ModalPageHeader
-            right={platform === IOS && <Header onClick={() => setActiveModal(null)}><Icon24Dismiss /></Header>}
-            left={platform === ANDROID && <PanelHeaderButton onClick={() => setActiveModal(null)}><Icon24Dismiss /></PanelHeaderButton>}
-          >
-            Рассказать
-                  </ModalPageHeader>
-        }
-      >
-        <List>
-          <Cell
-            onClick={() => bridge.send("VKWebAppShowWallPostBox",
-              {
-                message: POST_TEXTS[sharing_type]['text'],
-                attachments: POST_TEXTS[sharing_type]['image']
-              })}
-            before={<Icon28NewsfeedOutline />}>
-            На стене
-                    </Cell>
-          <Cell before={<Icon28StoryAddOutline />}
-            onClick={() => {
-              bridge.send("VKWebAppShowStoryBox",
-                {
-                  background_type: "image",
-                  url: HISTORY_IMAGES[sharing_type]['image'],
-                  attachment: {
-                    "type": "url",
-                    "url": LINK_APP,
-                    "text": "learn_more"
-                  }
-                })
-            }}>
-            В истории
-                    </Cell>
-        </List>
-      </ModalPage>
+      
+      <ModalShare
+      id="share"
+      setActiveModal={setActiveModal}
+      setSnackbar={setSnackbar}
+      onClick={modalClose} />
+
+      <ModalShare2
+      id="share2"
+      sharing_type={sharing_type}
+      onClick={modalClose} />
+
+      <ModalFantoms 
+      id="fantoms"
+      setActiveModal={setActiveModal}
+      goPanel={goPanel}
+      onClick={modalClose}
+      />
+
+      <ModalTransfers 
+      id='transfer_send'
+      onClick={modalClose}
+      setActiveModal={setActiveModal}
+      reloadProfile={fetchAccount}
+      setPopout={setPopout}
+      goDisconnect={goDisconnect}
+      showErrorAlert={showErrorAlert}
+      setTransfers={setTransfers}
+      />
+      <ModalTransferCard 
+      id='transfer_card'
+      onClick={modalClose}
+      Transfers={Transfers}
+      setTransfers={setTransfers}
+      setActiveModal={setActiveModal}
+      />
+      <ModalTransferCardNotify
+      id='transfer_info'
+      onClick={modalClose}
+      Transfer={Transfer} />
+
+      <ShowQR
+      id='qr'
+      onClick={modalClose} />
+      <InvalidQR
+      id='invalid_qr'
+      onClick={modalClose} />
+      <ValidQR
+      id='valid_qr'
+      moneyPromo={moneyPromo}
+      onClick={modalClose} />
+
+      <ModalCard
+        id='answers'
+        onClose={modalClose}
+        icon={<Icon28SortOutline width={56} height={56} />}
+        header={'Вы оценили ' + account['marked'] + " " + enumerate(account['marked'], ['ответ', 'ответа', 'ответов'])}
+        subheader={(SPECIAL_NORM - account['marked'] < 0) ? "Порог достигнут" : "Для преодоления порога необходимо оценить ещё " +
+          (SPECIAL_NORM - account['marked']) +
+          " " + enumerate(account['marked'], ['ответ', 'ответа', 'ответов']) + " за неделю"}
+        actions={<Button mode='primary' stretched size='l' onClick={modalClose}>Понятно</Button>}>
+      </ModalCard>
+      <ModalCard
+      onClose={modalClose}
+      id='test'>
+        Вью {activeStory}
+      </ModalCard>
       {modalslist}
     </ModalRoot>
+  )
+  const viewsCollection = (
+  <Root activeView={activeStory}
+    id='root_inter'>
+      <Questions 
+      id={viewsStructure.Questions.navName}
+      navigation={navigation}
+      popouts_and_modals={popouts_and_modals}
+      base_functions={base_functions}
+      reloadProfile={fetchAccount}
+      popout={popout} />
+
+      <Advice
+      navigation={navigation}
+      id={viewsStructure.Advice.navName}
+      base_functions={base_functions}
+      popouts_and_modals={popouts_and_modals}
+      reloadProfile={fetchAccount}
+      popout={popout} />
+
+      <Top 
+      navigation={navigation}
+      id={viewsStructure.Top.navName}
+      base_functions={base_functions}
+      popouts_and_modals={popouts_and_modals}
+      reloadProfile={fetchAccount}
+      scheme={scheme}
+      popout={popout} />
+
+      <Profile 
+      navigation={navigation}
+      id={viewsStructure.Profile.navName}
+      base_functions={base_functions}
+      popouts_and_modals={popouts_and_modals}
+      marks_manage={{setIsMyMark}}
+      reloadProfile={fetchAccount}
+      scheme={scheme}
+      default_scheme={default_scheme}
+      popout={popout} />
+
+      <Moderation 
+      navigation={navigation}
+      base_functions={base_functions}
+      id={viewsStructure.Moderation.navName}
+      popouts_and_modals={popouts_and_modals}
+      reloadProfile={fetchAccount}
+      />
+
+      <Banned 
+      id="banned"
+      reloadProfile={fetchAccount}
+      scheme={scheme}
+      popout={popout} />
+
+      <Disconnect
+      id="disconnect"
+      setPopout={setPopout}
+      AppInit={AppInit}
+      reloadProfile={fetchAccount} />
+
+      <LoadingScreen 
+      id="loading" />
+      
+    </Root>
   )
 
   return(
@@ -410,15 +638,14 @@ const App = () => {
                     <Panel id='menu_epic'>
                   {hasHeader.current && <PanelHeader/>}
                       <>
-                      <Group>
+                      {isEmptyObject(account) || <Group>
                         <SimpleCell
                         disabled={activeStory === "profile"}
                         style={activeStory === "profile" ? {
                             backgroundColor: "var(--button_secondary_background)",
                             borderRadius: 8
                         } : {}}
-                        data-story="profile"
-                        onClick={(e) => setActiveStory(e.currentTarget.dataset.story)}
+                        onClick={() => {setHash('');goPanel(viewsStructure.Profile.navName, viewsStructure.Profile.panels.homepanel)}}
                           description={"#" + account['id']}
                           before={account.diamond ?
                             <div style={{ position: 'relative', margin: 10 }}><Avatar src={account['avatar']['url']} size={40} style={{ position: 'relative' }} />
@@ -444,37 +671,37 @@ const App = () => {
                               </div>
                           </SimpleCell>
                           
-                      </Group>
+                      </Group>}
                       <Group>
                         
                         <EpicItemPC
                         icon={<Icon28ArticleOutline />}
-                        story="questions"
+                        story={viewsStructure.Questions.navName}
                         activeStory={activeStory}
-                        changeActiveStory={setActiveStory}>
-                          Вопросы
+                        onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Questions.panels.homepanel)}}>
+                          {viewsStructure.Questions.name}
                         </EpicItemPC>
                         <EpicItemPC
                         icon={<Icon28CompassOutline />}
-                        story="advice"
+                        story={viewsStructure.Advice.navName}
                         activeStory={activeStory}
-                        changeActiveStory={setActiveStory}>
-                          Обзор
+                        onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Advice.panels.homepanel)}}>
+                          {viewsStructure.Advice.name}
                         </EpicItemPC>
                         {agent_permission && <EpicItemPC
                         icon={<Icon28BankOutline />}
-                        story="top"
+                        story={viewsStructure.Top.navName}
                         activeStory={activeStory}
-                        changeActiveStory={setActiveStory}>
-                          Пантеон
+                        onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Top.panels.homepanel)}}>
+                          {viewsStructure.Top.name}
                         </EpicItemPC>}
                         {moderator_permission && 
                         <EpicItemPC
                         icon={<Icon28WorkOutline />}
-                        story="moderation"
+                        story={viewsStructure.Moderation.navName}
                         activeStory={activeStory}
-                        changeActiveStory={setActiveStory}>
-                          Модерация
+                        onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Moderation.panels.homepanel)}}>
+                          {viewsStructure.Moderation.name}
                         </EpicItemPC>}
                       </Group>
                       </>
@@ -492,83 +719,83 @@ const App = () => {
                         need_epic && !isDesktop.current &&
                         <Tabbar>
                           <TabbarItem
-                            onClick={(e) => {setActiveStory(e.currentTarget.dataset.story)}} 
-                            selected={activeStory === 'questions'}
-                            data-story="questions"
-                            text='Вопросы'
+                            onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Questions.panels.homepanel)}} 
+                            selected={activeStory === viewsStructure.Questions.navName}
+                            data-story={viewsStructure.Questions.navName}
+                            text={viewsStructure.Questions.name}
                           ><Icon28ArticleOutline/></TabbarItem>
                           <TabbarItem
-                            onClick={(e) => {setActiveStory(e.currentTarget.dataset.story)}} 
-                            selected={activeStory === 'advice'}
-                            data-story="advice"
-                            text='Обзор'
+                            onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Advice.panels.homepanel)}} 
+                            selected={activeStory === viewsStructure.Advice.navName}
+                            data-story={viewsStructure.Advice.navName}
+                            text={viewsStructure.Advice.name}
                           ><Icon28CompassOutline/></TabbarItem>
                           {agent_permission && <TabbarItem
-                            onClick={(e) => {setActiveStory(e.currentTarget.dataset.story)}} 
-                            selected={activeStory === 'top'}
-                            data-story="top"
-                            text='Пантеон'
+                            onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Top.panels.homepanel)}} 
+                            selected={activeStory === viewsStructure.Top.navName}
+                            data-story={viewsStructure.Top.navName}
+                            text={viewsStructure.Top.name}
                           ><Icon28BankOutline /></TabbarItem>}
                           {moderator_permission ? <TabbarItem
-                            onClick={(e) => {setActiveStory(e.currentTarget.dataset.story)}} 
-                            selected={activeStory === 'moderation'}
-                            data-story="moderation"
-                            text='Модерация'
+                            onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Moderation.panels.homepanel)}} 
+                            selected={activeStory === viewsStructure.Moderation.navName}
+                            data-story={viewsStructure.Moderation.navName}
+                            text={viewsStructure.Moderation.name}
                           ><Icon28WorkOutline /></TabbarItem> : null}
                           <TabbarItem
                             indicator={account.notif_count ? <Badge mode="prominent" /> : null}
-                            onClick={(e) => {setActiveStory(e.currentTarget.dataset.story)}} 
-                            selected={activeStory === 'profile' || activeStory === "notif"}
-                            data-story="profile"
-                            text='Профиль'
+                            onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Profile.panels.homepanel)}} 
+                            selected={activeStory === viewsStructure.Profile.navName || activeStory === "notif"}
+                            data-story={viewsStructure.Profile.navName}
+                            text={viewsStructure.Profile.name}
                           ><Icon28Profile /></TabbarItem>
                           
                         </Tabbar>
                       }
                       >
                       <Questions 
-                      id='questions'
+                      id={viewsStructure.Questions.navName}
+                      navigation={navigation}
                       popouts_and_modals={popouts_and_modals}
-                      scheme={scheme}
+                      base_functions={base_functions}
                       reloadProfile={fetchAccount}
                       popout={popout} />
 
-                      <Advice 
-                      id="advice"
+                      <Advice
+                      navigation={navigation}
+                      id={viewsStructure.Advice.navName}
+                      base_functions={base_functions}
+                      popouts_and_modals={popouts_and_modals}
                       reloadProfile={fetchAccount}
                       popout={popout} />
 
                       <Top 
-                      id='top'
+                      navigation={navigation}
+                      id={viewsStructure.Top.navName}
+                      base_functions={base_functions}
+                      popouts_and_modals={popouts_and_modals}
                       reloadProfile={fetchAccount}
                       scheme={scheme}
                       popout={popout} />
 
-                      <Notification 
-                      id="notif"
-                      scheme={scheme}
-                      reloadProfile={fetchAccount}
-                      popout={popout}
-                      />
-
                       <Profile 
-                      id="profile"
+                      navigation={navigation}
+                      id={viewsStructure.Profile.navName}
+                      base_functions={base_functions}
                       popouts_and_modals={popouts_and_modals}
+                      marks_manage={{setIsMyMark}}
                       reloadProfile={fetchAccount}
                       scheme={scheme}
                       default_scheme={default_scheme}
                       popout={popout} />
 
                       <Moderation 
-                      id="moderation"
+                      navigation={navigation}
+                      base_functions={base_functions}
+                      id={viewsStructure.Moderation.navName}
+                      popouts_and_modals={popouts_and_modals}
                       reloadProfile={fetchAccount}
                       />
-                      
-                      {/* <Start 
-                      id="start"
-                      reloadProfile={fetchAccount}
-                      scheme={scheme}
-                      popout={popout} /> */}
 
                       <Banned 
                       id="banned"
@@ -576,13 +803,8 @@ const App = () => {
                       scheme={scheme}
                       popout={popout} />
 
-                      <Unsupport 
-                      id="unsupport"
-                      reloadProfile={fetchAccount} />
-
                       <Disconnect
                       id="disconnect"
-                      popout={popout}
                       setPopout={setPopout}
                       AppInit={AppInit}
                       reloadProfile={fetchAccount} />
@@ -591,74 +813,9 @@ const App = () => {
                       id="loading" />
                     </Epic>
                      : 
-                    <Root activeView={activeStory}
-                    id='root_inter'>
-                      <Questions 
-                      id='questions'
-                      scheme={scheme}
-                      popouts_and_modals={popouts_and_modals}
-                      reloadProfile={fetchAccount}
-                      popout={popout} />
-
-                      <Advice 
-                      id="advice"
-                      reloadProfile={fetchAccount}
-                      popout={popout} />
-
-                      <Top 
-                      id='top'
-                      scheme={scheme}
-                      reloadProfile={fetchAccount}
-                      popout={popout} />
-
-                      <Notification 
-                      id="notif"
-                      scheme={scheme}
-                      reloadProfile={fetchAccount}
-                      popout={popout}
-                      />
-
-                      <Profile 
-                      id="profile"
-                      reloadProfile={fetchAccount}
-                      scheme={scheme}
-                      popouts_and_modals={popouts_and_modals}
-                      default_scheme={default_scheme} />
-
-                      <Moderation 
-                      id="moderation"
-                      reloadProfile={fetchAccount}
-                      />
-                      
-                      {/* <Start 
-                      id="start"
-                      reloadProfile={fetchAccount}
-                      scheme={scheme}
-                      popout={popout} /> */}
-
-                      <Banned 
-                      id="banned"
-                      reloadProfile={fetchAccount}
-                      scheme={scheme}
-                      popout={popout} />
-
-                      <Unsupport 
-                      id="unsupport"
-                      reloadProfile={fetchAccount} />
-
-                    <Disconnect
-                      id="disconnect"
-                      popout={popout}
-                      setPopout={setPopout}
-                      AppInit={AppInit}
-                      reloadProfile={fetchAccount} />
-                      <LoadingScreen 
-                      id="loading" />
-                      
-                    </Root>
-                    
-                    }
+                    viewsCollection}
                   </SplitCol>
+                  {snackbar}
                 </SplitLayout>
               </AppRoot>
             </ConfigProvider>

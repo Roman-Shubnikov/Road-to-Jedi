@@ -27,6 +27,7 @@ export const LINKS_VK = {
     fantoms_article: 'https://vk.com/@jedi_road-ohota-na-fantomov-nevidimovichei',
     market_info_article: 'https://vk.com/@jedi_road-sistema-nachisleniya-ballov-i-shop',
     market_info_donut_article: 'https://vk.com/@jedi_road-vk-donut-for-road-to-jedi',
+    verification: 'https://vk.com/@jedi_road-chto-takoe-verifikaciya-i-kak-ee-poluchit-galochku',
 
 };
 export const MESSAGE_NO_VK = (
@@ -64,6 +65,9 @@ export const HISTORY_IMAGES = {
           image: "https://sun9-32.userapi.com/impf/ZSrMdpua6pPTqA6HYVXjEGm1QHkiPerFPVpBlQ/2q3uSkrkrsk.jpg?size=454x807&quality=96&sign=6d7c6695992142447101ae34ff36ff04"
         }
       }
+export const blueBackground = {
+  backgroundColor: 'var(--accent)'
+};
 export const LINK_APP = "https://vk.com/jedi_road_app";
 export const CONVERSATION_LINK = "https://vk.me/join/zyWQzsgQ9iw6V2YAfbwiGtuO883rnYhXwAY=";
 export const SPECIAL_NORM = 50;
@@ -89,9 +93,51 @@ export const JediIcons28 = {
     9: Icon28LaptopOutline,
     10: Icon28PincodeLockOutline,
     11: Icon28WorkOutline,
+}
 
-    
-    
+export const viewsStructure = {
+  Questions: {
+    navName: 'Questions',
+    name: 'Вопросы',
+    panels: {
+      homepanel: 'questions',
+    }
+  },
+  Advice: {
+    navName: 'Advice',
+    name: 'Обзор',
+    panels: {
+      homepanel: 'advice',
 
+    }
+  },
+  Top: {
+    navName: 'Top',
+    name: 'Пантеон',
+    panels: {
+      homepanel: 'top',
+    }
+  },
+  Moderation: {
+    navName: 'Moderation',
+    name: 'Модерация',
+    panels: {
+      homepanel: 'questions',
+    }
+  },
+  Profile: {
+    navName: 'Profile',
+    name: 'Профиль',
+    panels: {
+      homepanel: 'profile',
+    }
+  },
+  Disconnect: {
+    navName: 'disconnect',
+    name: 'Ошибка сети',
+    panels: {
+      homepanel: 'load',
+    }
+  }
 }
 

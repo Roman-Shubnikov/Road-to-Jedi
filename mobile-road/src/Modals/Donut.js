@@ -19,8 +19,8 @@ export default class Donut extends React.Component {
                         получают отметку, на весь период подписки. По
                         истечении данного периода отметка пропадает.</span>}
                 actions={this.props.action2 ? [
-                  <Button mode='secondary' stretched size='l' onClick={this.props.action2}>Рассказать</Button>,
-                  <Button mode='primary' stretched size='l' onClick={this.props.action}>Понятно</Button>
+                  <Button mode='secondary' key={1} stretched size='l' onClick={this.props.action2}>Рассказать</Button>,
+                  <Button mode='primary' key={2} stretched size='l' onClick={this.props.action}>Понятно</Button>
                 ] : 
                   <Button mode='primary' stretched size='l' onClick={this.props.action}>Понятно</Button>
                 }

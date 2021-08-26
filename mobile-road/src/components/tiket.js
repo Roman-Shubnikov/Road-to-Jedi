@@ -48,11 +48,9 @@ import {
 
 import Message from './message'
 import { useDispatch, useSelector } from 'react-redux';
-import { ticketActions, viewsActions } from '../store/main';
+import { ticketActions } from '../store/main';
 import { getHumanyTime, LinkHandler } from '../Utils';
 import { API_URL, LINKS_VK, PERMISSIONS } from '../config';
-// const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
-// const parsedHash = queryString.parse(window.location.search.replace('?', ''));
 
 const blueBackground = {
   backgroundColor: 'var(--accent)'
@@ -61,7 +59,7 @@ const blueBackground = {
 export default props => {
   const dispatch = useDispatch();
   const { setPopout, showErrorAlert, setReport, setActiveModal, showAlert, goOtherProfile, goPanel } = props.callbacks;
-  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
+  const { activeStory } = useSelector((state) => state.views)
   const setComment = useCallback((comment) => dispatch(ticketActions.setComment(comment)), [dispatch])
   const MessageRef = useRef(null);
   const [add_comment, setAddComment] = useState(false);
@@ -72,13 +70,18 @@ export default props => {
   const [sendfield, setSendfield] = useState('');
   
   
-  
+  const preTicketId = useSelector((state) => state.tickets.current_id)
   const TicketData = useSelector((state) => state.tickets.ticketInfo)
   const account = useSelector((state) => (state.account.account))
   const { info, messages, limitReach} = TicketData;
   const permissions = account.permissions;
   const moderator_permission = permissions >= PERMISSIONS.special;
   const agent_permission = permissions >= PERMISSIONS.agent;
+
+  const copyClipboard = (text) => {
+    bridge.send("VKWebAppCopyText", { text: text });
+    navigator.clipboard.writeText(text)
+  }
   const setContinueSnack = (text) => {
     setSnackbar(<Snackbar
       layout="vertical"
@@ -104,10 +107,7 @@ export default props => {
           showErrorAlert(data.error.message);
         }
       })
-      .catch(err => {
-        setActiveStory('disconnect');
-
-      })
+      .catch(() => goPanel('disconnect', 'load'))
   }
   const getAvatar = (result) => {
     if (result.author.is_moderator){
@@ -163,10 +163,7 @@ export default props => {
             showErrorAlert(data.error.message)
           }
         })
-        .catch(err => {
-          setActiveStory('disconnect')
-
-        })
+        .catch(() => goPanel('disconnect', 'load'))
       }
 
       const Admin = (approved, id, chance_posit, author_id, text, comment, avatar = null, mark = -1) => {
@@ -174,7 +171,7 @@ export default props => {
         let shotItems = {
           cancel_item: <ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>,
           copy_message: <ActionSheetItem autoclose onClick={() => {
-            bridge.send("VKWebAppCopyText", { text: text });
+            copyClipboard(text)
             setContinueSnack("Текст скопирован")
             }}
             before={<Icon28CopyOutline/>}>
@@ -272,7 +269,7 @@ export default props => {
               {shotItems.copy_message}
               {(Number(author_id) === Number(account.id) && mark === -1) ? 
               shotItems.delete_message : null}
-              {account.special ? shotItems.report : null}
+              {moderator_permission ? shotItems.report : null}
             </ActionSheet>
           )
         } else {
@@ -339,7 +336,7 @@ export default props => {
       case "send":
         method = 'method=ticket.sendMessage&';
         typetick = types.ticket;
-        complete_callback = () => {if(!moderator_permission && !info.author.id === account.vk_id) goPanel('answer_added')}
+        complete_callback = () => {if(!moderator_permission && !info.author.id === account.vk_id) goPanel(activeStory, 'answer_added', true, true)}
         break;
       case "redaction":
         method = 'method=ticket.editMessage&';
@@ -391,9 +388,7 @@ export default props => {
           showErrorAlert(data.error.message)
         }
       })
-      .catch(err => {
-        setActiveStory('disconnect')
-      })
+      .catch(() => goPanel('disconnect', 'load'))
   }
   const openCloseTicket = (open) => {
     let method = open ? "method=ticket.open&" : "method=ticket.close&";
@@ -415,10 +410,7 @@ export default props => {
               showErrorAlert(data.error.message)
             }
           })
-          .catch(err => {
-            setActiveStory('disconnect')
-
-          })
+          .catch(() => goPanel('disconnect', 'load'))
       }
   const copy = (id) => {
     setPopout(
@@ -442,7 +434,7 @@ export default props => {
         <ActionSheetItem autoclose 
         before={<Icon28CopyOutline />}
         onClick={() => {
-          bridge.send("VKWebAppCopyText", { text: "https://vk.com/app7409818#ticket_id=" + id });
+          copyClipboard("https://vk.com/app7409818#ticket_id=" + id)
           setSnackbar(<Snackbar
             layout="vertical"
             before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
@@ -483,17 +475,11 @@ export default props => {
             showErrorAlert(data.error.message);
           }
         })
-        .catch(err => {
-          setActiveStory('disconnect');
-  
-        })
+        .catch(() => goPanel('disconnect', 'load'))
     }
-    getTicket(props.ticket_id)
-    return () => {
-      dispatch(ticketActions.setTicket( {} ))
-    }
+    getTicket(preTicketId ? preTicketId : info.id)
      // eslint-disable-next-line 
-  }, [props.ticket_id, dispatch, setActiveStory])
+  }, [preTicketId, dispatch])
   return(
     <Panel id={props.id}>
       <PanelHeader

@@ -19,6 +19,7 @@ class CONFIG {
 	const AVATARS_COUNT = 41;
 	const DONUT_AVATARS_COUNT = 12;
 	const DONUT_CHAT_LINK = 'https://vk.me/join/twwhnnyRTYfVZx2QEjjCNW8OLm2nyNEypqQ=';
+	const LINK_APP = 'https://vk.com/jedi_road_app';
 	
 	const MAX_TICKETS_TITLE_LEN = 80;
 	const MAX_TICKETS_TEXT_LEN = 4040;

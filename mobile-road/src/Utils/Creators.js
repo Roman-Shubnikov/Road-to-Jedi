@@ -4,7 +4,6 @@ import {
 
 } from '@vkontakte/vkui';
 import { accountActions } from '../store/main';
-import { isEmptyObject } from 'jquery';
 import { API_URL } from '../config';
 
 export const errorAlertCreator = (setPopout, error = null, action = null) => {
@@ -59,8 +58,8 @@ export const goPanelCreator = (setHistory, setActivePanel, historyPanelsState, p
     setHistory(history);
     setActivePanel(panel)
 }
-export const goOtherProfileCreator = (goPanel, setActiveStory, showErrorAlert, OtherProfileData, dispatch, id) => {
-    if (isEmptyObject(OtherProfileData) || OtherProfileData.id !== id) {
+export const goOtherProfileCreator = (goPanel, activeStory, showErrorAlert, OtherProfileData, dispatch, id) => {
+    // if (isEmptyObject(OtherProfileData) || OtherProfileData.id !== id) {
         fetch(API_URL + "method=user.getById&" + window.location.search.replace('?', ''),
         {
             method: 'post',
@@ -73,14 +72,14 @@ export const goOtherProfileCreator = (goPanel, setActiveStory, showErrorAlert, O
         .then(data => {
             if (data.result) {
                 dispatch(accountActions.setOtherProfile(data.response))
-                goPanel("other_profile")
+                goPanel(activeStory, "other_profile", true)
             }else{
                 showErrorAlert(data.error.message)
             }
         })
         .catch(err => {
-            setActiveStory('disconnect');
+            goPanel('disconnect', 'load');
         })
         
-    }
+    // }
 }

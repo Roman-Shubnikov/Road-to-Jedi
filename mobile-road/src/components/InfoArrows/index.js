@@ -36,7 +36,7 @@ export default ({ good_answers, bad_answers, total_answers }) => {
                     <Icon28SortOutline width={24} height={24} className='blue_arrows_profile' />
                 </div>
                 <div>
-                    {total_answers} всего ответов
+                    {total_answers}<br/>всего ответов
                 </div>
             </div>
         </Div>

@@ -16,9 +16,7 @@ import {
     Headline,
 
     } from '@vkontakte/vkui';
-import { useDispatch } from 'react-redux';
 import { API_URL } from '../../../config';
-import { viewsActions } from '../../../store/main';
 import { normalizeTime } from '../../../Utils/Helpers';
 
 import Blockquote from '../../../components/Blockquote'
@@ -26,7 +24,6 @@ import Blockquote from '../../../components/Blockquote'
 var timer_interval = null;
 
 export default props => {
-    const dispatch = useDispatch();
     const [currPage, setpage] = useState(0);
     const [currQuestion, setQuestion] = useState(0);
     const [anim, setAnim] = useState(false);
@@ -35,6 +32,7 @@ export default props => {
     const [testData, setTestData] = useState(null);
     const [last_time, setLastTime] = useState(0);
     const { setPopout, showErrorAlert } = props.callbacks;
+    const { goDisconnect } = props.navigation;
     const timer_menager = () => {
         let minutes = 0;
         let seconds = 0;
@@ -63,9 +61,7 @@ export default props => {
                     showErrorAlert(data.error.message)
                 }
             })
-            .catch(err => {
-                dispatch(viewsActions.setActiveStory('disconnect'))
-            })
+            .catch(goDisconnect)
     }
     const sendAnswers = () => {
         setPopout(<ScreenSpinner />)
@@ -88,9 +84,7 @@ export default props => {
                     showErrorAlert(data.error.message)
                 }
             })
-            .catch(err => {
-                dispatch(viewsActions.setActiveStory('disconnect'))
-            })
+            .catch(goDisconnect)
     }
     const FixAnswer = (question, variant) => {
         setAnswers(prev => {prev[question] = variant;return prev});

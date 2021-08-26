@@ -21,7 +21,13 @@ export const accountActions = {
 
 export const viewsActions = {
     setActiveStory: (payload) => ({ type: viewsActionTypes.SET_ACTIVE_STORY, payload}),
+    setActivePanel: (payload) => ({ type: viewsActionTypes.SET_ACTIVE_PANEL, payload}),
+    setActiveScene: (story, panel) => {
+        let payload = {story, panel};
+        return { type: viewsActionTypes.SET_ACTIVE_SCENE, payload}},
+    setHistory: (payload) => ({ type: viewsActionTypes.SET_HISTORY, payload}),
     setNeedEpic: (payload) => ({ type: viewsActionTypes.SET_NEED_EPIC, payload}),
+    setSnackbar: (payload) => ({ type: viewsActionTypes.SET_SNACKBAR, payload}),
 }
 export const topUsersActions = {
     setTop: (payload) => ({ type: topUserActionTypes.SET_TOP, payload}),
@@ -32,6 +38,7 @@ export const ticketActions = {
     setTicket: (payload) => ({ type: tiketsActionTypes.SET_TICKET, payload: payload }),
     setComment: (payload) => ({ type: tiketsActionTypes.SET_COMMENT, payload }),
     setOffset: (payload) => ({ type: tiketsActionTypes.SET_OFFSET, payload }),
+    setTicketId: (payload) => ({ type: tiketsActionTypes.SET_TICKET_ID, payload }),
 }
 
 export const faqActions = {

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 
 
@@ -25,21 +25,19 @@ import {
 
 } from '@vkontakte/icons'
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { API_URL, PERMISSIONS } from '../../../config';
-import { viewsActions } from '../../../store/main';
 
 
 export default props => {
-  const dispatch = useDispatch();
-  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
   const { account } = useSelector((state) => state.account)
   const [notify, setNotify] = useState(account ? account.settings.notify : false)
   const [publicProfile, setPublic] = useState(account ? account.settings.public : false)
   const { setPopout, showErrorAlert, goPanel } = props.callbacks;
   const permissions = account.permissions;
   const agent_permission = permissions >= PERMISSIONS.agent;
-
+  const { goDisconnect } = props.navigation;
+  const { activeStory } = useSelector((state) => state.views)
   const notifyMenager = (value) => {
     fetch(API_URL + "method=settings.set&" + window.location.search.replace('?', ''),
       {
@@ -59,10 +57,7 @@ export default props => {
           showErrorAlert(data.error.message)
         }
       })
-      .catch(err => {
-        setActiveStory('disconnect')
-
-      })
+      .catch(goDisconnect)
   }
   const changeNotifStatus = (notif) => {
     notif = notif.currentTarget.checked;
@@ -153,9 +148,7 @@ export default props => {
           } else {
             showErrorAlert(data.error.message)
           }
-        }).catch(() => {
-          setActiveStory('disconnect')
-        })
+        }).catch(goDisconnect)
     }
   }
 
@@ -183,13 +176,13 @@ export default props => {
         <SimpleCell
           before={<Icon28PaletteOutline />}
           expandable
-          onClick={() => goPanel('schemechange')}>Смена темы</SimpleCell>
+          onClick={() => goPanel(activeStory, 'schemechange', true)}>Смена темы</SimpleCell>
 
         {agent_permission && <SimpleCell
           indicator={account.verified ? 'Присвоена' : null}
           disabled={account.verified}
           expandable={!account.verified}
-          onClick={!account.verified ? () => goPanel('verf') : undefined}
+          onClick={!account.verified ? () => goPanel(activeStory, 'verf', true) : undefined}
           before={<Icon28DoneOutline />}>Верификация</SimpleCell>}
 
         <SimpleCell
@@ -224,11 +217,10 @@ export default props => {
         <SimpleCell
           expandable
           onClick={() => {
-            goPanel("info");
+            goPanel(activeStory, "info", true);
           }}
           before={<Icon28InfoOutline />}>О приложении</SimpleCell>
       </Group>
-      {props.snackbar}
     </Panel>
   )
 }

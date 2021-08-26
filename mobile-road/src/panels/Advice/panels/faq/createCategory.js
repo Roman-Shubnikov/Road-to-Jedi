@@ -24,7 +24,9 @@ export default props => {
     const [category, setCategory] = useState('');
     const [icon_select, setIcon] = useState('');
     const [snackbar, setSnackbar] = useState(null);
-    const { showErrorAlert, setActiveStory } = props.callbacks;
+    const { showErrorAlert } = props.callbacks;
+    const { goDisconnect } = props.navigation;
+    
     const getItemsIcons = () => {
         let items = [];
         for(let key in JediIcons28){
@@ -62,10 +64,7 @@ export default props => {
                 showErrorAlert(data.error.message)
             }
             })
-            .catch(err => {
-                setActiveStory('disconnect')
-
-            })
+            .catch(goDisconnect)
     }
     return(
         <Panel id={props.id}>
@@ -80,7 +79,7 @@ export default props => {
                     <FormItem top="Введи цвет в HEX формате">
                         <Input value={color} onChange={(e) => {setColor(e.currentTarget.value)}} /> 
                     </FormItem>
-                    <FormItem>
+                    <FormItem top="Выбери иконку">
                         <CustomSelect
                             placeholder="Не выбрана" 
                             options={getItemsIcons()}

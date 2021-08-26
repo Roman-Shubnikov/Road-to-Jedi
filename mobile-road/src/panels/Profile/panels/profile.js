@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import bridge from '@vkontakte/vk-bridge'; // VK Brige
+import React, { useState } from 'react';
 
 import { 
     Panel,
@@ -17,8 +16,6 @@ import {
     RichCell,
     Progress,
     InfoRow,
-    PanelSpinner,
-    Placeholder,
     usePlatform,
     VKCOM,
     FormItem,
@@ -41,7 +38,6 @@ import {
     Icon12Fire,
     Icon28SettingsOutline,
     Icon20Ghost,
-    Icon56HistoryOutline,
     Icon28MessagesOutline,
     Icon20ArticleOutline,
 
@@ -54,49 +50,26 @@ import { isEmptyObject } from 'jquery';
 import { useDispatch, useSelector } from 'react-redux';
 import { API_URL, AVATARS_URL, CONVERSATION_LINK, MESSAGE_NO_VK, PERMISSIONS, PUBLIC_STATUS_LIMIT } from '../../../config';
 import InfoArrows from '../../../components/InfoArrows';
-import { accountActions, viewsActions } from '../../../store/main';
+import { accountActions } from '../../../store/main';
 export default props => {
     const dispatch = useDispatch();
     const platform = usePlatform();
-    const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
     const account = useSelector((state) => state.account.account)
     const { setActiveModal, goOtherProfile, goPanel, showErrorAlert, setPopout } = props.callbacks;
+    const { activeStory } = useSelector((state) => state.views)
+    const { goDisconnect } = props.navigation;
     const [fetching, setFetching] = useState(false);
     const [editingStatus, setEdititingStatus] = useState(false);
     const [originalStatus, setOriginalStatus] = useState('');
     const [publicStatus, setPublicStatus] = useState('');
-    const [fetchdata, setFetchdata] = useState(null);
-    const [moderationQuestions, setQuestions] = useState(null)
     const levels = account.levels;
     const exp_to_next_lvl = levels.exp_to_lvl - levels.exp;
     const permissions = account.permissions;
     const moderator_permission = permissions >= PERMISSIONS.special;
     const agent_permission = permissions >= PERMISSIONS.agent;
     const total_answers = account['good_answers'] + account['bad_answers'];
-
-    useEffect(() => {
-        if(!agent_permission){
-            bridge.send("VKWebAppGetUserInfo")
-            .then(data => {
-                setFetchdata(data);
-            })
-            .catch(err => console.log(err))
-            fetch(API_URL + 'method=tickets.getMyModeration&' + window.location.search.replace('?', ''))
-            .then(res => res.json())
-            .then(data => {
-                if (data.result) {
-                    setQuestions(data.response)
-                } else {
-                    showErrorAlert(data.error.message)
-                }
-            })
-            .catch(err => {
-                setActiveStory('disconnect');
-
-            })
-        }
-        
-    }, [agent_permission])
+    const { setIsMyMark } = props.marks_manage
+    
 
     const statusMenager = () => {
         if(!editingStatus){
@@ -123,10 +96,7 @@ export default props => {
                   showErrorAlert(data.error.message)
               }
           })
-          .catch(err => {
-              setActiveStory('disconnect');
-    
-          })
+          .catch(goDisconnect)
     
         }
       }
@@ -142,13 +112,12 @@ export default props => {
                     </PanelHeaderButton>
                         <PanelHeaderButton label={account.notif_count ? <Counter size="s" mode="prominent">{account.notif_count}</Counter> : null}
                             onClick={() => {
-                                setActiveStory('notif')
-                                window.history.pushState({ panel: 'notif' }, 'notif');
+                                goPanel(activeStory, 'notify', true)
                             }}>
                             <Icon28Notifications />
                         </PanelHeaderButton></>}>Профиль</PanelHeader>
                 <PullToRefresh onRefresh={() => { setFetching(true); props.reloadProfile(); setTimeout(() => { setFetching(false) }, 1000) }} isFetching={fetching}>
-                {agent_permission && platform!==VKCOM ? <Group>
+                {platform!==VKCOM && <Group>
                         <RichCell
                             disabled
                             before={account.diamond ?
@@ -160,29 +129,20 @@ export default props => {
                                 {account['nickname'] ? account['nickname'] : `Агент Поддержки #${account['id']}`}
                                 {account['flash'] ?
                                     <div className="profile_icon">
-                                        <Icon12Fire width={12} height={12} onClick={() => setActiveModal('prom')} />
+                                        <Icon12Fire width={12} height={12} onClick={() => {setActiveModal('prom');setIsMyMark(true)}} />
                                     </div>
                                     : null}
                                 {account['donut'] ?
                                     <div className="profile_icon">
-                                        <Icon16StarCircleFillYellow width={12} height={12} onClick={() => setActiveModal('donut')} />
+                                        <Icon16StarCircleFillYellow width={12} height={12} onClick={() => {setActiveModal('donut');setIsMyMark(true)}} />
                                     </div>
                                     : null}
                                 {account['verified'] ?
                                     <div className="profile_icon_ver">
-                                        <Icon16Verified onClick={() => setActiveModal('verif')} />
+                                        <Icon16Verified onClick={() => {setActiveModal('verif');setIsMyMark(true)}} />
                                     </div>
                                     : null}
                             </div>
-                        </RichCell>
-                    </Group> :
-                    fetchdata &&
-                    <Group>
-                        <RichCell
-                        disabled
-                        before={<Avatar size={72} src={fetchdata.photo_100} />}
-                        >
-                            {fetchdata.first_name + " " + fetchdata.last_name}
                         </RichCell>
                     </Group>}
                     {agent_permission && <Group>
@@ -279,47 +239,31 @@ export default props => {
                         {agent_permission && (moderator_permission || <SimpleCell
                             expandable
                             onClick={() => {
-                                goPanel('qu');
+                                goPanel(activeStory, 'qu', true);
                             }}
                             before={<Icon28PollSquareOutline />}>Мои ответы</SimpleCell>)}
                         
                         {agent_permission && <SimpleCell
                             expandable
                             onClick={() => {
-                                goPanel('market');
+                                goPanel(activeStory, 'market', true);
                             }}
                             before={<Icon28MarketOutline />}>Маркет</SimpleCell>}
 
                         <SimpleCell
                             expandable
                             onClick={() => {
-                                goPanel('settings');
+                                goPanel(activeStory, 'settings', true);
                             }}
                             before={<Icon28SettingsOutline />}>Настройки</SimpleCell>
 
 
                         
                     </Group>
-                    {!agent_permission && <Group header={<Header>Ваши вопросы в модерации</Header>}>
-                        {moderationQuestions ? isEmptyObject(moderationQuestions) ? 
-                        <Placeholder icon={<Icon56HistoryOutline/>}>
-                            Сейчас у вас нет вопросов на модерации
-                        </Placeholder> :
-                        moderationQuestions.map((question, ind) =>
-                        <SimpleCell
-                        disabled
-                        key={ind}
-                        description={question.description}>
-                            {question.title}
-                        </SimpleCell> 
-                        )
-                        : <PanelSpinner />}
-                    </Group>}
                     {!moderator_permission && <Group>
                         {MESSAGE_NO_VK}
                     </Group>}
                 </PullToRefresh>
-                {props.snackbar}
             </> : null}
         </Panel>
     )

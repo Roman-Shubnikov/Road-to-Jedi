@@ -50,7 +50,7 @@ export default props => {
         separator={!platformname}
       >
         Модерация
-                </PanelHeader>
+      </PanelHeader>
       <Group>
         <Tabs>
           <HorizontalScroll>

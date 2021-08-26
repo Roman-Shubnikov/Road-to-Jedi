@@ -17,19 +17,16 @@ import {
 
     } from '@vkontakte/vkui';
 import { Icon56CheckCircleOutline } from '@vkontakte/icons';
-import { API_URL } from '../../../config';
-import { useDispatch } from 'react-redux';
-import { viewsActions } from '../../../store/main';
+import { API_URL, LINKS_VK } from '../../../config';
 const maxLength = 2000;
 const minLengthTitle = 5;
 const minLengthDesc = 10;
 export default props => {
-  const dispatch = useDispatch();
-  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState(-1);
   const [check1, setCheck1] = useState(false);
+  const { goDisconnect } = props.navigation;
   const { setPopout, showErrorAlert } = props.callbacks;
   const checkVerfStatus = useCallback(() => {
     fetch(API_URL +
@@ -43,11 +40,8 @@ export default props => {
           showErrorAlert(data.error.message)
         }
       })
-      .catch(err => {
-        setActiveStory('disconnect')
-
-      })
-  }, [setActiveStory, setPopout, showErrorAlert])
+      .catch(goDisconnect)
+  }, [setPopout, showErrorAlert, goDisconnect])
   const handleForm = () => {
     setPopout(<ScreenSpinner />);
     fetch(API_URL +
@@ -69,10 +63,7 @@ export default props => {
           showErrorAlert(data.error.message)
         }
       })
-      .catch(err => {
-        setActiveStory('disconnect')
-
-      })
+      .catch(goDisconnect)
 
   }
   const validateTitle = (title, max, min) => {
@@ -134,7 +125,7 @@ export default props => {
             </FormItem>
             <Checkbox checked={check1} onChange={() => setCheck1(prev => !prev)}>
               Согласен с <Link
-                href='https://vk.com/@jedi_road-chto-takoe-verifikaciya-i-kak-ee-poluchit-galochku'
+                href={LINKS_VK.verification}
                 target="_blank" rel="noopener noreferrer">
                 правилами</Link> верификации
                   </Checkbox>
@@ -153,7 +144,6 @@ export default props => {
           </FormLayout>
         </Group>
       </> : null}
-      {props.snackbar}
     </Panel>
   )
 }

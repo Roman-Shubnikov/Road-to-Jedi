@@ -33,7 +33,7 @@ export default props => {
           description ? description :
           <div className="top_moderator_desc">
             {good_answers + " " + enumerate(good_answers, Forms.good_answers) + ", " 
-            + bad_answers + enumerate(bad_answers, Forms.bad_answers)}
+            + bad_answers + " " + enumerate(bad_answers, Forms.bad_answers)}
           </div>
         }
             before={diamond ?

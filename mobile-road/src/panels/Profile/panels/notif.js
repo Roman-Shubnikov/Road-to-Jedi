@@ -143,7 +143,7 @@ export default props => {
     return (
         <Panel id={props.id}>
         <PanelHeader
-        left={<PanelHeaderBack onClick={() => {setActiveStory('profile');}} />}>
+        left={<PanelHeaderBack onClick={() => window.history.back()} />}>
         Уведомления
         </PanelHeader>
         <Group>

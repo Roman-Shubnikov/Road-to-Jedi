@@ -221,8 +221,12 @@ class Users {
 		$is_public = $info_settings ? (bool) $info_settings[0]['public'] : FALSE;
 		$is_hide_donut = $info_settings ? (bool) $info_settings[0]['hide_donut'] : FALSE;
 		$changeColorNick = $info_settings ? $info_settings[0]['change_color_donut'] : FALSE;
-
+		$donut = false;
+		if($data['donut'] > time() || $data['donut'] == 1){
+			$donut = true;
+		}
 		if( empty($data['banned']) || !($data['permissions'] < CONFIG::PERMISSIONS['special'])) {
+			
 			$res = [
 				'id' => (int) $data['id'],
 				'online' => [
@@ -238,7 +242,7 @@ class Users {
 				'registered' => (int) $data['registered'],
 				'flash' => (bool) $data['flash'],
 				'verified' => (bool) $data['verified'],
-				'donut' => $is_hide_donut ? FALSE : $data['donut'] > time() || $data['donut'] == 1,
+				'donut' => !$is_hide_donut ? (bool) $donut : false,
 				'change_color_donut' => (bool)$changeColorNick,
 				'diamond' => (bool) $data['diamond'],
 				'generator' => (bool) $data['generator'],
@@ -272,7 +276,7 @@ class Users {
 			$res['donuts'] = (int)$data['donuts'];
 			$res['age'] = (int)$data['age'];
 			$res['scheme'] = (int)$data['scheme'];
-			$res['donut'] = (bool) $data['donut'] > time() || $data['donut'] == 1;
+			$res['donut'] = (bool) $donut;
 			$res['coff_active'] = $data['coff_active'] / 10;
 			
 		}

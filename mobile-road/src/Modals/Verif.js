@@ -22,8 +22,8 @@ export default class Verification extends React.Component {
                   rel="noopener noreferrer">Узнайте больше о новой верификации
                 </Link></>}
                 actions={this.props.action2 ? [
-                  <Button mode='secondary' stretched size='l' onClick={this.props.action2}>Рассказать</Button>,
-                  <Button mode='primary' stretched size='l' onClick={this.props.action}>Понятно</Button>
+                  <Button mode='secondary' key={1} stretched size='l' onClick={this.props.action2}>Рассказать</Button>,
+                  <Button mode='primary' key={2} stretched size='l' onClick={this.props.action}>Понятно</Button>
                 ] : 
                   <Button mode='primary' stretched size='l' onClick={this.props.action}>Понятно</Button>
                 }

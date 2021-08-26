@@ -328,56 +328,6 @@ export default props => {
                             'Этот профиль заблокирован' :
                             'Вы не можете просматривать этот профиль'}
                         </div> :
-                        //     <>
-                        //         <Group header={<Header mode='tertiary'>Основная информация</Header>}>
-                        //             <MiniInfoCell
-                        //                 before={<Icon20ArticleOutline />}
-                        //                 textWrap='full'>
-                        //                 {OtherProfileData.publicStatus || "Играю в любимую игру"}
-                        //             </MiniInfoCell>
-                        //             <MiniInfoCell
-                        //                 before={<Icon20FollowersOutline />}
-                        //                 after={
-                        //                     <UsersStack
-                        //                         photos={OtherProfileData.followers[2].map((user, i) => AVATARS_URL + user.avatar_name)} />
-                        //                 }>
-                        //                 {followers[0] ? followers[0] + " " + enumerate(followers[0],
-                        //                     ['подписчик', 'подписчика', 'подписчиков']) : "нет подписчиков"}
-                        //                 {followers[1] ? " · " +
-                        //                     followers[1] + " " + enumerate(followers[1],
-                        //                         ['новый', 'новых', 'новых']) : ''}
-                        //             </MiniInfoCell>
-                        //             <MiniInfoCell
-                        //                 mode='full'
-                        //                 before={<Icon20WorkOutline />}>
-                        //                 Дата регистрации: {getHumanyTime(OtherProfileData.registered).date}
-
-                        //             </MiniInfoCell>
-                        //             <MiniInfoCell
-                        //                 textWrap='full'
-                        //                 before={<Icon20BookOutline />}>
-                        //                 {recog_number(total_answers) + " " + enumerate(total_answers,
-                        //                         ['Ответ', 'Ответа', 'Ответов'])}
-                        //             </MiniInfoCell>
-                        //             <MiniInfoCell
-                        //                 textWrap='full'
-                        //                 before={<Icon20Info />}>
-                        //                 {recog_number(good_answers) + " " + enumerate(good_answers,
-                        //                         ['Положительный', 'Положительныx', 'Положительных'])} · {recog_number(
-                        //                             bad_answers) + " " + enumerate(bad_answers,
-                        //                                 ['Отрицательный', 'Отрицательных', 'Отрицательных'])}
-                        //             </MiniInfoCell>
-                        //             {OtherProfileData.public && <MiniInfoCell
-                        //                 mode='base'
-                        //                 before={<Icon20GlobeOutline />}>
-                        //                 <Link href={'https://vk.com/id' + vk_id}
-                        //                     target="_blank" rel="noopener noreferrer">Страница ВКонтакте</Link>
-                        //             </MiniInfoCell>}
-                                    
-
-                        //         </Group>
-
-                        //     </>
                         <>
                             <Group header={<Header>Общая информация</Header>}>
                                 <MiniInfoCell

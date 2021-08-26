@@ -49,7 +49,7 @@ class SystemNotifications {
 				WHERE users.id=?";
 		$user = $this->Connect->db_get( $sql, [$owner_id] )[0];
 		$ticket_id = $object['object'];
-		$object_lol = $ticket_id != 0 ? "https://vk.com/app7409818#ticket_id={$ticket_id}" : '';
+		$object_lol = $ticket_id != 0 ? CONFIG::LINK_APP . "#ticket_id={$ticket_id}" : '';
 		
 		
 

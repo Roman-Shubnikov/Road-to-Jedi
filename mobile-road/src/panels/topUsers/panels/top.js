@@ -32,7 +32,7 @@ import {
 } from '@vkontakte/icons'
 import UserTopC from '../../../components/userTop';
 import { useDispatch, useSelector } from 'react-redux';
-import { topUsersActions, viewsActions } from '../../../store/main';
+import { topUsersActions } from '../../../store/main';
 import { API_URL, PERMISSIONS } from '../../../config';
 import { inArray, isEmptyObject } from 'jquery';
 import { enumerate } from '../../../Utils';
@@ -48,7 +48,6 @@ const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera 
 
 export default props => {
   const dispatch = useDispatch();
-  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
   const { topAgents, mode } = useSelector((state) => state.topUsers) 
   const { setPopout, showErrorAlert, goOtherProfile } = props.callbacks;
   const [contextOpened, setContextOpened] = useState(false);
@@ -59,6 +58,7 @@ export default props => {
   } = useSelector((state) => state.account)
   const permissions = account.permissions;
   const moderator_permission = permissions >= PERMISSIONS.special;
+  const { goDisconnect } = props.navigation;
 
   const getTopUsers = useCallback((type, staff=false, fetching=false) => {
     if(topAgents[type] === null || fetching){
@@ -82,12 +82,9 @@ export default props => {
           showErrorAlert(data.error.message)
         }
       })
-      .catch(err => {
-        setActiveStory('disconnect')
-  
-      })
+      .catch(goDisconnect)
     }
-  }, [dispatch, showErrorAlert, setActiveStory, setPopout, topAgents ]);
+  }, [dispatch, goDisconnect, showErrorAlert, setPopout, topAgents ]);
 
 
   const select = (e) => {

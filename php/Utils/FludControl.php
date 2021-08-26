@@ -35,8 +35,6 @@ class FludControl {
             if (!isset($_SESSION['flood_control']['until'])) {
                 $_SESSION['flood_control']['until'] = $time + CONFIG::FLOOD_CONTROL_BAN;
             }
-
-            // self::error($time + CONFIG::FLOOD_CONTROL_BAN - time());
         }
 
 
@@ -57,6 +55,5 @@ class FludControl {
     private static function error( $time ) {
         http_response_code(509);
         exit("Вы превысили лимит запросов, осталось подождать: $time");
-        // Show::customError("Вы превысили лимит запросов, осталось подождать: $time", []);
     }
 }

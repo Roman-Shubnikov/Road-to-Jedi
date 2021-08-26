@@ -25,20 +25,20 @@ import {
     Icon28TicketOutline,
 
 } from '@vkontakte/icons';
-
 import { useDispatch, useSelector } from 'react-redux';
 import { API_URL, AVATARS_URL, LINKS_VK, MESSAGE_NO_VK, PERMISSIONS } from '../../../config';
-import { accountActions, viewsActions } from '../../../store/main';
+import { accountActions } from '../../../store/main';
 import { enumerate, recog_number } from '../../../Utils';
 
 export default props => {
   const dispatch = useDispatch();
   const { account, recomendations } = useSelector((state) => state.account)
   const { setPopout, showErrorAlert, goPanel, goOtherProfile } = props.callbacks;
+  const { activeStory } = useSelector((state) => state.views)
   const permissions = account.permissions;
   const moderator_permission = permissions >= PERMISSIONS.special;
   const agent_permission = permissions >= PERMISSIONS.agent;
-  const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
+  const { goDisconnect } = props.navigation;
   const getRecomendations = useCallback(() => {
     fetch(API_URL + "method=recommendations.get&" + window.location.search.replace('?', ''))
       .then(res => res.json())
@@ -50,11 +50,8 @@ export default props => {
           showErrorAlert(data.error.message)
         }
       })
-      .catch(err => {
-        setActiveStory('disconnect');
-
-      })
-  }, [dispatch, setActiveStory, setPopout, showErrorAlert])
+      .catch(goDisconnect)
+  }, [dispatch, setPopout, showErrorAlert, goDisconnect])
   useEffect(() => {
     if(agent_permission){
       getRecomendations();
@@ -80,13 +77,13 @@ export default props => {
         </SimpleCell>
         <SimpleCell
         expandable
-        onClick={() => goPanel('faqMain')}
+        onClick={() => goPanel(activeStory, 'faqMain', true)}
         before={<Icon56Stars3Outline width={28} height={28} style={{ color: '#FFB73D' }} />}>
           Поддержка
         </SimpleCell>
         {agent_permission && <SimpleCell 
         expandable
-        onClick={() => goPanel(account.donut ? 'premium' : 'donuts')}
+        onClick={() => goPanel(activeStory, account.donut ? 'premium' : 'donuts', true)}
         before={<Icon28DonateOutline style={{ color: '#4BB34B' }} />}>
           Эксклюзивные настройки
         </SimpleCell>}
@@ -94,7 +91,7 @@ export default props => {
         <SimpleCell
         expandable
         onClick={() => {
-            goPanel('testingagents');
+            goPanel(activeStory, 'testingagents', true);
         }}
         before={<Icon28TicketOutline style={{color: '#F05C44'}} />}>Пройти тест на создателя вопросов</SimpleCell>}
 

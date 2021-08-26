@@ -15,7 +15,7 @@ export default props => {
             borderRadius: 8
         } : {}}
         data-story={props.story}
-        onClick={(e) => props.changeActiveStory(e.currentTarget.dataset.story)}
+        onClick={props.onClick}
         before={props.icon}>
             {props.children}
     </Cell>

@@ -20,7 +20,7 @@ import {
 import Icon28WarningTriangleOutline from '@vkontakte/icons/dist/28/warning_triangle_outline';
 import { API_URL } from '../../../config';
 import { useDispatch, useSelector } from 'react-redux';
-import { accountActions, viewsActions } from '../../../store/main';
+import { accountActions } from '../../../store/main';
 import { getHumanyTime } from '../../../Utils';
 
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
@@ -33,7 +33,7 @@ export default props => {
     const [search, setSearch] = useState('');
     const [fetching, setFetching] = useState(false);
     const [searched, setSearched] = useState([]);
-    const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
+    const { goDisconnect } = props.navigation;
 
     const getMyQuestions = useCallback(() => {
         fetch(API_URL + "method=tickets.getByModeratorAnswers&" + window.location.search.replace('?', ''))
@@ -50,11 +50,8 @@ export default props => {
                     showErrorAlert(data.error.message)
                 }
             })
-            .catch(err => {
-                setActiveStory('disconnect')
-
-            })
-    }, [dispatch, setActiveStory, setPopout, showErrorAlert])
+            .catch(goDisconnect)
+    }, [dispatch, goDisconnect, setPopout, showErrorAlert])
     
     const getFiltresQuestions = useCallback((questions) => {
         let filtredQuestions;

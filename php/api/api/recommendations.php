@@ -26,9 +26,8 @@ class Recomendations {
         return $res;
     }
     public function is_recommended($agent_id){
-        $recommendet = $this->Connect->db_get("SELECT aid FROM recommendations WHERE aid=?", [$agent_id]);
-        if($recommendet) return true;
-        return false;
+        $recommended = $this->Connect->db_get("SELECT aid FROM recommendations WHERE aid=?", [$agent_id]);
+        return (bool)$recommended;
     }
 
     public function add($agent_id){

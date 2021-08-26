@@ -21,7 +21,7 @@ export default props => {
             </PanelHeader>
             <Placeholder stretched
             action={
-                <Button size='m' onClick={() => props.goQuestions()}>
+                <Button size='m' onClick={() => window.history.back()}>
                     Вопросы
                 </Button>
             }

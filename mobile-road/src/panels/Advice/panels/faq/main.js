@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { 
     Icon28AddOutline,
     Icon56AdvertisingOutline,
@@ -23,7 +23,7 @@ import {
 
 import { useDispatch, useSelector } from 'react-redux';
 import { API_URL, JediIcons28, LINKS_VK, PERMISSIONS } from '../../../../config';
-import { faqActions, viewsActions } from '../../../../store/main';
+import { faqActions } from '../../../../store/main';
 let lastTypingTime;
 let typing = false;
 let searchval = '';
@@ -37,9 +37,11 @@ export default props => {
     const setSearchResult = (questions) => dispatch(faqActions.setSearchResultQuestions(questions))
     const { showErrorAlert, goPanel } = props.callbacks;
     const { account } = useSelector((state) => state.account)
+    const { goDisconnect } = props.navigation;
+    const { activeStory } = useSelector((state) => state.views)
     const permissions = account.permissions;
     const moderator_permission = permissions >= PERMISSIONS.admin;
-    const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
+
     const getCategories = () => {
         fetch(API_URL + "method=faq.getCategories&" + window.location.search.replace('?', ''))
             .then(res => res.json())
@@ -50,10 +52,7 @@ export default props => {
                 showErrorAlert(data.error.message)
             }
             })
-            .catch(err => {
-                setActiveStory('disconnect')
-
-            })
+            .catch(goDisconnect)
     }
     const delCategory = (id) => {
         fetch(API_URL + "method=faq.delCategory&" + window.location.search.replace('?', ''),
@@ -72,10 +71,7 @@ export default props => {
             showErrorAlert(data.error.message)
         }
         })
-        .catch(err => {
-            setActiveStory('disconnect')
-
-        })
+        .catch(goDisconnect)
     }
     const getSearchQuestions = () => {
         if(searchval.length <= 0) return;
@@ -95,10 +91,7 @@ export default props => {
                 showErrorAlert(data.error.message)
             }
             })
-            .catch(err => {
-                setActiveStory('disconnect')
-
-            })
+            .catch(goDisconnect)
     }
     const updateTyping = () => {
         if(!typing){
@@ -120,12 +113,12 @@ export default props => {
     }
     const goCategory = (id) => {
         dispatch(faqActions.setActiveCategory(id))
-        goPanel('faqQuestions')
+        goPanel(activeStory, 'faqQuestions', true)
 
     }
     const goQuestion = (id) => {
         dispatch(faqActions.setActiveQuestion(id))
-        goPanel('faqQuestion')
+        goPanel(activeStory, 'faqQuestion', true)
     }
     const Searched = () => {
         if(!searchResult) return <PanelSpinner />
@@ -201,12 +194,12 @@ export default props => {
                             searchval = e.currentTarget.value
                             setSearch(e.currentTarget.value)}} />
                 {moderator_permission && <><CellButton before={<Icon28AddOutline />}
-                    onClick={() => goPanel('faqCreateCategory')}>
+                    onClick={() => goPanel(activeStory, 'faqCreateCategory', true)}>
                         Добавить категорию
                 </CellButton>
                 
                 <CellButton before={<Icon28AddOutline />}
-                onClick={() => goPanel('faqCreateQuestion')}>
+                onClick={() => goPanel(activeStory, 'faqCreateQuestion', true)}>
                     Добавить вопрос
                 </CellButton>
                 <CellButton before={<Icon28EditOutline />}
