@@ -79,7 +79,9 @@ class Tickets
 
 	public function getRandom()
 	{
-		$sql = "SELECT id FROM tickets WHERE status = 0 ORDER BY RAND() LIMIT 1";
+		$no_don = '';
+		if (!$this->user->donut && ($this->user->info['permissions'] < CONFIG::PERMISSIONS['special'])) $no_don = 'AND donut=0';
+		$sql = "SELECT id FROM tickets WHERE status=0 $no_don ORDER BY RAND() LIMIT 1";
 		$res = $this->Connect->db_get($sql)[0];
 
 		return $this->getById($res['id']);
@@ -158,7 +160,7 @@ class Tickets
 		// Увеличиваем счетчик оцененных ответов
 		$auid = $res['author_id'];
 		$good_or_bad = $mark == 1 ? 'good_answers' : 'bad_answers';
-		$rating = $mark == 1 ? 'coff_active=coff_active+11' : 'coff_active=coff_active-6';
+		$rating = $mark == 1 ? 'coff_active=coff_active+16' : 'coff_active=coff_active-4';
 		if ($ticket['donut']) {
 			$money = $mark == 1 ? 'money=money+30,donuts=donuts+10' : 'money=money';
 		} else {
@@ -420,18 +422,18 @@ class Tickets
 			Show::error(23);
 		}
 		$auid = $this->user->id;
-		// $notification = substr( $text, 0, 150 );
-		// if($len > 150){
-		// 	$notification .= '...';
-		// }
 		$notification = "Администрация оставила комментарий к вашему ответу";
 		$object = [
 			'type' => 'comment_add',
 			'object' => $res['ticket_id']
 		];
+		$comment_time = 0;
+		if($res['mark'] === -1) {
+			$comment_time = time();
+		}
 
 		$this->SYSNOTIF->send($res['author_id'], $notification, $object, CONFIG::AVATAR_PATH . '/' . $avatar_name);
-		return $this->Connect->query("UPDATE messages SET comment=?, comment_author_id=?, comment_time=? WHERE id=?", [$text, $auid, time(), $message_id])[0];
+		return $this->Connect->query("UPDATE messages SET comment=?, comment_author_id=?, comment_time=? WHERE id=?", [$text, $auid, $comment_time, $message_id])[0];
 	}
 
 	public function editComment(int $message_id, string $new_text)
@@ -612,11 +614,23 @@ class Tickets
 		$user_ids = [];
 		$result = [];
 		$users = [];
-
+		$ticket_ids = [];
+		$message_tickets_ids = [];
+		
 		foreach ($res as $ticket) {
 			$user_ids[] = -$ticket['author_id'];
+			$ticket_ids[] = $ticket['id'];
 		}
-
+		$tickets_string = implode(",", $ticket_ids);
+		$viewer = $this->user->id;
+		$sql = "SELECT ticket_id
+				FROM messages WHERE ticket_id IN ( $tickets_string )
+				AND author_id={$viewer} AND mark!=-1
+				ORDER BY id DESC";
+		$messages = $this->Connect->db_get($sql);
+		foreach($messages as $message) {
+			$message_tickets_ids[] = $message['ticket_id'];
+		}
 		foreach ($vkapi->users_get($user_ids, ['photo_200']) as $user) {
 			$users[$user['id']] = $user;
 		}
@@ -624,7 +638,10 @@ class Tickets
 
 		foreach ($res as $ticket) {
 			$ticket['author'] = $users[-$ticket['author_id']];
-			$result[] = $this->_formatType($ticket);
+			if(!in_array($ticket['id'], $message_tickets_ids)){
+				$result[] = $this->_formatType($ticket);
+			}
+			
 		}
 
 		return $result;

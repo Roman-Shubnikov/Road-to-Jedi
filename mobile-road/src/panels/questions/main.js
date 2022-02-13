@@ -7,7 +7,7 @@ import {
 import '@vkontakte/vkui/dist/vkui.css';
 // Импортируем панели
 import NewTicket      from './panels/new_tiket'
-import Questions      from './panels/questions'
+import QuestionsMain      from './panels/questions'
 import Tiket          from '../../components/tiket';
 import OtherProfile   from '../../components/other_profile'
 import Reports        from '../../components/report';
@@ -15,7 +15,7 @@ import AnswerAdded    from '../../components/AnswerAdded';
 //Импортируем модальные карточки
 import { useSelector } from 'react-redux';
 
-export default props => {
+export const Questions = props => {
   const { goPanel } = props.navigation;
   const { activePanel, historyPanelsView } = useSelector((state) => state.views)
   const {showAlert, showErrorAlert, setActiveModal, setPopout} = props.popouts_and_modals;
@@ -31,7 +31,7 @@ export default props => {
       history={historyPanelsView}
       onSwipeBack={() => window.history.back()}
     >
-      <Questions id='questions'
+      <QuestionsMain id='questions'
         callbacks={callbacks}/>
       <NewTicket id='new_ticket'
       navigation={props.navigation}

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
-
+import Skeleton from "react-loading-skeleton";
 import $ from 'jquery';
 import { 
     Panel,
@@ -478,6 +478,9 @@ export default props => {
         .catch(() => goPanel('disconnect', 'load'))
     }
     getTicket(preTicketId ? preTicketId : info.id)
+    return () => {
+      dispatch(ticketActions.setTicket({}))
+    }
      // eslint-disable-next-line 
   }, [preTicketId, dispatch])
   return(
@@ -539,7 +542,7 @@ export default props => {
                 </Div>
               </Group>
             </FixedLayout> :
-            (account.generator && info.real_author) ?
+            (account.generator && info.real_author && !moderator_permission) ?
               <FixedLayout filled vertical='bottom' style={{ zIndex: 20 }}>
                 <Group>
                   <Div>
@@ -597,7 +600,10 @@ export default props => {
           </FixedLayout>
           : null}
         {snackbar}
-      </> : <Group><PanelSpinner /></Group>}
+      </> : 
+      <Group>
+        <div className="title_tiket">{<Skeleton width={400} height={17} delay={4} count={2} />}</div>
+      </Group>}
     </Panel>
   )
 }

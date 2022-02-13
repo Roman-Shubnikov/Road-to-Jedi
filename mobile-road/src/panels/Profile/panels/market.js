@@ -56,6 +56,7 @@ import { useSelector } from 'react-redux';
 import { API_URL, AVATARS_URL, LINKS_VK } from '../../../config';
 import { enumerate } from '../../../Utils';
 import { isEmptyObject } from 'jquery';
+import { sendGoal } from '../../../metrika';
 
 
 const avatars = [
@@ -136,7 +137,10 @@ export default props => {
             selected={activeTab === 'invoices'}>
               Счета
             </TabsItem>
-            {platform !== IOS && <TabsItem onClick={() => setActivetab('treasures')}
+            {platform !== IOS && <TabsItem onClick={() => {
+              setActivetab('treasures');
+              sendGoal('marketMoneyClick');
+            }}
             selected={activeTab === 'treasures'}>
               Ценности
             </TabsItem>}

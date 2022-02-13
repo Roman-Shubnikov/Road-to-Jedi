@@ -22,7 +22,7 @@ import Notify         from './panels/notif';
 
 import { useSelector } from 'react-redux';
 
-export default props => {
+export const Profile = props => {
   const { setReport, goTiket, goOtherProfile, setMoneyPromo, setSnackbar, setTransfer } = props.base_functions;
   const { goPanel } = props.navigation;
   const { activePanel, historyPanelsView } = useSelector((state) => state.views)

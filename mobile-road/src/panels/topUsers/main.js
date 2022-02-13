@@ -6,11 +6,11 @@ import {
   } from '@vkontakte/vkui';
 
 // Импортируем панели
-import Top from './panels/top';
+import TopMain from './panels/top';
 import OtherProfile from '../../components/other_profile';
 import Report from '../../components/report';
 import { useSelector } from 'react-redux';
-export default props => {
+export const Top = props => {
   const { goPanel } = props.navigation;
   const { activePanel, historyPanelsView } = useSelector((state) => state.views)
   const {showAlert, showErrorAlert, setActiveModal, setPopout} = props.popouts_and_modals;
@@ -23,7 +23,7 @@ export default props => {
     history={historyPanelsView}
     onSwipeBack={() => window.history.back()}
     >
-      <Top id="top"
+      <TopMain id="top"
       navigation={props.navigation}
       callbacks={callbacks} />
 

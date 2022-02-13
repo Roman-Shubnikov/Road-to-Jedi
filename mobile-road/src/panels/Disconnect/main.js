@@ -10,7 +10,7 @@ import Startov from './panels/home';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewsActions } from '../../store/main';
 
-export default props => {
+export const Disconnect = props => {
   const dispatch = useDispatch();
   const { activePanel, historyPanelsView } = useSelector((state) => state.views)
   useEffect(() => {

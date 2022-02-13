@@ -21,7 +21,7 @@ var types = {
   'reports': "reports.getReports",
 }
 
-export default props => {
+export const Moderation = props => {
   const dispatch = useDispatch();
   const setModerationData = useCallback((state) => dispatch(moderationActions.setData(state)), [dispatch])
   const { moderationData } = useSelector((state) => state.moderation)

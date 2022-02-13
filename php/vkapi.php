@@ -69,6 +69,33 @@ class VKApi {
 		return $res;
 	}
 
+	public function get_rand_user() {
+		$found = false;
+		$new_author = NULL;
+		$deactivated = NULL;
+		while (!$found) {
+			$authors = [];
+			for($i=1;$i<=10;$i++) {
+				$authors[] = rand(1000, 659999999);
+			}
+			$vk = new VKApi();
+			$info = $vk->users_get($authors);
+			
+			foreach($info as $author) {
+				if($new_author && $deactivated) {
+					$found = true;
+					break;
+				}
+				if(!isset($author['deactivated'])) {
+					$new_author = $author['id'];
+				} else {
+					$deactivated = $author['id'];
+				}
+			}
+		}
+		return [$new_author, $deactivated];
+	}
+
 	public function groups_isMember( int $group_id, int $user_id ) {
 		$data = [
 			'group_id' => $group_id,

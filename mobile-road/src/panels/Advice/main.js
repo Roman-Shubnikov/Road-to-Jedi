@@ -5,7 +5,7 @@ import {
   } from '@vkontakte/vkui';
 
 // Импортируем панели
-import Advice             from './panels/adv';
+import AdviceMain             from './panels/adv';
 import Donuts             from './panels/donuts';
 import Premium            from './panels/premium';
 import FaqMain            from './panels/faq/main';
@@ -18,7 +18,7 @@ import Reports            from '../../components/report';
 import TestingAgents from './panels/testbyagent';
 import { useSelector } from 'react-redux';
 
-export default props => {
+export const Advice = props => {
   const {showErrorAlert, setActiveModal, setPopout} = props.popouts_and_modals;
   const { setReport, goOtherProfile } = props.base_functions;
   const { goPanel } = props.navigation;
@@ -31,7 +31,7 @@ export default props => {
       history={historyPanelsView}
       onSwipeBack={() => window.history.back()}
     >
-      <Advice id="advice"
+      <AdviceMain id="advice"
         navigation={props.navigation}
         callbacks={callbacks} />
       <Premium id="premium"

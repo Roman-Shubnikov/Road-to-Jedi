@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-
+import Skeleton from "react-loading-skeleton";
 import { 
     Panel,
     PanelHeader,
@@ -7,7 +7,6 @@ import {
     Group,
     RichCell,
     Avatar,
-    PanelSpinner,
     Separator,
     UsersStack,
     Header,
@@ -138,7 +137,13 @@ export default props => {
             Рекомендации пусты. Как только тут кто-то появится — обязательно подпишитесь на агента.
                   </Placeholder>
           :
-          <PanelSpinner />}
+          Array(3).fill().map((e,i)=>
+          <RichCell
+          key={i}
+          bottom={<Skeleton width={70} height={18} />}
+          before={<Skeleton style={{marginRight: 12}} circle={true} width={56} height={56} />}>
+            <Skeleton style={{marginBottom: 4}} width={120} height={18} />
+          </RichCell>)}
           {!moderator_permission ? MESSAGE_NO_VK : null}
       </Group>}
     </Panel>

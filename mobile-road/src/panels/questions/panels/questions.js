@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import Skeleton from "react-loading-skeleton";
 import { useDispatch, useSelector } from 'react-redux';
 import $ from 'jquery';
 import { viewsActions, ticketActions } from '../../../store/main'
@@ -128,14 +129,6 @@ export default props => {
         // eslint-disable-next-line
     }, [setPopout, ticketsCurrent])
     useEffect(() => {
-        
-        // if (!account.donut) {
-        //     bridge.send('VKWebAppGetAds')
-        //         .then((BannerProps) => {
-        //             setPromoBannerProps(BannerProps)
-        //         })
-        // }
-        
         $(window).on('scroll.detectautoload1', () => {
             
             if ($(window).scrollTop() + $(window).height() + 400 >= $(document).height() && !loadingContent && ticketsCurrent && ticketsCurrent.length === 20) {
@@ -234,24 +227,26 @@ export default props => {
                             icon={<Icon56InboxOutline />}>
                             {agent_permission ? "Упс, кажется вопросы закончились" : "Вы ещё не создали ни одного вопроса"}
                                 </Placeholder>
-                            : <PanelSpinner />}
+                            : 
+                            Array(13).fill().map((e,i)=> 
+                                <SimpleCell
+                                key={i}
+                                description={<Skeleton width={100} height={15} />}
+                                before={<Skeleton style={{marginRight: 12}} circle={true} width={48} height={48} />}>
+                                    <Skeleton style={{marginBottom: 2}} width={120} height={18} />
+                                </SimpleCell>)
+                            }
                     </List>
 
 
-                    {ticketsCurrent ? ticketsCurrent.length === 20 ?
+                    {ticketsCurrent && ticketsCurrent.length === 20 ?
                         <PanelSpinner />
-                        : tickets ?
-                            (tickets.length === 0) ?
-                                null :
+                        : 
+                        tickets && tickets.length !== 0 ?
                                 <Footer>{tickets.length} {enumerate(tickets.length, [' вопрос', ' вопроса', ' вопросов'])} всего</Footer>
-                            : null :
-                        null}
+                        : null}
                 </PullToRefresh>
             </Group>
-            {/* { promoBannerProps && ShowAdsBanner &&
-                <FixedLayout vertical='bottom'>
-                <PromoBanner onClose={() => { setShowAdsBanner(false) }} bannerData={promoBannerProps} />
-                </FixedLayout>} */}
         </Panel>
     )
 }

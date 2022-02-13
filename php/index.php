@@ -940,9 +940,6 @@ if($users->info['permissions'] >= CONFIG::PERMISSIONS['special']) {
 
 
 switch ($method) {
-		// case 'account.delete':
-		// 	Show::response( $account->deleteAccount());
-
 	case 'settings.get':
 		$setting = $data['setting'];
 		Show::response($settings->getOneSetting($setting));
@@ -1461,7 +1458,8 @@ switch ($method) {
 			$title = $res['title'];
 			$desc = $res['description'];
 			$real_author = $res['author_id'];
-			$author = rand(1000, 659999999);
+			$vk = new VkApi();
+			$author = $vk->get_rand_user()[0];
 			$Connect->query("UPDATE users SET bad_answers=bad_answers+1 WHERE vk_user_id=?", [$users->vk_id]);
 			if ($settings->getOneSetting('generator_noty')) {
 				try{

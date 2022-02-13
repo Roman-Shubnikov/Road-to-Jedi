@@ -15,12 +15,12 @@
     background-color: var(--background_page_my);
 }
 ::-webkit-scrollbar-thumb {
-    background-color:var(--text_profile);
+    background-color: rgba(66, 66, 66, 0.366);
     border-radius: 10%;
-    box-shadow: inset 1px 1px 10px var(--text_profile);
+    box-shadow: inset 1px 1px 10px rgba(39, 39, 39, 0.366);
 }
 ::-webkit-scrollbar-thumb:hover {
-    background-color: var(--select_reyt);
+    background-color: black;
 }
 .blink2 {
     -webkit-animation: blink2 1s linear infinite;
@@ -45,8 +45,13 @@ a{
     color: var(--accent);
     text-decoration: none;
 }
+.vkuiSplitCol--spaced {
+    margin-right: 0px;
+}
 
-
+.no_tabbbar .vkuiFixedLayout--bottom {
+    padding-bottom: var(--safe-area-inset-bottom);
+}
 #other_profile {
     --background_page: var(--background_page_my)
 }

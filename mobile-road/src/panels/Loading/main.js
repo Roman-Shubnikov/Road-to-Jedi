@@ -11,7 +11,7 @@ import '@vkontakte/vkui/dist/vkui.css';
 import Startov from './panels/home';
 import { useDispatch } from 'react-redux';
 
-export default props => {
+export const LoadingScreen = props => {
   const dispatch = useDispatch();
 
   useEffect(() => {

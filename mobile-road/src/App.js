@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'; // React
 import {useDispatch, useSelector} from "react-redux";
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
-
+import { SkeletonTheme } from "react-loading-skeleton";
 // import music from './music/Soloriver.mp3';
 import { API_URL, PERMISSIONS, viewsStructure, SPECIAL_NORM } from "./config";
 
@@ -20,7 +20,6 @@ import {
   Panel,
   PanelHeader,
   Group,
-  Root,
   Platform,
   ViewHeight,
   usePlatform,
@@ -58,14 +57,17 @@ import {
 
 import {accountActions, reportsActions, ticketActions, viewsActions} from './store/main'
 // Импортируем панели
-import Questions      from './panels/questions/main';
-import Advice         from './panels/Advice/main';
-import Top            from './panels/topUsers/main';
-import Profile        from './panels/Profile/main';
-import Banned         from './panels/Banned/main';
-import LoadingScreen  from './panels/Loading/main';
-import Disconnect     from './panels/Disconnect/main';
-import Moderation     from './panels/Moderation/main';
+import {
+  Questions,
+  Advice,
+  Top,
+  Moderation,
+  Profile,
+  MRequests,
+  Disconnect,
+  Banned,
+  LoadingScreen,
+} from './panels'
 
 import {
   Icon28CompassOutline,
@@ -78,12 +80,14 @@ import {
   Icon16Verified,
   Icon28DiamondOutline,
   Icon28SortOutline,
+  Icon28GridSquareOutline,
 
 } from '@vkontakte/icons'
 import { modalslist } from './modals';
 import EpicItemPC from './components/EpicItem';
 import { isEmptyObject } from 'jquery';
 import { alertCreator, errorAlertCreator, setActiveModalCreator, goOtherProfileCreator, enumerate } from './Utils';
+import { sendHit } from './metrika/ym';
 
 
 const queryString = require('query-string');
@@ -220,6 +224,7 @@ const App = () => {
     setHistoryPanels(history);
     setActiveScene(view, panel)
     bridge.send('VKWebAppEnableSwipeBack');
+    sendHit(view+'_'+panel);
   }, [setActiveScene, historyPanels, activeStory, setHistoryPanels])
   const goDisconnect = () => {
     goPanel(viewsStructure.Disconnect.navName, viewsStructure.Disconnect.panels.homepanel);
@@ -549,70 +554,6 @@ const App = () => {
       {modalslist}
     </ModalRoot>
   )
-  const viewsCollection = (
-  <Root activeView={activeStory}
-    id='root_inter'>
-      <Questions 
-      id={viewsStructure.Questions.navName}
-      navigation={navigation}
-      popouts_and_modals={popouts_and_modals}
-      base_functions={base_functions}
-      reloadProfile={fetchAccount}
-      popout={popout} />
-
-      <Advice
-      navigation={navigation}
-      id={viewsStructure.Advice.navName}
-      base_functions={base_functions}
-      popouts_and_modals={popouts_and_modals}
-      reloadProfile={fetchAccount}
-      popout={popout} />
-
-      <Top 
-      navigation={navigation}
-      id={viewsStructure.Top.navName}
-      base_functions={base_functions}
-      popouts_and_modals={popouts_and_modals}
-      reloadProfile={fetchAccount}
-      scheme={scheme}
-      popout={popout} />
-
-      <Profile 
-      navigation={navigation}
-      id={viewsStructure.Profile.navName}
-      base_functions={base_functions}
-      popouts_and_modals={popouts_and_modals}
-      marks_manage={{setIsMyMark}}
-      reloadProfile={fetchAccount}
-      scheme={scheme}
-      default_scheme={default_scheme}
-      popout={popout} />
-
-      <Moderation 
-      navigation={navigation}
-      base_functions={base_functions}
-      id={viewsStructure.Moderation.navName}
-      popouts_and_modals={popouts_and_modals}
-      reloadProfile={fetchAccount}
-      />
-
-      <Banned 
-      id="banned"
-      reloadProfile={fetchAccount}
-      scheme={scheme}
-      popout={popout} />
-
-      <Disconnect
-      id="disconnect"
-      setPopout={setPopout}
-      AppInit={AppInit}
-      reloadProfile={fetchAccount} />
-
-      <LoadingScreen 
-      id="loading" />
-      
-    </Root>
-  )
 
   return(
     <>
@@ -673,7 +614,13 @@ const App = () => {
                           
                       </Group>}
                       <Group>
-                        
+                        <EpicItemPC
+                          icon={<Icon28GridSquareOutline />}
+                          story={viewsStructure.MRequest.navName}
+                          activeStory={activeStory}
+                          onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.MRequest.panels.homepanel)}}>
+                            {viewsStructure.MRequest.name}
+                        </EpicItemPC>
                         <EpicItemPC
                         icon={<Icon28ArticleOutline />}
                         story={viewsStructure.Questions.navName}
@@ -711,13 +658,22 @@ const App = () => {
                   <SplitCol
                 animate={!isDesktop.current}
                 spaced={isDesktop.current}
-                width={isDesktop.current ? '560px' : '100%'}
-                maxWidth={isDesktop.current ? '560px' : '100%'}
+                width={isDesktop.current ? '704px' : '100%'}
+                maxWidth={isDesktop.current ? '704px' : '100%'}
                   >
-                {!isDesktop.current ? <Epic activeStory={activeStory}
+                <SkeletonTheme color={['bright_light', 'vkcom_light'].indexOf(scheme) !== -1 ? undefined : '#232323'} 
+                highlightColor={['bright_light', 'vkcom_light'].indexOf(scheme) !== -1 ? undefined : '#6B6B6B'}>
+                <Epic activeStory={activeStory}
+                className={!(need_epic && !isDesktop.current) ? 'no_tabbbar' : undefined}
                       tabbar={
                         need_epic && !isDesktop.current &&
                         <Tabbar>
+                          <TabbarItem
+                            onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.MRequest.panels.homepanel)}} 
+                            selected={activeStory === viewsStructure.MRequest.navName}
+                            data-story={viewsStructure.MRequest.navName}
+                            text={viewsStructure.MRequest.name}
+                          ><Icon28GridSquareOutline/></TabbarItem>
                           <TabbarItem
                             onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Questions.panels.homepanel)}} 
                             selected={activeStory === viewsStructure.Questions.navName}
@@ -753,21 +709,25 @@ const App = () => {
                         </Tabbar>
                       }
                       >
+                      <MRequests
+                      id={viewsStructure.MRequest.navName}
+                      navigation={navigation}
+                      popouts_and_modals={popouts_and_modals}
+                      base_functions={base_functions} />
+
                       <Questions 
                       id={viewsStructure.Questions.navName}
                       navigation={navigation}
                       popouts_and_modals={popouts_and_modals}
                       base_functions={base_functions}
-                      reloadProfile={fetchAccount}
-                      popout={popout} />
+                      reloadProfile={fetchAccount} />
 
                       <Advice
                       navigation={navigation}
                       id={viewsStructure.Advice.navName}
                       base_functions={base_functions}
                       popouts_and_modals={popouts_and_modals}
-                      reloadProfile={fetchAccount}
-                      popout={popout} />
+                      reloadProfile={fetchAccount} />
 
                       <Top 
                       navigation={navigation}
@@ -775,8 +735,7 @@ const App = () => {
                       base_functions={base_functions}
                       popouts_and_modals={popouts_and_modals}
                       reloadProfile={fetchAccount}
-                      scheme={scheme}
-                      popout={popout} />
+                      scheme={scheme} />
 
                       <Profile 
                       navigation={navigation}
@@ -786,8 +745,7 @@ const App = () => {
                       marks_manage={{setIsMyMark}}
                       reloadProfile={fetchAccount}
                       scheme={scheme}
-                      default_scheme={default_scheme}
-                      popout={popout} />
+                      default_scheme={default_scheme} />
 
                       <Moderation 
                       navigation={navigation}
@@ -800,8 +758,7 @@ const App = () => {
                       <Banned 
                       id="banned"
                       reloadProfile={fetchAccount}
-                      scheme={scheme}
-                      popout={popout} />
+                      scheme={scheme} />
 
                       <Disconnect
                       id="disconnect"
@@ -812,8 +769,7 @@ const App = () => {
                       <LoadingScreen 
                       id="loading" />
                     </Epic>
-                     : 
-                    viewsCollection}
+                    </SkeletonTheme>
                   </SplitCol>
                   {snackbar}
                 </SplitLayout>

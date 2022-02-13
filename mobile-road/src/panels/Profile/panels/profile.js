@@ -51,6 +51,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { API_URL, AVATARS_URL, CONVERSATION_LINK, MESSAGE_NO_VK, PERMISSIONS, PUBLIC_STATUS_LIMIT } from '../../../config';
 import InfoArrows from '../../../components/InfoArrows';
 import { accountActions } from '../../../store/main';
+import { sendGoal } from '../../../metrika';
 export default props => {
     const dispatch = useDispatch();
     const platform = usePlatform();
@@ -247,6 +248,7 @@ export default props => {
                             expandable
                             onClick={() => {
                                 goPanel(activeStory, 'market', true);
+                                sendGoal('marketClick')
                             }}
                             before={<Icon28MarketOutline />}>Маркет</SimpleCell>}
 

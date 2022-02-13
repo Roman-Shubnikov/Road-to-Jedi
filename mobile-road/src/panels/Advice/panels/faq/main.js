@@ -135,7 +135,7 @@ export default props => {
         }else{
             return <Placeholder
             icon={<Icon56DocumentOutline />}
-            header="Вопрос не найден."
+            header="Вопрос не найден"
             action={
             <Button href={LINKS_VK.support_jedi} 
             target="_blank"

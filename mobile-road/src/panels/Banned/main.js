@@ -9,7 +9,7 @@ import '@vkontakte/vkui/dist/vkui.css';
 import Startov from './panels/ban';
 
 
-export default props => {
+export const Banned = props => {
   return (
     <View
       id={props.id}

@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import Skeleton from "react-loading-skeleton";
 import { 
   Panel,
   PanelHeader,
   Separator,
   PullToRefresh,
-  PanelSpinner,
   PanelHeaderContent,
   PanelHeaderContext,
   Cell,
@@ -14,9 +14,8 @@ import {
   Tabs,
   HorizontalScroll,
   Placeholder,
-
+  SimpleCell,
   } from '@vkontakte/vkui';
-
 
 import {
   Icon16Dropdown,
@@ -232,7 +231,14 @@ export default props => {
             icon={getCurrStub()[0]}
             >
           {getCurrStub()[1]}
-        </Placeholder> : <PanelSpinner />}
+        </Placeholder> : 
+        Array(13).fill().map((e,i)=> 
+          <SimpleCell
+          key={i}
+          description={<Skeleton width={100} height={15} />}
+          before={<Skeleton style={{marginRight: 12}} circle={true} width={48} height={48} />}>
+              <Skeleton style={{marginBottom: 2}} width={120} height={18} />
+          </SimpleCell>)}
       </Group>
     </PullToRefresh>
 </Panel>
