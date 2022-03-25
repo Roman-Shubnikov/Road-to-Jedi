@@ -37,7 +37,7 @@ export default props => {
     let num_style = 1
     if (num > 0 && num <= 5) {
       styles = {
-        color: 'var(--dynamic_green)',
+        color: 'var(--clock_support_green)',
       };
       num_style = 1
     } else if (num >= 6 && num <= 10) {

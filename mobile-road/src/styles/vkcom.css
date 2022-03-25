@@ -1,4 +1,4 @@
-body[scheme="vkcom"] {
+body[scheme="vkcom_light"] {
     --background_page_my: #fff;
     --button_send:  #398ce2;
     --button_send_color: #fff;
@@ -19,4 +19,5 @@ body[scheme="vkcom"] {
     --prom_icon: #f15b49;
     --button_home: #3895ff;
     --button_home_shadow: rgba(0,0,0,0.5);
+    --subtext: #6f7985;
 }

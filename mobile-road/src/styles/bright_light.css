@@ -19,4 +19,5 @@ body[scheme="bright_light"] {
     --prom_icon: #f15b49;
     --button_home: #3895ff;
     --button_home_shadow: rgba(0,0,0,0.5);
+    --subtext: #6f7985;
 }

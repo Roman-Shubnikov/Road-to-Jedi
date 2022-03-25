@@ -18,7 +18,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { faqActions } from '../../../../store/main';
 import { API_URL, PERMISSIONS } from '../../../../config';
-export default props => {
+export const QuestionsList = props => {
     const dispatch = useDispatch();
     const { activeCategory, questions } = useSelector((state) => state.Faq)
     const [editing, setEditing] = useState(false);

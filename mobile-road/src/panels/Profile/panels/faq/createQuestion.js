@@ -23,7 +23,7 @@ import { useSelector } from 'react-redux';
 const blueBackground = {
     backgroundColor: 'var(--accent)'
   };
-export default props => {
+export const CreateQuestion = props => {
     const [question, setQuestion] = useState('');
     const [answer, setAnswer] = useState('');
     const [snackbar, setSnackbar] = useState(null);

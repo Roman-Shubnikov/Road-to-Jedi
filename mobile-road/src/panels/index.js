@@ -1,4 +1,3 @@
-export { MRequests } from "./Mrequests/main";
 export { Questions } from './questions/main';
 export { Advice } from './Advice/main';
 export { Top } from './topUsers/main';

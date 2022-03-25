@@ -74,12 +74,6 @@ export default props => {
         before={<Icon28Users3Outline />}>
           Сообщество
         </SimpleCell>
-        <SimpleCell
-        expandable
-        onClick={() => goPanel(activeStory, 'faqMain', true)}
-        before={<Icon56Stars3Outline width={28} height={28} style={{ color: '#FFB73D' }} />}>
-          Поддержка
-        </SimpleCell>
         {agent_permission && <SimpleCell 
         expandable
         onClick={() => goPanel(activeStory, account.donut ? 'premium' : 'donuts', true)}

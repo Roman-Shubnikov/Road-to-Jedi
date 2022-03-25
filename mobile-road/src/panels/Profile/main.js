@@ -22,6 +22,15 @@ import Notify         from './panels/notif';
 
 import { useSelector } from 'react-redux';
 
+import { 
+  FaqMain,
+  CreateQuestion as FaqCreateQuestion,
+  CreateCategory as FaqCreateCategory,
+  Question as FaqQuestion,
+  QuestionsList as FaqQuestions,
+
+} from './panels/faq';
+
 export const Profile = props => {
   const { setReport, goTiket, goOtherProfile, setMoneyPromo, setSnackbar, setTransfer } = props.base_functions;
   const { goPanel } = props.navigation;
@@ -100,6 +109,26 @@ export const Profile = props => {
       callbacks={callbacks} />
 
       <AnswerAdded id="answer_added" />
+
+
+      <FaqMain id="faqMain"
+      navigation={props.navigation}
+      callbacks={callbacks}
+      />
+      <FaqQuestions id='faqQuestions'
+      navigation={props.navigation}
+      callbacks={callbacks} />
+
+      <FaqCreateCategory id='faqCreateCategory'
+      navigation={props.navigation}
+      callbacks={callbacks} />
+      <FaqCreateQuestion id='faqCreateQuestion' 
+      navigation={props.navigation}
+      callbacks={callbacks}
+      />
+      <FaqQuestion id='faqQuestion' 
+      navigation={props.navigation}
+      callbacks={callbacks} />
 
     </View>
   )

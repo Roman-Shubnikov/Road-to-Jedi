@@ -96,13 +96,6 @@ export const JediIcons28 = {
 }
 
 export const viewsStructure = {
-  MRequest: {
-    navName: 'Mrequests',
-    name: 'Заявки',
-    panels: {
-      homepanel: 'requests'
-    },
-  },
   Questions: {
     navName: 'Questions',
     name: 'Вопросы',

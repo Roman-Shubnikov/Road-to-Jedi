@@ -1,7 +1,5 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
-
-import $ from 'jquery';
 
 import {
     Panel,
@@ -24,8 +22,6 @@ import {
     PanelSpinner,
     IconButton,
     SimpleCell,
-    usePlatform,
-    VKCOM,
 } from '@vkontakte/vkui';
 
 
@@ -35,7 +31,6 @@ import {
     Icon16StarCircleFillYellow,
     Icon28WalletOutline,
     Icon56DurationOutline,
-    Icon28DiamondOutline,
     Icon16CheckCircle,
     Icon24MoreVertical,
     Icon20ArticleOutline,
@@ -63,11 +58,7 @@ import { accountActions, viewsActions } from '../store/main';
 import { API_URL, AVATARS_URL, LINK_APP, PERMISSIONS } from '../config';
 import { isEmptyObject } from 'jquery';
 import { getHumanyTime, enumerate, recog_number } from '../Utils';
-import { DonutTooltip, FlashTooltip, FlashVerifTooltip, VerifTooltip } from './Tooltips';
 import InfoArrows from './InfoArrows';
-import { rubberBand } from 'react-animations';
-import styled, { keyframes } from 'styled-components';
-const RubberBand = styled.div`animation: .8s ${keyframes`${rubberBand}`}`;
 const SCHEMES = [
     'Автоматическая',
     'Light',
@@ -86,25 +77,11 @@ export default props => {
     const dispatch = useDispatch();
     const [ShowServiceInfo, setShowServiceInfo] = useState(false);
     const [snackbar, setSnackbar] = useState(null);
-    const [tooltip1, setTooltip1] = useState(false);
-    const [tooltip2, setTooltip2] = useState(false);
-    const [tooltip3, setTooltip3] = useState(false);
-    const [tooltip4, setTooltip4] = useState(false);
-    const platform = usePlatform();
     const profRef = useRef(null);
     const { setPopout, showErrorAlert, setActiveModal, setReport } = props.callbacks;
     const { other_profile: OtherProfileData, account } = useSelector((state) => (state.account))
     const setActiveStory = (story) => dispatch(viewsActions.setActiveStory(story))
 
-    const [ref1, setRef1] = useState(null);
-    const [ref2, setRef2] = useState(null);
-    const [ref3, setRef3] = useState(null);
-    const [ref4, setRef4] = useState(null);
-
-    const ref1Setter = node => { setRef1(node) };
-    const ref2Setter = node => { setRef2(node) };
-    const ref3Setter = node => { setRef3(node) };
-    const ref4Setter = node => { setRef4(node) };
 
     const { online, id: agent_id,
         nickname,
@@ -112,7 +89,6 @@ export default props => {
         verified: verif,
         vk_id,
         banned,
-        diamond,
         avatar,
         donut,
         subscribe,
@@ -208,29 +184,6 @@ export default props => {
                 </ActionSheetItem>
             </ActionSheet>)
     }
-    useLayoutEffect(() => {
-        if (platform === VKCOM) {
-            $(ref1).on('mouseover.ref1_otherProf', () => {
-                setTooltip1(true)
-            })
-            $(ref2).on('mouseover.ref2_otherProf', () => {
-                setTooltip2(true)
-            })
-            $(ref3).on('mouseover.ref3_otherProf', () => {
-                setTooltip3(true)
-            })
-            $(ref4).on('mouseover.ref4_otherProf', () => {
-                setTooltip4(true)
-            })
-        }
-
-        return () => {
-            $(ref1).off('mouseover.ref1_otherProf');
-            $(ref2).off('mouseover.ref2_otherProf');
-            $(ref3).off('mouseover.ref3_otherProf');
-            $(ref4).off('mouseover.ref4_otherProf');
-        }
-    }, [ref1, ref2, ref3, ref4, platform])
 
     return (
         <Panel id={props.id}>
@@ -254,71 +207,38 @@ export default props => {
 
                         }
                         description={online.is_online ? "online" : getHumanyTime(online.last_seen).date + " в " + getHumanyTime(online.last_seen).time}
-                        before={diamond ?
-                            <div style={{ position: 'relative', margin: 10 }}><Avatar src={avatar.url} size={70} style={{ position: 'relative' }} />
-                                <Icon28DiamondOutline width={25} height={25} className='Diamond_profile' />
-                            </div> : <Avatar size={70} src={avatar.url} style={{ position: 'relative' }} />}
+                        before={<Avatar size={70} src={avatar.url} style={{ position: 'relative' }} />}
                     >
                         <div style={{ display: 'flex' }}>
                             {nickname ? nickname : `Агент Поддержки #${agent_id}`}
                             {flash && verif &&
-                                <FlashVerifTooltip
-                                    isShown={tooltip1}
-                                    offsetX={-23}
-                                    onClose={() => setTooltip1(false)}>
-                                    <div ref={ref1Setter} className="profile_moderator_name_icon">
-                                        <Icon16FireVerified width={12} height={12} style={{ color: "var(--prom_icon)" }} onClick={() => setActiveModal('prom')} />
-                                    </div>
-                                </FlashVerifTooltip>
+                                <div className="profile_moderator_name_icon">
+                                    <Icon16FireVerified width={12} height={12} style={{ color: "var(--prom_icon)" }} onClick={() => setActiveModal('prom')} />
+                                </div>
                             }
                             {flash && !verif &&
-                                <FlashTooltip
-                                    offsetX={-23}
-                                    isShown={tooltip2}
-                                    onClose={() => setTooltip2(false)}>
-                                    <div ref={ref2Setter} className="profile_moderator_name_icon">
-                                        <Icon16Fire width={12} height={12} style={{ color: "var(--prom_icon)" }} onClick={() => setActiveModal('prom')} />
-                                    </div>
-                                </FlashTooltip>
+                                <div className="profile_moderator_name_icon">
+                                    <Icon16Fire width={12} height={12} style={{ color: "var(--prom_icon)" }} onClick={() => setActiveModal('prom')} />
+                                </div>
                             }
                             {donut &&
-                                <DonutTooltip
-                                    isShown={tooltip3}
-                                    offsetX={-23}
-                                    onClose={() => setTooltip3(false)}>
-                                    <div ref={ref3Setter} className="profile_moderator_name_icon">
-                                        <Icon16StarCircleFillYellow width={12} height={12} onClick={() => setActiveModal('donut')} />
-                                    </div>
-                                </DonutTooltip>
+                                <div className="profile_moderator_name_icon">
+                                    <Icon16StarCircleFillYellow width={12} height={12} onClick={() => setActiveModal('donut')} />
+                                </div>
                             }
                             {verif && !flash &&
-                                <VerifTooltip
-                                    offsetX={-23}
-                                    isShown={tooltip4}
-                                    onClose={() => setTooltip4(false)}>
-                                    <div ref={ref4Setter} className="profile_moderator_name_icon_ver">
-                                        <Icon16Verified style={{ color: "var(--dynamic_blue)" }} onClick={() => setActiveModal('verif')} />
-                                    </div>
-                                </VerifTooltip>
+                                <div className="profile_moderator_name_icon_ver">
+                                    <Icon16Verified onClick={() => setActiveModal('verif')} />
+                                </div>
                             }
                         </div>
                     </SimpleCell>
-                    <Div style={{ display: 'flex' }}>
-                        {vk_id && <Button
-                            size='m'
-                            stretched
-                            target="_blank" rel="noopener noreferrer"
-                            href={"https://vk.me/id" + vk_id}
-                            style={{ marginRight: 8 }}>
-                            Сообщение
-                        </Button>}
-                        <Button
-                            size='m'
-                            stretched
-                            onClick={() => subscribeMenu()}
-                            mode={subscribe ? 'secondary' : 'primary'}>
-                            {subscribe ? "Вы подписаны" : "Подписаться"}
-                        </Button>
+                    <Div>
+                        <InfoArrows
+                        good_answers={good_answers}
+                        bad_answers={bad_answers}
+                        total_answers={total_answers}
+                        />
                     </Div>
                 </Group>
 
@@ -335,11 +255,7 @@ export default props => {
                                     textWrap='full'>
                                     {OtherProfileData.publicStatus || "Играю в любимую игру"}
                                 </MiniInfoCell>
-                                <InfoArrows
-                                    good_answers={good_answers}
-                                    bad_answers={bad_answers}
-                                    total_answers={total_answers}
-                                />
+                                
                                 <SimpleCell
                                 disabled
                                 before={<Icon20FollowersOutline width={28} height={28} />}
@@ -369,7 +285,7 @@ export default props => {
                                 </MiniInfoCell>}
                             </Group>
                             {ShowServiceInfo &&
-                                <RubberBand><Group>
+                                <Group>
                                     <SimpleCell
                                     disabled
                                     before={<Icon28HashtagOutline />}
@@ -422,7 +338,7 @@ export default props => {
                                         </Link>
                                     </SimpleCell>
                                    
-                                </Group></RubberBand>
+                                </Group>
                             }
                         </>
                 }

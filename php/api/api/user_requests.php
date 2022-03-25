@@ -10,3 +10,4 @@ class UsersRequests
 		$this->Connect = $Connect;
 		$this->SYSNOTIF = $SYSNotif;
 	}
+}

@@ -28,7 +28,7 @@ let lastTypingTime;
 let typing = false;
 let searchval = '';
 
-export default props => {
+export const FaqMain = props => {
     const dispatch = useDispatch();
     const [search, setSearch] = useState('');
     const [editing, setEditing] = useState(false);

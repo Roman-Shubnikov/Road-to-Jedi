@@ -1,0 +1,24 @@
+.infoCounter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.infoCounter_caption { 
+    font-size: 15px;
+    font-weight: 400;
+    color: #6D7885;
+}
+.infoCounter_counter { 
+    font-size: 21px;
+    font-weight: 500;
+    margin-bottom: 1px;
+}
+
+@media screen and (max-width: 700px) {
+    .infoCounter_counter {
+        font-size: 16px;
+    }
+    .infoCounter_caption {
+        font-size: 10px;
+    }
+}

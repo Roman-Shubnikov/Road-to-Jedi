@@ -16,7 +16,7 @@ class CONFIG {
 	const AVATAR_PATH = 'https://xelene.ru/road/php/images/avatars';
 	const PRODUCTS_AVATAR_PATH = 'https://xelene.ru/road/php/images/products';
 	const SUBSCRIBTIONS_AVATAR_PATH = 'https://xelene.ru/road/php/images/subscriptions';
-	const AVATARS_COUNT = 41;
+	const AVATARS_COUNT = 12;
 	const DONUT_AVATARS_COUNT = 12;
 	const DONUT_CHAT_LINK = 'https://vk.me/join/twwhnnyRTYfVZx2QEjjCNW8OLm2nyNEypqQ=';
 	const LINK_APP = 'https://vk.com/jedi_road_app';
@@ -50,7 +50,6 @@ class CONFIG {
 		'donut',
 		'verif',
 		'flash',
-		'ghosts',
 	];
 
 

@@ -82,7 +82,7 @@ export const ValidQR = ({id, onClick, moneyPromo}) => {
     header="Вы активировали промокод!"
     caption={
       <span>
-        Поздравляем! На Ваш виртуальный счет было начислено {moneyPromo} монеток.
+        Поздравляем! На Ваш виртуальный счет было начислено {moneyPromo} ECoin.
             </span>}
     actions={
       <Button mode='primary' stretched size='l' onClick={onClick}>Ура!</Button>

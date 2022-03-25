@@ -26,7 +26,6 @@ import {
   Icon56DonateOutline,
   Icon56FireOutline,
   Icon56Users3Outline,
-  Icon56GhostOutline,
 
 } from '@vkontakte/icons'
 import UserTopC from '../../../components/userTop';
@@ -102,8 +101,6 @@ export default props => {
         return [<Icon56DonateOutline />, 'Топ агентов с отметкой VK Donut пуст.'+time_think]
       case 'flash':
         return [<Icon56FireOutline />, 'Топ агентов с отметкой огня Прометея пуст.'+time_think]
-      case 'ghosts':
-        return [<Icon56GhostOutline />, 'Топ агентов с фантомами пуст.'+time_think]
       case 'all':
         return [<Icon56Users3Outline />, 'Общий раздел пантеона пуст.'+time_think]
       default:
@@ -183,12 +180,6 @@ export default props => {
               selected={activeTab === 'rating'}
             >
               По рейтингу
-            </TabsItem>
-            <TabsItem
-              onClick={() => setActiveTab('ghosts')}
-              selected={activeTab === 'ghosts'}
-            >
-              Фантомы
             </TabsItem>
             <TabsItem
               onClick={() => setActiveTab('donut')}

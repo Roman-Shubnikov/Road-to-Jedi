@@ -18,7 +18,7 @@ import { useSelector } from 'react-redux';
 //     Icon28ThumbsUpOutline,
 
 // } from '@vkontakte/icons';
-export default props => {
+export const Question = props => {
     const { activeQuestion } = useSelector((state) => state.Faq)
     const [question, setQuestion] = useState(null);
     

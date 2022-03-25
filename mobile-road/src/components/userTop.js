@@ -36,11 +36,7 @@ export default props => {
             + bad_answers + " " + enumerate(bad_answers, Forms.bad_answers)}
           </div>
         }
-            before={diamond ?
-                <div style={{position:'relative', marginRight: 10}}>
-                  <Avatar src={avatar.url} style={{position: 'relative'}} />
-                  <Icon28DiamondOutline width={16} height={16} className='Diamond_top' />
-                </div> : <Avatar src={avatar.url} style={{position: 'relative'}} /> }
+            before={<Avatar src={avatar.url} alt='ava' /> }
           >
         <div className="top_moderator_name" style={{color: (donut && change_color_donut) ? "var(--top_moderator_name_donut)" : "var(--top_moderator_name)"}}>
         {nickname ? nickname : `Агент Поддержки #${id}`}

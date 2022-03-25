@@ -59,28 +59,23 @@ import {accountActions, reportsActions, ticketActions, viewsActions} from './sto
 // Импортируем панели
 import {
   Questions,
-  Advice,
   Top,
   Moderation,
   Profile,
-  MRequests,
   Disconnect,
   Banned,
   LoadingScreen,
 } from './panels'
 
 import {
-  Icon28CompassOutline,
   Icon28WorkOutline,
   Icon28ArticleOutline,
   Icon28Profile,
   Icon28BankOutline,
-  Icon12Fire,
+  Icon16Fire,
   Icon16StarCircleFillYellow,
   Icon16Verified,
-  Icon28DiamondOutline,
   Icon28SortOutline,
-  Icon28GridSquareOutline,
 
 } from '@vkontakte/icons'
 import { modalslist } from './modals';
@@ -146,7 +141,6 @@ var adsCounter = 0;
 var backTimeout = false;
 const App = () => {
   const [popout, setPopout] = useState(() => <ScreenSpinner/>);
-  const [LoadWebView, setLoadWebView] = useState(false);
   const [activeModal, setModal] = useState(null);
   const [modalHistory, setModalHistory] = useState(null);
   const [Transfers, setTransfers] = useState(null);
@@ -314,7 +308,6 @@ const App = () => {
       } else {
         setBanObject(data.error.error_obj)
         setActiveStory('banned')
-        setLoadWebView(true)
       }
       
       }
@@ -418,7 +411,6 @@ const App = () => {
         }else if (activeStory === 'loading'){
           setActiveScene(viewsStructure.Questions.navName, viewsStructure.Questions.panels.homepanel)
         }
-      setLoadWebView(true)
     }
     
   }, [setActiveScene, account, dispatch, activeStory, activePanel, goTiket, goPanel, hash, OtherProfileData])
@@ -557,14 +549,6 @@ const App = () => {
 
   return(
     <>
-        {!LoadWebView ? <div style={{width: '100vw', height: '100vh', backgroundColor: 'var(--background_page_my)', zIndex: 20, position: 'absolute', textAlign:'center'}}>
-            <h1 style={{margin: '50vh 0'}}>Загрузка...</h1>
-            </div> : null}
-          <webview 
-          onLoad={() => {setLoadWebView(true);document.body.style.overflow = "auto"}}
-          >
-
-            
         <ConfigProvider scheme={scheme}
               platform={platform.current}
               > 
@@ -588,15 +572,12 @@ const App = () => {
                         } : {}}
                         onClick={() => {setHash('');goPanel(viewsStructure.Profile.navName, viewsStructure.Profile.panels.homepanel)}}
                           description={"#" + account['id']}
-                          before={account.diamond ?
-                            <div style={{ position: 'relative', margin: 10 }}><Avatar src={account['avatar']['url']} size={40} style={{ position: 'relative' }} />
-                                <Icon28DiamondOutline width={15} height={15} className='Diamond_profile_pc' />
-                            </div> : <Avatar size={40} src={account['avatar']['url']} />}>
+                          before={<Avatar size={50} src={account['avatar']['url']} />}>
                             <div style={{ display: "flex" }}>
                                   {account['nickname'] ? account['nickname'] : `Агент Поддержки`}
                                   {account['flash'] ?
                                       <div className="profile_icon">
-                                          <Icon12Fire width={12} height={12} onClick={(e) => {e.stopPropagation();setActiveModal('prom');setIsMyMark(true)}} />
+                                          <Icon16Fire width={12} height={12} onClick={(e) => {e.stopPropagation();setActiveModal('prom');setIsMyMark(true)}} />
                                       </div>
                                       : null}
                                   {account['donut'] ?
@@ -615,26 +596,19 @@ const App = () => {
                       </Group>}
                       <Group>
                         <EpicItemPC
-                          icon={<Icon28GridSquareOutline />}
-                          story={viewsStructure.MRequest.navName}
-                          activeStory={activeStory}
-                          onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.MRequest.panels.homepanel)}}>
-                            {viewsStructure.MRequest.name}
-                        </EpicItemPC>
-                        <EpicItemPC
                         icon={<Icon28ArticleOutline />}
                         story={viewsStructure.Questions.navName}
                         activeStory={activeStory}
                         onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Questions.panels.homepanel)}}>
                           {viewsStructure.Questions.name}
                         </EpicItemPC>
-                        <EpicItemPC
+                        {/* <EpicItemPC
                         icon={<Icon28CompassOutline />}
                         story={viewsStructure.Advice.navName}
                         activeStory={activeStory}
                         onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Advice.panels.homepanel)}}>
                           {viewsStructure.Advice.name}
-                        </EpicItemPC>
+                        </EpicItemPC> */}
                         {agent_permission && <EpicItemPC
                         icon={<Icon28BankOutline />}
                         story={viewsStructure.Top.navName}
@@ -658,8 +632,8 @@ const App = () => {
                   <SplitCol
                 animate={!isDesktop.current}
                 spaced={isDesktop.current}
-                width={isDesktop.current ? '704px' : '100%'}
-                maxWidth={isDesktop.current ? '704px' : '100%'}
+                width={isDesktop.current ? '500px' : '100%'}
+                maxWidth={isDesktop.current ? '700px' : '100%'}
                   >
                 <SkeletonTheme color={['bright_light', 'vkcom_light'].indexOf(scheme) !== -1 ? undefined : '#232323'} 
                 highlightColor={['bright_light', 'vkcom_light'].indexOf(scheme) !== -1 ? undefined : '#6B6B6B'}>
@@ -669,23 +643,17 @@ const App = () => {
                         need_epic && !isDesktop.current &&
                         <Tabbar>
                           <TabbarItem
-                            onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.MRequest.panels.homepanel)}} 
-                            selected={activeStory === viewsStructure.MRequest.navName}
-                            data-story={viewsStructure.MRequest.navName}
-                            text={viewsStructure.MRequest.name}
-                          ><Icon28GridSquareOutline/></TabbarItem>
-                          <TabbarItem
                             onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Questions.panels.homepanel)}} 
                             selected={activeStory === viewsStructure.Questions.navName}
                             data-story={viewsStructure.Questions.navName}
                             text={viewsStructure.Questions.name}
                           ><Icon28ArticleOutline/></TabbarItem>
-                          <TabbarItem
+                          {/* <TabbarItem
                             onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Advice.panels.homepanel)}} 
                             selected={activeStory === viewsStructure.Advice.navName}
                             data-story={viewsStructure.Advice.navName}
                             text={viewsStructure.Advice.name}
-                          ><Icon28CompassOutline/></TabbarItem>
+                          ><Icon28CompassOutline/></TabbarItem> */}
                           {agent_permission && <TabbarItem
                             onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Top.panels.homepanel)}} 
                             selected={activeStory === viewsStructure.Top.navName}
@@ -709,11 +677,6 @@ const App = () => {
                         </Tabbar>
                       }
                       >
-                      <MRequests
-                      id={viewsStructure.MRequest.navName}
-                      navigation={navigation}
-                      popouts_and_modals={popouts_and_modals}
-                      base_functions={base_functions} />
 
                       <Questions 
                       id={viewsStructure.Questions.navName}
@@ -722,12 +685,12 @@ const App = () => {
                       base_functions={base_functions}
                       reloadProfile={fetchAccount} />
 
-                      <Advice
+                      {/* <Advice
                       navigation={navigation}
                       id={viewsStructure.Advice.navName}
                       base_functions={base_functions}
                       popouts_and_modals={popouts_and_modals}
-                      reloadProfile={fetchAccount} />
+                      reloadProfile={fetchAccount} /> */}
 
                       <Top 
                       navigation={navigation}
@@ -775,8 +738,6 @@ const App = () => {
                 </SplitLayout>
               </AppRoot>
             </ConfigProvider>
-            
-          </webview>
           </>
   )
 

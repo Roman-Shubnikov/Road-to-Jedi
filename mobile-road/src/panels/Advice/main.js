@@ -8,11 +8,6 @@ import {
 import AdviceMain             from './panels/adv';
 import Donuts             from './panels/donuts';
 import Premium            from './panels/premium';
-import FaqMain            from './panels/faq/main';
-import FaqQuestions       from './panels/faq/questionsList';
-import FaqQuestion        from './panels/faq/question';
-import FaqCreateCategory  from './panels/faq/createCategory';
-import FaqCreateQuestion  from './panels/faq/createQuestion';
 import OtherProfile       from '../../components/other_profile';
 import Reports            from '../../components/report';
 import TestingAgents from './panels/testbyagent';
@@ -47,25 +42,6 @@ export const Advice = props => {
       navigation={props.navigation}
       callbacks={callbacks}
       />
-      
-      <FaqMain id="faqMain"
-      navigation={props.navigation}
-      callbacks={callbacks}
-      />
-      <FaqQuestions id='faqQuestions'
-      navigation={props.navigation}
-      callbacks={callbacks} />
-
-      <FaqCreateCategory id='faqCreateCategory'
-      navigation={props.navigation}
-      callbacks={callbacks} />
-      <FaqCreateQuestion id='faqCreateQuestion' 
-      navigation={props.navigation}
-      callbacks={callbacks}
-      />
-      <FaqQuestion id='faqQuestion' 
-      navigation={props.navigation}
-      callbacks={callbacks} />
 
       <OtherProfile id="other_profile"
         callbacks={callbacks} />

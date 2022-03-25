@@ -19,7 +19,7 @@ import { API_URL, JediIcons28 } from '../../../../config';
 const blueBackground = {
     backgroundColor: 'var(--accent)'
   };
-export default props => {
+export const CreateCategory = props => {
     const [color, setColor] = useState('');
     const [category, setCategory] = useState('');
     const [icon_select, setIcon] = useState('');

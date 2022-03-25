@@ -148,9 +148,6 @@ class Users {
 			case 'flash':
 				$order = 'AND flash != 0 ORDER BY coff_active DESC';
 				break;
-			case 'ghosts':
-				$order = 'AND users.exp > 0 ORDER BY users.exp DESC';
-				break;
 		}
 		$staff = $staff ? CONFIG::PERMISSIONS['special'] : 0;
 

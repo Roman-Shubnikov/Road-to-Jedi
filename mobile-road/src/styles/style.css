@@ -5,23 +5,13 @@
 @import './fonts/fonts-connect.css';
 @import './animations.css';
 
+body { 
+    --verification_color: #5C9CE6;
+    --clock_support_green: #4BB34B;
+    --description_color: #818C99;
+    
+} 
 
-:root{
-    --font-common: "VK Medium";
-    /* --font-tt: "VK Medium"; */
-}
-::-webkit-scrollbar {
-    width: 3px;
-    background-color: var(--background_page_my);
-}
-::-webkit-scrollbar-thumb {
-    background-color: rgba(66, 66, 66, 0.366);
-    border-radius: 10%;
-    box-shadow: inset 1px 1px 10px rgba(39, 39, 39, 0.366);
-}
-::-webkit-scrollbar-thumb:hover {
-    background-color: black;
-}
 .blink2 {
     -webkit-animation: blink2 1s linear infinite;
     animation: blink2 1s linear infinite;
@@ -238,7 +228,7 @@ a{
 }
 
 .top_moderator_name_icon_ver {
-    color: var(--dynamic_blue);
+    color: var(--verification_color);
     position: relative;
     float: right;
     margin-top: 1px;
@@ -257,7 +247,7 @@ a{
 }
 
 .profile_moderator_name_icon_ver {
-    color: var(--dynamic_blue);
+    color: var(--verification_color);
     position: relative;
     float: right;
     margin-left: 2px;
@@ -273,7 +263,7 @@ a{
 }
 
 .profile_icon_ver {
-    color: var(--dynamic_blue);
+    color: var(--verification_color);
     display: inline-block;
     position: relative;
     margin-left: 2px;
@@ -598,7 +588,7 @@ a{
     background: var(--message_icon_moder);
 }
 .questionsIcons{
-    margin-left: 2%;
+    margin-left: 3px;
 }
 .icon_donut_questions {
     margin: 20% 0px 0px 60%;

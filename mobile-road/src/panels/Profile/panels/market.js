@@ -31,6 +31,7 @@ import {
     PanelSpinner,
     usePlatform,
     IOS,
+    ButtonGroup,
     } from '@vkontakte/vkui';
 
 
@@ -72,35 +73,6 @@ const avatars = [
     "10.png",
     "11.png",
     "12.png",
-    "13.png",
-    "14.png",
-    "15.png",
-    "16.png",
-    "17.png",
-    "18.png",
-    "19.png",
-    "20.png",
-    "21.png",
-    "22.png",
-    "23.png",
-    "24.png",
-    "25.png",
-    "26.png",
-    "27.png",
-    "28.png",
-    "29.png",
-    "30.png",
-    "31.png",
-    "32.png",
-    "33.png",
-    "34.png",
-    "35.png",
-    "36.png",
-    "37.png",
-    "38.png",
-    "39.png",
-    "40.png",
-    "41.png",
     
 ]
 
@@ -120,11 +92,10 @@ export default props => {
   return(
     <Panel id={props.id}>
       <PanelHeader
-      separator={false}
         left={
           <><PanelHeaderBack onClick={() => window.history.back()} /> </>
         }>
-        Маркет
+        Магазин
       </PanelHeader>
       <Group>
         <Tabs>
@@ -294,9 +265,9 @@ const Invoices = props => {
         <Headline>{account.donuts} $</Headline>
       </SimpleCell>
       <Div>
-          <Text weight='medium' style={{color: 'var(--text_profile)'}}>
-            Данный баланс нельзя пополнить настоящей валютой, получить её можно только отвечая на вопросы с эксклюзивной отметкой.
-          </Text>
+        <Text style={{color: 'var(--subtext)'}}>Пока тут нет контента, связанного с этой тематической лентой,
+          но если у вас такой есть, мы можем об
+          судить его публикацию в этом блоке</Text>
       </Div>
     </Group>
     </>
@@ -423,7 +394,7 @@ const Market = props => {
             size="l"
             stretched
             mode="secondary"
-            disabled={selectedAvatar === 0}>Сменить за 700 монеток</Button>
+            disabled={selectedAvatar === 0}>Сменить за 700 ECoin</Button>
         </Div>
       </Group>
 
@@ -437,16 +408,16 @@ const Market = props => {
               maxLength="10" />
           </FormItem>
           <FormItem>
-            <div style={{ display: 'flex' }}>
-              <Button onClick={() => { MarketManager('changeId') }}
-                style={{ marginRight: 8 }}
+            <ButtonGroup stretched>
+            <Button onClick={() => { MarketManager('changeId') }}
                 before={<Icon24Repeat width={28} height={28} />}
                 stretched
-                size="m"
+                size="l"
                 mode="secondary"
-                disabled={!( changed_id.trim().length > 0)}>Сменить за 1500 монеток</Button>
+                disabled={!( changed_id.trim().length > 0)}>Сменить за 1500 ECoin</Button>
               {account.nickname ? <Button
                 stretched
+                size='l'
                 onClick={() => setPopout(<Alert
                   actionsLayout='vertical'
                   actions={[{
@@ -464,70 +435,12 @@ const Market = props => {
                   text="Если вы удалите ник, то, возможно, его сможет забрать кто-то другой. После удаления ника у вас будет отображён начальный id"
                 />)}
                 before={<Icon24BlockOutline width={28} height={28} />}
-                size="m"
                 mode='destructive'>Удалить ник</Button> : null}
-            </div>
+            </ButtonGroup>
           </FormItem>
         </FormLayout>
 
       </Group>
-
-      {account ? !account.is_recommended ? <Group header={<Header>Попасть в рекомедации</Header>}>
-        <Div>
-          <Text weight='medium'>После приобретения этого товара, ваш профиль попадёт на вторую вкладку в "Обзор", так вы сможете привлечь больше подписчиков</Text>
-        </Div>
-        <Div>
-          <Button onClick={() => MarketManager('recomend')}
-            before={<Icon28MoneyCircleOutline />}
-            size="l"
-            stretched
-            mode="secondary">Купить за 150 монеток</Button>
-        </Div>
-      </Group> : null : null}
-
-      <Group header={<Header>Фантомы</Header>}>
-          <Div>
-            <Text weight='medium'>Здесь вы можете купить фантомов для повышения своего уровня</Text>
-          </Div>
-          <FormLayout>
-            <FormItem top={`Укажите количество: ${fantom_count}`}>
-              <Slider 
-                value={Number(fantom_count)}
-                onChange={e => setFantoms(e)}
-                min={1}
-                step={1}
-                max={500} />
-            </FormItem>
-          </FormLayout>
-          <SimpleCell
-          expandable
-          target="_blank" rel="noopener noreferrer" 
-          href={LINKS_VK.fantoms_article}
-          before={<Icon28GhostOutline />}>
-            Подробнее о Фантомах
-          </SimpleCell>
-          <Div>
-            <Button
-              onClick={() => MarketManager('fantoms')}
-              stretched
-              before={<Icon28MoneyHistoryBackwardOutline />} size="l">Купить за {5 * fantom_count} монеток</Button>
-          </Div>
-        </Group>           
-
-      {account ? !account.diamond ?
-        <Group header={<Header>Купить алмаз</Header>}>
-          <Div>
-            <Text weight='medium'>После приобретения этого товара, около вашей аватарки начнёт светиться фиолетовый алмаз. Это выглядит примерно так:</Text>
-          </Div>
-          <UserTopC {...account}
-            diamond />
-          <Div>
-            <Button
-              onClick={() => MarketManager('diamond')}
-              stretched
-              before={<Icon28MoneyHistoryBackwardOutline />} size="l" mode='destructive'>Купить за 10 000 монеток</Button>
-          </Div>
-        </Group> : null : null}
       </>   
   )
 }

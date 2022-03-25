@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
-import Skeleton from "react-loading-skeleton";
 import $ from 'jquery';
 import { 
     Panel,
@@ -23,6 +22,7 @@ import {
     Text,
     Link,
     Button,
+    Spinner,
     } from '@vkontakte/vkui';
 
 import { 
@@ -406,7 +406,7 @@ export default props => {
               setPopout(null)
               getTicket(info.id)
               setContinueSnack(`Тикет ${open ? "открыт" : "закрыт"}`)
-            }else {
+            } else {
               showErrorAlert(data.error.message)
             }
           })
@@ -602,7 +602,9 @@ export default props => {
         {snackbar}
       </> : 
       <Group>
-        <div className="title_tiket">{<Skeleton width={400} height={17} delay={4} count={2} />}</div>
+        <Div style={{marginTop: '47%', marginBottom: 100}}>
+          <Spinner size='large' />
+        </Div>
       </Group>}
     </Panel>
   )

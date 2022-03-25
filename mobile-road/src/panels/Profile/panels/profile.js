@@ -8,14 +8,8 @@ import {
     Avatar,
     Counter,
     SimpleCell,
-    Div,
     PullToRefresh,
-    Header,
-    HorizontalScroll,
-    HorizontalCell,
     RichCell,
-    Progress,
-    InfoRow,
     usePlatform,
     VKCOM,
     FormItem,
@@ -24,6 +18,7 @@ import {
     ScreenSpinner,
     Textarea,
     MiniInfoCell,
+    Div,
 
     } from '@vkontakte/vkui';
 
@@ -34,21 +29,16 @@ import {
     Icon28Notifications,
     Icon28ShareExternalOutline,
     Icon16StarCircleFillYellow,
-    Icon28DiamondOutline,
     Icon12Fire,
     Icon28SettingsOutline,
-    Icon20Ghost,
     Icon28MessagesOutline,
     Icon20ArticleOutline,
-
+    Icon28HelpOutline,
 
 } from '@vkontakte/icons';
-import { 
-    enumerate, recog_number, 
-} from '../../../Utils';
 import { isEmptyObject } from 'jquery';
 import { useDispatch, useSelector } from 'react-redux';
-import { API_URL, AVATARS_URL, CONVERSATION_LINK, MESSAGE_NO_VK, PERMISSIONS, PUBLIC_STATUS_LIMIT } from '../../../config';
+import { API_URL, CONVERSATION_LINK, MESSAGE_NO_VK, PERMISSIONS, PUBLIC_STATUS_LIMIT } from '../../../config';
 import InfoArrows from '../../../components/InfoArrows';
 import { accountActions } from '../../../store/main';
 import { sendGoal } from '../../../metrika';
@@ -56,18 +46,16 @@ export default props => {
     const dispatch = useDispatch();
     const platform = usePlatform();
     const account = useSelector((state) => state.account.account)
-    const { setActiveModal, goOtherProfile, goPanel, showErrorAlert, setPopout } = props.callbacks;
+    const { setActiveModal, goPanel, showErrorAlert, setPopout } = props.callbacks;
     const { activeStory } = useSelector((state) => state.views)
     const { goDisconnect } = props.navigation;
     const [fetching, setFetching] = useState(false);
     const [editingStatus, setEdititingStatus] = useState(false);
     const [originalStatus, setOriginalStatus] = useState('');
     const [publicStatus, setPublicStatus] = useState('');
-    const levels = account.levels;
-    const exp_to_next_lvl = levels.exp_to_lvl - levels.exp;
     const permissions = account.permissions;
     const moderator_permission = permissions >= PERMISSIONS.special;
-    const agent_permission = permissions >= PERMISSIONS.agent;
+    const agent_permission = permissions === PERMISSIONS.agent;
     const total_answers = account['good_answers'] + account['bad_answers'];
     const { setIsMyMark } = props.marks_manage
     
@@ -106,7 +94,7 @@ export default props => {
         <Panel id={props.id}>
             {!isEmptyObject(account) ? <>
                 <PanelHeader
-                    left={agent_permission && <><PanelHeaderButton onClick={() => {
+                    left={<><PanelHeaderButton onClick={() => {
                         setActiveModal("share");
                     }}>
                         <Icon28ShareExternalOutline />
@@ -121,13 +109,11 @@ export default props => {
                 {platform!==VKCOM && <Group>
                         <RichCell
                             disabled
-                            before={account.diamond ?
-                                <div style={{ position: 'relative', margin: 10 }}><Avatar src={account['avatar']['url']} size={72} style={{ position: 'relative' }} />
-                                    <Icon28DiamondOutline width={25} height={25} className='Diamond_profile' />
-                                </div> : <Avatar size={72} src={account['avatar']['url']} />}
+                            caption={'#' + account['id']}
+                            before={<Avatar size={72} src={account['avatar']['url']} alt='ava' />}
                         >
                             <div style={{ display: "flex" }}>
-                                {account['nickname'] ? account['nickname'] : `Агент Поддержки #${account['id']}`}
+                                {account['nickname'] ? account['nickname'] : `Агент Поддержки`}
                                 {account['flash'] ?
                                     <div className="profile_icon">
                                         <Icon12Fire width={12} height={12} onClick={() => {setActiveModal('prom');setIsMyMark(true)}} />
@@ -146,7 +132,7 @@ export default props => {
                             </div>
                         </RichCell>
                     </Group>}
-                    {agent_permission && <Group>
+                    <Group>
                         {editingStatus ? 
                         <FormLayout>
                             <FormItem bottom={publicStatus.trim().length + '/' + PUBLIC_STATUS_LIMIT}>
@@ -185,49 +171,15 @@ export default props => {
                             {account.publicStatus || "Играю в любимую игру"}
                         </MiniInfoCell>
                         }
+                        {agent_permission && 
+                        <Div style={{paddingBottom: 0}}>
+                            <InfoArrows 
+                            good_answers={account['good_answers']}
+                            bad_answers={account['bad_answers']}
+                            total_answers={total_answers} />
+                        </Div>}
                         
-                    </Group>}
-                    
-                    {agent_permission && <Group header={<Header mode="secondary">Основная информация</Header>}>
-                        <InfoArrows 
-                        good_answers={account['good_answers']}
-                        bad_answers={account['bad_answers']}
-                        total_answers={total_answers} />
-                        <Div
-                        onClick={() => setActiveModal('fantoms')}>
-                            <InfoRow header={<div style={{display: 'flex', justifyContent: 'space-between'}}><div style={{display: 'flex', marginBottom: 5}}>
-                                <Icon20Ghost style={{ marginTop: 0, marginRight: 3}} />
-                                {levels.lvl} уровень · {recog_number(levels.exp)} фантомов</div><div>Осталось ещё {exp_to_next_lvl}</div></div>}>
-                                <Progress value={levels.exp / levels.exp_to_lvl * 100} />
-                            </InfoRow>
-                        </Div>
-                    </Group>}
-                    {agent_permission && account.followers[0] ?
-                        <Group header={
-                            <Header
-                                mode="secondary"
-                                aside={account.followers[0] + " " + enumerate(account.followers[0], ['подписчик', 'подписчика', 'подписчиков'])}
-                            >
-                                Подписчики
-                            </Header>
-                        }>
-                            <HorizontalScroll showArrows getScrollToLeft={(i) => i - 190} getScrollToRight={(i) => i + 190}>
-                                <div style={{ display: 'flex' }}>
-                                    {
-                                        account.followers[2].map((item, i) =>
-                                            <HorizontalCell key={item.from_id}
-                                                size='s'
-                                                header={item.nickname ? item.nickname : `Агент #${item.from_id}`}
-                                                onClick={() => {
-                                                    goOtherProfile(item.from_id);
-                                                }}>
-                                                <Avatar size={56} src={AVATARS_URL + item.avatar_name} />
-                                            </HorizontalCell>)
-                                    }
-                                </div>
-                            </HorizontalScroll>
-                        </Group>
-                        : null}
+                    </Group>
 
                     <Group>
                         <SimpleCell
@@ -250,7 +202,7 @@ export default props => {
                                 goPanel(activeStory, 'market', true);
                                 sendGoal('marketClick')
                             }}
-                            before={<Icon28MarketOutline />}>Маркет</SimpleCell>}
+                            before={<Icon28MarketOutline />}>Магазин</SimpleCell>}
 
                         <SimpleCell
                             expandable
@@ -259,7 +211,13 @@ export default props => {
                             }}
                             before={<Icon28SettingsOutline />}>Настройки</SimpleCell>
 
-
+                        <SimpleCell
+                        before={<Icon28HelpOutline />}
+                        onClick={() => {
+                            goPanel(activeStory, 'faqMain', true);
+                        }}>
+                            Поддержка
+                        </SimpleCell>
                         
                     </Group>
                     {!moderator_permission && <Group>

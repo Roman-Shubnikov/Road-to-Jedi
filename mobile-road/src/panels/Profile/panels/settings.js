@@ -21,7 +21,6 @@ import {
   Icon28PaletteOutline,
   Icon28InfoOutline,
   Icon28Notifications,
-  Icon28GestureOutline,
 
 } from '@vkontakte/icons'
 
@@ -32,7 +31,6 @@ import { API_URL, PERMISSIONS } from '../../../config';
 export default props => {
   const { account } = useSelector((state) => state.account)
   const [notify, setNotify] = useState(account ? account.settings.notify : false)
-  const [publicProfile, setPublic] = useState(account ? account.settings.public : false)
   const { setPopout, showErrorAlert, goPanel } = props.callbacks;
   const permissions = account.permissions;
   const agent_permission = permissions >= PERMISSIONS.agent;
@@ -109,48 +107,6 @@ export default props => {
 
     }
   }
-  const publicProfileTry = (showAlert = true) => {
-    if (showAlert) {
-      setPopout(
-        <Alert
-          actionsLayout="horizontal"
-          actions={[{
-            title: 'Отмена',
-            autoclose: true,
-            mode: 'cancel'
-          }, {
-            title: 'Хочу',
-            autoclose: true,
-            action: () => publicProfileTry(false),
-            mode: 'destructive',
-          }]}
-          onClose={() => setPopout(null)}
-          header="Вы действительно хотите открыть свой профиль"
-          text="После публикации профиля, все смогут видеть вашу настоящую страницу ВК. Вы действительно хотите опубликовать его?"
-        />)
-    } else {
-      fetch(API_URL + "method=settings.set&" + window.location.search.replace('?', ''),
-        {
-          method: 'post',
-          headers: { "Content-type": "application/json; charset=UTF-8" },
-          body: JSON.stringify({
-            'setting': 'public',
-            'value': Number(!publicProfile),
-          })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.result) {
-            setPublic(prev => !prev)
-            setTimeout(() => {
-              props.reloadProfile()
-            }, 1000)
-          } else {
-            showErrorAlert(data.error.message)
-          }
-        }).catch(goDisconnect)
-    }
-  }
 
   useEffect(() => {
     if(account.donut && !account.donut){
@@ -194,17 +150,6 @@ export default props => {
               onChange={(e) => changeNotifStatus(e)} />
           }>Получать уведомления</SimpleCell>
 
-        {agent_permission && <SimpleCell
-          before={<Icon28GestureOutline />}
-          disabled
-          after={
-            <Switch
-              checked={publicProfile}
-              onChange={() => publicProfileTry(publicProfile === false)} />
-          }
-        >
-          Публичный профиль
-                  </SimpleCell>}
       </Group>
       <Group>
         {agent_permission && <SimpleCell

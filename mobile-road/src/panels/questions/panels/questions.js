@@ -3,7 +3,7 @@ import Skeleton from "react-loading-skeleton";
 import { useDispatch, useSelector } from 'react-redux';
 import $ from 'jquery';
 import { viewsActions, ticketActions } from '../../../store/main'
-import {API_URL, PERMISSIONS} from '../../../config';
+import {API_URL, PERMISSIONS, viewsStructure} from '../../../config';
 import { enumerate } from '../../../Utils';
 
 import { 
@@ -22,20 +22,24 @@ import {
     Group,
     List,
     SimpleCell,
-    
+    FixedLayout,
+    Spacing,
+    Card,
+    UsersStack,
+    Tappable,
     
     } from '@vkontakte/vkui';
 
 import {
     Icon56InboxOutline,
-    Icon28WriteSquareOutline,
-    Icon16StarCircleFillYellow,
+    Icon28SwitchOutline,
+    Icon24AddOutline,
+    Icon20ClockOutline,
+    Icon20DonateCircleFillYellow,
 
 } from '@vkontakte/icons';
-
-
-import BannerAvatarPC from '../../../images/question_banner_pc.jpg'
-import BannerAvatarMobile from '../../../images/question_banner_mobile.png'
+import BannerAvatarPC from '../../../images/question_banner_pc.jpg';
+import BannerAvatarMobile from '../../../images/question_banner_mobile.png';
 
 
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
@@ -141,10 +145,6 @@ export default props => {
         }
         // eslint-disable-next-line
     }, [offset, ticketsCurrent, account])
-    useEffect(() => {
-        
-        
-    }, [account])
 
 
     return(
@@ -153,7 +153,7 @@ export default props => {
                 left={<>
                     {(tickets && tickets.length > 0 && agent_permission) ?
                         <PanelHeaderButton onClick={() => getRandomTiket()}>
-                            <Icon28WriteSquareOutline />
+                            <Icon28SwitchOutline />
                         </PanelHeaderButton> : null}
                 </>}
             >
@@ -190,38 +190,47 @@ export default props => {
                 </Group>
 
                 : null}
-            {account.generator ?
-                <Group>
-                    <Div>
-                        <Button onClick={() => {goPanel(activeStory, 'new_ticket', true)}}
-                            size="l"
-                            mode="outline"
-                            stretched>Новый вопрос</Button>
-                    </Div>
-                </Group>
-                : null}
             <Group>
                 <PullToRefresh onRefresh={() => {setFetching(true); getQuestions() }} isFetching={fetching}>
                     <List>
                         {tickets ? tickets.length > 0 ? tickets.map((result, i) =>
                             <React.Fragment key={i}>
-                                {(i === 0) || <Separator />}
-                                <SimpleCell
-                                    multiline
-                                    expandable
-                                    onClick={() => { goTiket(result['id']) }}
-                                    description={result['status'] === 0 ? "На рассмотрении" : result['status'] === 1 ? "Есть ответ" : "Закрыт"}
-                                    before={<Avatar src={result['author']['photo_200']} size={48} />}
-                                >
-                                    <div style={{ display: "flex" }}>
-                                        {result['title']}
-                                        <div className='questionsIcons'>
-                                            <div className='icon_donut_questions'>
-                                                {result['donut'] ? <Icon16StarCircleFillYellow width={12} height={12} className="top_moderator_name_icon" /> : null}
+                                {(i === 0) || <Spacing size={10} />}
+                                <Div style={{paddingBottom: 0, paddingTop: 0}}>
+                                    <Tappable
+                                    disabled={result['donut'] && !account['donut']}
+                                    onClick={() => { goTiket(result['id']) }}>
+                                        <Card mode='outline'
+                                        style={{position: 'relative'}}
+                                        >
+                                            <div style={{paddingTop: 7}}>
+                                                <SimpleCell disabled expandable
+                                                description={result['donut'] ? <div style={{display: 'flex', alignItems: 'center'}}>
+                                                    {<Icon20DonateCircleFillYellow style={{marginRight: 6}} />}
+                                                    Эксклюзивный вопрос
+                                                </div> : <div style={{display: 'flex', alignItems: 'center'}}>
+                                                    <Icon20ClockOutline style={{marginRight: 6}} />На рассмотрении</div>}>
+                                                    {result['title']} <span style={{color: 'var(--description_color)'}}>#{result['id']}</span>
+                                                </SimpleCell>
+                                                <Spacing separator />
+                                                <Div style={{paddingBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                                                    <UsersStack photos={[result['author']['photo_200']]}>
+                                                        {result['author']['first_name'].slice(0, 12)} {result['author']['last_name'].slice(0, 12)}
+                                                    </UsersStack>
+                                                    {result['donut'] && !account['donut'] && <Button
+                                                    size='m'
+                                                    mode='secondary'
+                                                    onClick={() => goPanel(viewsStructure.Profile.navName, 'market', true)}>
+                                                        Поддержать и ответить
+                                                    </Button>}
+                                                </Div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </SimpleCell>
+                                            
+                                        </Card>
+                                    </Tappable>
+                                    
+                                </Div>
+                                
                             </React.Fragment>
                         ) : <Placeholder
                             icon={<Icon56InboxOutline />}>
@@ -247,6 +256,17 @@ export default props => {
                         : null}
                 </PullToRefresh>
             </Group>
+            {account.generator && <FixedLayout vertical="bottom" filled>
+                <Div>
+                    <Button onClick={() => {goPanel(activeStory, 'new_ticket', true)}}
+                    before={<Icon24AddOutline />}
+                    size="l"
+                    mode='primary'
+                    stretched>
+                        Новый вопрос
+                    </Button>
+                </Div>
+            </FixedLayout>}
         </Panel>
     )
 }

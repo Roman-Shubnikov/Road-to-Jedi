@@ -2,3 +2,5 @@ mobile-road/build/
 mobile-road/node_modules/
 .vscode/
 .vs/
+.node_modules/
+node_modules

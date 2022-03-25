@@ -66,7 +66,7 @@ export const ModalTransfers = ({id, onClick, setActiveModal, reloadProfile, setP
         id={id}
         onClose={onClick}
         icon={<Icon56MoneyTransferOutline />}
-        header="Отправляйте монетки друзьям"
+        header="Отправляйте ECoin друзьям"
       >
         <FormLayout>
           <FormItem
@@ -82,7 +82,7 @@ export const ModalTransfers = ({id, onClick, setActiveModal, reloadProfile, setP
             <Input maxLength="5"
               type='number'
               onChange={(e) => setCount(e.currentTarget.value)}
-              placeholder="Введите кол-во монеток"
+              placeholder="Введите кол-во ECoin"
               value={count} />
           </FormItem>
           <FormItem
@@ -142,7 +142,7 @@ export const ModalTransferCardNotify = ({id, onClick, Transfer}) => {
     id={id}
     onClose={onClick}
     icon={<Avatar src={Transfer.avatar} size={72} />}
-    header='Перевод монеток'
+    header='Перевод ECoin'
     subheader={Transfer.comment}
     actions={
     <Button mode='secondary' stretched size='l' onClick={onClick}>Закрыть</Button>

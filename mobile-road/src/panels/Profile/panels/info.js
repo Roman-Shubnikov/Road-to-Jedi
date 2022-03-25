@@ -20,7 +20,7 @@ export default props => {
                 О сервисе
                 </PanelHeader>
             <Group>
-                <Placeholder icon={<img src={IconJedi} alt='jedi' />} >Версия 2.0</Placeholder>
+                <Placeholder icon={<img src={IconJedi} alt='jedi' />} >Версия 3.0</Placeholder>
             </Group>
 
             <Group>

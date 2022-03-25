@@ -46,19 +46,15 @@ class Tickets
 
 	public function get(bool $unanswered = false, int $offset = 0, int $count = null)
 	{
-		$cond = '';
+		$cond = 'WHERE status=0';
 
-		if ($unanswered) {
-			if (($this->user->info['permissions'] >= CONFIG::PERMISSIONS['special']) || $this->user->donut) {
-				$cond = "WHERE status=0";
-			} else {
-				$cond = "WHERE status=0 and donut=0";
-			}
-		} else {
-			if (($this->user->info['permissions'] < CONFIG::PERMISSIONS['special']) && !$this->user->donut) {
-				$cond = "WHERE donut=0";
-			}
-		}
+		// if ($unanswered) {
+		// 	if (($this->user->info['permissions'] >= CONFIG::PERMISSIONS['special']) || $this->user->donut) {
+		// 		$cond = "WHERE status=0";
+		// 	} else {
+		// 		$cond = "WHERE status=0 and donut=0";
+		// 	}
+		// }
 
 		if ($count === null) {
 			$count = CONFIG::ITEMS_PER_PAGE;
