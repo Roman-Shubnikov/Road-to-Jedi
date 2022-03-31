@@ -21,7 +21,7 @@ export const API_URL = "https://xelene.ru/road/php/index.php?";
 export const AVATARS_URL = "https://xelene.ru/road/php/images/avatars/";
 export const LINKS_VK = { 
     donut_article: "https://vk.com/@jedi_road-unikalnyi-kontent-vk-donut",
-    probability_article: "https://vk.com/@team.jedi-glossarik-dlya-specialnyh-agentov?anchor=veroyatnost-otsenivania-otvetov-eto-chto-takoe",
+    probability_article: "https://vk.com/@sartj-glossarii?anchor=veroyatnost-otsenivania-otvetov-eto-chto-takoe",
     support_jedi: 'https://vk.me/special_help',
     communuty_jedi: 'https://vk.com/jedi_road',
     fantoms_article: 'https://vk.com/@jedi_road-ohota-na-fantomov-nevidimovichei',
@@ -70,6 +70,12 @@ export const blueBackground = {
 };
 export const LINK_APP = "https://vk.com/jedi_road_app";
 export const CONVERSATION_LINK = "https://vk.me/join/zyWQzsgQ9iw6V2YAfbwiGtuO883rnYhXwAY=";
+export const SPEC_COURCE_LINKS = {
+  cource: "https://vk.com/@sartj-course",
+  conversation: 'https://vk.me/join/yzDBN6UvFS72yXvKBNqUkXZMilz/6NJ/Arg=',
+  community: 'https://vk.com/club212134873',
+
+};
 export const SPECIAL_NORM = 50;
 export const GENERATOR_NORM = 200;
 export const PUBLIC_STATUS_LIMIT = 140;
@@ -113,14 +119,14 @@ export const viewsStructure = {
   },
   Top: {
     navName: 'Top',
-    name: 'Пантеон',
+    name: 'Статистика',
     panels: {
       homepanel: 'top',
     }
   },
   Moderation: {
     navName: 'Moderation',
-    name: 'Модерация',
+    name: 'Управление',
     panels: {
       homepanel: 'questions',
     }
@@ -140,4 +146,37 @@ export const viewsStructure = {
     }
   }
 }
+export const IS_MOBILE = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
+
+// name_user - Автор тикета
+// agent_uni_name - имя агента в зависимости от ника и id
+// agent_uni_name_full - имя агента в зависимости от ника и id если нет ника то полностью агент поддержки ...
+// agent_id - id агента
+// text - текущее значение инпута
+const STANDART_GREETING = 'Здравствуйте, %name_user%!';
+const STANDART_GREETING_2 = 'Приветствую, %name_user%!';
+const STANDART_GREETING_3 = 'Доброго времени суток, %name_user%!';
+const STANDART_GREETING_4 = 'Приветствуем, %name_user%!';
+export const PRESETS_MESSAGES = [
+  STANDART_GREETING + '\n\n%text%\n\nВсегда с Вами,%agent_uni_name%\nПоддержка ВКонтакте',
+  STANDART_GREETING + '\n\n%text%\n\nС уважением,\nКоманда Поддержки ВКонтакте',
+  STANDART_GREETING + '\n\n%text%\n\nС уважением и теплом,\nКоманда Поддержки ВКонтакте',
+  STANDART_GREETING + '\n\n%text%\n\nВсегда с Вами,\nКоманда Поддержки ВКонтакте',
+  STANDART_GREETING + '\n\n%text%\n\nВаша Поддержка ВКонтакте',
+  STANDART_GREETING + '\n\n%text%\n\nС уважением,\nВаш Агент Поддержки %agent_uni_name%',
+  STANDART_GREETING_2 + '\n\n%text%\n\nАгент Поддержки %agent_uni_name%',
+  STANDART_GREETING + '\n\n%text%\n\nС теплом,\nКоманда Поддержки ВКонтакте',
+  STANDART_GREETING + '\n\n%text%\n\nС уважением,\nКоманда Поддержки ВКонтакте',
+  STANDART_GREETING + '\n\n%text%\n\nС уважением,\nАгент Поддержки ВКонтакте %agent_uni_name%',
+  STANDART_GREETING + '\n\n%text%\n\nС уважением,\nВаша команда Поддержки ВКонтакте\n------------\n%agent_uni_name_full%',
+  STANDART_GREETING + '\n\n%text%\n\nС уважением,\nАгент %agent_uni_name%',
+  STANDART_GREETING_3 + '\n\n%text%\n\nВсегда рядом,\nКоманда Поддержки ВКонтакте',
+  STANDART_GREETING_4 + '\n\n%text%\n\nAll day, all night\nКоманда Поддержки ВКонтакте',
+  STANDART_GREETING + '\n\n%text%\n\nНа связи с Вами,\nКоманда Поддержки',
+  STANDART_GREETING + '\n\n%text%\n\nВо тьме ночной, при свете дня!\nКоманда Поддержки ВКонтакте',
+  STANDART_GREETING + '\n\n%text%\n\nДобра и тепла,\nВаша Поддержка',
+  STANDART_GREETING + '\n\n%text%\n\nWe never sleep,\nКоманда Поддержки ВКонтакте',
+  STANDART_GREETING_4 + '\n\n%text%\n\nAll day, all night\nКоманда Поддержки ВКонтакте 🍂',
+  STANDART_GREETING + '\n\n%text%\n\nХорошего настроения,\nКоманда Поддержки ВКонтакте',
+];

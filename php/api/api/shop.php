@@ -59,6 +59,9 @@ class Shop {
             Show::error(1003);
         }
         $new_balance = $balance - CONFIG::NICKNAME_CHANGE_PRICE;
+        if($this->users->info['permissions'] >= CONFIG::PERMISSIONS['special']) {
+            $new_balance = $balance;
+        }
         $this->logger(CONFIG::NICKNAME_CHANGE_PRICE, 'nickname');
         $this->Connect->query("UPDATE users SET nickname=?, money=? WHERE vk_user_id=?", [$nickname,$new_balance, $this->users->vk_id]);
         return $new_balance;

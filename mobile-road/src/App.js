@@ -4,7 +4,6 @@ import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { SkeletonTheme } from "react-loading-skeleton";
 // import music from './music/Soloriver.mp3';
 import { API_URL, PERMISSIONS, viewsStructure, SPECIAL_NORM } from "./config";
-
 import { 
   ScreenSpinner,
   Tabbar,
@@ -34,6 +33,7 @@ import {
 
   } from '@vkontakte/vkui';
 import '@vkontakte/vkui/dist/vkui.css';
+import "@vkontakte/vkui/dist/unstable.css";
 import './styles/style.css';
 import ModalComment         from './Modals/Comment';
 import ModalPrometay        from './Modals/Prometay';
@@ -68,21 +68,19 @@ import {
 } from './panels'
 
 import {
-  Icon28WorkOutline,
-  Icon28ArticleOutline,
+  Icon28SettingsOutline,
+  Icon28ListBulletSquareOutline,
   Icon28Profile,
-  Icon28BankOutline,
-  Icon16Fire,
-  Icon16StarCircleFillYellow,
-  Icon16Verified,
+  Icon28StatisticsOutline,
   Icon28SortOutline,
 
-} from '@vkontakte/icons'
+} from '@vkontakte/icons';
 import { modalslist } from './modals';
 import EpicItemPC from './components/EpicItem';
 import { isEmptyObject } from 'jquery';
-import { alertCreator, errorAlertCreator, setActiveModalCreator, goOtherProfileCreator, enumerate } from './Utils';
-import { sendHit } from './metrika/ym';
+import { setActiveModalCreator, goOtherProfileCreator, enumerate, NicknameMenager } from './Utils';
+import { useNavigation } from './hooks';
+import { ProfileTags } from './components/ProfileTags';
 
 
 const queryString = require('query-string');
@@ -140,7 +138,6 @@ const scheme_params = {
 var adsCounter = 0;
 var backTimeout = false;
 const App = () => {
-  const [popout, setPopout] = useState(() => <ScreenSpinner/>);
   const [activeModal, setModal] = useState(null);
   const [modalHistory, setModalHistory] = useState(null);
   const [Transfers, setTransfers] = useState(null);
@@ -153,14 +150,21 @@ const App = () => {
   )
   const [moneyPromo, setMoneyPromo] = useState(0);
   const dispatch = useDispatch();
+  const { goPanel, 
+    goDisconnect, 
+    setSnackbar, 
+    goOtherProfile, 
+    setPopout,
+    showAlert,
+    showErrorAlert,
+   } = useNavigation();
   const { account, schemeSettings, other_profile: OtherProfileData, } = useSelector((state) => state.account)
   const { scheme, default_scheme } = schemeSettings;
-  const { activeStory, historyPanels, snackbar, activePanel } = useSelector((state) => state.views)
+  const { activeStory, historyPanels, snackbar, activePanel, popout } = useSelector((state) => state.views)
   const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
   const setActiveScene = useCallback((story, panel) => dispatch(viewsActions.setActiveScene(story, panel)), [dispatch]);
   const setHistoryPanels = useCallback((history) => dispatch(viewsActions.setHistory(history)), [dispatch]);
   const setBanObject = useCallback((payload) => dispatch(accountActions.setBanObject(payload)), [dispatch])
-  const setSnackbar = useCallback((payload) => dispatch(viewsActions.setSnackbar(payload)), [dispatch])
   const setScheme = useCallback((payload) => dispatch(accountActions.setScheme(payload)), [dispatch])
   const [ignoreOtherProfile, setIgnoreOtherProfile] = useState(false);
   const [isMyMark, setIsMyMark] = useState(false);
@@ -177,52 +181,7 @@ const App = () => {
       window.location.hash = hash
     }
   }
-  const goPanel = useCallback((view, panel, forcePanel=false, replaceState=false) => {
-    
-    const checkVisitedView = (view) => {
-      let history = [...historyPanels];
-      history.reverse();
-      let index = history.findIndex(item => item.view === view)
-      if(index !== -1) {
-       return history.length - index
-      } else {
-        return null;
-      }
-    }
-    const historyChange = (history, view, panel, replaceState) => {
-      if(replaceState){
-        history.pop();
-        history.push({view, panel });
-        window.history.replaceState({ view, panel }, panel);
-      } else {
-        history.push({view, panel });
-        window.history.pushState({ view, panel }, panel);
-      }
-      return history;
-    }
-    if(view === null) view = activeStory;
-    let history = [...historyPanels];
-    if(forcePanel){
-      history = historyChange(history, view, panel, replaceState)
-    }else{
-      let index = checkVisitedView(view);
-      if(index !== null){
-        let new_history = history.slice(0, index);
-        history = new_history
-        window.history.pushState({ view, panel }, panel);
-        ({view, panel} = history[history.length - 1])
-      } else {
-        history = historyChange(history, view, panel, replaceState)
-      }
-    }
-    setHistoryPanels(history);
-    setActiveScene(view, panel)
-    bridge.send('VKWebAppEnableSwipeBack');
-    sendHit(view+'_'+panel);
-  }, [setActiveScene, historyPanels, activeStory, setHistoryPanels])
-  const goDisconnect = () => {
-    goPanel(viewsStructure.Disconnect.navName, viewsStructure.Disconnect.panels.homepanel);
-  }
+
   const goBack = useCallback(() => {
     let history = [...historyPanels]
     if(!backTimeout) {
@@ -253,20 +212,12 @@ const App = () => {
   const setActiveModal = (activeModal) => {
     setActiveModalCreator(setModal, setModalHistory, modalHistory, activeModal)
   }
-  const showErrorAlert = (error = null, action = null) => {
-    errorAlertCreator(setPopout, error, action)
-  }
-  const showAlert = (title, text) => {
-    alertCreator(setPopout, title, text)
-  }
   const setReport = (name, id) => {
     dispatch(reportsActions.setTypeReport(name))
     dispatch(reportsActions.setResourceReport(id))
     goPanel(activeStory, "report", true);
   }
-  const goOtherProfile = useCallback((id) => {
-    goOtherProfileCreator(goPanel, activeStory, showErrorAlert, OtherProfileData, dispatch, id)
-  }, [dispatch, goPanel, OtherProfileData, activeStory])
+  
 
   const goTiket = useCallback((id, need_ads=true) => {
     setPopout(<ScreenSpinner/>)
@@ -319,9 +270,9 @@ const App = () => {
   const AppInit = useCallback(() => {
     setBanObject(null);
     fetchAccount()
-    if( activeStory === 'disconnect'){
-      let {view, panel} = historyPanels[historyPanels.length - 1];
-      goPanel(view, panel, false, true)
+    if( activeStory === 'disconnect') {
+      let {view, panel} = historyPanels[historyPanels.length - 2];
+      goPanel(view, panel, true, true)
     }
     
     
@@ -574,29 +525,22 @@ const App = () => {
                           description={"#" + account['id']}
                           before={<Avatar size={50} src={account['avatar']['url']} />}>
                             <div style={{ display: "flex" }}>
-                                  {account['nickname'] ? account['nickname'] : `Агент Поддержки`}
-                                  {account['flash'] ?
-                                      <div className="profile_icon">
-                                          <Icon16Fire width={12} height={12} onClick={(e) => {e.stopPropagation();setActiveModal('prom');setIsMyMark(true)}} />
-                                      </div>
-                                      : null}
-                                  {account['donut'] ?
-                                      <div className="profile_icon">
-                                          <Icon16StarCircleFillYellow width={12} height={12} onClick={(e) => {e.stopPropagation();setActiveModal('donut');setIsMyMark(true)}} />
-                                      </div>
-                                      : null}
-                                  {account['verified'] ?
-                                      <div className="profile_icon_ver">
-                                          <Icon16Verified onClick={(e) => {e.stopPropagation();setActiveModal('verif');setIsMyMark(true)}} />
-                                      </div>
-                                      : null}
+                                  <NicknameMenager 
+                                  nickname={account.nickname}
+                                  agent_id={account.id}
+                                  perms={permissions}
+                                  need_num={false} />
+                                  <ProfileTags
+                                    flash={account.flash}
+                                    donut={account.donut}
+                                    verified={account.verified} />
                               </div>
                           </SimpleCell>
                           
                       </Group>}
                       <Group>
                         <EpicItemPC
-                        icon={<Icon28ArticleOutline />}
+                        icon={<Icon28ListBulletSquareOutline />}
                         story={viewsStructure.Questions.navName}
                         activeStory={activeStory}
                         onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Questions.panels.homepanel)}}>
@@ -610,7 +554,7 @@ const App = () => {
                           {viewsStructure.Advice.name}
                         </EpicItemPC> */}
                         {agent_permission && <EpicItemPC
-                        icon={<Icon28BankOutline />}
+                        icon={<Icon28StatisticsOutline />}
                         story={viewsStructure.Top.navName}
                         activeStory={activeStory}
                         onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Top.panels.homepanel)}}>
@@ -618,7 +562,7 @@ const App = () => {
                         </EpicItemPC>}
                         {moderator_permission && 
                         <EpicItemPC
-                        icon={<Icon28WorkOutline />}
+                        icon={<Icon28SettingsOutline />}
                         story={viewsStructure.Moderation.navName}
                         activeStory={activeStory}
                         onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Moderation.panels.homepanel)}}>
@@ -632,8 +576,8 @@ const App = () => {
                   <SplitCol
                 animate={!isDesktop.current}
                 spaced={isDesktop.current}
-                width={isDesktop.current ? '500px' : '100%'}
-                maxWidth={isDesktop.current ? '700px' : '100%'}
+                width={isDesktop.current ? '600px' : '100%'}
+                maxWidth={isDesktop.current ? '650px' : '100%'}
                   >
                 <SkeletonTheme color={['bright_light', 'vkcom_light'].indexOf(scheme) !== -1 ? undefined : '#232323'} 
                 highlightColor={['bright_light', 'vkcom_light'].indexOf(scheme) !== -1 ? undefined : '#6B6B6B'}>
@@ -647,7 +591,7 @@ const App = () => {
                             selected={activeStory === viewsStructure.Questions.navName}
                             data-story={viewsStructure.Questions.navName}
                             text={viewsStructure.Questions.name}
-                          ><Icon28ArticleOutline/></TabbarItem>
+                          ><Icon28ListBulletSquareOutline/></TabbarItem>
                           {/* <TabbarItem
                             onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Advice.panels.homepanel)}} 
                             selected={activeStory === viewsStructure.Advice.navName}
@@ -659,13 +603,13 @@ const App = () => {
                             selected={activeStory === viewsStructure.Top.navName}
                             data-story={viewsStructure.Top.navName}
                             text={viewsStructure.Top.name}
-                          ><Icon28BankOutline /></TabbarItem>}
+                          ><Icon28StatisticsOutline /></TabbarItem>}
                           {moderator_permission ? <TabbarItem
                             onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Moderation.panels.homepanel)}} 
                             selected={activeStory === viewsStructure.Moderation.navName}
                             data-story={viewsStructure.Moderation.navName}
                             text={viewsStructure.Moderation.name}
-                          ><Icon28WorkOutline /></TabbarItem> : null}
+                          ><Icon28SettingsOutline /></TabbarItem> : null}
                           <TabbarItem
                             indicator={account.notif_count ? <Badge mode="prominent" /> : null}
                             onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Profile.panels.homepanel)}} 

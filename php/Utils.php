@@ -53,4 +53,7 @@ class Utils {
         }
         return $newdata;
     }
+    public static function replaceSymbols($text) {
+        $text = str_replace()
+    }
 }

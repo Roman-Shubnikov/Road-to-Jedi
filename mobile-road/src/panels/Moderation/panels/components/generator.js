@@ -3,7 +3,6 @@ import React, { useCallback, useEffect } from 'react';
 import { 
     Group,
     Div,
-    FormStatus,
     Placeholder,
     PullToRefresh,
     Button,
@@ -32,6 +31,7 @@ import { API_URL } from '../../../../config';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewsActions } from '../../../../store/main';
 import { enumerate } from '../../../../Utils';
+import { GreenCard } from '../../../../components/GreenCard';
 
   const blueBackground = {
     backgroundColor: 'var(--accent)'
@@ -97,21 +97,8 @@ export default props => {
   }, [])
   return (
     <>
-
-      {(account.bad_answers !== null && account.bad_answers !== undefined) ?
-        <Group>
-          <Div>
-            <FormStatus>
-              <div style={{ textAlign: 'center', color: "var(--text_profile)" }}>
-                Вы оценили <span style={{ color: 'var(--header_text)' }}>
-                  {account.bad_answers} {enumerate(account.bad_answers, ['ответ', 'ответа', 'ответов'])}
-                </span> Генераторов
-                        </div>
-            </FormStatus>
-          </Div>
-        </Group>
-        : null}
       <Group>
+        
         <><PullToRefresh onRefresh={() => { setFetching(true); getInfo('generator'); setTimeout(() => setFetching(false), 500) }} isFetching={fetching}>
 
           <List>
@@ -153,7 +140,7 @@ export default props => {
               </React.Fragment>
             ) : <Placeholder
               icon={<Icon56InboxOutline />}>
-              Можешь отдохнуть. Вопросов больше не придумали
+              Нет ни одного сгенерированного вопроса
                       </Placeholder> : <PanelSpinner />}
           </List>
 

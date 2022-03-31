@@ -19,9 +19,6 @@ import {
     HorizontalScroll,
     HorizontalCell,
     FormItem,
-    Slider,
-    Tabs,
-    TabsItem,
     Headline,
     TabbarItem,
     IconButton,
@@ -32,33 +29,28 @@ import {
     usePlatform,
     IOS,
     ButtonGroup,
+    SegmentedControl,
     } from '@vkontakte/vkui';
 
 
 import {
-  Icon28MoneyHistoryBackwardOutline,
   Icon16CheckCircle,
   Icon20CancelCircleFillRed,
-  Icon24BlockOutline,
   Icon24Repeat,
   Icon28MoneyCircleOutline,
-  Icon28GhostOutline,
   Icon28RoubleCircleFillBlue,
   Icon28DonateCircleFillYellow,
   Icon28TicketOutline,
   Icon28MoneyRequestOutline,
   Icon28UserOutgoingOutline,
   Icon28InfoOutline,
-
+  Icon28DeleteOutline,
 } from '@vkontakte/icons';
-
-import UserTopC from '../../../components/userTop';
 import { useSelector } from 'react-redux';
 import { API_URL, AVATARS_URL, LINKS_VK } from '../../../config';
 import { enumerate } from '../../../Utils';
 import { isEmptyObject } from 'jquery';
 import { sendGoal } from '../../../metrika';
-
 
 const avatars = [
     "1.png",
@@ -73,17 +65,40 @@ const avatars = [
     "10.png",
     "11.png",
     "12.png",
-    
+    "13.png",
+    "14.png",
+    "15.png",
+    "16.png",
+    "17.png",
+    "18.png",
+    "19.png",
+    "20.png",
+    "21.png",
 ]
 
 const blueBackground = {
     backgroundColor: 'var(--accent)'
   };
+const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+
 
 export default props => {
   const [activeTab, setActivetab] = useState('market');
   const platform = usePlatform();
-
+  const labels = [
+    {
+      label: 'Товары', 
+      value: 'market', 
+    },
+    {
+      label: 'Счета', 
+      value: 'invoices', 
+    },
+    {
+      label: 'Ценности', 
+      value: 'treasures', 
+    }
+  ]
   const getCurrPanel = () => {
     if(activeTab === 'market') return <Market navigation={props.navigation} callbacks={props.callbacks} reloadProfile={props.reloadProfile} />
     if(activeTab === 'invoices') return <Invoices navigation={props.navigation} callbacks={props.callbacks} reloadProfile={props.reloadProfile} setActivetab={setActivetab} />
@@ -92,31 +107,28 @@ export default props => {
   return(
     <Panel id={props.id}>
       <PanelHeader
+      separator={!platformname}
         left={
           <><PanelHeaderBack onClick={() => window.history.back()} /> </>
         }>
         Магазин
       </PanelHeader>
       <Group>
-        <Tabs>
-          <HorizontalScroll getScrollToLeft={(i) => i - 50} getScrollToRight={(i) => i + 50}>
-            <TabsItem onClick={() => setActivetab('market')}
-            selected={activeTab === 'market'}>
-              Товары
-            </TabsItem>
-            <TabsItem onClick={() => setActivetab('invoices')}
-            selected={activeTab === 'invoices'}>
-              Счета
-            </TabsItem>
-            {platform !== IOS && <TabsItem onClick={() => {
-              setActivetab('treasures');
+        <Div style={{paddingBottom:  0, paddingTop: 0}}>
+        <HorizontalScroll getScrollToLeft={(i) => i - 50} getScrollToRight={(i) => i + 50}>
+          <SegmentedControl 
+          value={activeTab}
+          onChange={e => {
+            setActivetab(e);
+            if(e === 'treasures') {
               sendGoal('marketMoneyClick');
-            }}
-            selected={activeTab === 'treasures'}>
-              Ценности
-            </TabsItem>}
-          </HorizontalScroll>
-        </Tabs>
+            }
+          }}
+          options={platform !== IOS ? labels : labels.slice(0,2)}
+          />
+        </HorizontalScroll>
+        </Div>
+        
       </Group>
       {getCurrPanel()}
     </Panel>
@@ -265,9 +277,7 @@ const Invoices = props => {
         <Headline>{account.donuts} $</Headline>
       </SimpleCell>
       <Div>
-        <Text style={{color: 'var(--subtext)'}}>Пока тут нет контента, связанного с этой тематической лентой,
-          но если у вас такой есть, мы можем об
-          судить его публикацию в этом блоке</Text>
+        <Text style={{color: 'var(--subtext)'}}>Данный баланс нельзя пополнить настоящей валютой, получить её можно только отвечая на вопросы с эксклюзивной отметкой.</Text>
       </Div>
     </Group>
     </>
@@ -279,7 +289,6 @@ const Market = props => {
   const { goDisconnect } = props.navigation;
   const [selectedAvatar, setSelectedAvatar] = useState(0);
   const [changed_id, setChangedId] = useState('');
-  const [fantom_count, setFantoms] = useState(5);
 
   const MarketManager = (type, data) => {
     let method,jsonData,textSnack;
@@ -307,18 +316,6 @@ const Market = props => {
         textSnack = "Вы успешно попали в рекомендации";
         jsonData = {}
         method = "shop.buyRecommendations&";
-        break;
-      case 'diamond':
-        textSnack = "Вы успешно купили алмаз"
-        jsonData = {}
-        method = "shop.buyDiamond&";
-        break;
-      case 'fantoms':
-        textSnack = `Вы успешно купили ${fantom_count} ` + enumerate(fantom_count, ['фантом','фантома', 'фантомов'])
-        jsonData = {
-          count: fantom_count,
-        }
-        method = "shop.buyGhosts&";
         break;
       default:
         method = "shop.changeAvatar&";
@@ -434,8 +431,8 @@ const Market = props => {
                   header="Осторожно!"
                   text="Если вы удалите ник, то, возможно, его сможет забрать кто-то другой. После удаления ника у вас будет отображён начальный id"
                 />)}
-                before={<Icon24BlockOutline width={28} height={28} />}
-                mode='destructive'>Удалить ник</Button> : null}
+                before={<Icon28DeleteOutline />}
+                mode='destructive'></Button> : null}
             </ButtonGroup>
           </FormItem>
         </FormLayout>

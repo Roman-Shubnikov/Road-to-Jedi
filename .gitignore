@@ -4,3 +4,5 @@ mobile-road/node_modules/
 .vs/
 .node_modules/
 node_modules
+php/vendor
+testphp/vendor

@@ -8,7 +8,6 @@ import {
     Div,
     FormStatus,
     Avatar,
-    ScreenSpinner,
     ActionSheet,
     ActionSheetItem,
     PanelHeaderBack,
@@ -16,8 +15,6 @@ import {
     Header,
     Snackbar,
     MiniInfoCell,
-    UsersStack,
-    Button,
     Link,
     PanelSpinner,
     IconButton,
@@ -34,13 +31,11 @@ import {
     Icon16CheckCircle,
     Icon24MoreVertical,
     Icon20ArticleOutline,
-    Icon20FollowersOutline,
     Icon20Add,
     Icon16FireVerified,
     Icon28BlockOutline,
     Icon28CopyOutline,
     Icon28ReportOutline,
-    Icon28UserIncomingOutline,
     Icon28MentionOutline,
     Icon28HashtagOutline,
     Icon28FaceIdOutline,
@@ -52,13 +47,13 @@ import {
 
 } from '@vkontakte/icons';
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useState } from 'react';
-import { accountActions, viewsActions } from '../store/main';
-import { API_URL, AVATARS_URL, LINK_APP, PERMISSIONS } from '../config';
+import { LINK_APP, PERMISSIONS } from '../config';
 import { isEmptyObject } from 'jquery';
 import { getHumanyTime, enumerate, recog_number } from '../Utils';
 import InfoArrows from './InfoArrows';
+import { ProfileTags } from './ProfileTags';
 const SCHEMES = [
     'Автоматическая',
     'Light',
@@ -74,13 +69,11 @@ const blueBackground = {
 };
 
 export default props => {
-    const dispatch = useDispatch();
     const [ShowServiceInfo, setShowServiceInfo] = useState(false);
     const [snackbar, setSnackbar] = useState(null);
     const profRef = useRef(null);
-    const { setPopout, showErrorAlert, setActiveModal, setReport } = props.callbacks;
+    const { setPopout, setActiveModal, setReport } = props.callbacks;
     const { other_profile: OtherProfileData, account } = useSelector((state) => (state.account))
-    const setActiveStory = (story) => dispatch(viewsActions.setActiveStory(story))
 
 
     const { online, id: agent_id,
@@ -91,8 +84,6 @@ export default props => {
         banned,
         avatar,
         donut,
-        subscribe,
-        followers,
         good_answers,
         bad_answers,
         age,
@@ -104,52 +95,6 @@ export default props => {
     const permissions = account.permissions;
     const moderator_permission = permissions >= PERMISSIONS.special;
 
-
-
-    const subscribeUnsubscribe = () => {
-        setPopout(<ScreenSpinner />)
-        let method = subscribe ? "followers.unsubscribe&" : "followers.subscribe&"
-        fetch(API_URL + `method=${method}` + window.location.search.replace('?', ''),
-            {
-                method: 'post',
-                headers: { "Content-type": "application/json; charset=UTF-8" },
-                body: JSON.stringify({
-                    'agent_id': agent_id,
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.result) {
-                    let DataProf = { ...OtherProfileData };
-                    DataProf.subscribe = !subscribe;
-                    dispatch(accountActions.setOtherProfile(DataProf))
-                    setPopout(null);
-
-                } else {
-                    showErrorAlert(data.error.message)
-                }
-            })
-            .catch(err => {
-                console.log(err)
-                setActiveStory('disconnect')
-            })
-    }
-    const subscribeMenu = () => {
-        if (OtherProfileData.subscribe) {
-            setPopout(
-                <ActionSheet onClose={() => setPopout(null)}
-                    toggleRef={profRef.current}
-                    iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
-                    <ActionSheetItem mode='destructive'
-                        before={<Icon28UserIncomingOutline />}
-                        onClick={() => {
-                            subscribeUnsubscribe()
-                        }}>Отписаться</ActionSheetItem>
-                </ActionSheet>)
-        } else {
-            subscribeUnsubscribe()
-        }
-    }
     const infoMenu = (id) => {
         setPopout(
             <ActionSheet onClose={() => setPopout(null)}
@@ -207,30 +152,15 @@ export default props => {
 
                         }
                         description={online.is_online ? "online" : getHumanyTime(online.last_seen).date + " в " + getHumanyTime(online.last_seen).time}
-                        before={<Avatar size={70} src={avatar.url} style={{ position: 'relative' }} />}
+                        before={<Avatar size={70} src={avatar.url} />}
                     >
                         <div style={{ display: 'flex' }}>
                             {nickname ? nickname : `Агент Поддержки #${agent_id}`}
-                            {flash && verif &&
-                                <div className="profile_moderator_name_icon">
-                                    <Icon16FireVerified width={12} height={12} style={{ color: "var(--prom_icon)" }} onClick={() => setActiveModal('prom')} />
-                                </div>
-                            }
-                            {flash && !verif &&
-                                <div className="profile_moderator_name_icon">
-                                    <Icon16Fire width={12} height={12} style={{ color: "var(--prom_icon)" }} onClick={() => setActiveModal('prom')} />
-                                </div>
-                            }
-                            {donut &&
-                                <div className="profile_moderator_name_icon">
-                                    <Icon16StarCircleFillYellow width={12} height={12} onClick={() => setActiveModal('donut')} />
-                                </div>
-                            }
-                            {verif && !flash &&
-                                <div className="profile_moderator_name_icon_ver">
-                                    <Icon16Verified onClick={() => setActiveModal('verif')} />
-                                </div>
-                            }
+                            <ProfileTags
+                            verified={verif}
+                            flash={flash}
+                            donut={donut}
+                             />
                         </div>
                     </SimpleCell>
                     <Div>
@@ -243,10 +173,9 @@ export default props => {
                 </Group>
 
                 {
-                    ((OtherProfileData.permissions >= PERMISSIONS.special) || OtherProfileData.generator || banned) ?
-                        <div style={{ marginTop: 20, marginBottom: 20 }} className="help_title_profile">{banned ?
-                            'Этот профиль заблокирован' :
-                            'Вы не можете просматривать этот профиль'}
+                    OtherProfileData.permissions >= PERMISSIONS.special ?
+                        <div style={{ marginTop: 20, marginBottom: 20 }} className="help_title_profile">
+                            Вы не можете просматривать этот профиль
                         </div> :
                         <>
                             <Group header={<Header>Общая информация</Header>}>
@@ -255,20 +184,6 @@ export default props => {
                                     textWrap='full'>
                                     {OtherProfileData.publicStatus || "Играю в любимую игру"}
                                 </MiniInfoCell>
-                                
-                                <SimpleCell
-                                disabled
-                                before={<Icon20FollowersOutline width={28} height={28} />}
-                                after={
-                                    <UsersStack
-                                        photos={OtherProfileData.followers[2].map((user, i) => AVATARS_URL + user.avatar_name)} />
-                                }>
-                                    {followers[0] ? followers[0] + " " + enumerate(followers[0],
-                                        ['подписчик', 'подписчика', 'подписчиков']) : "Нет подписчиков"}
-                                    {followers[1] ? " · " +
-                                        followers[1] + " " + enumerate(followers[1],
-                                            ['новый', 'новых', 'новых']) : ''}
-                                </SimpleCell>
                                 <SimpleCell
                                     disabled
                                     before={<Icon28MentionOutline />}
@@ -330,10 +245,11 @@ export default props => {
                                     </SimpleCell>
                                     <SimpleCell
                                     disabled
+                                    href={'https://vk.com/id' + vk_id}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     before={<Icon28LogoVkOutline />}>
-                                        <Link href={'https://vk.com/id' + vk_id}
-                                            target="_blank"
-                                            rel="noopener noreferrer">
+                                        <Link>
                                             Страница ВКонтакте
                                         </Link>
                                     </SimpleCell>

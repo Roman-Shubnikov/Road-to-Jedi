@@ -9,9 +9,20 @@ body {
     --verification_color: #5C9CE6;
     --clock_support_green: #4BB34B;
     --description_color: #818C99;
-    
-} 
-
+    --gold: #FFD54F;
+    --silver: #B0BEC5;
+    --bronze: #FFA726;
+}
+img { object-fit: cover; }
+.gold {
+    background-color: var(--gold);
+}
+.silver {
+    background-color: var(--silver);
+}
+.bronze {
+    background-color: var(--bronze);
+}
 .blink2 {
     -webkit-animation: blink2 1s linear infinite;
     animation: blink2 1s linear infinite;
@@ -603,4 +614,8 @@ a{
 }
 .thumb_active {
     color: #FFB73D;
+}
+
+.moderation_cards-texts .vkuiMiniInfoCell__content {
+    white-space: pre-wrap;
 }

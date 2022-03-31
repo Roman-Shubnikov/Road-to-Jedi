@@ -3,7 +3,6 @@ import Skeleton from "react-loading-skeleton";
 import { 
   Panel,
   PanelHeader,
-  Separator,
   PullToRefresh,
   PanelHeaderContent,
   PanelHeaderContext,
@@ -34,6 +33,7 @@ import { topUsersActions } from '../../../store/main';
 import { API_URL, PERMISSIONS } from '../../../config';
 import { inArray, isEmptyObject } from 'jquery';
 import { enumerate } from '../../../Utils';
+import { Podium } from '../../../components/Podium';
 
 const Forms = {
   good_answers: ['хороший ответ', 'хороших ответа', 'хороших ответов'],
@@ -140,10 +140,10 @@ export default props => {
         aside={<Icon16Dropdown style={{ transition: '0.3s',transform: `rotate(${contextOpened ? '180deg' : '0'})` }} />}
         onClick={() => setContextOpened(prev => !prev)}
       >
-        Пантеон
+        Статистика
       </PanelHeaderContent> 
       :
-        "Пантеон" }
+        "Статистика" }
     
     </PanelHeader>
     <PanelHeaderContext opened={contextOpened} onClose={() => setContextOpened(prev => !prev)}>
@@ -206,19 +206,24 @@ export default props => {
     
     <PullToRefresh onRefresh={() => {setFetching(true);getTopUsers(activeTab, mode, true)}} isFetching={fetching}>
       <Group>
-        {topAgents[activeTab] ? !isEmptyObject(topAgents[activeTab]) ? topAgents[activeTab].map((result, i) => 
+        {topAgents[activeTab] ? !isEmptyObject(topAgents[activeTab]) ? 
+        <>
+        <Podium users={topAgents[activeTab]}
+        goOtherProfile={goOtherProfile} />
+        {topAgents[activeTab].slice(3).map((result, i) =>
           result.banned ? null :
           <React.Fragment key={result.id}>
-            {(i === 0) || <Separator/>}
+            <UserTopC {...result}
+            position={i + 4}
+            description={
+              getCurrDescriptionAgent(result)
+            }
+            onClick={() => {goOtherProfile(result.id, true)}} />
 
-          <UserTopC {...result}
-          description={
-            getCurrDescriptionAgent(result)
-        }
-          onClick={() => {goOtherProfile(result.id, true);}} />
-
-      </React.Fragment>
-        ) : <Placeholder
+          </React.Fragment>
+        )}
+        </>
+         : <Placeholder
             icon={getCurrStub()[0]}
             >
           {getCurrStub()[1]}

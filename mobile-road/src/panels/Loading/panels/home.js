@@ -3,7 +3,6 @@ import {
     Group,
     Panel,
     PanelHeader,
-    Spinner,
     } from '@vkontakte/vkui';
 export default props => {
     return(

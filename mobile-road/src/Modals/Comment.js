@@ -68,7 +68,7 @@ export default props => {
             before={<Icon20RecentOutline />}>
               {getHumanyTime(Comment.time).datetime}
           </MiniInfoCell>
-          {Comment.bomb_time > 0 && <MiniInfoCell
+          {Comment.bomb_time > 0 && props.comment.mark===-1 && <MiniInfoCell
             textWrap='full'
             before={<Icon20BombOutline style={{color: "var(--dynamic_red)",}} 
             className={'blink2'}

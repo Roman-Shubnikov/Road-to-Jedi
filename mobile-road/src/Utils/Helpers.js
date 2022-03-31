@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from "@vkontakte/vkui";
+import { PERMISSIONS } from '../config';
 
 export const getHumanyTime = (unixtime) => {
     let date, time, year, month, day, hours, minutes, datetime;
@@ -77,4 +78,17 @@ export const LinkHandler = props => {
     return(
         <Link href={props.href} target="_blank" rel="noopener noreferrer">{props.children}</Link>
     )
+}
+
+export const NicknameMenager = ({perms, nickname, agent_id, need_num=true}) => {
+    if(nickname) {
+        return nickname;
+    }
+    if(perms >= PERMISSIONS.special) {
+        return 'Специальный агент';
+    }
+    if(need_num) {
+        return 'Агент Поддержки #' + agent_id;
+    }
+    return 'Агент Поддержки';
 }

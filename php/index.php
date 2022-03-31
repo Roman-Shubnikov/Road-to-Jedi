@@ -18,6 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
 
+require("vendor/autoload.php");
+
 require("Utils/config.php");
 require("Utils/Show.php");
 require("Utils/AccessCheck.php");
@@ -76,6 +78,9 @@ new AccessCheck();
 new FludControl();
 
 $params = [
+	'files.uploadFile' => [
+		'parameters' => [],
+	],
 	'settings.get' => [
 		'parameters' => [
 			'setting' => [
@@ -640,6 +645,11 @@ $params = [
 		],
 		'perms' => CONFIG::PERMISSIONS['special'],
 	],
+	'special.getSysInfo' => [
+		'parameters' => [
+		],
+		'perms' => CONFIG::PERMISSIONS['special'],
+	],
 	'special.getNewModerationTickets' => [
 		'parameters' => [
 			'offset' => [
@@ -664,7 +674,7 @@ $params = [
 				'required' => true
 			],
 		],
-		'perms' => CONFIG::PERMISSIONS['user']
+		'perms' => CONFIG::PERMISSIONS['special']
 	],
 	'special.delModerationTicket' => [
 		'parameters' => [
@@ -673,7 +683,7 @@ $params = [
 				'required' => true
 			],
 		],
-		'perms' => CONFIG::PERMISSIONS['special'],
+		'perms' => CONFIG::PERMISSIONS['admin'],
 	],
 	'special.approveModerationTicket' => [
 		'parameters' => [
@@ -682,9 +692,22 @@ $params = [
 				'required' => true
 			],
 		],
-		'perms' => CONFIG::PERMISSIONS['special'],
+		'perms' => CONFIG::PERMISSIONS['admin'],
 	],
 	'admin.getVerificationRequests' => [
+		'parameters' => [
+			'offset' => [
+				'type' => 'int',
+				'required' => true
+			],
+			'count' => [
+				'type' => 'int',
+				'required' => true
+			],
+		],
+		'perms' => CONFIG::PERMISSIONS['admin'],
+	],
+	'admin.getCommentsSpecials' => [
 		'parameters' => [
 			'offset' => [
 				'type' => 'int',
@@ -709,6 +732,37 @@ $params = [
 	'admin.approveVerificationRequest' => [
 		'parameters' => [
 			'id_request' => [
+				'type' => 'int',
+				'required' => true
+			],
+		],
+		'perms' => CONFIG::PERMISSIONS['admin'],
+	],
+	'admin.getRandomClosedQuestions' => [
+		'parameters' => [
+			'offset' => [
+				'type' => 'int',
+				'required' => true
+			],
+			'count' => [
+				'type' => 'int',
+				'required' => true
+			],
+		],
+		'perms' => CONFIG::PERMISSIONS['admin'],
+	],
+	'admin.approveRandomClosedQuestion' => [
+		'parameters' => [
+			'ticket_id' => [
+				'type' => 'int',
+				'required' => true
+			],
+		],
+		'perms' => CONFIG::PERMISSIONS['admin'],
+	],
+	'admin.delRandomClosedQuestion' => [
+		'parameters' => [
+			'ticket_id' => [
 				'type' => 'int',
 				'required' => true
 			],
@@ -904,6 +958,19 @@ if (!isset($params[$method])) {
 }
 $data = Utils::checkParams($params[$method]['parameters'], $data);
 
+
+$s3 = new \Aws\S3\S3Client([
+    'version' => 'latest',
+    'region'  => 'us-east-1',
+    'endpoint' => 'http://localhost:8443',
+    'use_path_style_endpoint' => true,
+    'credentials' => [
+        'key' => '1234',
+        'secret' => '1234',
+   ],
+]);
+
+
 $Connect = new DB();
 $users = new Users($user_id, $Connect);
 $settings = new Settings($Connect, $users);
@@ -940,6 +1007,13 @@ if($users->info['permissions'] >= CONFIG::PERMISSIONS['special']) {
 
 
 switch ($method) {
+	case 'files.uploadFile': 
+		$files = $_FILES;
+		foreach (array_keys($files) as $file_name) {
+			// var_dump($files, $files[$file_name]);
+			$tickets->uploadFile($files[$file_name]);
+		}
+		
 	case 'settings.get':
 		$setting = $data['setting'];
 		Show::response($settings->getOneSetting($setting));
@@ -973,7 +1047,7 @@ switch ($method) {
 		];
 		$res['levels']['exp_to_lvl'] = $levels->getLevelInfo($res['levels']['lvl'])['exp_to_lvl'];
 		$res['levels']['exp'] = $res['levels']['exp'] - $levels->getLevelInfo($res['levels']['lvl'])['exp_total'];
-		if ($users->info['generator']) {
+		if ($users->info['permissions'] >= CONFIG::PERMISSIONS['special']) {
 			$res['settings']['generator_noty'] = $settings->getOneSetting('generator_noty');
 		}
 		Show::response($res);
@@ -1263,8 +1337,12 @@ switch ($method) {
 		if ($id > CONFIG::AVATARS_COUNT || $id <= 0) Show::error(1008);
 		if ($balance < CONFIG::AVATAR_PRICE) Show::error(1002);
 		if ($users->info['avatar_name'] == $id) Show::error(1018);
+		$new_balance = $balance - CONFIG::AVATAR_PRICE;
+		if($users->info['permissions'] >= CONFIG::PERMISSIONS['special']) {
+            $new_balance = $balance;
+        }
 
-		$edit = $Connect->query("UPDATE users SET money=?,avatar_id=? WHERE vk_user_id=?", [$balance - CONFIG::AVATAR_PRICE, $id, $user_id]);
+		$edit = $Connect->query("UPDATE users SET money=?,avatar_id=? WHERE vk_user_id=?", [$new_balance, $id, $user_id]);
 		Show::response(['edit' => $edit]);
 
 	case 'shop.changeDonutAvatars':
@@ -1374,6 +1452,15 @@ switch ($method) {
 		$offset = (int) $data['offset'];
 		Show::response($Connect->db_get("SELECT * FROM messages WHERE author_id>0 order by id asc LIMIT $offset, $count"));
 
+	case 'special.getSysInfo':
+		$banned = $Connect->db_get("SELECT COUNT(distinct vk_user_id) as count FROM banned WHERE time_end<?", 
+		[time()])[0]['count'];
+		$questions_count = $Connect->db_get("SELECT COUNT(*) as count FROM tickets")[0]['count'];
+		Show::response([
+			'banned' => $banned,
+			'questions_count' => $questions_count,
+		]);
+
 	case 'special.getNewMessages':
 		$count = (int) $data['count'];
 		if ($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
@@ -1395,9 +1482,6 @@ switch ($method) {
 	case 'ticket.addNewModerationTicket':
 		$title = trim($data['title']);
 		$text = trim($data['text']);
-		if ($users->info['generator'] != 1) {
-			Show::error(403);
-		}
 
 		$res = $Connect->db_get("SELECT COUNT(*) as count_q FROM queue_quest WHERE author_id=?", [$users->vk_id]);
 		if($res){
@@ -1521,6 +1605,130 @@ switch ($method) {
 			];
 		}
 		Show::response($out);
+	
+
+	case 'admin.getVerificationRequests':
+		$count = (int) $data['count'];
+		if ($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
+		$offset = (int) $data['offset'];
+		$res = $Connect->db_get(
+			"SELECT id, vk_id, aid, title, descverf, time
+			FROM request_verification 
+			WHERE inactive=0
+			ORDER BY time DESC LIMIT $offset, $count"
+		);
+		$out = [];
+		foreach ($res as $val) {
+			$out[] = [
+				'id' => (int)$val['id'],
+				'vk_id' => (int)$val['vk_id'],
+				'aid' => (int)$val['aid'],
+				'title' => (string)$val['title'],
+				'description' => (string)$val['descverf'],
+				'time' => (int)$val['time'],
+			];
+		}
+		Show::response($out);
+	
+	case 'admin.getCommentsSpecials':
+		$count = (int) $data['count'];
+		if ($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
+		$offset = (int) $data['offset'];
+		$res = $Connect->db_get(
+			"SELECT m.id, 
+			m.ticket_id, 
+			m.comment, 
+			m.comment_author_id,
+			m.text,
+			m.mark,
+			u.avatar_id,
+			u.vk_user_id as special_vk,
+			a.name as avatar_name,
+			u_agent.vk_user_id as agent_vk
+			FROM messages as m
+			LEFT JOIN users as u
+			ON m.comment_author_id = u.id
+			LEFT JOIN users as u_agent
+			ON m.author_id = u_agent.id
+			LEFT JOIN avatars as a
+			ON a.id = u.avatar_id
+			WHERE m.comment_author_id != 0
+			ORDER BY comment_time DESC LIMIT $offset, $count"
+		);
+		$out = [];
+		foreach ($res as $val) {
+			$out[] = [
+				'id' => (int)$val['id'],
+				'ticket_id' => (int)$val['ticket_id'],
+				'comment_author_id' => (int)$val['comment_author_id'],
+				'comment' => (string)$val['comment'],
+				'text' => (string)$val['text'],
+				'mark' => (int)$val['mark'],
+				'agent_vk' => (int)$val['agent_vk'],
+				'special_vk' => (int)$val['special_vk'],
+				'avatar' => [
+					'avatar_name' => CONFIG::AVATAR_PATH . '/' . (string)$val['avatar_name'],
+					'avatar_id' => (int)$val['avatar_id']
+				],
+			];
+		}
+		Show::response($out);
+
+
+	case 'admin.getRandomClosedQuestions':
+		$count = (int) $data['count'];
+		if ($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
+		$offset = (int) $data['offset'];
+		$res = $Connect->db_get(
+			"SELECT id, title, real_author, time
+			FROM tickets
+			WHERE status=2
+			ORDER BY rand(),time ASC LIMIT $offset, $count"
+		);
+		$out = [];
+		$ticket_ids = [];
+		foreach ($res as $val) {
+			$ticket_ids[] = (int)$val['id'];
+			$out[] = [
+				'id' => (int)$val['id'],
+				'title' => (string)$val['title'],
+				'real_author' => (int)$val['real_author'],
+				'time' => (int)$val['time'],
+			];
+		}
+		$i = 0;
+		foreach ($ticket_ids as $ticket_id) {
+			$message = $Connect->db_get('SELECT text FROM messages WHERE ticket_id=? ORDER BY time ASC LIMIT 1', [$ticket_id]);
+			if(empty($message)) {
+				unset($out[$i]);
+				continue;
+			}
+			$out[$i]['text'] = $message[0]['text'];
+			$i++;
+		}
+		Show::response($out);
+	
+	case 'admin.approveRandomClosedQuestion':
+		$ticket_id = $data['ticket_id'];
+		$info = $tickets->getById($ticket_id);
+		$message = $tickets->getMessages($ticket_id, 0, 1);
+		if(empty($info) || empty($message)) Show::error(34);
+		$vk = new VkApi();
+		$author = $vk->get_rand_user()[0];
+		$tickets->delete($ticket_id);
+		$donut_rand = false;
+		$rnd = rand(0,99);
+		if ($rnd>80){
+			$donut_rand = true;
+		}
+		Show::response($tickets->add($info['title'], $message[0]['text'], $author, $donut_rand, $info['real_author']));
+		
+	case 'admin.delRandomClosedQuestion':
+		$ticket_id = $data['ticket_id'];
+
+		$info = $tickets->getById($ticket_id);
+		if(empty($info)) Show::error(34);
+		Show::response($tickets->delete($ticket_id));
 
 	case 'admin.approveVerificationRequest':
 		$id_request = $data['id_request'];

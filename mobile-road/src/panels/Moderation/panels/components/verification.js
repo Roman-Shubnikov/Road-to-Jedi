@@ -133,7 +133,7 @@ export default props => {
               </React.Fragment>
             ) : <Placeholder
               icon={<Icon56InboxOutline />}>
-              Заявок нет
+              Нет ни одной заявки на верификацию
                     </Placeholder> : <PanelSpinner />}
           </List>
 

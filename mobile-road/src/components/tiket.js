@@ -23,6 +23,11 @@ import {
     Link,
     Button,
     Spinner,
+    FormItem,
+    File,
+    Card,
+    ButtonGroup,
+
     } from '@vkontakte/vkui';
 
 import { 
@@ -41,16 +46,16 @@ import {
   Icon28CommentDisableOutline,
   Icon28DoorArrowLeftOutline,
   Icon28DoorArrowRightOutline,
-
+  Icon24Camera,
+  Icon24Comment,
  } from '@vkontakte/icons';
-
-// import Moderator_img from '../images/10007.png'
 
 import Message from './message'
 import { useDispatch, useSelector } from 'react-redux';
 import { ticketActions } from '../store/main';
-import { getHumanyTime, LinkHandler } from '../Utils';
-import { API_URL, LINKS_VK, PERMISSIONS } from '../config';
+import { getHumanyTime, getRandomInRange, LinkHandler, NicknameMenager } from '../Utils';
+import { API_URL, LINKS_VK, PERMISSIONS, PRESETS_MESSAGES } from '../config';
+import { useNavigation } from '../hooks';
 
 const blueBackground = {
   backgroundColor: 'var(--accent)'
@@ -58,7 +63,7 @@ const blueBackground = {
 
 export default props => {
   const dispatch = useDispatch();
-  const { setPopout, showErrorAlert, setReport, setActiveModal, showAlert, goOtherProfile, goPanel } = props.callbacks;
+  const { setReport, setActiveModal } = props.callbacks;
   const { activeStory } = useSelector((state) => state.views)
   const setComment = useCallback((comment) => dispatch(ticketActions.setComment(comment)), [dispatch])
   const MessageRef = useRef(null);
@@ -68,8 +73,10 @@ export default props => {
   const [redaction, setRedaction] = useState(false);
   const [snackbar, setSnackbar] = useState(false);
   const [sendfield, setSendfield] = useState('');
-  
-  
+  const [openAtachment, setOpenAtachment] = useState(false);
+  const [attachments, setAttachments] = useState([]);
+  const { goDisconnect, setPopout, showErrorAlert, showAlert, goOtherProfile, goPanel } = useNavigation();
+
   const preTicketId = useSelector((state) => state.tickets.current_id)
   const TicketData = useSelector((state) => state.tickets.ticketInfo)
   const account = useSelector((state) => (state.account.account))
@@ -107,7 +114,7 @@ export default props => {
           showErrorAlert(data.error.message);
         }
       })
-      .catch(() => goPanel('disconnect', 'load'))
+      .catch(goDisconnect)
   }
   const getAvatar = (result) => {
     if (result.author.is_moderator){
@@ -163,7 +170,7 @@ export default props => {
             showErrorAlert(data.error.message)
           }
         })
-        .catch(() => goPanel('disconnect', 'load'))
+        .catch(goDisconnect)
       }
 
       const Admin = (approved, id, chance_posit, author_id, text, comment, avatar = null, mark = -1) => {
@@ -258,7 +265,7 @@ export default props => {
                 </ActionSheetItem>}
                 {comment && <ActionSheetItem autoclose 
                   before={<Icon28CommentDisableOutline />} 
-                  onClick={() => QuickMenagerMessages(id, 'delete_coment')}>
+                  onClick={() => QuickMenagerMessages(id, 'delete_comment')}>
                     Удалить комментарий
                 </ActionSheetItem>}
                 </>
@@ -388,7 +395,7 @@ export default props => {
           showErrorAlert(data.error.message)
         }
       })
-      .catch(() => goPanel('disconnect', 'load'))
+      .catch(goDisconnect)
   }
   const openCloseTicket = (open) => {
     let method = open ? "method=ticket.open&" : "method=ticket.close&";
@@ -410,7 +417,7 @@ export default props => {
               showErrorAlert(data.error.message)
             }
           })
-          .catch(() => goPanel('disconnect', 'load'))
+          .catch(goDisconnect)
       }
   const copy = (id) => {
     setPopout(
@@ -457,6 +464,21 @@ export default props => {
     }
     return message
   }
+  const getPresetMessage = () => {
+    let ind = getRandomInRange(0, PRESETS_MESSAGES.length-1);
+    let message = PRESETS_MESSAGES[ind];
+    message = message.replace('%name_user%', info.author.first_name);
+    message = message.replace('%agent_uni_name%', account.nickname ? account.nickname : '#' + account.id);
+    message = message.replace('%agent_uni_name_full%', 
+    <NicknameMenager 
+    perms={0} 
+    nickname={account.nickname} 
+    agent_id={account.id} />);
+
+    message = message.replace('%agent_id%', '#' + account.id);
+    message = message.replace('%text%', sendfield);
+    setSendfield(message)
+  }
   useEffect(() => {
     const getTicket = (id) => {
       fetch(API_URL + "method=ticket.getById&" + window.location.search.replace('?', ''),
@@ -475,7 +497,7 @@ export default props => {
             showErrorAlert(data.error.message);
           }
         })
-        .catch(() => goPanel('disconnect', 'load'))
+        .catch(goDisconnect)
     }
     getTicket(preTicketId ? preTicketId : info.id)
     return () => {
@@ -483,14 +505,49 @@ export default props => {
     }
      // eslint-disable-next-line 
   }, [preTicketId, dispatch])
+
+  const loadFiles = (files) => {
+    let globalFiles = {...attachments}
+    let file_id = Object.keys(globalFiles).length > 0 ? 
+    Math.max(...Object.keys(globalFiles).map(v => parseInt(v))) + 1 : 0;
+
+
+    let xhr = new XMLHttpRequest();
+    let fd = new FormData();
+    xhr.open('POST', API_URL + 'method=files.uploadFile&' + window.location.search.replace('?', ''))
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState == 4 && xhr.status == 200) {
+          // Handle response.
+          console.log(xhr.response); // handle response.
+      }
+    };
+
+    for(let i=0; i<files.length; i++) {
+      globalFiles = Object.assign(globalFiles, {[file_id]: files[i]})
+      file_id++;
+      setAttachments(globalFiles)
+      fd.append(file_id, files[i]);
+    }
+    xhr.send(fd);
+    console.log('adadfsadsf')
+
+  }
+
   return(
     <Panel id={props.id}>
       <PanelHeader
         left={<><PanelHeaderBack onClick={() => window.history.back()} /><PanelHeaderButton onClick={() => copy(info.id)}><Icon28SlidersOutline/></PanelHeaderButton></>}
       >
+        {/* <PanelHeaderContent
+        status='На рассмотрении'
+        before={info && <Avatar size={36} src={info.author.photo_200} alt='ava' />}>
+          <div ref={MessageRef}>
+            Вопрос #{info ? info.id : "...."} {info && info.donut ? <Icon16StarCircleFillYellow width={16} height={16} style={{ display: 'inline-block' }} /> : null}
+          </div>
+        </PanelHeaderContent> */}
         <div ref={MessageRef}>
-          Вопрос #{info ? info.id : "...."} {info && info.donut ? <Icon16StarCircleFillYellow width={16} height={16} style={{ display: 'inline-block' }} /> : null}
-        </div>
+            Вопрос #{info ? info.id : "...."} {info && info.donut ? <Icon16StarCircleFillYellow width={16} height={16} style={{ display: 'inline-block' }} /> : null}
+          </div>
       </PanelHeader>
       {info ? <>
         <div style={{ height: $(window).height() - 200}}>
@@ -515,7 +572,10 @@ export default props => {
                         ('mark' in result) ? result.mark.mark : -1)
                     }}
                     is_mark={('mark' in result) ? result.mark.mark : -1}
-                    commentclick={() => { setComment({ objComment: result.moderator_comment !== undefined ? result.moderator_comment : null, message_id: result.id }); setActiveModal("comment") }}
+                    commentclick={() => { setComment({ objComment: result.moderator_comment !== undefined ? result.moderator_comment : null, 
+                      message_id: result.id, 
+                      mark: ('mark' in result) ? result.mark.mark : -1 }); 
+                      setActiveModal("comment") }}
                     comment={result.moderator_comment !== undefined}
                     approved={result.approved ? true : false}
                     markAlert={() => showAlert('Информация', markMessageHandler(result.mark))}
@@ -555,8 +615,38 @@ export default props => {
               </FixedLayout>
               :
               <FixedLayout filled vertical='bottom' style={{ zIndex: 2 }}>
+                {openAtachment && (
+                    <div style={{display: 'flex'}}>
+                    <FormItem top="Прикрепить контент">
+                      <ButtonGroup>
+                        {/* <File 
+                        onChange={e => loadFiles(e.currentTarget.files)}
+                        before={<Icon24Camera />} 
+                        controlSize="m">
+                          Открыть галерею
+                        </File> */}
+                        <Button size='m'
+                        mode='secondary'
+                        before={<Icon24Comment />}
+                        onClick={() => {
+                          getPresetMessage();
+                        }}>
+                          Приветствие
+                        </Button>
+                      </ButtonGroup>
+                      
+                    </FormItem>
+                    {/* <Card>
+                      <img  />
+                    </Card> */}
+                  </div>
+                  )}
+
                 <Separator wide />
                 <WriteBar
+                  before={<WriteBarIcon 
+                    onClick={() => setOpenAtachment(p => !p)}
+                    mode="attach" />}
                   after={
                     <>
                       <WriteBarIcon mode={(redaction || edit_comment) ? 'done' : "send"}

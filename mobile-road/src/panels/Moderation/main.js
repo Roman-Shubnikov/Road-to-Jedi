@@ -18,6 +18,8 @@ var types = {
   'answers': "special.getNewMessages",
   'generator': "special.getNewModerationTickets",
   'verification': "admin.getVerificationRequests",
+  'comments': "admin.getCommentsSpecials",
+  'questions': "admin.getRandomClosedQuestions",
   'reports': "reports.getReports",
 }
 

@@ -13,14 +13,11 @@ import {
     PanelHeaderBack,
     Group,
     FormItem,
-    FormStatus,
     SimpleCell,
     Switch,
-    Div,
-    Subhead,
-
     } from '@vkontakte/vkui';
 import { useSelector } from 'react-redux';
+import { GreenCard } from '../../../components/GreenCard';
 
 export default props => {
     const { goDisconnect } = props.navigation;
@@ -83,7 +80,7 @@ export default props => {
                 if (data.result) {
                     setTitle("");
                     setText("");
-                    showAlert('Успех', "Ваш вопрос отправлен в модерацию, ожидайте")
+                    showAlert('Отправлено', "Вопрос отправлен на модерацию. Примерное время ожидания сейчас: 5 часов.")
                 } else {
                     showErrorAlert(data.error.message)
                 }
@@ -98,6 +95,7 @@ export default props => {
                 Новый вопрос
                 </PanelHeader>
             <Group>
+                {console.log(noty)}
                 <SimpleCell
                     disabled
                     multiline
@@ -114,11 +112,14 @@ export default props => {
             <Group>
                 <FormLayout>
                     <FormItem>
-                        <FormStatus>
-                            Когда вы задаёте вопрос, помните, что нельзя помещать в него нецензурные выражения. Старайтесь быть вежливыми.
-                            Когда вам ответят, вы сможете выбрать решил ли ответ вашу проблему или нет. Пожалуйста, не забывайте выбирать это. Так мы сможем понять помогли ли мы вам.
-                            Вы можете сами отвечать на вопросы пользователей, став агентом. Для этого нужно перейти на вкладку «Профиль» и пройти тест на агента.
-                        </FormStatus>
+                        <GreenCard header='При создании вопросов обращайте внимание на:'>
+                            — то, чтобы название или описание не содержало нецензурной брани (маты - не круто);<br />
+                            — то, чтобы вопрос был креативным и новым (скучно много раз отправлять одни и те же инструкции);<br />
+                            — то, чтобы вопрос был грамотным (если это не его фишка).<br /><br />
+
+                            Приветствуются вопросы о ВКонтакте, жизни и философии.
+                            Пишите вопрос только в случае, если сами знаете на него ответ!
+                        </GreenCard>
                     </FormItem>
                     
                     <FormItem top={"Суть проблемы (" + title.length + "/80). Не менее 5 символов"}

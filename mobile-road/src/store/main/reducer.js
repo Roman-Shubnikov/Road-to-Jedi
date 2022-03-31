@@ -33,6 +33,8 @@ const initalStateViews = {
     historyPanels: [{view: viewsStructure.Questions.navName, panel: 'questions'}],
     snackbar: null,
     need_epic: true,
+    popout: null,
+    globalError: null,
     historyPanelsView: ['questions'],
 }
 const initalStateTickets = {
@@ -53,6 +55,18 @@ const initalStateModeration = {
 
         },
         generator: {
+            offset: 0,
+            count: 20,
+            data: null,
+            data_helper: null,
+        },
+        questions: {
+            offset: 0,
+            count: 20,
+            data: null,
+            data_helper: null,
+        },
+        comments: {
             offset: 0,
             count: 20,
             data: null,
@@ -134,6 +148,10 @@ export const viewsReducer = (state = initalStateViews, action) => {
             return {...state, need_epic: action.payload}
         case viewsActionTypes.SET_SNACKBAR:
             return {...state, snackbar: action.payload}
+        case viewsActionTypes.SET_GLOBAL_ERROR:
+            return {...state, globalError: action.payload}
+        case viewsActionTypes.SET_POPOUT:
+            return {...state, popout: action.payload}
         default: 
             return state
     }

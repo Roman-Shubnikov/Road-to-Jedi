@@ -3,18 +3,12 @@ import React from 'react';
 import { 
     SimpleCell,
     Avatar,
+    Counter,
 
     } from '@vkontakte/vkui';
 
-import {
-  Icon16FireVerified,
-  Icon16Fire,
-  Icon16Verified,
-  Icon16StarCircleFillYellow,
-  Icon28DiamondOutline,
-
-} from '@vkontakte/icons'
-import { enumerate } from '../Utils';
+import { enumerate, NicknameMenager } from '../Utils';
+import { ProfileTags } from './ProfileTags';
 
 const Forms = {
   good_answers: ['хороший ответ', 'хороших ответа', 'хороших ответов'],
@@ -23,7 +17,7 @@ const Forms = {
 }
 
 export default props => {
-  const {disabled, description, nickname, good_answers, bad_answers, key, id, avatar, flash,donut,verified,diamond, onClick, change_color_donut} = props;
+  const {disabled, description, nickname, good_answers, bad_answers, key, id, avatar, flash,donut,verified, onClick, change_color_donut, position, permissions} = props;
   return (
     <SimpleCell
         disabled={disabled ? disabled : !onClick}
@@ -36,24 +30,20 @@ export default props => {
             + bad_answers + " " + enumerate(bad_answers, Forms.bad_answers)}
           </div>
         }
-            before={<Avatar src={avatar.url} alt='ava' /> }
+            before={<Avatar shadow={false} src={avatar.url} alt='ava' style={{position: 'relative'}}>
+              {position && <Counter style={{boxShadow: '0 2px 4px rgb(0 0 0 / 12%)',
+                position: 'absolute', right: -1, bottom: 0, backgroundColor: 'var(--white)', color: 'black'}}>{position}</Counter>}
+              </Avatar> }
           >
         <div className="top_moderator_name" style={{color: (donut && change_color_donut) ? "var(--top_moderator_name_donut)" : "var(--top_moderator_name)"}}>
-        {nickname ? nickname : `Агент Поддержки #${id}`}
-          <div className="top_moderator_name_icon">
-          {flash && verified && 
-            <Icon16FireVerified width={12} height={12} className="top_moderator_name_icon"/>}
-          {flash && !verified && 
-            <Icon16Fire width={12} height={12} className="top_moderator_name_icon"/>}
-          </div>
-          <div className="top_moderator_name_icon">
-            {donut ? 
-            <Icon16StarCircleFillYellow width={12} height={12} className="top_moderator_name_icon" /> : null}
-          </div>
-          <div className="top_moderator_name_icon_ver">
-            {verified && !flash &&  
-            <Icon16Verified className="top_moderator_name_icon_ver"/>}
-          </div>
+          <NicknameMenager 
+          nickname={nickname}
+          agent_id={id}
+          perms={permissions} />
+          <ProfileTags
+          verified={verified}
+          flash={flash}
+          donut={donut} />
         </div>
         </SimpleCell>
     )

@@ -1,27 +1,31 @@
 <?php
-require('../php/vkapi.php');
-require('../php/Utils/config.php');
-$found = false;
-$new_author = NULL;
-$deactivated = NULL;
-while (!$found) {
-    $authors = [];
-    for($i=1;$i<=10;$i++) {
-        $authors[] = rand(1000, 659999999);
-    }
-    $vk = new VKApi();
-    $info = $vk->users_get($authors);
-    
-    foreach($info as $author) {
-        if($new_author && $deactivated) {
-            $found = true;
-            break;
-        }
-        if(!isset($author['deactivated'])) {
-            $new_author = $author['id'];
-        } else {
-            $deactivated = $author['id'];
-        }
-    }
-}
+require("vendor/autoload.php");
 
+
+$s3 = new \Aws\S3\S3Client([
+    'version' => 'latest',
+    'region'  => 'us-east-1',
+    'endpoint' => 'https://minio-server.xelene.ru:8443',
+    'use_path_style_endpoint' => true,
+    'credentials' => [
+        'key' => 'RoadJedi',
+        'secret' => 'JeDi66AeS',
+   ],
+]);
+
+
+// $insert = $s3->putObject([
+//     'Bucket' => 'roadjedi',
+//      'Key'    => 'test/test.png',
+//      'SourceFile' => __DIR__ . '/test.png',
+// ]);
+$command = $s3->getCommand('GetObject', [
+    'Bucket' => 'roadjedi',
+    'Key'    => 'test/test.png'
+]);
+$presignedRequest = $s3->createPresignedRequest($command, '+10 minutes');
+
+// Get the actual presigned-url
+$presignedUrl =  (string)  $presignedRequest->getUri();
+var_dump($presignedUrl);
+// var_dump($insert);

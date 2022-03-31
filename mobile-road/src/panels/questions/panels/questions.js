@@ -10,10 +10,8 @@ import {
     Panel,
     PanelHeader,
     PanelHeaderButton,
-    Avatar,
     Button,
     Placeholder,
-    Separator,
     PullToRefresh,
     PanelSpinner,
     Div,
@@ -33,7 +31,7 @@ import {
 import {
     Icon56InboxOutline,
     Icon28SwitchOutline,
-    Icon24AddOutline,
+    Icon24AddSquareOutline,
     Icon20ClockOutline,
     Icon20DonateCircleFillYellow,
 
@@ -57,6 +55,7 @@ export default props => {
     const setTickets = useCallback((tickets, ticketsCurrent) => dispatch(ticketActions.setTickets({ tickets, ticketsCurrent })), [dispatch])
     const permissions = account.permissions;
     const agent_permission = permissions >= PERMISSIONS.agent;
+    const special_permissions = permissions >= PERMISSIONS.special
 
     const {setPopout, showErrorAlert, goTiket, goPanel} = props.callbacks;
     const getQuestions = useCallback((need_offset = false) => {
@@ -152,7 +151,7 @@ export default props => {
             <PanelHeader
                 left={<>
                     {(tickets && tickets.length > 0 && agent_permission) ?
-                        <PanelHeaderButton onClick={() => getRandomTiket()}>
+                        <PanelHeaderButton aria-label='Случайный вопрос' onClick={() => getRandomTiket()}>
                             <Icon28SwitchOutline />
                         </PanelHeaderButton> : null}
                 </>}
@@ -195,8 +194,8 @@ export default props => {
                     <List>
                         {tickets ? tickets.length > 0 ? tickets.map((result, i) =>
                             <React.Fragment key={i}>
-                                {(i === 0) || <Spacing size={10} />}
-                                <Div style={{paddingBottom: 0, paddingTop: 0}}>
+                                {(i === 0 && !platformname) && <Spacing size={16} />}
+                                <Div style={{paddingTop: 0}}>
                                     <Tappable
                                     disabled={result['donut'] && !account['donut']}
                                     onClick={() => { goTiket(result['id']) }}>
@@ -209,7 +208,7 @@ export default props => {
                                                     {<Icon20DonateCircleFillYellow style={{marginRight: 6}} />}
                                                     Эксклюзивный вопрос
                                                 </div> : <div style={{display: 'flex', alignItems: 'center'}}>
-                                                    <Icon20ClockOutline style={{marginRight: 6}} />На рассмотрении</div>}>
+                                                    <Icon20ClockOutline style={{marginRight: 6}} />Ожидает ответа</div>}>
                                                     {result['title']} <span style={{color: 'var(--description_color)'}}>#{result['id']}</span>
                                                 </SimpleCell>
                                                 <Spacing separator />
@@ -256,14 +255,14 @@ export default props => {
                         : null}
                 </PullToRefresh>
             </Group>
-            {account.generator && <FixedLayout vertical="bottom" filled>
+            {special_permissions && <FixedLayout vertical="bottom" filled>
                 <Div>
                     <Button onClick={() => {goPanel(activeStory, 'new_ticket', true)}}
-                    before={<Icon24AddOutline />}
+                    before={<Icon24AddSquareOutline />}
                     size="l"
                     mode='primary'
                     stretched>
-                        Новый вопрос
+                        Сгенерировать вопрос
                     </Button>
                 </Div>
             </FixedLayout>}

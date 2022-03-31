@@ -1,0 +1,32 @@
+.podium {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    margin-bottom: 20px;
+}
+.podium_column {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+}
+.podium_column {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 40;
+    width: 85;
+}
+.podium_column_avatar-border {
+    padding: 3px;
+    position: relative;
+    border-radius: 100%;
+    border: 3px solid var(--silver);
+}
+.podium_column_avatar_badge {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 26px;
+    height: 26px;
+}

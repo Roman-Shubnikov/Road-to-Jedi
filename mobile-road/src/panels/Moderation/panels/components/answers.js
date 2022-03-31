@@ -23,6 +23,7 @@ import {
 import { useSelector } from 'react-redux';
 import { enumerate } from '../../../../Utils';
 import { SPECIAL_NORM } from '../../../../config';
+import { GreenCard } from '../../../../components/GreenCard';
 
 export default props => {
   
@@ -69,7 +70,7 @@ export default props => {
             <FormStatus onClick={() => setActiveModal('answers')}>
               <div style={{ textAlign: 'center', color: "var(--text_profile)", marginBottom: 15 }}>
                 Вы оценили <span style={{ color: 'var(--header_text)' }}>{account.marked} {enumerate(account.marked, ['ответ', 'ответа', 'ответов'])}</span> Агентов Поддержки
-                        </div>
+              </div>
               <InfoRow>
                 <Progress
                   value={account.marked ? account.marked / SPECIAL_NORM * 100 : 0} />
@@ -80,10 +81,19 @@ export default props => {
                         </div> : null}
             </FormStatus>
           </Div>
+          <Div style={{paddingTop: 0}}>
+            <GreenCard header='Обратите внимание'>
+              Ответы, что Вы прочтете ниже вызывают приступы тошноты, кровотечения из глаз, делая ваше лицо сложнее,
+                чем ребусы, которые составляли ногами японские монахи под дагестанским гашишем
+            </GreenCard>
+          </Div>
+          
+
         </Group>
 
         : null}
-      <><PullToRefresh onRefresh={() => { setFetching(true); getInfo('answers'); setTimeout(() => setFetching(false), 500) }} isFetching={fetching}>
+      <>
+      <PullToRefresh onRefresh={() => { setFetching(true); getInfo('answers'); setTimeout(() => setFetching(false), 500) }} isFetching={fetching}>
         <Group>
           <List>
             {answers.data ? (answers.data.length > 0) ? answers.data.map((result, i) =>
@@ -98,7 +108,7 @@ export default props => {
               </React.Fragment>
             ) : <Placeholder
               icon={<Icon56InboxOutline />}>
-              Можешь отдохнуть. Ответов больше не писали
+              Нет ни одного ответа
                       </Placeholder> : <PanelSpinner />}
           </List>
         </Group>

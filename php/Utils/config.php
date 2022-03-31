@@ -13,10 +13,12 @@ class CONFIG {
 	const ITEMS_PER_PAGE = 100; // Количество элементов на одной странице
 	const MAX_ITEMS_COUNT = 30;
 	
+	const ATTACHMENTS_PATH = '/root/jedifiles/photos';
 	const AVATAR_PATH = 'https://xelene.ru/road/php/images/avatars';
 	const PRODUCTS_AVATAR_PATH = 'https://xelene.ru/road/php/images/products';
+	const USER_IMAGES_PATH = 'https://xelene.ru/roadjedi/';
 	const SUBSCRIBTIONS_AVATAR_PATH = 'https://xelene.ru/road/php/images/subscriptions';
-	const AVATARS_COUNT = 12;
+	const AVATARS_COUNT = 21;
 	const DONUT_AVATARS_COUNT = 12;
 	const DONUT_CHAT_LINK = 'https://vk.me/join/twwhnnyRTYfVZx2QEjjCNW8OLm2nyNEypqQ=';
 	const LINK_APP = 'https://vk.com/jedi_road_app';
@@ -82,6 +84,9 @@ class CONFIG {
 	const TIMES = [
 		'month' => 2592000
 	];
+	const STRS_NEED_REPLACE = [
+		''
+	]
 	
 	const ERRORS = [
 

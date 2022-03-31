@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { 
     Panel,
     PanelHeader,
@@ -6,18 +6,22 @@ import {
     Placeholder,
     Group,
     } from '@vkontakte/vkui';
-import Icon56CheckCircleDeviceOutline from '@vkontakte/icons/dist/56/check_circle_device_outline';
+import { useSelector } from 'react-redux';
+import { Icon56GlobeCrossOutline } from '@vkontakte/icons';
+
 
 export default props => {
+    const [buttonSpinner, setButtonSpinner] = useState(false);
+    const { globalError } = useSelector((state) => state.views)
     return (
         <Panel id={props.id}>
             <PanelHeader>
                 Ошибка
-                </PanelHeader>
+            </PanelHeader>
             <Group>
                 <Placeholder
-                    icon={<Icon56CheckCircleDeviceOutline style={{ color: 'var(--dynamic_orange)' }} />}
-                    header='Упс, кажется, при запросе возникла ошибка'
+                    icon={<Icon56GlobeCrossOutline />}
+                    header='Ошибка'
                     action={<>
                         <Button size='m'
                             style={{ marginRight: 8, marginBottom: 8 }}
@@ -26,9 +30,24 @@ export default props => {
                             rel="noopener noreferrer">Связаться с нами</Button>
                         <Button
                             size='m'
-                            onClick={() => props.restart()}>Переподключится</Button>
+                            loading={buttonSpinner}
+                            onClick={() => {
+                                setButtonSpinner(true);
+                                props.restart();
+                                setTimeout(() => {
+                                    setButtonSpinner(false);
+                                }, 1000)
+
+                                }}>Переподключится</Button>
                     </>}>
-                    Наш сервис не смог получить ответ от сервера. Возможно, он недоступен. Проверьте интернет-соединение, а затем попробуйте подключится снова
+                        {globalError.name + ': ' + globalError.message}
+                        <br/>
+                        {navigator.userAgent}
+                        <br/>
+                        <br/>
+                        Дополнительная информация уже отправлена
+                        <br/>
+                        При обращении в поддержку сделайте скриншот этого экрана
                     </Placeholder>
             </Group>
 

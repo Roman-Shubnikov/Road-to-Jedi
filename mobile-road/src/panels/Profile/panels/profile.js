@@ -42,6 +42,8 @@ import { API_URL, CONVERSATION_LINK, MESSAGE_NO_VK, PERMISSIONS, PUBLIC_STATUS_L
 import InfoArrows from '../../../components/InfoArrows';
 import { accountActions } from '../../../store/main';
 import { sendGoal } from '../../../metrika';
+import { ProfileTags } from '../../../components/ProfileTags';
+import { NicknameMenager } from '../../../Utils';
 export default props => {
     const dispatch = useDispatch();
     const platform = usePlatform();
@@ -113,22 +115,14 @@ export default props => {
                             before={<Avatar size={72} src={account['avatar']['url']} alt='ava' />}
                         >
                             <div style={{ display: "flex" }}>
-                                {account['nickname'] ? account['nickname'] : `Агент Поддержки`}
-                                {account['flash'] ?
-                                    <div className="profile_icon">
-                                        <Icon12Fire width={12} height={12} onClick={() => {setActiveModal('prom');setIsMyMark(true)}} />
-                                    </div>
-                                    : null}
-                                {account['donut'] ?
-                                    <div className="profile_icon">
-                                        <Icon16StarCircleFillYellow width={12} height={12} onClick={() => {setActiveModal('donut');setIsMyMark(true)}} />
-                                    </div>
-                                    : null}
-                                {account['verified'] ?
-                                    <div className="profile_icon_ver">
-                                        <Icon16Verified onClick={() => {setActiveModal('verif');setIsMyMark(true)}} />
-                                    </div>
-                                    : null}
+                                <NicknameMenager 
+                                nickname={account.nickname}
+                                agent_id={account.id}
+                                perms={permissions} />
+                                <ProfileTags
+                                flash={account.flash}
+                                donut={account.donut}
+                                verified={account.verified} />
                             </div>
                         </RichCell>
                     </Group>}
@@ -196,13 +190,15 @@ export default props => {
                             }}
                             before={<Icon28PollSquareOutline />}>Мои ответы</SimpleCell>)}
                         
-                        {agent_permission && <SimpleCell
+                        <SimpleCell
                             expandable
                             onClick={() => {
                                 goPanel(activeStory, 'market', true);
                                 sendGoal('marketClick')
                             }}
-                            before={<Icon28MarketOutline />}>Магазин</SimpleCell>}
+                            before={<Icon28MarketOutline />}>
+                                Магазин
+                        </SimpleCell>
 
                         <SimpleCell
                             expandable

@@ -37,7 +37,7 @@ class Tickets
 				'id' => -$res['author_id']
 			];
 		}
-		if((int)$res['real_author'] != $this->user->vk_id){
+		if((int)$res['real_author'] != $this->user->vk_id && $this->user->info['permissions'] < CONFIG::PERMISSIONS['special']){
 			unset($res['real_author']);
 		}
 		$res['author'] = $user;
@@ -150,17 +150,17 @@ class Tickets
 			Show::error(37);
 		}
 		// Сохраняем оценку в бд
-		$this->Connect->query("UPDATE users SET good_answers=good_answers+1 WHERE id=?", [(int) $this->user->id]);
-		$result = $this->Connect->query("UPDATE messages SET mark=?,approve_author_id=?,comment_time=0 WHERE id=?", [(int) $mark, (int) $this->user->vk_id, $message_id]);
+		$this->Connect->query("UPDATE users SET good_answers=good_answers+1, total_answers=total_answers+1 WHERE id=?", [(int) $this->user->id]);
+		$result = $this->Connect->query("UPDATE messages SET mark=?,approve_author_id=? WHERE id=?", [(int) $mark, (int) $this->user->vk_id, $message_id]);
 
 		// Увеличиваем счетчик оцененных ответов
 		$auid = $res['author_id'];
 		$good_or_bad = $mark == 1 ? 'good_answers' : 'bad_answers';
 		$rating = $mark == 1 ? 'coff_active=coff_active+16' : 'coff_active=coff_active-4';
 		if ($ticket['donut']) {
-			$money = $mark == 1 ? 'money=money+30,donuts=donuts+10' : 'money=money';
+			$money = $mark == 1 ? 'money=money+30,donuts=donuts+10' : 'money=money-30';
 		} else {
-			$money = $mark == 1 ? 'money=money+10' : 'money=money';
+			$money = $mark == 1 ? 'money=money+10' : 'money=money-30';
 		}
 
 		$sql = "UPDATE users SET $good_or_bad = $good_or_bad + 1, $rating, $money WHERE id=?";
@@ -391,8 +391,8 @@ class Tickets
 
 	public function commentMessage(int $message_id, string $text)
 	{
-		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.comment
-				FROM messages WHERE messages.id=?";
+		$sql = "SELECT id, ticket_id, author_id, comment, mark
+				FROM messages WHERE id=?";
 		$res = $this->Connect->db_get($sql, [$message_id])[0];
 
 		$author_id = $res['author_id'];
@@ -466,20 +466,22 @@ class Tickets
 
 		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.comment, messages.comment_author_id
 			    FROM messages 
-				WHERE messages.id = $message_id";
+				WHERE messages.id=?";
 		$res = $this->Connect->db_get($sql, [$message_id])[0];
 
 		if (empty($res)) {
 			Show::error(404);
 		}
 
-		if ($res['comment_author_id'] !== $this->user->id) {
+		if ($res['comment_author_id'] !== $this->user->id && $this->user->info['permissions'] < CONFIG::PERMISSIONS['admin']) {
 			Show::error(403);
 		}
-		$res = $this->Connect->query("UPDATE messages SET comment='', comment_author_id=0 WHERE id=?", [$message_id]);
+		$res = $this->Connect->query("UPDATE messages SET comment=NULL, comment_author_id=0, comment_time=0 WHERE id=?", [$message_id]);
 		return $res[0];
 	}
-
+	public function delete(int $ticket_id) {
+		return $this->Connect->query("DELETE FROM tickets WHERE id=?", [$ticket_id])[0];
+	}
 	public function deleteMessage(int $message_id)
 	{
 
@@ -490,10 +492,11 @@ class Tickets
 		$res = $this->Connect->db_get($sql, [$message_id])[0];
 		$author = (int)$res['author_id'];
 		$time_create = (int) $res['time'];
-		if($time_create < time() - 120) Show::error(43); // Нельзя удалять сообщение если прошло 2 минуты
 		if (empty($res)) {
 			Show::error(404);
 		}
+		if($time_create < time() - 120) Show::error(43); // Нельзя удалять сообщение если прошло 2 минуты
+		
 		if ($res['mark'] != -1) {
 			Show::error(403);
 		}
@@ -576,6 +579,16 @@ class Tickets
 	public function open(int $ticket_id)
 	{
 		return $this->_changeStatus($ticket_id, 0);
+	}
+	public function uploadFile($file) {
+		$exp_file = explode('.', $file['name']);
+		$filepath = CONFIG::ATTACHMENTS_PATH .'/'. substr(md5($file['name']), 0, 16).'.'.end($exp_file);
+		if(move_uploaded_file($file['tmp_name'], $filepath)) {
+			Show::response(['filepath' => $filepath]);
+		}else {
+			Show::error(0);
+		}
+		
 	}
 
 	private function _changeStatus(int $ticket_id, int $status)
@@ -740,4 +753,5 @@ class Tickets
 
 		return $res;
 	}
+
 }

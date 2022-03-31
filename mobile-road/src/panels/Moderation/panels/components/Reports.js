@@ -212,7 +212,7 @@ export default props => {
               </React.Fragment>
             ) : <Placeholder
               icon={<Icon56InboxOutline />}>
-              Жалоб нет
+              Нет ни одной жалобы
                     </Placeholder> : <PanelSpinner />}
           </List>
 
