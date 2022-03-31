@@ -217,8 +217,9 @@ class Tickets
 		// 	$is_author = true;
 		// 	$uid = $author;
 		// }
+		$text = Utils::replaceSymbols($text);
 		$res = $this->Connect->query("INSERT INTO messages (ticket_id, author_id, approved, mark, time, text) VALUES (?,?,?,?,?,?)", 
-		[$ticket_id, $uid, 0, -1, time(), str_replace("XD", "😆", $text)]);
+		[$ticket_id, $uid, 0, -1, time(), $text]);
 		if (!$res[1]) {
 			Show::error(0);
 		}
@@ -427,6 +428,7 @@ class Tickets
 		if($res['mark'] === -1) {
 			$comment_time = time();
 		}
+		$text = Utils::replaceSymbols($text);
 
 		$this->SYSNOTIF->send($res['author_id'], $notification, $object, CONFIG::AVATAR_PATH . '/' . $avatar_name);
 		return $this->Connect->query("UPDATE messages SET comment=?, comment_author_id=?, comment_time=? WHERE id=?", [$text, $auid, $comment_time, $message_id])[0];
@@ -455,7 +457,7 @@ class Tickets
 		if ($len < CONFIG::MIN_MESSAGE_LEN) {
 			Show::error(23);
 		}
-
+		$new_text = Utils::replaceSymbols($new_text);
 		$auid = $this->user->id;
 		$res = $this->Connect->query("UPDATE messages SET comment=?, comment_author_id=?, comment_time=? WHERE id=?", [$new_text, $auid, time(), $message_id]);
 		return $res[0];
@@ -568,7 +570,8 @@ class Tickets
 		if (mb_strlen($text) < CONFIG::MIN_MESSAGE_LEN) {
 			Show::error(23);
 		}
-		return $this->Connect->query("UPDATE messages SET edit_time=?, text=?, comment=NULL, comment_author_id=0, comment_time=0 WHERE id=?", [time(), str_replace("XD", "😆", $text), $message_id]);
+		$text = Utils::replaceSymbols($text);
+		return $this->Connect->query("UPDATE messages SET edit_time=?, text=?, comment=NULL, comment_author_id=0, comment_time=0 WHERE id=?", [time(), $text, $message_id]);
 	}
 
 	public function close(int $ticket_id)

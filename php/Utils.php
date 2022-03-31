@@ -1,7 +1,5 @@
 <?php
 class Utils {
-    private $VK;
-    private $DB;
 
     function __construct($vk) {
        $this->VK = $vk;
@@ -54,6 +52,8 @@ class Utils {
         return $newdata;
     }
     public static function replaceSymbols($text) {
-        $text = str_replace()
+        $text = preg_replace('/"(.*?)"/', '«$1»', $text);
+        $text = str_replace("XD", "😆", $text);
+        return $text;
     }
 }
