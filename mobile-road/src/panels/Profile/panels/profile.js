@@ -29,7 +29,7 @@ import {
     Icon28Notifications,
     Icon28ShareExternalOutline,
     Icon16StarCircleFillYellow,
-    Icon12Fire,
+    Icon28ArticlesOutline,
     Icon28SettingsOutline,
     Icon28MessagesOutline,
     Icon20ArticleOutline,
@@ -44,6 +44,7 @@ import { accountActions } from '../../../store/main';
 import { sendGoal } from '../../../metrika';
 import { ProfileTags } from '../../../components/ProfileTags';
 import { NicknameMenager } from '../../../Utils';
+import { Icon28CupOutline } from '@vkontakte/icons';
 export default props => {
     const dispatch = useDispatch();
     const platform = usePlatform();
@@ -127,6 +128,13 @@ export default props => {
                         </RichCell>
                     </Group>}
                     <Group>
+                        {agent_permission && 
+                        <Div>
+                            <InfoArrows 
+                            good_answers={account['good_answers']}
+                            bad_answers={account['bad_answers']}
+                            total_answers={total_answers} />
+                        </Div>}
                         {editingStatus ? 
                         <FormLayout>
                             <FormItem bottom={publicStatus.trim().length + '/' + PUBLIC_STATUS_LIMIT}>
@@ -165,13 +173,7 @@ export default props => {
                             {account.publicStatus || "Играю в любимую игру"}
                         </MiniInfoCell>
                         }
-                        {agent_permission && 
-                        <Div style={{paddingBottom: 0}}>
-                            <InfoArrows 
-                            good_answers={account['good_answers']}
-                            bad_answers={account['bad_answers']}
-                            total_answers={total_answers} />
-                        </Div>}
+                        
                         
                     </Group>
 
@@ -189,7 +191,14 @@ export default props => {
                                 goPanel(activeStory, 'qu', true);
                             }}
                             before={<Icon28PollSquareOutline />}>Мои ответы</SimpleCell>)}
-                        
+                        {/* <SimpleCell
+                        expandable
+                        before={<Icon28CupOutline />}
+                        onClick={() => {
+                            goPanel(activeStory, 'achievements', true);
+                        }}>
+                            Достижения
+                        </SimpleCell> */}
                         <SimpleCell
                             expandable
                             onClick={() => {

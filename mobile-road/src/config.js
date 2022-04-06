@@ -180,3 +180,10 @@ export const PRESETS_MESSAGES = [
   STANDART_GREETING_4 + '\n\n%text%\n\nAll day, all night\nКоманда Поддержки ВКонтакте 🍂',
   STANDART_GREETING + '\n\n%text%\n\nХорошего настроения,\nКоманда Поддержки ВКонтакте',
 ];
+
+export const STATUSES_ACHIEVEMENTS = {
+  not_recived: 'not_recived',
+  recived: 'recived',
+  progress: 'progress',
+
+}

@@ -30,6 +30,7 @@ import {
   QuestionsList as FaqQuestions,
 
 } from './panels/faq';
+import { Achievements } from './panels';
 
 export const Profile = props => {
   const { setReport, goTiket, goOtherProfile, setMoneyPromo, setSnackbar, setTransfer } = props.base_functions;
@@ -71,7 +72,11 @@ export const Profile = props => {
       reloadProfile={props.reloadProfile}
       callbacks={callbacks}
       />
-
+      <Achievements id='achievements'
+      navigation={props.navigation}
+      reloadProfile={props.reloadProfile}
+      callbacks={callbacks}
+      />
       <Market id="market"
         navigation={props.navigation}
         reloadProfile={props.reloadProfile}

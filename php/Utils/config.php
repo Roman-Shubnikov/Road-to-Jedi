@@ -84,10 +84,6 @@ class CONFIG {
 	const TIMES = [
 		'month' => 2592000
 	];
-	const STRS_NEED_REPLACE = [
-		''
-	]
-	
 	const ERRORS = [
 
 		// System

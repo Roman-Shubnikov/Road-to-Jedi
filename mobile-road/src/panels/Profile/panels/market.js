@@ -237,12 +237,12 @@ const Invoices = props => {
       <Div 
       className='vkuiTabbar--l-vertical' 
       style={{display: 'flex', justifyContent: 'space-around'}}>
-        <Tappable disabled={platform === IOS} onClick={platform !== IOS ? () => props.setActivetab('treasures') : undefined}>
+        {platform !== IOS && <Tappable onClick={() => props.setActivetab('treasures')}>
           <TabbarItem selected={platform !== IOS}
           text='Пополнить'>
             <Icon28MoneyRequestOutline />
           </TabbarItem>
-        </Tappable>
+        </Tappable>}
         
         <Tappable
         onClick={() => goPanel(activeStory, 'promocodes', true)}>

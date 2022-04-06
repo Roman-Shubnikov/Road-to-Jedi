@@ -16,7 +16,7 @@ require("vendor/autoload.php");
 
 // $insert = $s3->putObject([
 //     'Bucket' => 'roadjedi',
-//      'Key'    => 'test/test.png',
+//      'Key'    => 'test/test/89x9842/2y23.png',
 //      'SourceFile' => __DIR__ . '/test.png',
 // ]);
 // $command = $s3->getCommand('GetObject', [
