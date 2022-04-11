@@ -234,6 +234,9 @@ const Invoices = props => {
       }>
         <Headline>{account.balance} $</Headline>
       </SimpleCell>
+      {platform === IOS && <Div>
+        <Text style={{color: 'var(--subtext)'}}>Платежи на данной платформе недоступны</Text>
+      </Div>}
       <Div 
       className='vkuiTabbar--l-vertical' 
       style={{display: 'flex', justifyContent: 'space-around'}}>

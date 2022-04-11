@@ -470,10 +470,10 @@ export default props => {
     message = message.replace('%name_user%', info.author.first_name);
     message = message.replace('%agent_uni_name%', account.nickname ? account.nickname : '#' + account.id);
     message = message.replace('%agent_uni_name_full%', 
-    <NicknameMenager 
-    perms={0} 
-    nickname={account.nickname} 
-    agent_id={account.id} />);
+    NicknameMenager({
+      perms: 0,
+      nickname: account.nickname,
+      agent_id: account.id}));
 
     message = message.replace('%agent_id%', '#' + account.id);
     message = message.replace('%text%', sendfield);
