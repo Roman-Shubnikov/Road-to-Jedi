@@ -17,7 +17,11 @@ import {
     Group,
     } from '@vkontakte/vkui';
 
-import Icon28WarningTriangleOutline from '@vkontakte/icons/dist/28/warning_triangle_outline';
+import {
+    Icon56SearchOutline,
+    Icon56ArchiveOutline,
+    
+} from '@vkontakte/icons';
 import { API_URL } from '../../../config';
 import { useDispatch, useSelector } from 'react-redux';
 import { accountActions } from '../../../store/main';
@@ -136,7 +140,7 @@ export default props => {
                             </Cell>
                         </React.Fragment>
                     )}
-                        {(searched.slice(0, limit) < searched) ?
+                        {(searched.slice(0, limit) < searched) &&
                             <Div>
                                 <Button
                                     mode='secondary'
@@ -144,11 +148,17 @@ export default props => {
                                     stretched
                                     onClick={() => setLimit(prev => prev + 20)}
                                 >Показать ещё 10 ответов</Button>
-                            </Div> : null}
+                            </Div>}
                             </> :
+                        search !== '' ?
                         <Placeholder
-                            icon={<Icon28WarningTriangleOutline width={56} height={56} />}>
+                            icon={<Icon56SearchOutline />}>
                             По вашему запросу ничего не найдено.
+                        </Placeholder> :
+                        <Placeholder
+                            header='Отвечайте на вопросы'
+                            icon={<Icon56ArchiveOutline />}>
+                            Здесь будут отображаться ваши ответы после модерации. Через определенное время ответы уходят в архив
                         </Placeholder>
                     }
                 </PullToRefresh>

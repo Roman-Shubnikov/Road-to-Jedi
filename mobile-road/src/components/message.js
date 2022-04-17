@@ -1,58 +1,85 @@
 import React from 'react'
 import { Anchorme } from 'react-anchorme'
 
-import Icon16Done           from '@vkontakte/icons/dist/16/done';
-import Icon16Cancel         from '@vkontakte/icons/dist/16/cancel';
-import Icon20CommentOutline from '@vkontakte/icons/dist/20/comment_outline';
-const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+import { 
+    Icon24CheckCircleOutline,
+    Icon24ErrorCircleOutline,
+    Icon24CommentOutline,
 
+} from '@vkontakte/icons';
+import { MiniInfoCell } from '@vkontakte/vkui';
 
-const Message = React.forwardRef(( props, ref ) => (
+const Message = props => {
+    const clickMark = (e) => {
+        e.stopPropagation();
+        props.markAlert();
+    }
+    return (
     props.is_mine ?
-        <div className="mine_message" ref={ref}>
-            <div  className="message_report_moderator" style={{marginBottom: props.approved ? "20px" : null, right: platformname ? "-12%" : "-22%"}}
+        <div className="message message_me">
+            <div className="message_body"
                 onClick={() => props.onClick()}>
                 <div className={props.clickable ? 'pointer animation' : ''}>
-                    <p className="moderator_name_message">
+                    <div className="message_name">
                         {props.title} 
                         {props.is_special && props.approved ? '✔️' : ''}
-                    </p>
-                    <p className="text_message"><Anchorme onClick={(e) => { e.stopPropagation() }} target="_blank" rel="noreferrer noopener">{props.children}</Anchorme></p>
+                    </div>
+                    <div className="message_text">
+                        <Anchorme onClick={(e) => { e.stopPropagation() }} target="_blank" rel="noreferrer noopener">{props.children}</Anchorme>
+                    </div>
                     
                 </div>
-                <div style={{display:'flex'}}>
-                    {props.is_mark === 1 ? 
-                        <div className="approved animation pointer" onClick={(e) => { e.stopPropagation();props.markAlert()}}>
-                        <Icon16Done className="approved_icon green" height={15} width={15} style={{display: "inline-block"}}/>
-                    </div>
-                    : props.is_mark === 0 ?
-                            <div className="approved animation pointer" onClick={(e) => { e.stopPropagation();props.markAlert()}}>
-                        <Icon16Cancel className="approved_icon" height={15} width={15} style={{display: "inline-block"}}/>
-                    </div>
-                    : null}
-                    {props.comment ? 
-                        <div className="approved animation pointer" onClick={(e) => { e.stopPropagation();props.commentclick()}}>
-                        <Icon20CommentOutline className="approved_icon" height={16} width={16} style={{display: "inline-block", color: 'var(--accent)'}}/>
-                    </div>
-                    : null}
+                <div className='message_marks'>
+                    {props.is_mark === 1 && 
+                    <MiniInfoCell 
+                    hasActive={false}
+                    onClick={clickMark}
+                    className='mark-info mark-info_text mark_mark-positive'
+                    before={<Icon24CheckCircleOutline />}>
+                        Это хороший ответ
+                    </MiniInfoCell>
+                    }
+                    {props.is_mark === 0 && 
+                    <MiniInfoCell 
+                    hasActive={false}
+                    onClick={clickMark}
+                    className='mark-info mark-info_text mark_mark-negative'
+                    before={<Icon24ErrorCircleOutline />}>
+                        Это плохой ответ
+                    </MiniInfoCell>
+                    }
+                    {props.comment && props.is_mark === -1 &&
+                    <MiniInfoCell 
+                    hasActive={false}
+                    onClick={(e) => { e.stopPropagation();props.commentClick()}}
+                    className='mark-info mark-info_text mark_comment'
+                    before={<Icon24CommentOutline />}>
+                        Комментарий
+                    </MiniInfoCell>}
+                    {props.comment && props.is_mark !== -1 && 
+                    <div className="mark-info mark_bubble animation" onClick={(e) => { e.stopPropagation();props.commentClick()}}>
+                    <Icon24CommentOutline style={{ color: 'var(--accent)'}}/>
+                    </div>}
                 </div>
-                <img className="avatar_message_moderator" src={props.avatar} onClick={() => props.onClick()}
-                alt={'аva'}
-                style={{marginLeft: platformname ? "99%" : "99%"}} 
-                />
-                <p className="time_message">{props.time}</p>
+                
+                <span className="message_time">{props.time}</span>
             </div>
-            
+            <img className="message_avatar" src={props.avatar} onClick={() => props.onClick()} alt='аva' />
         </div>
     :
-    <div className="all_message" style={props.is_mark === false ? {marginBottom: "-3px"} : null} ref={ref}>
-        <img className="avatar_message" src={props.avatar} alt={'а'} />
-        <div className={props.clickable ? 'pointer message_report animation' : 'message_report'} onClick={() => props.onClick()}>
-            <p className="moderator_name_message">{props.title}</p>
-            <p><Anchorme target="_blank" rel="noreferrer noopener">{props.children}</Anchorme></p>
-            <p className="time_message">{props.time}</p>
+    <div className="message message_all">
+        <img className="message_avatar" src={props.avatar} alt='а' />
+        <div className={props.clickable ? 'pointer message_body animation' : 'message_body'} onClick={() => props.onClick()}>
+            <p className="message_name">{props.title}</p>
+            <div className='message_text'>
+                <Anchorme target="_blank" rel="noreferrer noopener">
+                    {props.children}
+                </Anchorme>
+            </div>
+            <span className="message_time">{props.time}</span>
         </div>
     </div>
-));
+)
+}
 
 export default Message;

@@ -2,13 +2,8 @@ import React from 'react';
 
 import './profile.css'
 
-import Icon28Profile from '@vkontakte/icons/dist/28/profile';
 // import Icon28ArrowLeftOutline from '@vkontakte/icons/dist/28/arrow_left_outline';
-import Icon28GlobeOutline from '@vkontakte/icons/dist/28/globe_outline';
-import Icon28MoneySendOutline from '@vkontakte/icons/dist/28/money_send_outline';
-import Icon16Fire from '@vkontakte/icons/dist/16/fire';
-import Icon16FireVerified from '@vkontakte/icons/dist/16/fire_verified';
-import Icon16Verified from '@vkontakte/icons/dist/16/verified';
+import {Icon28GlobeOutline, Icon28MoneySendOutline, Icon16Fire, Icon16FireVerified, Icon16Verified, Icon28Profile} from '@vkontakte/icons';
 
 import vkQr from '@vkontakte/vk-qr';
 

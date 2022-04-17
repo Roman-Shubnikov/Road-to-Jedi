@@ -3,23 +3,20 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { 
     Group,
     Div,
-    FormStatus,
     Placeholder,
     PullToRefresh,
     Button,
     Footer,
     List,
     PanelSpinner,
-    Separator,
     Snackbar,
     Avatar,
     MiniInfoCell,
     Spinner,
     SimpleCell,
     Spacing,
-    ButtonGroup,
+    Search,
     Card,
-    Link
 
 
     } from '@vkontakte/vkui';
@@ -47,6 +44,7 @@ export default props => {
   const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
   const { moderationData } = useSelector((state) => state.moderation)
   const [fetching, setFetching] = useState(false);
+  const [search, setSearch] = useState('');
   const { comments } = useSelector((state) => state.moderation.moderationData);
 
   const { setSnackbar, getInfo, setModerationData } = props.callbacks;
@@ -118,17 +116,24 @@ export default props => {
   }
   useEffect(() => {
     if (!comments.data){
-      getInfo('comments');
+      getInfo('comments', false, search);
     }
     
     // eslint-disable-next-line
   }, [])
+  useEffect(() => {
+    getInfo('comments', false, search);
+    
+    // eslint-disable-next-line
+  }, [search])
   return (
     <>
       <Group>
-        <>
-        <PullToRefresh onRefresh={() => { setFetching(true); getInfo('comments'); setTimeout(() => setFetching(false), 500) }} isFetching={fetching}>
-
+        <Search value={search}
+            onChange={(e) => {
+                setSearch(e.currentTarget.value)
+            }} />
+        <PullToRefresh onRefresh={() => { setFetching(true); getInfo('comments', false, search); setTimeout(() => setFetching(false), 500) }} isFetching={fetching}>
           <List>
             {comments.data ? (comments.data.length > 0) ? comments.data.map((result, i) =>
               <React.Fragment key={result.id}>
@@ -205,14 +210,13 @@ export default props => {
                 stretched
                 level="secondary"
                 before={fetching && <Spinner />}
-                onClick={() => { setFetching(true); getInfo('comments', true); setTimeout(() => setFetching(false), 500) }}>Загрузить ещё</Button>
+                onClick={() => { setFetching(true); getInfo('comments', true, search); setTimeout(() => setFetching(false), 500) }}>Загрузить ещё</Button>
             </Div>
             : comments.data ?
               (comments.data.length === 0) ? null : <Footer>{comments.data.length} {enumerate(comments.data.length, [' вопрос', ' вопроса', ' вопросов'])} всего</Footer>
               : null :
             null}
         </PullToRefresh>
-        </>
       </Group>
     </>
   )

@@ -5,11 +5,8 @@ import './question.css'
 
 import Question from '../components/question'
 
-import Icon20HomeOutline from '@vkontakte/icons/dist/20/home_outline';
-import Icon24RecentOutline from '@vkontakte/icons/dist/24/recent_outline';
-import Icon28AddCircleOutline from '@vkontakte/icons/dist/28/add_circle_outline';
+import {Icon20HomeOutline,Icon24RecentOutline, Icon28AddCircleOutline } from '@vkontakte/icons';
 
-import moment from 'moment';
 
 window.declensions = function(number = 0, titles) {  
     var cases = [ 2, 0, 1, 1, 1, 2 ];  
@@ -62,7 +59,7 @@ export default class Questions extends React.Component {
                     props.this.state.allQuestions.all.length > 0 ?
                     props.this.state.allQuestions.all.map(function(result, i) {
                         return (
-                            <Question profile_id={result['profile']['id']} key={i} onClick={() => props.this.openTicket( result['id'] )} title={result['title']} answers={result['message_count']} time={moment(result['time'] * 1e3 + 10800).startOf().fromNow()} name={result['profile']['name']}/>
+                            <Question profile_id={result['profile']['id']} key={i} onClick={() => props.this.openTicket( result['id'] )} title={result['title']} answers={result['message_count']} time={result['time'] + 10800} name={result['profile']['name']}/>
                         )
                     })
                     :
@@ -71,7 +68,7 @@ export default class Questions extends React.Component {
                     props.this.state.allQuestions.no_answers.length > 0 ?
                     props.this.state.allQuestions.no_answers.map(function(result, i) {
                         return (
-                            <Question profile_id={result['profile']['id']} key={i} onClick={() => props.this.openTicket( result['id'] )} title={result['title']} answers={result['message_count']} time={moment(result['time'] * 1e3).startOf('hour').fromNow()} name={result['profile']['name']}/>
+                            <Question profile_id={result['profile']['id']} key={i} onClick={() => props.this.openTicket( result['id'] )} title={result['title']} answers={result['message_count']} time={result['time'] * 1e3} name={result['profile']['name']}/>
                         )
                     })
                     :

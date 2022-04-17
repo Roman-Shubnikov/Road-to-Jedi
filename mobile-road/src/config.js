@@ -74,6 +74,7 @@ export const SPEC_COURCE_LINKS = {
   cource: "https://vk.com/@sartj-course",
   conversation: 'https://vk.me/join/yzDBN6UvFS72yXvKBNqUkXZMilz/6NJ/Arg=',
   community: 'https://vk.com/club212134873',
+  messages_help: 'https://vk.com/gim201542328',
 
 };
 export const SPECIAL_NORM = 50;

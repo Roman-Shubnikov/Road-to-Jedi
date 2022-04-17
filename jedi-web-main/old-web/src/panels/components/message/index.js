@@ -1,13 +1,9 @@
 import React from 'react';
-import moment from 'moment';
 
 import './message.css';
-
-// import Icon20CommentOutline from '@vkontakte/icons/dist/20/comment_outline';
-import Icon16Fire from '@vkontakte/icons/dist/16/fire';
-import Icon16FireVerified from '@vkontakte/icons/dist/16/fire_verified';
-import Icon16Verified from '@vkontakte/icons/dist/16/verified';
-import Icon28DeleteOutlineAndroid from '@vkontakte/icons/dist/28/delete_outline_android';
+import {Icon16Verified, 
+    Icon16FireVerified, 
+    Icon16Fire} from '@vkontakte/icons';
 
 function getParams( status, avatar ) {
     if( avatar.indexOf('jedi.xelene.me') !== -1 ) {
@@ -46,7 +42,7 @@ export default class Message extends React.Component {
                         <div className='message_wrapp'>
                             <div className='message_title'>{props.title} <span style={{opacity: '0.4'}}>{`${props.edit_time ? '(ред.)' : ''}`}</span><div className='flash'>{props.verified && props.flash ? <Icon16FireVerified width={12} height={12}/> : props.verified ? <Icon16Verified style={{color: '#398DF7'}} width={12} height={12}/> : props.flash ? <Icon16Fire width={12} height={12}/> : null}</div></div>
                             <div className='message_text'>{props.text}</div>
-                            <div className='message_time'>{moment(props.time * 1e3).startOf().fromNow()}</div>
+                            <div className='message_time'>{props.time}</div>
                         </div>
                     </div>
                     {

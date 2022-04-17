@@ -2,12 +2,12 @@ import React from 'react';
 
 import './top.css';
 
-import Icon20MessageOutline from '@vkontakte/icons/dist/20/message_outline';
-import Icon24DoneOutline from '@vkontakte/icons/dist/24/done_outline';
-import Icon24Cancel from '@vkontakte/icons/dist/24/cancel';
-import Icon16Fire from '@vkontakte/icons/dist/16/fire';
-import Icon16FireVerified from '@vkontakte/icons/dist/16/fire_verified';
-import Icon16Verified from '@vkontakte/icons/dist/16/verified';
+import {Icon16Verified, 
+    Icon16FireVerified, 
+    Icon16Fire, 
+    Icon24Cancel, 
+    Icon24DoneOutline, 
+    Icon20MessageOutline} from '@vkontakte/icons';
 
 const top = props => (
     <div style={props.style} className='top_wrapper' onClick={() => props.onClick()}>

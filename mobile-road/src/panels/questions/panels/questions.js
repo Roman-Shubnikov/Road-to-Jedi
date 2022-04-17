@@ -36,7 +36,7 @@ import {
     Icon20DonateCircleFillYellow,
 
 } from '@vkontakte/icons';
-import BannerAvatarPC from '../../../images/question_banner_pc.jpg';
+import BannerAvatarPC from '../../../images/question_banner_pc.png';
 import BannerAvatarMobile from '../../../images/question_banner_mobile.png';
 
 
@@ -48,7 +48,6 @@ export default props => {
     const dispatch = useDispatch();
     const { activeStory } = useSelector((state) => state.views)
     const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
-    const [ShowBanner, setShowBanner] = useState(true);
     const [fetching, setFetching] = useState(false);
     const account = useSelector((state) => state.account.account)
     const { tickets, ticketsCurrent, offset } = useSelector((state) => state.tickets)
@@ -159,31 +158,26 @@ export default props => {
                 Вопросы
                 </PanelHeader>
 
-            {(ShowBanner && account.is_first_start && agent_permission) ?
+            {account.good_answers && account.good_answers < 10 ?
                 <Group>
                     <Banner
                         mode="image"
                         size="m"
-                        onDismiss={() => {
-                            setShowBanner(false);
-                        }}
                         header="С чего начать?"
                         subheader='С прочтения статьи'
                         background={
                             <div
                                 style={{
-                                    backgroundColor: '#5b9be6',
+                                    backgroundColor: '#000',
                                     backgroundImage: platformname ? 'url(' + BannerAvatarMobile + ")" : 'url(' + BannerAvatarPC + ")",
-                                    backgroundPosition: 'right bottom',
+                                    backgroundPosition: 'center',
                                     backgroundSize: '100%',
-
                                     backgroundRepeat: 'no-repeat',
                                 }}
                             />
                         }
-                        asideMode="dismiss"
                         actions={
-                            <Button mode="overlay_primary" href="https://vk.com/@jedi_road-checking-responses" target="_blank" rel="noopener noreferrer" size="l">Читать</Button>
+                            <Button mode="overlay_primary" href="https://vk.com/@jedi_road-checking-responses" target="_blank" rel="noopener noreferrer" size="m">Читать</Button>
                         }
                     />
                 </Group>

@@ -58,7 +58,7 @@ export default props => {
           <MiniInfoCell
             before={<Icon20ArticleOutline />}
             textWrap='full'>
-            <Text style={{whiteSpace: "pre-wrap", wordBreak: 'break-all'}} weight='regular'>
+            <Text style={{whiteSpace: "pre-wrap", wordBreak: 'break-word'}} weight='regular'>
                 <Anchorme onClick={(e) => {e.stopPropagation()}} target="_blank" rel="noreferrer noopener">
             {Comment.text}
                 </Anchorme>

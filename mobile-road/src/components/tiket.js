@@ -24,8 +24,6 @@ import {
     Button,
     Spinner,
     FormItem,
-    File,
-    Card,
     ButtonGroup,
 
     } from '@vkontakte/vkui';
@@ -46,7 +44,6 @@ import {
   Icon28CommentDisableOutline,
   Icon28DoorArrowLeftOutline,
   Icon28DoorArrowRightOutline,
-  Icon24Camera,
   Icon24Comment,
  } from '@vkontakte/icons';
 
@@ -83,7 +80,6 @@ export default props => {
   const { info, messages, limitReach} = TicketData;
   const permissions = account.permissions;
   const moderator_permission = permissions >= PERMISSIONS.special;
-  const agent_permission = permissions >= PERMISSIONS.agent;
 
   const copyClipboard = (text) => {
     bridge.send("VKWebAppCopyText", { text: text });
@@ -536,7 +532,7 @@ export default props => {
   return(
     <Panel id={props.id}>
       <PanelHeader
-        left={<><PanelHeaderBack onClick={() => window.history.back()} /><PanelHeaderButton onClick={() => copy(info.id)}><Icon28SlidersOutline/></PanelHeaderButton></>}
+        left={<><PanelHeaderBack onClick={() => window.history.back()} /><PanelHeaderButton  aria-label='Опции' onClick={() => copy(info.id)}><Icon28SlidersOutline/></PanelHeaderButton></>}
       >
         {/* <PanelHeaderContent
         status='На рассмотрении'
@@ -547,7 +543,7 @@ export default props => {
         </PanelHeaderContent> */}
         <div ref={MessageRef}>
             Вопрос #{info ? info.id : "...."} {info && info.donut ? <Icon16StarCircleFillYellow width={16} height={16} style={{ display: 'inline-block' }} /> : null}
-          </div>
+        </div>
       </PanelHeader>
       {info ? <>
         <div style={{ height: $(window).height() - 200}}>
@@ -560,7 +556,7 @@ export default props => {
                   <Message
                     clickable={moderator_permission}
                     title={getAuthorName(result)}
-                    is_mine={(agent_permission && result.author.is_moderator)}
+                    is_mine={result.author.is_moderator}
                     is_special={moderator_permission}
                     avatar={getAvatar(result)}
                     time={getHumanyTime(result.time).time}
@@ -572,12 +568,12 @@ export default props => {
                         ('mark' in result) ? result.mark.mark : -1)
                     }}
                     is_mark={('mark' in result) ? result.mark.mark : -1}
-                    commentclick={() => { setComment({ objComment: result.moderator_comment !== undefined ? result.moderator_comment : null, 
+                    commentClick={() => { setComment({ objComment: result.moderator_comment !== undefined ? result.moderator_comment : null, 
                       message_id: result.id, 
                       mark: ('mark' in result) ? result.mark.mark : -1 }); 
                       setActiveModal("comment") }}
                     comment={result.moderator_comment !== undefined}
-                    approved={result.approved ? true : false}
+                    approved={!!result.approved}
                     markAlert={() => showAlert('Информация', markMessageHandler(result.mark))}
                   >
                     {result.text}

@@ -23,16 +23,12 @@ import {
 
 
 import {
-    Icon16Fire,
-    Icon16Verified,
-    Icon16StarCircleFillYellow,
     Icon28WalletOutline,
     Icon56DurationOutline,
     Icon16CheckCircle,
     Icon24MoreVertical,
     Icon20ArticleOutline,
     Icon20Add,
-    Icon16FireVerified,
     Icon28BlockOutline,
     Icon28CopyOutline,
     Icon28ReportOutline,

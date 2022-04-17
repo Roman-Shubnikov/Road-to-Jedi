@@ -23,13 +23,10 @@ import {
     } from '@vkontakte/vkui';
 
 import {
-    Icon16Verified,
     Icon28PollSquareOutline,
     Icon28MarketOutline,
     Icon28Notifications,
     Icon28ShareExternalOutline,
-    Icon16StarCircleFillYellow,
-    Icon28ArticlesOutline,
     Icon28SettingsOutline,
     Icon28MessagesOutline,
     Icon20ArticleOutline,
@@ -44,7 +41,6 @@ import { accountActions } from '../../../store/main';
 import { sendGoal } from '../../../metrika';
 import { ProfileTags } from '../../../components/ProfileTags';
 import { NicknameMenager } from '../../../Utils';
-import { Icon28CupOutline } from '@vkontakte/icons';
 export default props => {
     const dispatch = useDispatch();
     const platform = usePlatform();
@@ -60,7 +56,6 @@ export default props => {
     const moderator_permission = permissions >= PERMISSIONS.special;
     const agent_permission = permissions === PERMISSIONS.agent;
     const total_answers = account['good_answers'] + account['bad_answers'];
-    const { setIsMyMark } = props.marks_manage
     
 
     const statusMenager = () => {

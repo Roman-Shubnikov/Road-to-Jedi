@@ -31,7 +31,6 @@ import { API_URL } from '../../../../config';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewsActions } from '../../../../store/main';
 import { enumerate } from '../../../../Utils';
-import { GreenCard } from '../../../../components/GreenCard';
 
   const blueBackground = {
     backgroundColor: 'var(--accent)'
@@ -43,9 +42,6 @@ export default props => {
   const { moderationData } = useSelector((state) => state.moderation)
   const [fetching, setFetching] = useState(false);
   const { generator } = useSelector((state) => state.moderation.moderationData);
-  const {
-    account
-  } = useSelector((state) => state.account);
   const { setSnackbar, getInfo, setReport, setModerationData } = props.callbacks;
 
   const addDelNewTicket = (id_ticket, index, type) => {

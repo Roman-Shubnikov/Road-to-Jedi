@@ -717,6 +717,11 @@ $params = [
 				'type' => 'int',
 				'required' => true
 			],
+			'filter' => [
+				'type' => 'string',
+				'required' => false,
+				'default' => '',
+			],
 		],
 		'perms' => CONFIG::PERMISSIONS['admin'],
 	],
@@ -1291,7 +1296,7 @@ switch ($method) {
 		$mark = $res['mark'];
 		$auid = $res['author_id'];
 		$good_or_bad = $mark == 1 ? 'good_answers' : 'bad_answers';
-		$money = $mark == 1 ? 'money=money-10' : 'money=money';
+		$money = $mark == 1 ? 'money=money-10' : 'money=money+30';
 		$sql = "UPDATE users SET $good_or_bad = $good_or_bad - 1, $money WHERE id=?";
 		$Connect->query($sql, [$auid]);
 
@@ -1453,12 +1458,19 @@ switch ($method) {
 		Show::response($Connect->db_get("SELECT * FROM messages WHERE author_id>0 order by id asc LIMIT $offset, $count"));
 
 	case 'special.getSysInfo':
-		$banned = $Connect->db_get("SELECT COUNT(distinct vk_user_id) as count FROM banned WHERE time_end<?", 
-		[time()])[0]['count'];
-		$questions_count = $Connect->db_get("SELECT COUNT(*) as count FROM tickets")[0]['count'];
+		$counters = $Connect->db_get(
+			"SELECT (SELECT COUNT(*) as count FROM tickets) as questions, 
+			(SELECT COUNT(distinct vk_user_id) as count FROM banned WHERE time_end<?) as banned, 
+			(SELECT COUNT(*) as count FROM messages WHERE author_id>0) as answers, 
+			(SELECT COUNT(*) as count FROM messages WHERE comment IS NOT NULL) as comments,
+			(SELECT COUNT(*) as count FROM users) as agents", [time()])[0];
 		Show::response([
-			'banned' => $banned,
-			'questions_count' => $questions_count,
+			'banned' => $counters['banned'],
+			'questions' => $counters['questions'],
+			'answers' => $counters['answers'],
+			'comments' => $counters['comments'],
+			'agents' => $counters['agents'],
+
 		]);
 
 	case 'special.getNewMessages':
@@ -1634,6 +1646,7 @@ switch ($method) {
 		$count = (int) $data['count'];
 		if ($count > CONFIG::ITEMS_PER_PAGE) $count = CONFIG::ITEMS_PER_PAGE;
 		$offset = (int) $data['offset'];
+		$filter_cond = $data['filter'] != '' ? 'AND m.ticket_id=' . (int) $data['filter'] . ' ' : '';
 		$res = $Connect->db_get(
 			"SELECT m.id, 
 			m.ticket_id, 
@@ -1652,7 +1665,7 @@ switch ($method) {
 			ON m.author_id = u_agent.id
 			LEFT JOIN avatars as a
 			ON a.id = u.avatar_id
-			WHERE m.comment_author_id != 0
+			WHERE m.comment_author_id != 0 $filter_cond
 			ORDER BY comment_time DESC LIMIT $offset, $count"
 		);
 		$out = [];

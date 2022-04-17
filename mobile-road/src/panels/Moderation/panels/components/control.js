@@ -15,6 +15,10 @@ import {
     Icon28MessagesOutline,
     Icon28QuestionOutline,
     Icon28ErrorCircleOutline,
+    Icon28LifebuoyOutline,
+    Icon28BrainOutline,
+    Icon28UserCardOutline,
+    Icon28PenStackOutline,
 
 } from '@vkontakte/icons';
 import BG_spec from '../../../../images/bg_spec_force.png'
@@ -76,10 +80,28 @@ export default props => {
                 <SimpleCell
                 disabled
                 before={<Icon28QuestionOutline />}
-                after={<Counter>{sysInfo?.questions_count}</Counter>}>
+                after={<Counter>{sysInfo?.questions}</Counter>}>
                     Вопросы в системе
                 </SimpleCell>
-            </> : <PanelSpinner />}
+                <SimpleCell
+                disabled
+                before={<Icon28BrainOutline />}
+                after={<Counter>{sysInfo?.answers}</Counter>}>
+                    Ответов в системе
+                </SimpleCell>
+                <SimpleCell
+                disabled
+                before={<Icon28PenStackOutline />}
+                after={<Counter>{sysInfo?.comments}</Counter>}>
+                    Комментариев в системе
+                </SimpleCell>
+                <SimpleCell
+                disabled
+                before={<Icon28UserCardOutline />}
+                after={<Counter>{sysInfo?.agents}</Counter>}>
+                    Агенты в системе
+                </SimpleCell>
+            </> : <PanelSpinner height={240} />}
         </Group>
         <Group>
             <SimpleCell
@@ -95,6 +117,13 @@ export default props => {
             target="_blank" 
             rel="noopener noreferrer">
                 Чат специальных агентов
+            </SimpleCell>
+            <SimpleCell
+            before={< Icon28LifebuoyOutline />}
+            href={SPEC_COURCE_LINKS.messages_help}
+            target="_blank" 
+            rel="noopener noreferrer">
+                Обращения агентов
             </SimpleCell>
         </Group>
         </>

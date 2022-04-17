@@ -43,10 +43,7 @@ export default props => {
   const { moderationData } = useSelector((state) => state.moderation)
   const [fetching, setFetching] = useState(false);
   const questions = moderationData.questions;
-  const {
-    account
-  } = useSelector((state) => state.account);
-  const { setSnackbar, getInfo, setReport, setModerationData } = props.callbacks;
+  const { setSnackbar, getInfo, setModerationData } = props.callbacks;
 
   const addDelNewRandomTicket = (ticket_id, index, type) => {
     let method = (type === 'add') ? "method=admin.approveRandomClosedQuestion&" : "method=admin.delRandomClosedQuestion&"

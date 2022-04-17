@@ -2,9 +2,7 @@ import React from 'react'; // React
 import '@vkontakte/vkui/dist/vkui.css'; // Импортируем css
 import './style.css'
 
-import Icon28Notifications from '@vkontakte/icons/dist/28/notifications';
-import Icon28WriteSquareOutline from '@vkontakte/icons/dist/28/write_square_outline';
-import Icon16Dropdown from '@vkontakte/icons/dist/16/dropdown';
+import {Icon28Notifications, Icon28WriteSquareOutline, Icon16Dropdown} from '@vkontakte/icons';
 
 import Question from './panels/Questions/question.js'
 import Top from './panels/Top/top.js'
@@ -18,9 +16,6 @@ const parsedHash = queryString.parse(window.location.hash);
 
 var user = window.detect.parse(navigator.userAgent);
 
-var moment = require('moment');
-require("moment/min/locales.min");
-moment.locale('ru');
 
 console.warn = function() {}
 
@@ -348,7 +343,7 @@ class App extends React.Component {
                                 <img alt='header_image' onClick={() => this.openProfile( 0, true )} src={`https://jedi.xelene.me/v1${this.state.myProfile.avatar.url}`}/>
                             </div>
                             <div className='header_dropdown' id='drop_down' onClick={() => this.openTabProfile()}>
-                                <Icon16Dropdown/>
+                                {/* <Icon16Dropdown/> */}
                             </div>
                         </div>
                     </div>

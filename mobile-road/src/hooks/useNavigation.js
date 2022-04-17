@@ -76,7 +76,7 @@ export const useNavigation = () => {
     }
     const goOtherProfile = useCallback((id) => {
         goOtherProfileCreator(goPanel, activeStory, showErrorAlert, OtherProfileData, dispatch, id)
-      }, [dispatch, goPanel, OtherProfileData, activeStory])
+      }, [dispatch, goPanel, OtherProfileData, activeStory, showErrorAlert])
     return {
         goPanel,
         goDisconnect,
@@ -85,5 +85,8 @@ export const useNavigation = () => {
         setPopout,
         showAlert,
         showErrorAlert,
+        setActiveStory,
+        activePanel,
+        snackbar,
     }
 }

@@ -32,7 +32,7 @@ export const Moderation = props => {
   const { showAlert, showErrorAlert, setActiveModal, setPopout} = props.popouts_and_modals;
   const { goPanel, goDisconnect } = props.navigation;
 
-  const getInfo = (typeData, need_offset=false) => {
+  const getInfo = (typeData, need_offset=false, filter='') => {
     let method = "method=" + types[typeData] + "&";
     let MainData = {...moderationData}
     let currentData = {...MainData[typeData]};
@@ -46,8 +46,9 @@ export const Moderation = props => {
         method: 'post',
         headers: { "Content-type": "application/json; charset=UTF-8" },
         body: JSON.stringify({
-          'offset': offset,
+          offset,
           'count': currentData.count,
+          filter
         })
       })
       .then(res => res.json())

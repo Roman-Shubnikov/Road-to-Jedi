@@ -4,7 +4,7 @@ import './ticket.css';
 
 import Message from '../components/message'
 
-import Icon16Up from '@vkontakte/icons/dist/16/up';
+import {Icon16Up} from '@vkontakte/icons';
 
 export default class Ticket extends React.Component {
 
