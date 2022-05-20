@@ -54,6 +54,7 @@ export const faqActions = {
 
 export const moderationActions = {
     setData: (payload) => ({ type: moderationActionTypes.SET_DATA, payload }),
+    setActiveTab: (payload) => ({ type: moderationActionTypes.SET_ACTIVE_TAB, payload }),
 }
 export const reportsActions = {
     setTypeReport: (payload) => ({type: reportsActionTypes.SET_TYPE_REPORT, payload}),

@@ -9,6 +9,8 @@
     flex-direction: column;
     text-align: center;
     align-items: center;
+    padding: 10px;
+    border-radius: 11px;
 }
 .podium_column {
     white-space: nowrap;

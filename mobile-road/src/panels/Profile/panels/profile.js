@@ -9,7 +9,6 @@ import {
     Counter,
     SimpleCell,
     PullToRefresh,
-    RichCell,
     usePlatform,
     VKCOM,
     FormItem,
@@ -19,18 +18,23 @@ import {
     Textarea,
     MiniInfoCell,
     Div,
+    Spacing,
+    Title,
+    Text,
+    Gradient,
 
     } from '@vkontakte/vkui';
 
 import {
-    Icon28PollSquareOutline,
-    Icon28MarketOutline,
+    Icon28UserCardOutline,
+    Icon28PenStackOutline,
     Icon28Notifications,
-    Icon28ShareExternalOutline,
+    Icon28StorefrontOutline,
     Icon28SettingsOutline,
     Icon28MessagesOutline,
+    Icon28LifebuoyOutline,
+    Icon28DonateOutline,
     Icon20ArticleOutline,
-    Icon28HelpOutline,
 
 } from '@vkontakte/icons';
 import { isEmptyObject } from 'jquery';
@@ -92,10 +96,11 @@ export default props => {
         <Panel id={props.id}>
             {!isEmptyObject(account) ? <>
                 <PanelHeader
+                separator={platform===VKCOM}
                     left={<><PanelHeaderButton onClick={() => {
                         setActiveModal("share");
                     }}>
-                        <Icon28ShareExternalOutline />
+                        <Icon28UserCardOutline />
                     </PanelHeaderButton>
                         <PanelHeaderButton label={account.notif_count ? <Counter size="s" mode="prominent">{account.notif_count}</Counter> : null}
                             onClick={() => {
@@ -104,32 +109,95 @@ export default props => {
                             <Icon28Notifications />
                         </PanelHeaderButton></>}>Профиль</PanelHeader>
                 <PullToRefresh onRefresh={() => { setFetching(true); props.reloadProfile(); setTimeout(() => { setFetching(false) }, 1000) }} isFetching={fetching}>
-                {platform!==VKCOM && <Group>
-                        <RichCell
-                            disabled
-                            caption={'#' + account['id']}
-                            before={<Avatar size={72} src={account['avatar']['url']} alt='ava' />}
+                {platform!==VKCOM &&
+                <Group>
+                    <Gradient
+                            style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            textAlign: "center",
+                            padding: 8,
+                            }}
                         >
-                            <div style={{ display: "flex" }}>
-                                <NicknameMenager 
+                            <Avatar size={95} src={account['avatar']['url']} alt='ava' />
+                            <Title
+                            style={{ marginBottom: 4, marginTop: 10 }}
+                            level="2"
+                            weight="2"
+                            >
+                            <NicknameMenager 
+                                need_num={false}
                                 nickname={account.nickname}
                                 agent_id={account.id}
                                 perms={permissions} />
+                            </Title>
+                            <Text style={{ marginBottom: 24, color: "var(--text_secondary)", display: "flex" }}>
+                                #{account.id}
                                 <ProfileTags
+                                size='m'
                                 flash={account.flash}
                                 donut={account.donut}
                                 verified={account.verified} />
-                            </div>
-                        </RichCell>
+                            </Text>
+                            <Spacing separator style={{width: '90%'}} />
+                            {editingStatus ? 
+                        <FormLayout>
+                            <FormItem bottom={publicStatus.trim().length + '/' + PUBLIC_STATUS_LIMIT}>
+                                <Textarea 
+                                placeholder="Введите статус тут..."
+                                maxLength={PUBLIC_STATUS_LIMIT}
+                                value={publicStatus}
+                                onChange={e => {setPublicStatus(e.currentTarget.value)}}
+                                />
+                            </FormItem>
+                            <FormItem>
+                                <div style={{display: 'flex'}}>
+                                    <Button
+                                    style={{marginRight: 5}}
+                                    onClick={() => {setEdititingStatus(false);setPublicStatus(originalStatus)}}
+                                    mode='secondary'
+                                    size='s'>
+                                        Отменить
+                                    </Button>
+                                    <Button
+                                    onClick={() => statusMenager()}
+                                    mode='primary'
+                                    size='s'>
+                                        Сохранить
+                                    </Button>
+                                </div>
+                            </FormItem>
+                        </FormLayout>
+                        : 
+                        <Text
+                        onClick={() => {
+                            statusMenager();
+                        }} 
+                        style={{ marginTop: 16, marginBottom: 8, color: "var(--text_secondary)", display: "flex", wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>
+                                {account.publicStatus || "Играю в любимую игру"}
+                        </Text>
+                        }
+                            
+                        </Gradient>
+                        <Spacing size={20} />
+                        <Div style={{paddingBottom: 0, paddingTop: 0}}>
+                            <InfoArrows 
+                            special={moderator_permission}
+                            good_answers={account['good_answers']}
+                            bad_answers={account['bad_answers']}
+                            total_answers={total_answers} />
+                        </Div>
+                        <Spacing />
                     </Group>}
-                    <Group>
-                        {agent_permission && 
+                    {platform===VKCOM && <Group>
                         <Div>
                             <InfoArrows 
                             good_answers={account['good_answers']}
                             bad_answers={account['bad_answers']}
                             total_answers={total_answers} />
-                        </Div>}
+                        </Div>
                         {editingStatus ? 
                         <FormLayout>
                             <FormItem bottom={publicStatus.trim().length + '/' + PUBLIC_STATUS_LIMIT}>
@@ -168,9 +236,7 @@ export default props => {
                             {account.publicStatus || "Играю в любимую игру"}
                         </MiniInfoCell>
                         }
-                        
-                        
-                    </Group>
+                    </Group>}
 
                     <Group>
                         <SimpleCell
@@ -179,13 +245,21 @@ export default props => {
                             target="_blank" rel="noopener noreferrer"
                             before={<Icon28MessagesOutline />}>
                             Чат
-                            </SimpleCell>
+                        </SimpleCell>
+                        {account.donut_chat_link && <SimpleCell
+                        expandable
+                        href={account.donut_chat_link}
+                        target="_blank" rel="noopener noreferrer"
+                        before={<Icon28DonateOutline />}>
+                            Эксклюзивный чат
+                        </SimpleCell>}
+                        <Spacing separator />
                         {agent_permission && (moderator_permission || <SimpleCell
                             expandable
                             onClick={() => {
                                 goPanel(activeStory, 'qu', true);
                             }}
-                            before={<Icon28PollSquareOutline />}>Мои ответы</SimpleCell>)}
+                            before={<Icon28PenStackOutline />}>Мои ответы</SimpleCell>)}
                         {/* <SimpleCell
                         expandable
                         before={<Icon28CupOutline />}
@@ -195,34 +269,34 @@ export default props => {
                             Достижения
                         </SimpleCell> */}
                         <SimpleCell
-                            expandable
-                            onClick={() => {
-                                goPanel(activeStory, 'market', true);
-                                sendGoal('marketClick')
-                            }}
-                            before={<Icon28MarketOutline />}>
-                                Магазин
+                        expandable
+                        onClick={() => {
+                            goPanel(activeStory, 'market', true);
+                            sendGoal('marketClick')
+                        }}
+                        before={<Icon28StorefrontOutline />}>
+                            Магазин
                         </SimpleCell>
 
                         <SimpleCell
-                            expandable
-                            onClick={() => {
-                                goPanel(activeStory, 'settings', true);
-                            }}
-                            before={<Icon28SettingsOutline />}>Настройки</SimpleCell>
+                        expandable
+                        onClick={() => {
+                            goPanel(activeStory, 'settings', true);
+                        }}
+                        before={<Icon28SettingsOutline />}>
+                            Настройки
+                        </SimpleCell>
 
                         <SimpleCell
-                        before={<Icon28HelpOutline />}
+                        expandable
+                        before={<Icon28LifebuoyOutline />}
                         onClick={() => {
                             goPanel(activeStory, 'faqMain', true);
                         }}>
                             Поддержка
                         </SimpleCell>
-                        
+                        {!moderator_permission && MESSAGE_NO_VK}
                     </Group>
-                    {!moderator_permission && <Group>
-                        {MESSAGE_NO_VK}
-                    </Group>}
                 </PullToRefresh>
             </> : null}
         </Panel>

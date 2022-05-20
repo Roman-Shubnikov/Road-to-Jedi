@@ -207,7 +207,7 @@ export default props => {
                                                 </SimpleCell>
                                                 <Spacing separator />
                                                 <Div style={{paddingBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                                                    <UsersStack photos={[result['author']['photo_200']]}>
+                                                    <UsersStack photos={[result['author']['photo_200']]} style={{maxWidth: result['donut'] && !account['donut'] ? '40%':'100%'}}>
                                                         {result['author']['first_name'].slice(0, 12)} {result['author']['last_name'].slice(0, 12)}
                                                     </UsersStack>
                                                     {result['donut'] && !account['donut'] && <Button

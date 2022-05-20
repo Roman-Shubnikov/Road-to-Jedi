@@ -51,7 +51,7 @@ import Message from './message'
 import { useDispatch, useSelector } from 'react-redux';
 import { ticketActions } from '../store/main';
 import { getHumanyTime, getRandomInRange, LinkHandler, NicknameMenager } from '../Utils';
-import { API_URL, LINKS_VK, PERMISSIONS, PRESETS_MESSAGES } from '../config';
+import { API_URL, LINKS_VK, LINK_APP, PERMISSIONS, PRESETS_MESSAGES } from '../config';
 import { useNavigation } from '../hooks';
 
 const blueBackground = {
@@ -437,7 +437,7 @@ export default props => {
         <ActionSheetItem autoclose 
         before={<Icon28CopyOutline />}
         onClick={() => {
-          copyClipboard("https://vk.com/app7409818#ticket_id=" + id)
+          copyClipboard(LINK_APP + "#ticket_id=" + id)
           setSnackbar(<Snackbar
             layout="vertical"
             before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
@@ -532,7 +532,9 @@ export default props => {
   return(
     <Panel id={props.id}>
       <PanelHeader
-        left={<><PanelHeaderBack onClick={() => window.history.back()} /><PanelHeaderButton  aria-label='Опции' onClick={() => copy(info.id)}><Icon28SlidersOutline/></PanelHeaderButton></>}
+        left={<><PanelHeaderBack onClick={() => window.history.back()} />
+        <PanelHeaderButton aria-label='Опции' onClick={() => copy(info.id)}><Icon28SlidersOutline/>
+        </PanelHeaderButton></>}
       >
         {/* <PanelHeaderContent
         status='На рассмотрении'
@@ -542,7 +544,7 @@ export default props => {
           </div>
         </PanelHeaderContent> */}
         <div ref={MessageRef}>
-            Вопрос #{info ? info.id : "...."} {info && info.donut ? <Icon16StarCircleFillYellow width={16} height={16} style={{ display: 'inline-block' }} /> : null}
+            Вопрос #{info ? info.id : ""} {info && info.donut ? <Icon16StarCircleFillYellow width={16} height={16} style={{ display: 'inline-block' }} /> : null}
         </div>
       </PanelHeader>
       {info ? <>

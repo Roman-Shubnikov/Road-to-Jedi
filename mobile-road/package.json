@@ -31,7 +31,7 @@
     "@vkontakte/mvk-mini-apps-scroll-helper": "^1.2.0",
     "@vkontakte/vk-bridge": "^2.5.3",
     "@vkontakte/vk-miniapps-deploy": "0.0.17",
-    "@vkontakte/vk-qr": "^2.0.10",
+    "@vkontakte/vk-qr": "^2.0.13",
     "@vkontakte/vkjs": "^0.20.0",
     "@vkontakte/vkui": "^4.28.0",
     "@vkontakte/vkui-connect": "^1.5.4",

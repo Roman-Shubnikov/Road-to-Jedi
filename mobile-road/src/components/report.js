@@ -44,7 +44,7 @@ export default props => {
                     // signal: controllertime.signal,
                 body: JSON.stringify({
                     'type': nameReport, // Место нахождение материала
-                    'name': Number(typeReport) + 1, // Причина
+                    'name': Number(typeReport), // Причина
                     'id_rep': sourceReport, 
                     'comment': comment,
                 })

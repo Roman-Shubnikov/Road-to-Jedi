@@ -10,6 +10,8 @@ class Shop {
         $this->products = [
             'ghosts' => 1,
             'nickname' => 2,
+            'avatar' => 3,
+            'reset_stat' => 4,
         ];
     }
     public function logger($cost, $product){

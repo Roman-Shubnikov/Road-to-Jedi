@@ -161,7 +161,7 @@ $params = [
 				'default' => NULL
 			]
 		],
-		'perms' => CONFIG::PERMISSIONS['special']
+		'perms' => CONFIG::PERMISSIONS['admin']
 	],
 	'account.public' => [
 		'parameters' => [
@@ -503,6 +503,17 @@ $params = [
 		]
 	],
 	'shop.changeDonutAvatars' => [
+		'parameters' => [
+			'avatar_id' => [
+				'type' => 'int',
+				'required' => true
+			]
+		]
+	],
+	'shop.resetStatistics' => [
+		'parameters' => [],
+	],
+	'shop.buyAvatar' => [
 		'parameters' => [
 			'avatar_id' => [
 				'type' => 'int',
@@ -1334,7 +1345,62 @@ switch ($method) {
 	case 'shop.resetId':
 		$Connect->query("UPDATE users SET nickname=? WHERE vk_user_id=?", [null, $user_id]);
 		Show::response();
+	
+ 	case 'shop.resetStatistics':
+		$shop = new Shop($users, $Connect, $levels);
+		$balance = $users->info['money'];
+		if ($balance < CONFIG::RESET_STAT) Show::error(1002);
+		$new_balance = $balance - CONFIG::RESET_STAT;
+		$shop->logger(CONFIG::RESET_STAT, 'reset_stat');
+		$edit = $Connect->query("UPDATE users SET money=?,good_answers=0,bad_answers=0,total_answers=0,coff_active=0 WHERE vk_user_id=?", [$new_balance, $user_id]);
+		Show::response(['edit' => $edit]);
 
+	case 'shop.buyAvatar':
+		$shop = new Shop($users, $Connect, $levels);
+		$id = $data['avatar_id'];
+		$balance = $users->info['money'];
+		$donut_balance = $users->info['donuts'];
+		$price = 0;
+		$type_avatar = 'default';
+		if(Utils::numInSegment($id, CONFIG::AVATARS_SEGMENTS['default'])) {
+			$price = CONFIG::AVATAR_PRICES['default'];
+			
+		}else if(Utils::numInSegment($id, CONFIG::AVATARS_SEGMENTS['donut'])) {
+			$price = CONFIG::AVATAR_PRICES['donut'];
+			$type_avatar = 'donut';
+			if (!$users->donut) Show::error(1017);
+
+		}else if(Utils::numInSegment($id, CONFIG::AVATARS_SEGMENTS['special'])) {
+			$type_avatar = 'special';
+			if($users->info['permissions'] < CONFIG::PERMISSIONS['special']) Show::error(403);
+
+		}else if(Utils::numInSegment($id, CONFIG::AVATARS_SEGMENTS['zen'])) {
+			$price = CONFIG::AVATAR_PRICES['zen'];
+			$type_avatar = 'zen';
+			if ($users->info['good_answers'] < CONFIG::MIN_GOOD_ANSWERS_FOR_NOW_ZEN) Show::error(1021);
+
+		} else {
+			Show::error(1008);
+		}
+		if($users->info['permissions'] >= CONFIG::PERMISSIONS['special']) {
+			if($type_avatar != 'donut') {
+				$price = 0;
+			}
+		}
+		if ($users->info['avatar_name'] == $id) Show::error(1018);
+		$new_balance = $balance;
+		$new_donuts_balance = $donut_balance;
+		if($type_avatar == 'donut') {
+			if ($donut_balance < $price) Show::error(1002);
+			$new_donuts_balance -= $price;
+		} else {
+			if ($balance < $price) Show::error(1002);
+			$new_balance -= $price;
+		}
+		$shop->logger($price, 'avatar');
+		$edit = $Connect->query("UPDATE users SET money=?,donuts=?,avatar_id=? WHERE vk_user_id=?", [$new_balance, $new_donuts_balance, $id, $user_id]);
+		Show::response(['edit' => $edit]);
+	
 	case 'shop.changeAvatar':
 		$id = $data['avatar_id'];
 		$balance = $users->info['money'];
@@ -1346,7 +1412,6 @@ switch ($method) {
 		if($users->info['permissions'] >= CONFIG::PERMISSIONS['special']) {
             $new_balance = $balance;
         }
-
 		$edit = $Connect->query("UPDATE users SET money=?,avatar_id=? WHERE vk_user_id=?", [$new_balance, $id, $user_id]);
 		Show::response(['edit' => $edit]);
 
@@ -1495,13 +1560,13 @@ switch ($method) {
 		$title = trim($data['title']);
 		$text = trim($data['text']);
 
-		$res = $Connect->db_get("SELECT COUNT(*) as count_q FROM queue_quest WHERE author_id=?", [$users->vk_id]);
-		if($res){
-			$count = $res[0]['count_q'];
-			if($count > CONFIG::MAX_QUESTIONS_BY_PERSON){
-				Show::error(42);
-			}
-		}
+		// $res = $Connect->db_get("SELECT COUNT(*) as count_q FROM queue_quest WHERE author_id=?", [$users->vk_id]);
+		// if($res){
+		// 	$count = $res[0]['count_q'];
+		// 	if($count > CONFIG::MAX_QUESTIONS_BY_PERSON){
+		// 		Show::error(42);
+		// 	}
+		// }
 		if (mb_strlen($title) >= CONFIG::MAX_TICKETS_TITLE_LEN) {
 			Show::error(20);
 		}

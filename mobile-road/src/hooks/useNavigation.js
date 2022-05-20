@@ -7,6 +7,7 @@ import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { sendHit } from "../metrika";
 import { alertCreator, errorAlertCreator, goOtherProfileCreator } from "../Utils";
 
+const queryString = require('query-string');
 
 
 export const useNavigation = () => {
@@ -18,6 +19,14 @@ export const useNavigation = () => {
     const setPopout = useCallback((popout) => dispatch(viewsActions.setPopout(popout)), [dispatch]);
     const setHistoryPanels = useCallback((history) => dispatch(viewsActions.setHistory(history)), [dispatch]);
     const setSnackbar = useCallback((payload) => dispatch(viewsActions.setSnackbar(payload)), [dispatch])
+    const hash = queryString.parse(window.location.hash);
+    const setHash = (hash) => {
+      if(window.location.hash !== ''){
+        bridge.send("VKWebAppSetLocation", {"location": hash});
+        window.location.hash = hash
+      }
+    }
+
     const goPanel = useCallback((view, panel, forcePanel=false, replaceState=false) => {
     
         const checkVisitedView = (view) => {
@@ -65,9 +74,9 @@ export const useNavigation = () => {
     const showAlert = (title, text) => {
         alertCreator(setPopout, title, text)
     }
-    const showErrorAlert = (error = null, action = null) => {
+    const showErrorAlert = useCallback((error = null, action = null) => {
         errorAlertCreator(setPopout, error, action)
-      }
+      }, [setPopout])
     const goDisconnect = (e=null) => {
         console.log(e)
         Sentry.captureException(e);
@@ -75,9 +84,12 @@ export const useNavigation = () => {
         goPanel(viewsStructure.Disconnect.navName, viewsStructure.Disconnect.panels.homepanel, true, false);
     }
     const goOtherProfile = useCallback((id) => {
+        setHash('');
         goOtherProfileCreator(goPanel, activeStory, showErrorAlert, OtherProfileData, dispatch, id)
+        
       }, [dispatch, goPanel, OtherProfileData, activeStory, showErrorAlert])
     return {
+        setHash,
         goPanel,
         goDisconnect,
         setSnackbar,
@@ -88,5 +100,6 @@ export const useNavigation = () => {
         setActiveStory,
         activePanel,
         snackbar,
+        hash,
     }
 }

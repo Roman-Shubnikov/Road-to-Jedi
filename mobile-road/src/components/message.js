@@ -71,7 +71,7 @@ const Message = props => {
         <img className="message_avatar" src={props.avatar} alt='а' />
         <div className={props.clickable ? 'pointer message_body animation' : 'message_body'} onClick={() => props.onClick()}>
             <p className="message_name">{props.title}</p>
-            <div className='message_text'>
+            <div className='message_text' style={{marginBottom: 10}}>
                 <Anchorme target="_blank" rel="noreferrer noopener">
                     {props.children}
                 </Anchorme>

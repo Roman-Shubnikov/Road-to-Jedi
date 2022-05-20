@@ -28,29 +28,31 @@ import {
     PanelSpinner,
     usePlatform,
     IOS,
-    ButtonGroup,
+    Switch,
     SegmentedControl,
+    ScreenSpinner,
     } from '@vkontakte/vkui';
 
 
 import {
   Icon16CheckCircle,
   Icon20CancelCircleFillRed,
-  Icon24Repeat,
-  Icon28MoneyCircleOutline,
+  Icon16StarCircleFillYellow,
   Icon28RoubleCircleFillBlue,
   Icon28DonateCircleFillYellow,
   Icon28TicketOutline,
   Icon28MoneyRequestOutline,
   Icon28UserOutgoingOutline,
   Icon28InfoOutline,
-  Icon28DeleteOutline,
+  Icon28UserStarBadgeOutline,
+  Icon28SparkleOutline,
 } from '@vkontakte/icons';
 import { useSelector } from 'react-redux';
-import { API_URL, AVATARS_URL, LINKS_VK } from '../../../config';
+import { API_URL, AVATARS_URL, LINKS_VK, PERMISSIONS } from '../../../config';
 import { enumerate } from '../../../Utils';
 import { isEmptyObject } from 'jquery';
 import { sendGoal } from '../../../metrika';
+import { useNavigation } from '../../../hooks';
 
 const avatars = [
     "1.png",
@@ -75,7 +77,38 @@ const avatars = [
     "20.png",
     "21.png",
 ]
-
+const donutAvatars = [
+  "1000.png",
+  "1001.png",
+  "1002.png",
+  "1003.png",
+  "1004.png",
+  "1005.png",
+]
+const specialAvatars = [
+  "2000.png",
+  "2001.png",
+  "2002.png",
+  "2003.png",
+  "2004.png",
+  "2005.png",
+  "2006.png",
+  "2007.png",
+  "2008.png",
+  "2009.png",
+]
+const zenAvatars = [
+  "3001.png",
+  "3002.png",
+  "3003.png",
+  "3004.png",
+  "3005.png",
+  "3006.png",
+  "3007.png",
+  "3008.png",
+  "3009.png",
+  "3010.png",
+]
 const blueBackground = {
     backgroundColor: 'var(--accent)'
   };
@@ -232,15 +265,16 @@ const Invoices = props => {
           <span>Основной баланс</span>
         </div>
       }>
-        <Headline>{account.balance} $</Headline>
+        <Headline>{account.balance}</Headline>
       </SimpleCell>
       {platform === IOS && <Div>
-        <Text style={{color: 'var(--subtext)'}}>Платежи на данной платформе недоступны</Text>
+        <Text style={{color: 'var(--subtext)'}}>Платежи на данной платформе недоступны.</Text>
       </Div>}
       <Div 
       className='vkuiTabbar--l-vertical' 
       style={{display: 'flex', justifyContent: 'space-around'}}>
-        {platform !== IOS && <Tappable onClick={() => props.setActivetab('treasures')}>
+        {platform !== IOS && 
+        <Tappable onClick={() => props.setActivetab('treasures')} style={{padding: 8}}>
           <TabbarItem selected={platform !== IOS}
           text='Пополнить'>
             <Icon28MoneyRequestOutline />
@@ -248,6 +282,7 @@ const Invoices = props => {
         </Tappable>}
         
         <Tappable
+        style={{padding: 8}}
         onClick={() => goPanel(activeStory, 'promocodes', true)}>
           <TabbarItem selected
           text='Промокоды'>
@@ -255,6 +290,7 @@ const Invoices = props => {
           </TabbarItem>
         </Tappable>
         <Tappable 
+        style={{padding: 8}}
         onClick={() => setActiveModal('transfer_send')}>
           <TabbarItem selected
           text='Перевести'>
@@ -277,7 +313,7 @@ const Invoices = props => {
           <span>Эксклюзивный баланс</span>
         </div>
       }>
-        <Headline>{account.donuts} $</Headline>
+        <Headline>{account.donuts}</Headline>
       </SimpleCell>
       <Div>
         <Text style={{color: 'var(--subtext)'}}>Данный баланс нельзя пополнить настоящей валютой, получить её можно только отвечая на вопросы с эксклюзивной отметкой.</Text>
@@ -288,10 +324,49 @@ const Invoices = props => {
 }
 const Market = props => {
   const account = useSelector((state) => state.account.account);
-  const { setPopout, setSnackbar } = props.callbacks;
-  const { goDisconnect } = props.navigation;
   const [selectedAvatar, setSelectedAvatar] = useState(0);
-  const [changed_id, setChangedId] = useState('');
+  const [hideDonut, setHidedonut] = useState(() => (!account.settings.hide_donut))
+  const [colorchangeDonut, setColorchangeDonut] = useState(() => (account.settings.change_color_donut))
+  const { goDisconnect, showErrorAlert, setPopout, setSnackbar } = useNavigation();
+  const [changed_id, setChangedId] = useState(account.nickname ? account.nickname : '');
+  const permissions = account.permissions;
+  const moderator_permission = permissions >= PERMISSIONS.special;
+
+  const saveSettings = (setting, value) => {
+    setPopout(<ScreenSpinner />)
+    fetch(API_URL + "method=settings.set&" + window.location.search.replace('?', ''),
+      {
+        method: 'post',
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+        body: JSON.stringify({
+          'setting': setting,
+          'value': value,
+        })
+      })
+      .then(data => data.json())
+      .then(data => {
+        if (data.result) {
+          setPopout(null)
+          setTimeout(() => {
+            props.reloadProfile();
+          }, 4000)
+        } else {
+          showErrorAlert(data.error.message);
+        }
+      })
+      .catch(goDisconnect)
+  }
+
+  const hide_donut = (check) => {
+    check = check.currentTarget.checked;
+    setHidedonut(check);
+    saveSettings('hide_donut', Number(!check))
+  }
+  const needChangeColor = (check) => {
+    check = check.currentTarget.checked;
+    setColorchangeDonut(check);
+    saveSettings('change_color_donut', Number(check))
+  }
 
   const MarketManager = (type, data) => {
     let method,jsonData,textSnack;
@@ -320,6 +395,11 @@ const Market = props => {
         jsonData = {}
         method = "shop.buyRecommendations&";
         break;
+      case 'resetStat':
+        textSnack = "Вы успешно обнулили свою статистику";
+        jsonData = {}
+        method = "shop.resetStatistics&";
+        break;
       default:
         method = "shop.changeAvatar&";
     }
@@ -343,9 +423,10 @@ const Market = props => {
               {textSnack}
                 </Snackbar>
           )
-
+          if (type === 'resetId') setChangedId('');
           setTimeout(() => {
             props.reloadProfile();
+            
           }, 2000)
         } else {
           setSnackbar(
@@ -369,78 +450,202 @@ const Market = props => {
                     Скидки для тестеровщиков
                   </FormStatus>
                 </Div> */}
-      <Group header={<Header>Фотография профиля</Header>}>
-        <HorizontalScroll showArrows getScrollToLeft={(i) => i - 190} getScrollToRight={(i) => i + 190}>
-          <div style={{ display: 'flex' }}>
-            {avatars.map((ava, i) =>
-              <HorizontalCell key={i} size='m'
-                className={((i + 1) === selectedAvatar) ? 'select_avatar' : ''}
-                onClick={(e) => (account.avatar.id === i + 1) ? setSnackbar(
-                  <Snackbar
-                    layout="vertical"
-                    onClose={() => setSnackbar(null)}
-                    before={<Icon20CancelCircleFillRed width={24} height={24} />}
-                  >
-                    Вы уже имеете данный аватар
-                    </Snackbar>) : (selectedAvatar === (i + 1)) ? setSelectedAvatar(0) : setSelectedAvatar(i + 1)}>
-                <Avatar id={i} size={88} src={AVATARS_URL + ava} />
-
-              </HorizontalCell>)}
-          </div>
-        </HorizontalScroll>
-        <Div>
-          <Button onClick={() => MarketManager('avatar')}
-            before={<Icon28MoneyCircleOutline />}
-            size="l"
-            stretched
-            mode="secondary"
-            disabled={selectedAvatar === 0}>Сменить за 700 ECoin</Button>
-        </Div>
+      <Group>
+        <SimpleCell
+            disabled
+            before={<Icon28UserStarBadgeOutline />}
+            after={
+              <Switch
+                checked={hideDonut}
+                onChange={(e) => hide_donut(e)} />
+            }
+          >
+            Отметка возле имени
+          </SimpleCell>
+          <SimpleCell
+            disabled
+            before={<Icon28SparkleOutline />}
+            after={
+              <Switch
+                checked={colorchangeDonut}
+                onChange={(e) => needChangeColor(e)} />
+            }
+          >
+            Цвет короткого имени
+          </SimpleCell>
       </Group>
+      <Group>
+      
+        <AvatarsBlock 
+        header='Универсальные аватары'
+        header_sub='800 баллов'
+        avatar_list={avatars}
+        reloadProfile={props.reloadProfile}
+        />
+        {account.donut &&
+        <AvatarsBlock 
+        header={<div style={{display: 'flex', alignItems: 'center'}}>
+          Эксклюзивные аватары <Icon16StarCircleFillYellow style={{marginLeft: 5}} />
+        </div>}
+        header_sub='300 пончиков'
+        avatar_list={donutAvatars}
+        reloadProfile={props.reloadProfile}
+        />}
+        <AvatarsBlock 
+        header='Дзеновские аватары'
+        header_sub='800 баллов'
+        avatar_list={zenAvatars}
+        reloadProfile={props.reloadProfile}
+        />
+        {moderator_permission &&
+        <AvatarsBlock 
+        header='Служебные аватары'
+        header_sub=''
+        avatar_list={specialAvatars}
+        reloadProfile={props.reloadProfile}
+        />}
+      </Group>
+      <Group>
+        <ShopCard
+        header='Короткое имя'
+        header_sub='1500 баллов'
+        text_button={account.nickname && account.nickname === changed_id ? 'Удалить' : 'Сменить'}
+        disabled={(!account.nickname || account.nickname === changed_id) && !( changed_id.trim().length > 0)}
+        onClickButton={account.nickname && account.nickname === changed_id ? () => setPopout(<Alert
+          actionsLayout='vertical'
+          actions={[{
+            title: 'Удалить',
+            autoclose: true,
+            mode: 'destructive',
+            action: () => MarketManager('resetId'),
+          }, {
+            title: 'Отмена',
+            autoclose: true,
+            style: 'cancel'
+          },]}
+          onClose={() => setPopout(null)}
+          header="Удаление короткого имени"
+          text="После удаления, у других агентов появится возможность поставить это которое имя. А вы будете числиться под цифровым ID"
+        />) : () => MarketManager('changeId')}>
+          <FormLayout>
+            <FormItem>
+              <Input placeholder="Введите желаемое короткое имя"
+                bottom='Макс. 10 символов'
+                onChange={(e) => setChangedId(e.currentTarget.value)}
+                value={changed_id}
+                maxLength="10" />
+            </FormItem>
+          </FormLayout>
+        </ShopCard>
+      </Group>
+      <Group>
+        <ShopCard
+        header='Сброс статистики'
+        header_sub='1800 баллов'
+        onClickButton={() => MarketManager('resetStat')}
+        text_button='Аннулировать'>
 
-      <Group header={<Header>Сменить никнейм</Header>}>
-        <FormLayout>
-          <FormItem>
-            <Input placeholder="Введите желаемый ник"
-              bottom='Макс. 10 символов'
-              onChange={(e) => setChangedId(e.currentTarget.value)}
-              value={changed_id}
-              maxLength="10" />
-          </FormItem>
-          <FormItem>
-            <ButtonGroup stretched>
-            <Button onClick={() => { MarketManager('changeId') }}
-                before={<Icon24Repeat width={28} height={28} />}
-                stretched
-                size="l"
-                mode="secondary"
-                disabled={!( changed_id.trim().length > 0)}>Сменить за 1500 ECoin</Button>
-              {account.nickname ? <Button
-                stretched
-                size='l'
-                onClick={() => setPopout(<Alert
-                  actionsLayout='vertical'
-                  actions={[{
-                    title: 'Удалить ник',
-                    autoclose: true,
-                    mode: 'destructive',
-                    action: () => MarketManager('resetId'),
-                  }, {
-                    title: 'Нет, я нажал сюда случайно',
-                    autoclose: true,
-                    style: 'cancel'
-                  },]}
-                  onClose={() => setPopout(null)}
-                  header="Осторожно!"
-                  text="Если вы удалите ник, то, возможно, его сможет забрать кто-то другой. После удаления ника у вас будет отображён начальный id"
-                />)}
-                before={<Icon28DeleteOutline />}
-                mode='destructive'></Button> : null}
-            </ButtonGroup>
-          </FormItem>
-        </FormLayout>
-
+        </ShopCard>
       </Group>
       </>   
+  )
+}
+
+const AvatarsBlock = ({avatar_list, header, header_sub, ...props}) => {
+  const { goDisconnect, setSnackbar } = useNavigation();
+  const [selectedAvatar, setSelectedAvatar] = useState(0);
+  const account = useSelector((state) => state.account.account);
+  const [fetching, setFetching] = useState(false)
+  const buyAvatar = () => {
+    setFetching(true);
+    fetch(API_URL + `method=shop.buyAvatar&` + window.location.search.replace('?', ''),
+      {
+        method: 'post',
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+        body: JSON.stringify({
+          'avatar_id': Number(avatar_list[selectedAvatar - 1].split('.')[0]),
+        })
+      })
+      .then(data => data.json())
+      .then(data => {
+        setSelectedAvatar(0);
+        if (data.result) {
+          setSnackbar(
+            <Snackbar
+              layout="vertical"
+              onClose={() => setSnackbar(null)}
+              before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+            >
+              Аватар успешно сменен
+                </Snackbar>
+          )
+
+          setTimeout(() => {
+            props.reloadProfile();
+          }, 2000)
+        } else {
+          setSnackbar(
+            <Snackbar
+              layout="vertical"
+              onClose={() => setSnackbar(null)}
+              before={<Icon20CancelCircleFillRed width={24} height={24} />}
+            >
+              {data.error.message}
+            </Snackbar>);
+        }
+        setFetching(false);
+      })
+      .catch(goDisconnect)
+
+  }
+  return(
+    <ShopCard
+    header={header}
+    header_sub={header_sub}
+    text_button='Приобрести'
+    onClickButton={buyAvatar}
+    disabled={selectedAvatar === 0}
+    fetching={fetching}
+    >
+      <HorizontalScroll showArrows getScrollToLeft={(i) => i - 190} getScrollToRight={(i) => i + 190}>
+        <div style={{ display: 'flex' }}>
+        {avatar_list && avatar_list.map((ava, i) => (
+          <HorizontalCell key={i} size='m'
+          hasHover={false} hasActive={false}
+          style={{display: 'flex', alignItems: 'center'}}
+          onClick={() => (account.avatar.id == avatar_list[i].split('.')[0]) ? setSnackbar(
+            <Snackbar
+              layout="vertical"
+              onClose={() => setSnackbar(null)}
+              before={<Icon20CancelCircleFillRed width={24} height={24} />}
+            >
+              Вы уже имеете данный аватар
+              </Snackbar>) : (selectedAvatar === (i + 1)) ? setSelectedAvatar(0) : setSelectedAvatar(i + 1)}>
+          <Avatar id={i} size={88} src={AVATARS_URL + ava}
+          className={((i + 1) === selectedAvatar) ? 'select_avatar' : ''} />
+
+        </HorizontalCell>
+      
+      ))}
+      </div>
+      </HorizontalScroll>
+    </ShopCard>
+  )
+}
+
+const ShopCard = ({header, header_sub, text_button, onClickButton, fetching, disabled, ...props}) => {
+  return (
+    <Group mode='plain'
+    header={<Header subtitle={header_sub}
+    aside={<Button
+    loading={fetching}
+    onClick={onClickButton}
+    disabled={disabled}>
+      {text_button}
+    </Button>}>
+      {header}
+    </Header>}>
+      {props.children}
+    </Group>
   )
 }

@@ -76,9 +76,6 @@ export default props => {
                   value={account.marked ? account.marked / SPECIAL_NORM * 100 : 0} />
                 <div style={{ textAlign: 'right', color: "var(--text_profile)", marginTop: 10, fontSize: 13 }}>{SPECIAL_NORM}</div>
               </InfoRow>
-              {(account.marked >= SPECIAL_NORM) ? <div style={{ textAlign: 'center', color: "var(--text_profile)", marginBottom: 5 }}>
-                Но это не значит, что нужно расслабляться!
-                        </div> : null}
             </FormStatus>
           </Div>
           <Div style={{paddingTop: 0}}>

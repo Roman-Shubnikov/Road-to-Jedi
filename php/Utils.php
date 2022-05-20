@@ -54,6 +54,10 @@ class Utils {
     public static function replaceSymbols($text) {
         $text = preg_replace('/"(.*?)"/', '«$1»', $text);
         $text = str_replace("XD", "😆", $text);
+        $text = str_replace("--", "—", $text);
         return $text;
+    }
+    public static function numInSegment($num, $segment) {
+        return $num >= $segment[0] && $num <= $segment[1];
     }
 }

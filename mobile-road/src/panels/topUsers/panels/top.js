@@ -30,7 +30,7 @@ import {
 import UserTopC from '../../../components/userTop';
 import { useDispatch, useSelector } from 'react-redux';
 import { topUsersActions } from '../../../store/main';
-import { API_URL, PERMISSIONS } from '../../../config';
+import { API_URL, IS_MOBILE, PERMISSIONS } from '../../../config';
 import { inArray, isEmptyObject } from 'jquery';
 import { enumerate } from '../../../Utils';
 import { Podium } from '../../../components/Podium';
@@ -150,7 +150,7 @@ export default props => {
       <List>
         <Cell
           before={<Icon28UserOutline />}
-          asideContent={!mode ? <Icon24Done fill="var(--accent)" /> : null}
+          after={!mode ? <Icon24Done fill="var(--accent)" /> : null}
           onClick={select}
           data-mode={0}
         >
@@ -158,7 +158,7 @@ export default props => {
         </Cell>
         <Cell
           before={<Icon28EmployeeOutline />}
-          asideContent={mode ? <Icon24Done fill="var(--accent)" /> : null}
+          after={mode ? <Icon24Done fill="var(--accent)" /> : null}
           onClick={select}
           data-mode={1}
         >
@@ -166,15 +166,18 @@ export default props => {
         </Cell>
       </List>
     </PanelHeaderContext>
-    <Group>
+    {((!IS_MOBILE && mode) || !mode) ? <Group>
         <Tabs>
           <HorizontalScroll getScrollToLeft={(i) => i - 50} getScrollToRight={(i) => i + 50}>
             <TabsItem
               onClick={() => setActiveTab('all')}
               selected={activeTab === 'all'}
+              disabled={mode}
+              style={{opacity: mode ? .3: 1}}
             >
               Общий
             </TabsItem>
+            {!mode && <>
             <TabsItem
               onClick={() => setActiveTab('rating')}
               selected={activeTab === 'rating'}
@@ -199,10 +202,11 @@ export default props => {
             >
               Прометей
             </TabsItem>
+            </>}
           </HorizontalScroll>
         </Tabs>
 
-      </Group>
+      </Group>: null}
     
     <PullToRefresh onRefresh={() => {setFetching(true);getTopUsers(activeTab, mode, true)}} isFetching={fetching}>
       <Group>
@@ -228,13 +232,17 @@ export default props => {
             >
           {getCurrStub()[1]}
         </Placeholder> : 
-        Array(13).fill().map((e,i)=> 
+        <>
+        <Podium skeleton />
+        {Array(13).fill().map((e,i)=> 
           <SimpleCell
           key={i}
           description={<Skeleton width={100} height={15} />}
           before={<Skeleton style={{marginRight: 12}} circle={true} width={48} height={48} />}>
               <Skeleton style={{marginBottom: 2}} width={120} height={18} />
           </SimpleCell>)}
+        </>
+        }
       </Group>
     </PullToRefresh>
 </Panel>

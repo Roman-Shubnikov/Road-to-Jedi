@@ -118,7 +118,7 @@ class Reports {
         // 
         // comment - Дополнительный комментарий модератору
         if($name == 8 && !(bool) $comment) Show::error(1202);
-        if($name < 1 || $name > 9) Show::error(1201);
+        if($name < 1 || $name >= 9) Show::error(1201);
 
         $comment = ($comment != '') ? $comment : NULL;
 

@@ -27,6 +27,7 @@ export const tiketsActionTypes = {
 }
 export const moderationActionTypes = {
     SET_DATA: 'MODERATION.SET_DATA',
+    SET_ACTIVE_TAB: 'MODERATION.SET_ACTIVE_TAB',
 }
 export const topUserActionTypes = { 
     SET_TOP: 'TOP_USERS.SET_TOP',

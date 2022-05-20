@@ -87,13 +87,13 @@ export default props => {
                 disabled
                 before={<Icon28BrainOutline />}
                 after={<Counter>{sysInfo?.answers}</Counter>}>
-                    Ответов в системе
+                    Ответы в системе
                 </SimpleCell>
                 <SimpleCell
                 disabled
                 before={<Icon28PenStackOutline />}
                 after={<Counter>{sysInfo?.comments}</Counter>}>
-                    Комментариев в системе
+                    Комментарии в системе
                 </SimpleCell>
                 <SimpleCell
                 disabled

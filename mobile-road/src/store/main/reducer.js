@@ -85,6 +85,7 @@ const initalStateModeration = {
             data_helper: null,
         }
     },
+    activeTab: 'control',
 
 }
 const initalStateTopUsers = {
@@ -177,6 +178,8 @@ export const moderationReducer = (state = initalStateModeration, action) => {
     switch (action.type) {
         case moderationActionTypes.SET_DATA:
             return { ...state, moderationData: action.payload }
+        case moderationActionTypes.SET_ACTIVE_TAB:
+            return { ...state, activeTab: action.payload }
         default:
             return state
     }

@@ -33,9 +33,8 @@ export const LINKS_VK = {
 export const MESSAGE_NO_VK = (
     <Div>
         <FormStatus 
-        header="Внимание! Важная информация" 
         mode="default">
-            Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
+            Сервис не относится на прямую к социальной сети ВКонтакте.
         </FormStatus>
     </Div>
     );
@@ -79,7 +78,7 @@ export const SPEC_COURCE_LINKS = {
 };
 export const SPECIAL_NORM = 50;
 export const GENERATOR_NORM = 200;
-export const PUBLIC_STATUS_LIMIT = 140;
+export const PUBLIC_STATUS_LIMIT = 70;
 export const PERMISSIONS = {
     user: -1,
     agent: 0,

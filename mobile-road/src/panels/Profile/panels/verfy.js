@@ -14,10 +14,22 @@ import {
     ScreenSpinner,
     Group,
     FormItem,
+    Div,
+    Card,
+    MiniInfoCell,
 
     } from '@vkontakte/vkui';
-import { Icon56CheckCircleOutline } from '@vkontakte/icons';
 import { API_URL, LINKS_VK } from '../../../config';
+import {VerifyMan, VerifyDialogs} from '../images/svg';
+import { 
+  Icon20RectangleInfoOutline,
+  Icon20PictureOutline,
+  Icon20CheckNewsfeedOutline,
+  Icon20HistoryBackwardOutline,
+  Icon20AppBadgeOutline,
+} from '@vkontakte/icons';
+
+
 const maxLength = 2000;
 const minLengthTitle = 5;
 const minLengthDesc = 10;
@@ -96,11 +108,49 @@ export default props => {
         Верификация
                 </PanelHeader>
       {(status !== -1) ? (status === 2) ? <><Group><Placeholder
-        icon={<Icon56CheckCircleOutline  />}
-        header='Вы отправили заявку на верификацию'>Вы отправили заявку на верификацию, по
-        окончании проверки — мы сообщим Вам
-                                                            о результатах официального статуса.</Placeholder>
+        icon={VerifyDialogs}
+        header='Вы отправили заявку на верификацию'>Вы отправили заявку на верификацию,
+        по окончании проверки — мы сообщим Вам о результатах присвоении официального статуса</Placeholder>
       </Group></> : <>
+        <Group>
+          <Placeholder
+          className='placeholders_short-bottom'
+          style={{paddingBottom: 10}}
+          icon={VerifyMan}>
+            Верификация — это процесс подтверждения того, что профиль Агента пренадлежит настоящему пользователю.
+            <br/><br/>Если проверка пройдена, профиль получает особую отметку — галочку справа от названия
+            <Div style={{textAlign: 'left', paddingTop: 20}}>
+              <Card mode='outline' style={{paddingTop: 5, paddingBottom: 5}}>
+                <MiniInfoCell textWrap='full'
+                before={<Icon20RectangleInfoOutline />}>
+                  Страница ВКонтакте заполнена
+                </MiniInfoCell>
+                <MiniInfoCell textWrap='full'
+                before={<Icon20PictureOutline />}>
+                  На странице должны быть размещены фотографии
+                </MiniInfoCell>
+                <MiniInfoCell textWrap='full'
+                before={<Icon20CheckNewsfeedOutline />}>
+                  Страница должна переодически обновляться
+                </MiniInfoCell>
+                <MiniInfoCell textWrap='full'
+                before={<Icon20HistoryBackwardOutline />}>
+                  Агентскому профилю более 2 месяцев
+                </MiniInfoCell>
+                <MiniInfoCell textWrap='full'
+                before={<Icon20AppBadgeOutline />}>
+                  Количество отрицательных ответов не превышает
+                  количество положительных
+                </MiniInfoCell>
+              </Card>
+              {/* <Button mode='tertiary'
+              target="_blank" rel="noopener noreferrer">
+                Узнать подробности о процедуре
+              </Button> */}
+            </Div>
+          </Placeholder>
+          
+        </Group>
         <Group>
           <FormLayout>
             <FormItem

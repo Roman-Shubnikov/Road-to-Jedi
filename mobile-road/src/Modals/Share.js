@@ -2,9 +2,9 @@ import React from 'react'; // React
 import { 
     ModalPage,
     Cell,
-    List,
     Snackbar,
     Avatar,
+    Group,
     
 
 } from "@vkontakte/vkui";
@@ -33,18 +33,19 @@ export const ModalShare = ({id, onClick, setActiveModal, setSnackbar}) => {
                 Поделиться
             </ModalHeader>}
         >
-        <List>
-          <Cell onClick={() => setActiveModal("qr")} before={<Icon24Qr width={28} height={28} />}>QR-code</Cell>
-          <Cell onClick={() => {
-            bridge.send("VKWebAppCopyText", { text: LINK_APP + "#agent_id=" + account['id']}); setActiveModal(null); setSnackbar(<Snackbar
-              layout="vertical"
-              onClose={() => setSnackbar(null)}
-              before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
-            >
-              Ссылка скопирована
-                  </Snackbar>);
-          }} before={<Icon24Linked width={28} height={28} />}>Скопировать ссылку</Cell>
-        </List>
+          <Group>
+            <Cell onClick={() => setActiveModal("qr")} before={<Icon24Qr width={28} height={28} />}>QR-код профиля</Cell>
+            <Cell onClick={() => {
+              bridge.send("VKWebAppCopyText", { text: LINK_APP + "#agent_id=" + account['id']}); setActiveModal(null); setSnackbar(<Snackbar
+                layout="vertical"
+                onClose={() => setSnackbar(null)}
+                before={<Avatar size={24} style={blueBackground}><Icon16CheckCircle fill="#fff" width={14} height={14} /></Avatar>}
+              >
+                Ссылка скопирована
+                    </Snackbar>);
+            }} before={<Icon24Linked width={28} height={28} />}>Скопировать ссылку</Cell>
+          </Group>
+          
       </ModalPage>
     )
 }
@@ -60,7 +61,7 @@ export const ModalShare2 = ({id, onClick, sharing_type}) => {
         </ModalHeader>
       }
       >
-        <List>
+        <Group>
           <Cell
             onClick={() => bridge.send("VKWebAppShowWallPostBox",
               {
@@ -69,7 +70,7 @@ export const ModalShare2 = ({id, onClick, sharing_type}) => {
               })}
             before={<Icon28NewsfeedOutline />}>
             На стене
-                    </Cell>
+          </Cell>
           <Cell before={<Icon28StoryAddOutline />}
             onClick={() => {
               bridge.send("VKWebAppShowStoryBox",
@@ -84,8 +85,9 @@ export const ModalShare2 = ({id, onClick, sharing_type}) => {
                 })
             }}>
             В истории
-                    </Cell>
-        </List>
+          </Cell>
+        </Group>
+          
     </ModalPage>
   )
 }

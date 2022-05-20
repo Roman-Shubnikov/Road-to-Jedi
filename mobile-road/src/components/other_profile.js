@@ -6,7 +6,6 @@ import {
     PanelHeader,
     Group,
     Div,
-    FormStatus,
     Avatar,
     ActionSheet,
     ActionSheetItem,
@@ -14,11 +13,12 @@ import {
     Placeholder,
     Header,
     Snackbar,
-    MiniInfoCell,
     Link,
     PanelSpinner,
     IconButton,
     SimpleCell,
+    Button,
+    Spacing,
 } from '@vkontakte/vkui';
 
 
@@ -27,19 +27,17 @@ import {
     Icon56DurationOutline,
     Icon16CheckCircle,
     Icon24MoreVertical,
-    Icon20ArticleOutline,
-    Icon20Add,
+    Icon28ArticleOutline,
     Icon28BlockOutline,
     Icon28CopyOutline,
     Icon28ReportOutline,
     Icon28MentionOutline,
     Icon28HashtagOutline,
-    Icon28FaceIdOutline,
     Icon28DonateOutline,
-    Icon28PaletteOutline,
     Icon28Notifications,
     Icon28StatisticsOutline,
     Icon28LogoVkOutline,
+    Icon56LockOutline,
 
 } from '@vkontakte/icons';
 
@@ -47,14 +45,9 @@ import { useSelector } from 'react-redux';
 import { useState } from 'react';
 import { LINK_APP, PERMISSIONS } from '../config';
 import { isEmptyObject } from 'jquery';
-import { getHumanyTime, enumerate, recog_number } from '../Utils';
+import { getHumanyTime, recog_number } from '../Utils';
 import InfoArrows from './InfoArrows';
 import { ProfileTags } from './ProfileTags';
-const SCHEMES = [
-    'Автоматическая',
-    'Light',
-    'Dark',
-]
 const NOTI = [
     'Выключены',
     'Включены'
@@ -65,7 +58,6 @@ const blueBackground = {
 };
 
 export default props => {
-    const [ShowServiceInfo, setShowServiceInfo] = useState(false);
     const [snackbar, setSnackbar] = useState(null);
     const profRef = useRef(null);
     const { setPopout, setActiveModal, setReport } = props.callbacks;
@@ -82,21 +74,21 @@ export default props => {
         donut,
         good_answers,
         bad_answers,
-        age,
         balance,
         donuts,
 
     } = OtherProfileData;
     const total_answers = good_answers + bad_answers;
     const permissions = account.permissions;
-    const moderator_permission = permissions >= PERMISSIONS.special;
+    const admin_permission = permissions >= PERMISSIONS.admin;
+    const is_private = OtherProfileData.permissions >= PERMISSIONS.special && account.permissions < PERMISSIONS.special
 
     const infoMenu = (id) => {
         setPopout(
             <ActionSheet onClose={() => setPopout(null)}
                 toggleRef={profRef.current}
                 iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
-                {moderator_permission ?
+                {admin_permission ?
                     <ActionSheetItem autoclose onClick={() => { setActiveModal('ban_user'); }}
                         before={<Icon28BlockOutline />}>
                         Заблокировать
@@ -135,14 +127,16 @@ export default props => {
 
             {!isEmptyObject(OtherProfileData) && !banned ? <>
                 <Group>
+                    <Spacing size={10} />
                     <SimpleCell
                         disabled
                         after={
                             <>
                                 <IconButton
+                                    aria-label='Опции'
                                     onClick={() => infoMenu(agent_id)}
-                                    getRootRef={profRef}
-                                    icon={<Icon24MoreVertical />}>
+                                    getRootRef={profRef}>
+                                        <Icon24MoreVertical />
                                 </IconButton>
                             </>
 
@@ -153,61 +147,59 @@ export default props => {
                         <div style={{ display: 'flex' }}>
                             {nickname ? nickname : `Агент Поддержки #${agent_id}`}
                             <ProfileTags
+                            size='m'
                             verified={verif}
                             flash={flash}
                             donut={donut}
                              />
                         </div>
                     </SimpleCell>
-                    <Div>
+                    <Spacing size={10} />
+                    {!is_private && <Div>
                         <InfoArrows
+                        special={OtherProfileData.permissions >= PERMISSIONS.special}
                         good_answers={good_answers}
                         bad_answers={bad_answers}
                         total_answers={total_answers}
                         />
-                    </Div>
+                    </Div>}
                 </Group>
 
                 {
-                    OtherProfileData.permissions >= PERMISSIONS.special ?
-                        <div style={{ marginTop: 20, marginBottom: 20 }} className="help_title_profile">
-                            Вы не можете просматривать этот профиль
-                        </div> :
+                    is_private ?
+                    <Group>
+                        <Placeholder
+                        header='Служебный профиль'
+                        icon={<Icon56LockOutline />}
+                        action={<Button size='m' href='https://vk.com/club201542328' target='_blank' rel='noopener noreferrer'>
+                            Задать вопрос в Поддержку
+                        </Button>}>
+                            Профиль используется Специальным агентом
+                        </Placeholder>
+                    </Group>
+                         :
                         <>
                             <Group header={<Header>Общая информация</Header>}>
-                                <MiniInfoCell
-                                    before={<Icon20ArticleOutline />}
-                                    textWrap='full'>
-                                    {OtherProfileData.publicStatus || "Играю в любимую игру"}
-                                </MiniInfoCell>
                                 <SimpleCell
-                                    disabled
-                                    before={<Icon28MentionOutline />}
-                                    after={getHumanyTime(OtherProfileData.registered).date}>
-                                        Дата регистрации
+                                multiline
+                                disabled
+                                before={<Icon28ArticleOutline />}>
+                                    {OtherProfileData.publicStatus || "Играю в любимую игру"}
                                 </SimpleCell>
-                                {moderator_permission && 
-                                <MiniInfoCell
-                                    before={<Icon20Add style={{ transform: ShowServiceInfo ? "rotate(45deg)" : '', transition: 'all 0.3s' }} />}
-                                    mode="more"
-                                    onClick={() => { setShowServiceInfo(prevState => !prevState) }}
-                                    >
-                                        Подробная информация
-                                </MiniInfoCell>}
+                                <SimpleCell
+                                disabled
+                                before={<Icon28MentionOutline />}
+                                after={getHumanyTime(OtherProfileData.registered).date}>
+                                    Дата регистрации
+                                </SimpleCell>
                             </Group>
-                            {ShowServiceInfo &&
+                            {account.permissions >= PERMISSIONS.special &&
                                 <Group>
                                     <SimpleCell
                                     disabled
                                     before={<Icon28HashtagOutline />}
                                     after={agent_id}>
-                                        Id Агента
-                                    </SimpleCell>
-                                    <SimpleCell
-                                    disabled
-                                    before={<Icon28FaceIdOutline />}
-                                    after={age + " " + enumerate(age, ['год', 'года', 'лет'])}>
-                                        Возраст
+                                        Цифровой ID
                                     </SimpleCell>
                                     <SimpleCell
                                     disabled
@@ -220,12 +212,6 @@ export default props => {
                                     before={<Icon28DonateOutline />}
                                     after={recog_number(donuts)}>
                                         Пончики
-                                    </SimpleCell>
-                                    <SimpleCell
-                                    disabled
-                                    before={<Icon28PaletteOutline />}
-                                    after={SCHEMES[OtherProfileData.scheme]}>
-                                        Используемая тема
                                     </SimpleCell>
                                     <SimpleCell
                                     disabled
@@ -254,15 +240,6 @@ export default props => {
                             }
                         </>
                 }
-
-                {!moderator_permission &&
-                    <Group>
-                        <Div>
-                            <FormStatus header="Внимание! Важная информация" mode="default">
-                                Сервис не имеет отношения к Администрации ВКонтакте, а также их разработкам.
-                            </FormStatus>
-                        </Div>
-                    </Group>}
             </> :
                 OtherProfileData && banned ?
                     <Placeholder

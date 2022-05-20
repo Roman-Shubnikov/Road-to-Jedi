@@ -41,6 +41,7 @@ export default props => {
           agent_id={id}
           perms={permissions} />
           <ProfileTags
+          size='m'
           verified={verified}
           flash={flash}
           donut={donut} />

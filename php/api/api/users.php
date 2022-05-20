@@ -13,7 +13,6 @@ class Users {
 		$this->vk_id = $vk_user_id;
 		$this->_get();
 
-
 		if ( empty( $this->info ) ) {
 			$this->is_first_start = true;
 			$this->_register();
@@ -239,7 +238,7 @@ class Users {
 				'registered' => (int) $data['registered'],
 				'flash' => (bool) $data['flash'],
 				'verified' => (bool) $data['verified'],
-				'donut' => !$is_hide_donut ? (bool) $donut : false,
+				'donut' => $is_hide_donut ? false : (bool) $donut,
 				'change_color_donut' => (bool)$changeColorNick,
 				'diamond' => (bool) $data['diamond'],
 				'generator' => (bool) $data['generator'],

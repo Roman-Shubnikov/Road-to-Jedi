@@ -7,6 +7,7 @@ import {
     Input,
     ScreenSpinner,
     Avatar,
+    FormLayoutGroup,
 } from "@vkontakte/vkui";
 import { 
   Icon56MoneyTransferOutline,
@@ -66,51 +67,56 @@ export const ModalTransfers = ({id, onClick, setActiveModal, reloadProfile, setP
         id={id}
         onClose={onClick}
         icon={<Icon56MoneyTransferOutline />}
-        header="Отправляйте ECoin друзьям"
+        header="Сделать перевод"
       >
-        <FormLayout>
-          <FormItem
-            status={validateInputs(to_agent)[0]}
-            bottom={validateInputs(to_agent)[1]}>
-            <Input maxLength="15"
-              onChange={(e) => setAgent(e.currentTarget.value)}
-              placeholder="Введите id или ник агента"
-              value={to_agent}
-            />
-          </FormItem>
-          <FormItem>
-            <Input maxLength="5"
-              type='number'
-              onChange={(e) => setCount(e.currentTarget.value)}
-              placeholder="Введите кол-во ECoin"
-              value={count} />
-          </FormItem>
-          <FormItem
-            status={validateInputs(comment)[0]}
-            bottom={validateInputs(comment)[1]}>
-            <Input
-              maxLength="100"
-              name="money_transfer_comment"
-              onChange={(e) => {setComment(e.currentTarget.value);console.log(e.currentTarget.value)}}
-              placeholder="Введите комментарий к переводу"
-              value={comment}
-            />
-          </FormItem>
-          <FormItem>
-            <Button
-              disabled={
-                !to_agent || !count
-              }
-              size='l'
-              stretched
-              mode='secondary'
-              type='submit'
-              onClick={() => {
-                setActiveModal(null)
-                sendMoney();
-              }}>Отправить</Button>
-          </FormItem>
-        </FormLayout>
+          <FormLayout>
+            <FormLayoutGroup
+            mode='horizontal'>
+              <FormItem
+                status={validateInputs(to_agent)[0]}
+                bottom={validateInputs(to_agent)[1]}>
+                <Input maxLength="15"
+                  onChange={(e) => setAgent(e.currentTarget.value)}
+                  placeholder="Получатель"
+                  value={to_agent}
+                />
+              </FormItem>
+              <FormItem>
+                <Input maxLength="5"
+                  type='number'
+                  onChange={(e) => setCount(e.currentTarget.value)}
+                  placeholder="Сумма"
+                  value={count} />
+              </FormItem>
+            </FormLayoutGroup>
+            
+            <FormItem
+              status={validateInputs(comment)[0]}
+              bottom={validateInputs(comment)[1]}>
+              <Input
+                maxLength="100"
+                name="money_transfer_comment"
+                onChange={(e) => {setComment(e.currentTarget.value);console.log(e.currentTarget.value)}}
+                placeholder="Комментарий"
+                value={comment}
+              />
+            </FormItem>
+            <FormItem>
+              <Button
+                disabled={
+                  !to_agent || !count
+                }
+                size='l'
+                stretched
+                mode='secondary'
+                type='submit'
+                onClick={() => {
+                  setActiveModal(null)
+                  sendMoney();
+                }}>Отправить</Button>
+            </FormItem>
+          </FormLayout>
+        
       </ModalCard>
     )
 }

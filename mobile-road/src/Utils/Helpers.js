@@ -84,9 +84,13 @@ export const NicknameMenager = ({perms, nickname, agent_id, need_num=true}) => {
     if(nickname) {
         return nickname;
     }
+    if(perms >= PERMISSIONS.admin) {
+        return 'Администратор';
+    }
     if(perms >= PERMISSIONS.special) {
         return 'Специальный агент';
     }
+    
     if(need_num) {
         return 'Агент Поддержки #' + agent_id;
     }

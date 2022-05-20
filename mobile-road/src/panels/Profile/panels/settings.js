@@ -7,7 +7,6 @@ import {
     PanelHeader,
     Group,
     Alert,
-    Counter,
     SimpleCell,
     PanelHeaderBack,
     Switch,
@@ -16,24 +15,20 @@ import {
 
     
 import {
-  Icon28DoneOutline,
-  Icon28CoinsOutline,
-  Icon28PaletteOutline,
+  Icon28CheckCircleOutline,
   Icon28InfoOutline,
   Icon28Notifications,
 
 } from '@vkontakte/icons'
 
 import { useSelector } from 'react-redux';
-import { API_URL, PERMISSIONS } from '../../../config';
+import { API_URL } from '../../../config';
 
 
 export default props => {
   const { account } = useSelector((state) => state.account)
   const [notify, setNotify] = useState(account ? account.settings.notify : false)
   const { setPopout, showErrorAlert, goPanel } = props.callbacks;
-  const permissions = account.permissions;
-  const agent_permission = permissions >= PERMISSIONS.agent;
   const { goDisconnect } = props.navigation;
   const { activeStory } = useSelector((state) => state.views)
   const notifyMenager = (value) => {
@@ -120,26 +115,16 @@ export default props => {
           <PanelHeaderBack onClick={() => window.history.back()} />
         }>
         Настройки
-                </PanelHeader>
-      {/* <Group>
-        <SimpleCell
-          disabled
-          indicator={account.age}
-          before={<Icon28TargetOutline />}>Ваш возраст</SimpleCell>
-      </Group> */}
+      </PanelHeader>
 
       <Group>
-        <SimpleCell
-          before={<Icon28PaletteOutline />}
-          expandable
-          onClick={() => goPanel(activeStory, 'schemechange', true)}>Смена темы</SimpleCell>
 
-        {agent_permission && <SimpleCell
+        {<SimpleCell
           indicator={account.verified ? 'Присвоена' : null}
           disabled={account.verified}
           expandable={!account.verified}
           onClick={!account.verified ? () => goPanel(activeStory, 'verf', true) : undefined}
-          before={<Icon28DoneOutline />}>Верификация</SimpleCell>}
+          before={<Icon28CheckCircleOutline />}>Верификация</SimpleCell>}
 
         <SimpleCell
           before={<Icon28Notifications />}
@@ -152,13 +137,6 @@ export default props => {
 
       </Group>
       <Group>
-        {agent_permission && <SimpleCell
-          disabled
-          indicator={<Counter>{account.balance}</Counter>}
-          before={<Icon28CoinsOutline />}>Баланс</SimpleCell>}
-      </Group>
-      <Group>
-
         <SimpleCell
           expandable
           onClick={() => {

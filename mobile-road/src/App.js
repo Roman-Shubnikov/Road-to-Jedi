@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from "react-redux";
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { SkeletonTheme } from "react-loading-skeleton";
 // import music from './music/Soloriver.mp3';
-import { API_URL, PERMISSIONS, viewsStructure, SPECIAL_NORM } from "./config";
+import { API_URL, PERMISSIONS, viewsStructure, SPECIAL_NORM, IS_MOBILE } from "./config";
 import { 
   ScreenSpinner,
   Tabbar,
@@ -72,7 +72,7 @@ import {
   Icon28ListBulletSquareOutline,
   Icon28Profile,
   Icon28StatisticsOutline,
-  Icon28SortOutline,
+  Icon56MessageReadOutline,
 
 } from '@vkontakte/icons';
 import { modalslist } from './modals';
@@ -83,17 +83,9 @@ import { useNavigation } from './hooks';
 import { ProfileTags } from './components/ProfileTags';
 
 
-const queryString = require('query-string');
-const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 // const parsedHash = queryString.parse(window.location.search.replace('?', ''));
 
 
-function isEmpty(obj) {
-  for (let key in obj) {
-    return false;
-  }
-  return true;
-}
 var DESKTOP_SIZE = 1000;
 var TABLET_SIZE = 900;
 var SMALL_TABLET_SIZE = 768;
@@ -157,6 +149,8 @@ const App = () => {
     setPopout,
     showAlert,
     showErrorAlert,
+    setHash,
+    hash
    } = useNavigation();
   const { account, schemeSettings, other_profile: OtherProfileData, } = useSelector((state) => state.account)
   const { scheme, default_scheme } = schemeSettings;
@@ -174,13 +168,7 @@ const App = () => {
   const moderator_permission = permissions >= PERMISSIONS.special;
   const agent_permission = permissions >= PERMISSIONS.agent;
   const comment_special = useSelector((state) => state.tickets.comment)
-  const hash = queryString.parse(window.location.hash);
-  const setHash = (hash) => {
-    if(window.location.hash !== ''){
-      bridge.send("VKWebAppSetLocation", {"location": hash});
-      window.location.hash = hash
-    }
-  }
+
 
   const goBack = useCallback(() => {
     let history = [...historyPanels]
@@ -217,7 +205,6 @@ const App = () => {
     dispatch(reportsActions.setResourceReport(id))
     goPanel(activeStory, "report", true);
   }
-  
 
   const goTiket = useCallback((id, need_ads=true) => {
     setPopout(<ScreenSpinner/>)
@@ -275,7 +262,6 @@ const App = () => {
       goPanel(view, panel, true, true)
     }
     
-    
   }, [historyPanels, fetchAccount, setBanObject, activeStory, goPanel])
 
   const bridgecallback = useCallback(({ detail: { type, data } }) => {
@@ -294,37 +280,17 @@ const App = () => {
     const brigeSchemeChange = (params) => {
       bridge.send("VKWebAppSetViewSettings", params);
     }
-    if (!isEmpty(account)) {
-      switch (Number(account.scheme)) {
-        case 0:
-          setScheme({ scheme: default_scheme })
-          if (platformname) {
-            switch (default_scheme) {
-              case 'bright_light':
-                brigeSchemeChange(scheme_params.bright_light)
-                break;
-              case 'space_gray':
-                brigeSchemeChange(scheme_params.space_gray)
-                break;
-              default:
-                brigeSchemeChange(scheme_params.bright_light)
-            }
-          }
+    setScheme({ scheme: default_scheme })
+    if (IS_MOBILE) {
+      switch (default_scheme) {
+        case 'bright_light':
+          brigeSchemeChange(scheme_params.bright_light)
           break;
-        case 1:
-          setScheme({ scheme: 'bright_light' })
-          if (platformname) {
-            brigeSchemeChange(scheme_params.bright_light)
-          }
-          break;
-        case 2:
-          setScheme({ scheme: 'space_gray' })
-          if (platformname) {
-            brigeSchemeChange(scheme_params.space_gray)
-          }
+        case 'space_gray':
+          brigeSchemeChange(scheme_params.space_gray)
           break;
         default:
-          
+          brigeSchemeChange(scheme_params.bright_light)
       }
     }
   }, [account, default_scheme, setScheme])
@@ -358,7 +324,7 @@ const App = () => {
           }
           
         }else if ("help" in hash && activePanel !== 'faqMain') {
-          goPanel(viewsStructure.Advice.navName, 'faqMain', true);
+          goPanel(viewsStructure.Profile.navName, 'faqMain', true);
         }else if (activeStory === 'loading'){
           setActiveScene(viewsStructure.Questions.navName, viewsStructure.Questions.panels.homepanel)
         }
@@ -378,7 +344,7 @@ const App = () => {
   const hasHeader = useRef()
   
   useEffect(() => {
-    if (platformname) {
+    if (IS_MOBILE) {
       platform.current = platformwithPlat;
     } else {
       platform.current = Platform.VKCOM;
@@ -482,9 +448,9 @@ const App = () => {
       <ModalCard
         id='answers'
         onClose={modalClose}
-        icon={<Icon28SortOutline width={56} height={56} />}
+        icon={<Icon56MessageReadOutline width={56} height={56} />}
         header={'Вы оценили ' + account['marked'] + " " + enumerate(account['marked'], ['ответ', 'ответа', 'ответов'])}
-        subheader={(SPECIAL_NORM - account['marked'] < 0) ? "Порог достигнут" : "Для преодоления порога необходимо оценить ещё " +
+        subheader={(SPECIAL_NORM - account['marked'] < 0) ? "Порог достигнут, но это не повод расслабляться." : "Для преодоления порога необходимо оценить ещё " +
           (SPECIAL_NORM - account['marked']) +
           " " + enumerate(account['marked'], ['ответ', 'ответа', 'ответов']) + " за неделю"}
         actions={<Button mode='primary' stretched size='l' onClick={modalClose}>Понятно</Button>}>
@@ -497,10 +463,10 @@ const App = () => {
       {modalslist}
     </ModalRoot>
   )
-
   return(
     <>
-        <ConfigProvider scheme={scheme}
+        <ConfigProvider 
+        scheme={scheme}
               platform={platform.current}
               > 
 

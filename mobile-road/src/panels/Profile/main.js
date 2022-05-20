@@ -10,7 +10,6 @@ import Prof           from './panels/profile';
 import Market         from './panels/market';
 import MYQuest        from './panels/AllQuestions';
 import Settings       from './panels/settings';
-import SchemeChange   from './panels/schemechange';
 import Info           from './panels/info'
 import Verfy          from './panels/verfy'
 import Promocodes     from './panels/promocode';
@@ -86,11 +85,6 @@ export const Profile = props => {
         callbacks={callbacks}
         navigation={props.navigation}
         reloadProfile={props.reloadProfile} />
-
-      <SchemeChange id="schemechange"
-      navigation={props.navigation}
-      reloadProfile={props.reloadProfile}
-      callbacks={callbacks} />
 
       <Info id='info' />
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 
   Panel,
   PanelHeader,
@@ -15,7 +15,7 @@ import Generator from './components/generator'
 import Answers from './components/answers';
 import Verification from './components/verification';
 import Reports from './components/Reports';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { PERMISSIONS, viewsStructure } from '../../../config';
 import { 
   Icon24Square4Outline,
@@ -26,14 +26,15 @@ import {
   Icon24ArticleOutline,
   Icon24UsersOutline
  } from '@vkontakte/icons';
+import { moderationActions } from '../../../store/main';
 
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 export default props => {
-  const [activeTab, setActivetab] = useState('control');
+  const dispatch = useDispatch();
+  const { activeTab } = useSelector((state) => state.moderation)
+  const setActivetab = useCallback((tab) => dispatch(moderationActions.setActiveTab(tab)), [dispatch]);
   const [snackbar, setSnackbar] = useState(null);
-  const {
-    account,
-  } = useSelector((state) => state.account)
+  const { account } = useSelector((state) => state.account)
   const permissions = account.permissions;
   const admin_permission = permissions >= PERMISSIONS.admin;
   const callbacks = { ...props.callbacks, setSnackbar}

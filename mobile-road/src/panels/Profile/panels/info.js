@@ -7,7 +7,7 @@ import {
     PanelHeaderBack,
     Footer
     } from '@vkontakte/vkui';
-
+import { Icon16Like } from '@vkontakte/icons';
 import IconJedi from '../../../images/jedi.svg'
 
 export default props => {
@@ -22,9 +22,10 @@ export default props => {
             <Group>
                 <Placeholder icon={<img src={IconJedi} alt='jedi' />} >Версия 3.0</Placeholder>
             </Group>
-
             <Group>
-                <Footer>Всегда ваша, Команда Jedi</Footer>
+                <Footer style={{display: 'flex', justifyContent: 'center'}}>
+                    <Icon16Like style={{marginRight: 5}} />С любовью
+                </Footer>
             </Group>
 
         </Panel>

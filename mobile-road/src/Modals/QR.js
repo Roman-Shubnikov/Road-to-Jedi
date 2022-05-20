@@ -18,10 +18,10 @@ import { LINK_APP } from '../config';
 import { useSelector } from 'react-redux';
 function qr(agent_id, sheme) {
     let hex = "foregroundColor"
-    if (sheme === "bright_light") {
+    if (sheme === "bright_light" || sheme === "vkcom_light") {
       hex = "#000"
     }
-    if (sheme === "space_gray") {
+    if (sheme === "space_gray"|| sheme === "vkcom_dark") {
       hex = "#fff"
     }
     return (
@@ -45,7 +45,7 @@ export const ShowQR = ({id, onClick}) => {
         header={
             <ModalHeader
             onClick={onClick}
-            >QR</ModalHeader>
+            >QR-код профиля</ModalHeader>
         }
       >
         {<div className="qr" dangerouslySetInnerHTML={{ __html: qr(account.id, scheme) }} />}

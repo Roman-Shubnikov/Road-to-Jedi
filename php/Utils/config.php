@@ -19,8 +19,15 @@ class CONFIG {
 	const USER_IMAGES_PATH = 'https://xelene.ru/roadjedi/';
 	const SUBSCRIBTIONS_AVATAR_PATH = 'https://xelene.ru/road/php/images/subscriptions';
 	const AVATARS_COUNT = 21;
+	const AVATARS_SEGMENTS = [
+		'default' => [0, 999],
+		'donut' => [1000, 1999],
+		'special' => [2000, 2999],	
+		'zen' => [3000, 3999],
+	];
+	const MIN_GOOD_ANSWERS_FOR_NOW_ZEN = 500;
 	const DONUT_AVATARS_COUNT = 12;
-	const DONUT_CHAT_LINK = 'https://vk.me/join/twwhnnyRTYfVZx2QEjjCNW8OLm2nyNEypqQ=';
+	const DONUT_CHAT_LINK = 'https://vk.me/join/AJQ1d5Q6DBpt1ZcGVjAcVeOY';
 	const LINK_APP = 'https://vk.com/jedi_road_app';
 	
 	const MAX_TICKETS_TITLE_LEN = 80;
@@ -59,15 +66,22 @@ class CONFIG {
 	const AVATAR_COMMENT_CLEANER = "10000.png";
 
 	// PublicStatuses
-	const MAX_PUBLIC_STATUS_LENGTH = 140;
+	const MAX_PUBLIC_STATUS_LENGTH = 70;
 
 	// Market
+	const AVATAR_PRICES = [
+		'default' => 800,
+		'special' => 0,
+		'zen' => 800,
+		'donut' => 300,
+	];
 	const AVATAR_PRICE = 700;
 	const NICKNAME_CHANGE_PRICE = 1500;
 	const DIAMOND_PRICE = 10000;
 	const DONUT_AVATAR_PRICE = 50;
 	const RECOMMENDATIONS_PRICE = 150;
 	const GHOST_PRICE = 5;
+	const RESET_STAT = 1800;
 
 	//Tests
 	const TIME_LIMITER = 259200; // 3 дня
@@ -142,12 +156,13 @@ class CONFIG {
 		1012 => 'Желаемый ник содержит недопустимые символы.',
 		1013 => 'Ник не может состоять только из цифр.',
 		1014 => 'Вы уже приобрели данный товар.',
-		1015 => 'Промокод недействителен',
-		1016 => 'Некорректный промокод',
-		1017 => 'Вы не являетесь доном нашего сообщества',
-		1018 => 'Вы уже имеете данный аватар',
+		1015 => 'Промокод недействителен.',
+		1016 => 'Некорректный промокод.',
+		1017 => 'Вы не являетесь доном нашего сообщества.',
+		1018 => 'Вы уже имеете данный аватар.',
 		1019 => "Товара не существует.",
 		1020 => "Товара нет в наличии.",
+		1021 => "У вас недостаточно ответов. Наберите 500 ответов, чтобы познать дзен.",
 
 		// Verification
 
@@ -160,20 +175,20 @@ class CONFIG {
 
 		// Reports
 
-		1200 => 'Дождитесь рассмотрения предыдущей жалобы',
-		1201 => 'Такой причины не существует',
-		1202 => 'Если вы указали причину "Другое", то нужно обязательно приложить комментарий',
+		1200 => 'Дождитесь рассмотрения предыдущей жалобы.',
+		1201 => 'Такой причины не существует.',
+		1202 => 'Если вы указали причину "Другое", то нужно обязательно приложить комментарий.',
 		1203 => 'Пожаловаться на нейросеть нельзя. Обратитесь в сообщество Команды Специальных агентов за дополнительной информацией.',
 
 		// Followers
 
-		1300 => 'Вы уже подписаны на этого агента',
-		1301 => 'Вы не были подписаны на этого агента',
-		1302 => 'Вы не можете подписаться сами на себя',
+		1300 => 'Вы уже подписаны на этого агента.',
+		1301 => 'Вы не были подписаны на этого агента.',
+		1302 => 'Вы не можете подписаться сами на себя.',
 
 		// PublicStatuses
 
-		1400 => "Статус не может быть длиннее 140 символов",
+		1400 => "Статус не может быть длиннее 70 символов.",
 
 		// Recommendations
 		1450 => "Вы уже и так в рекомендациях",
