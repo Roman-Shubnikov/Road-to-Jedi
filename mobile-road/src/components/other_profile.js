@@ -38,6 +38,7 @@ import {
     Icon28StatisticsOutline,
     Icon28LogoVkOutline,
     Icon56LockOutline,
+    Icon28FireOutline,
 
 } from '@vkontakte/icons';
 
@@ -221,12 +222,6 @@ export default props => {
                                     </SimpleCell>
                                     <SimpleCell
                                     disabled
-                                    before={<Icon28StatisticsOutline />}
-                                    after={OtherProfileData.coff_active}>
-                                        Рейтинг Престижности
-                                    </SimpleCell>
-                                    <SimpleCell
-                                    disabled
                                     href={'https://vk.com/id' + vk_id}
                                     target="_blank"
                                     rel="noopener noreferrer"
@@ -235,7 +230,30 @@ export default props => {
                                             Страница ВКонтакте
                                         </Link>
                                     </SimpleCell>
-                                   
+                                    {account.permissions >= PERMISSIONS.admin && <>
+                                    {OtherProfileData.permissions < PERMISSIONS.special ? 
+                                    <SimpleCell
+                                    disabled
+                                    before={<Icon28StatisticsOutline />}
+                                    after={OtherProfileData.coff_active}>
+                                        Рейтинг Престижности
+                                    </SimpleCell>:
+                                    <>
+                                    <SimpleCell
+                                    disabled
+                                    before={<Icon28FireOutline />}
+                                    after={OtherProfileData?.age}>
+                                        Алгоритм Прометея
+                                    </SimpleCell>
+                                    <SimpleCell
+                                    disabled
+                                    before={<Icon28FireOutline />}
+                                    after={OtherProfileData?.mark_day}>
+                                        Оценил за сегодня
+                                    </SimpleCell>
+                                    </>
+                                    }
+                                    </>}
                                 </Group>
                             }
                         </>

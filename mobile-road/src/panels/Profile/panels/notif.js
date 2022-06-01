@@ -23,6 +23,7 @@ import Info_img from '../images/notify_info.svg';
 import Paycard_img from '../images/notify_paycard.svg';
 import Donut_img from '../images/notify_donut.svg';
 import Comment_img from '../images/notify_comment.svg';
+import Flash_img from '../images/flash.jpg';
 import { inArray } from 'jquery';
 import { getHumanyTime } from '../../../Utils';
 import { useDispatch } from 'react-redux';
@@ -43,6 +44,8 @@ function getAvatarNotify(objectNotif){
         avatar = Info_img;
     }else if(inArray(typeNotif, ['comment_add']) !== -1){
         avatar = Comment_img;
+    }else if(inArray(typeNotif, ['flash_add']) !== -1){
+        avatar = Flash_img;
     }else if(inArray(typeNotif, ['donut_add', 'donut_del']) !== -1){
         avatar = Donut_img;
     }else if(inArray(typeNotif, ['verification_approve']) !== -1){

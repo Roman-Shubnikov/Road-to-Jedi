@@ -71,7 +71,7 @@ class Users {
 
 	public function getById( int $id ) {
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.permissions, users.generator, users.publicStatus, users.coff_active,
-				users.bad_answers, users.avatar_id, avatars.name as avatar_name, users.flash, users.verified, users.donut, users.diamond, users.nickname,
+				users.bad_answers, users.avatar_id, avatars.name as avatar_name, users.flash, users.verified, users.donut, users.diamond, users.nickname, users.mark_day,
 				users.money, users.age, users.scheme, users.vk_user_id, users.donuts,
 				users.lvl, users.exp
 				FROM users
@@ -150,8 +150,8 @@ class Users {
 		}
 		$staff = $staff ? CONFIG::PERMISSIONS['special'] : 0;
 
-		$sql = "SELECT users.id, users.last_activity, users.vk_user_id, users.registered, users.good_answers, users.permissions, users.generator,
-						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme, users.publicStatus,users.coff_active,
+		$sql = "SELECT users.id, users.last_activity, users.vk_user_id, users.registered, users.good_answers, users.permissions, users.generator, users.mark_day,
+						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.age, users.scheme, users.publicStatus, users.coff_active,
 						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname, users.donuts,
 						users.lvl, users.exp
 				FROM users
@@ -181,7 +181,7 @@ class Users {
 		$time = time();
 		$user_id = $this->vk_id;
 		$this->Connect->query("UPDATE users SET last_activity=? WHERE vk_user_id=?", [$time,$user_id]);
-		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,users.age,users.vk_user_id,users.permissions,
+		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,users.age,users.vk_user_id,users.permissions, users.mark_day,
 						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.scheme, users.publicStatus,users.coff_active,
 						users.generator, users.flash, users.verified, users.donut, users.nickname, users.diamond, avatars.name as avatar_name, users.donuts,
 						users.lvl, users.exp
@@ -240,8 +240,6 @@ class Users {
 				'verified' => (bool) $data['verified'],
 				'donut' => $is_hide_donut ? false : (bool) $donut,
 				'change_color_donut' => (bool)$changeColorNick,
-				'diamond' => (bool) $data['diamond'],
-				'generator' => (bool) $data['generator'],
 				'public' => $is_public,
 				'publicStatus' => $data['publicStatus'],
 				'levels' => [
@@ -270,17 +268,20 @@ class Users {
 			$res['noti'] = isset($data['noti']) ? (bool)$data['noti'] : false;
 			$res['balance'] = (int)$data['money'];
 			$res['donuts'] = (int)$data['donuts'];
-			$res['age'] = (int)$data['age'];
 			$res['scheme'] = (int)$data['scheme'];
 			$res['donut'] = (bool) $donut;
-			$res['coff_active'] = $data['coff_active'] / 10;
+			
 			
 		}
 		if ( isset( $data['notifications_count'] ) ) {
 			$res['notif_count'] = (int) $data['notifications_count'];
 		}
 		if((!array_key_exists('vk_id', $res) && $is_public) || $this->vk_id) $res['vk_id'] = (int)$data['vk_user_id'];
-
+		if ($this->info['permissions'] >= CONFIG::PERMISSIONS['admin']) { 
+			$res['coff_active'] = $data['coff_active'] / 10;
+			$res['age'] = (int)$data['age'];
+			$res['mark_day'] = (int)$data['mark_day'];
+		}
 		return $res;
 	}
 }

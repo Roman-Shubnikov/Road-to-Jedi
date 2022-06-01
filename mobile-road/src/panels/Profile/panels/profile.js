@@ -194,6 +194,7 @@ export default props => {
                     {platform===VKCOM && <Group>
                         <Div>
                             <InfoArrows 
+                            special={moderator_permission}
                             good_answers={account['good_answers']}
                             bad_answers={account['bad_answers']}
                             total_answers={total_answers} />

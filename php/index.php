@@ -1621,7 +1621,7 @@ switch ($method) {
 			$real_author = $res['author_id'];
 			$vk = new VkApi();
 			$author = $vk->get_rand_user()[0];
-			$Connect->query("UPDATE users SET bad_answers=bad_answers+1 WHERE vk_user_id=?", [$users->vk_id]);
+			$Connect->query("UPDATE users SET bad_answers=bad_answers+1 WHERE vk_user_id=?", [$real_author]);
 			if ($settings->getOneSetting('generator_noty')) {
 				try{
 					$vk = new VkApi(CONFIG::VK_GROUP_TOKEN);

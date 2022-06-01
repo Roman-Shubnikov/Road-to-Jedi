@@ -150,8 +150,18 @@ class Tickets
 			Show::error(37);
 		}
 		// Сохраняем оценку в бд
-		$this->Connect->query("UPDATE users SET good_answers=good_answers+1, total_answers=total_answers+1 WHERE id=?", [(int) $this->user->id]);
-		$result = $this->Connect->query("UPDATE messages SET mark=?,approve_author_id=? WHERE id=?", [(int) $mark, (int) $this->user->vk_id, $message_id]);
+		$special_info = $this->Connect->db_get('SELECT age,mark_day,flash FROM users WHERE id=?', [$this->user->id])[0];
+		if ($special_info['age'] <= $special_info['mark_day'] && $special_info['flash'] == 0) {
+			$this->Connect->query("UPDATE users SET good_answers=good_answers+1, mark_day=mark_day+1, total_answers=total_answers+1, flash=? WHERE id=?", 
+			[time(), $this->user->id]);
+			$this->SYSNOTIF->send($this->user->id, 'Прометей отметил Вас', [
+				'type' => 'flash_add',
+				'object' => 0,
+			]);
+		} else {
+			$this->Connect->query("UPDATE users SET good_answers=good_answers+1, mark_day=mark_day+1, total_answers=total_answers+1 WHERE id=?", [$this->user->id]);
+		}
+		$result = $this->Connect->query("UPDATE messages SET mark=?,approve_author_id=? WHERE id=?", [$mark, $this->user->vk_id, $message_id]);
 
 		// Увеличиваем счетчик оцененных ответов
 		$auid = $res['author_id'];

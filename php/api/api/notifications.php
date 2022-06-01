@@ -31,6 +31,7 @@ class SystemNotifications {
 		// verification_send - подал заявку на верификацию
 		// verification_approve - заявка на верификацию одобрена
 		// verification_demiss - заявка на верификацию отклонена
+		// flash_add - добавили прометей
 		// report_approve - Мы рассмотрели жалобу....
 		
 		
