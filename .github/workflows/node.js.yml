@@ -1,0 +1,30 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CI
+
+on:
+  push:
+    branches: 
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3.2.0
+      with:
+        node-version: 14
+        cache: 'npm'
+        cache-dependency-path: mobile-road/package-lock.json
+    - run: set -eu
+    - run: mkdir "$HOME/.ssh"
+    - run: echo "${{ secrets.SSH_KEY }}" > "$HOME/.ssh/SSH_KEY"
+    - run: chmod 600 "$HOME/.ssh/SSH_KEY"
+    - run: cd mobile-road && npm ci
+    - run: cd mobile-road && npm run build
+    - run: cp -a php/ mobile-road/build/
+    - run: cd mobile-road && composer i
+    - run: cd mobile-road && cd build && rsync -e "ssh -i $HOME/.ssh/SSH_KEY -o StrictHostKeyChecking=no" --archive --compress --delete . root@89.223.126.48:/var/www/xelene.ru/road
