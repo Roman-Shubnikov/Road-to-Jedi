@@ -14,6 +14,7 @@ jobs:
     steps:
     
     - uses: actions/checkout@v3
+    - uses: baschny/php-composer-action@v1
     - uses: actions/setup-node@v3.2.0
       with:
         node-version: 14
@@ -23,9 +24,9 @@ jobs:
     - run: mkdir "$HOME/.ssh"
     - run: echo "${{ secrets.SSH_KEY }}" > "$HOME/.ssh/SSH_KEY"
     - run: chmod 600 "$HOME/.ssh/SSH_KEY"
-    - name: Upgrade NPM
-      run: npm install -g npm
-    - run: cd mobile-road && npm ci --force
+#     - name: Upgrade NPM
+#       run: npm install -g npm
+    - run: cd mobile-road && npm ci
     - run: cd mobile-road && npm run build
     - run: cp -a php/ mobile-road/build/
     - run: cd mobile-road && composer i
