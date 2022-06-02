@@ -25,7 +25,7 @@ jobs:
     - run: chmod 600 "$HOME/.ssh/SSH_KEY"
     - name: Upgrade NPM
       run: npm install -g npm
-    - run: cd mobile-road && npm ci
+    - run: cd mobile-road && npm ci --force
     - run: cd mobile-road && npm run build
     - run: cp -a php/ mobile-road/build/
     - run: cd mobile-road && composer i
