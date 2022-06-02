@@ -14,7 +14,6 @@ jobs:
     steps:
     
     - uses: actions/checkout@v3
-    - uses: php-actions/composer@v6
     - uses: actions/setup-node@v3.2.0
       with:
         node-version: 14
@@ -26,8 +25,11 @@ jobs:
     - run: chmod 600 "$HOME/.ssh/SSH_KEY"
 #     - name: Upgrade NPM
 #       run: npm install -g npm
-    - run: cd mobile-road && npm ci
-    - run: cd mobile-road && npm run build
+    - working-directory: ./mobile-road
+    - run: npm ci
+    - run: npm run build
+    - working-directory: /
     - run: cp -a php/ mobile-road/build/
-    - run: cd mobile-road && composer i
-    - run: cd mobile-road && cd build && rsync -e "ssh -i $HOME/.ssh/SSH_KEY -o StrictHostKeyChecking=no" --archive --compress --delete . root@89.223.126.48:/var/www/xelene.ru/road
+    - working-directory: ./mobile-road/build
+    - run: cd php && composer i
+    - run: rsync -e "ssh -i $HOME/.ssh/SSH_KEY -o StrictHostKeyChecking=no" --archive --compress --delete . root@89.223.126.48:/var/www/xelene.ru/road
