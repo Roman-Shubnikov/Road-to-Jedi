@@ -23,11 +23,15 @@ jobs:
     - run: mkdir "$HOME/.ssh"
     - run: echo "${{ secrets.SSH_KEY }}" > "$HOME/.ssh/SSH_KEY"
     - run: chmod 600 "$HOME/.ssh/SSH_KEY"
-    - working-directory: ./mobile-road
-    - run: npm ci
-    - run: npm run build
-    - working-directory: /
+    - name: Building
+      working-directory: ./mobile-road
+      run: |
+        npm ci
+        npm run build
     - run: cp -a php/ mobile-road/build/
-    - working-directory: ./mobile-road/build
-    - run: cd php && composer i
-    - run: rsync -e "ssh -i $HOME/.ssh/SSH_KEY -o StrictHostKeyChecking=no" --archive --compress --delete . root@89.223.126.48:/var/www/xelene.ru/road
+    - name: Deploing
+      working-directory: ./mobile-road/build
+      run: |
+        cd php
+        composer i
+        rsync -e "ssh -i $HOME/.ssh/SSH_KEY -o StrictHostKeyChecking=no" --archive --compress --delete . root@89.223.126.48:/var/www/xelene.ru/road
