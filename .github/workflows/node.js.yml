@@ -28,6 +28,8 @@ jobs:
       run: |
         npm ci
         npm run build
+        cd build
+        zip -r odr.zip *
     - run: cp -a php/ mobile-road/build/
     - name: Deploing
       working-directory: ./mobile-road/build
