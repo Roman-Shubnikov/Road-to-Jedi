@@ -34,4 +34,6 @@ jobs:
       run: |
         cd php
         composer i
+        cd ..
         rsync -e "ssh -i $HOME/.ssh/SSH_KEY -o StrictHostKeyChecking=no" --archive --compress --delete . root@89.223.126.48:/var/www/xelene.ru/road
+        
