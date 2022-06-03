@@ -613,6 +613,7 @@ const AvatarsBlock = ({avatar_list, header, header_sub, ...props}) => {
           <HorizontalCell key={i} size='m'
           hasHover={false} hasActive={false}
           style={{display: 'flex', alignItems: 'center'}}
+          // eslint-disable-next-line
           onClick={() => (account.avatar.id == avatar_list[i].split('.')[0]) ? setSnackbar(
             <Snackbar
               layout="vertical"

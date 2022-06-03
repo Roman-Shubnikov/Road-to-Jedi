@@ -71,7 +71,7 @@ export default props => {
   const [snackbar, setSnackbar] = useState(false);
   const [sendfield, setSendfield] = useState('');
   const [openAtachment, setOpenAtachment] = useState(false);
-  const [attachments, setAttachments] = useState([]);
+  // const [attachments, setAttachments] = useState([]);
   const { goDisconnect, setPopout, showErrorAlert, showAlert, goOtherProfile, goPanel } = useNavigation();
 
   const preTicketId = useSelector((state) => state.tickets.current_id)
@@ -502,32 +502,32 @@ export default props => {
      // eslint-disable-next-line 
   }, [preTicketId, dispatch])
 
-  const loadFiles = (files) => {
-    let globalFiles = {...attachments}
-    let file_id = Object.keys(globalFiles).length > 0 ? 
-    Math.max(...Object.keys(globalFiles).map(v => parseInt(v))) + 1 : 0;
+  // const loadFiles = (files) => {
+  //   let globalFiles = {...attachments}
+  //   let file_id = Object.keys(globalFiles).length > 0 ? 
+  //   Math.max(...Object.keys(globalFiles).map(v => parseInt(v))) + 1 : 0;
 
 
-    let xhr = new XMLHttpRequest();
-    let fd = new FormData();
-    xhr.open('POST', API_URL + 'method=files.uploadFile&' + window.location.search.replace('?', ''))
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState == 4 && xhr.status == 200) {
-          // Handle response.
-          console.log(xhr.response); // handle response.
-      }
-    };
+  //   let xhr = new XMLHttpRequest();
+  //   let fd = new FormData();
+  //   xhr.open('POST', API_URL + 'method=files.uploadFile&' + window.location.search.replace('?', ''))
+  //   xhr.onreadystatechange = () => {
+  //     if (xhr.readyState == 4 && xhr.status == 200) {
+  //         // Handle response.
+  //         console.log(xhr.response); // handle response.
+  //     }
+  //   };
 
-    for(let i=0; i<files.length; i++) {
-      globalFiles = Object.assign(globalFiles, {[file_id]: files[i]})
-      file_id++;
-      setAttachments(globalFiles)
-      fd.append(file_id, files[i]);
-    }
-    xhr.send(fd);
-    console.log('adadfsadsf')
+  //   for(let i=0; i<files.length; i++) {
+  //     globalFiles = Object.assign(globalFiles, {[file_id]: files[i]})
+  //     file_id++;
+  //     setAttachments(globalFiles)
+  //     fd.append(file_id, files[i]);
+  //   }
+  //   xhr.send(fd);
+  //   console.log('adadfsadsf')
 
-  }
+  // }
 
   return(
     <Panel id={props.id}>

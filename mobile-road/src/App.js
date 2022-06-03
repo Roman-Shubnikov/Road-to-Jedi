@@ -195,7 +195,7 @@ const App = () => {
     }else{
       window.history.pushState({ ...history[history.length - 1] }, history[history.length - 1].panel );
     }
-  }, [historyPanels, setHistoryPanels, setActiveScene])
+  }, [historyPanels, setHistoryPanels, setActiveScene, setPopout, setHash])
 
   const setActiveModal = (activeModal) => {
     setActiveModalCreator(setModal, setModalHistory, modalHistory, activeModal)

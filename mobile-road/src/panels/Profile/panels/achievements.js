@@ -3,24 +3,23 @@ import {
     Panel,
     PanelHeader,
     Group,
-    Placeholder,
+    // Placeholder,
     PanelHeaderBack,
-    Footer,
+    // Footer,
     Card,
     RichCell,
     Avatar,
     Progress
     } from '@vkontakte/vkui';
 
-import IconJedi from '../../../images/jedi.svg'
-import { STATUSES_ACHIEVEMENTS } from '../../../config';
+// import { STATUSES_ACHIEVEMENTS } from '../../../config';
 
 const Achievement = ({avatar, title, caption, progress, status}) => {
-    const getIconForStatus = (status) => {
-        if (status === STATUSES_ACHIEVEMENTS.recived) {
+    // const getIconForStatus = (status) => {
+    //     if (status === STATUSES_ACHIEVEMENTS.recived) {
             
-        }
-    }
+    //     }
+    // }
     return (
         <Card mode='outline'>
             <RichCell
