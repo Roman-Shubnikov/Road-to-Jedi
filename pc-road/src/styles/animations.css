@@ -1,0 +1,7 @@
+.anim {
+    opacity: 0;
+}
+.anim2 {
+    transition: all 5s;
+    transform: translate(350px, 0);
+}

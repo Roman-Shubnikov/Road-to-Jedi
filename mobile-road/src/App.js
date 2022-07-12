@@ -75,7 +75,6 @@ import {
   Icon56MessageReadOutline,
 
 } from '@vkontakte/icons';
-import { modalslist } from './modals';
 import EpicItemPC from './components/EpicItem';
 import { isEmptyObject } from 'jquery';
 import { setActiveModalCreator, goOtherProfileCreator, enumerate, NicknameMenager } from './Utils';
@@ -193,7 +192,7 @@ const App = () => {
       setTimeout(() => {backTimeout = false;}, 500)
       
     }else{
-      window.history.pushState({ ...history[history.length - 1] }, history[history.length - 1].panel );
+      window.history.replaceState({ ...history[history.length - 1] }, history[history.length - 1].panel );
     }
   }, [historyPanels, setHistoryPanels, setActiveScene, setPopout, setHash])
 
@@ -295,9 +294,13 @@ const App = () => {
     }
   }, [account, default_scheme, setScheme])
   const handlePopstate = useCallback((e) => {
-    e.preventDefault();
+    if(e.state === null) {
+			let history = [...historyPanels];
+			window.history.replaceState({ ...history[history.length - 1] }, history[history.length - 1].panel);
+			return false;
+		}
     goBack();
-  }, [goBack]);
+  }, [goBack, historyPanels]);
   useEffect(() => {
     AppInit();
     bridge.send('VKWebAppInit', {});
@@ -460,7 +463,6 @@ const App = () => {
       id='test'>
         Вью {activeStory}
       </ModalCard>
-      {modalslist}
     </ModalRoot>
   )
   return(

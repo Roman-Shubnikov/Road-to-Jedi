@@ -45,7 +45,7 @@ export const ProfileTags = ({ verified, flash, donut, size='s' }) => {
                     <TooltipContent>
                         Профиль Агента подтвержден
                     </TooltipContent>
-                }><Verified size={16} style={{color: 'var(--verification_color)'}} />
+                }><Verified size={16} />
                 </RichTooltip>}
             </div>
         </div>

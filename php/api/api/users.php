@@ -156,8 +156,10 @@ class Users {
 						users.lvl, users.exp
 				FROM users
 				LEFT JOIN avatars ON users.avatar_id=avatars.id
-				WHERE users.vk_user_id NOT IN (SELECT vk_user_id FROM banned where time_end>?) AND users.permissions=? $order LIMIT $count";
-		$res = $this->Connect->db_get( $sql, [time(), (int) $staff] );
+				WHERE users.vk_user_id NOT IN (SELECT vk_user_id FROM banned where time_end>?) 
+				AND users.permissions=?
+				AND users.last_activity > ? $order LIMIT $count";
+		$res = $this->Connect->db_get( $sql, [time(), (int) $staff, time() - CONFIG::TIMES['month']] );
 		$result = [];
 		foreach ( $res as $item ) {
 			$result[] = $this->_formatType( $item );

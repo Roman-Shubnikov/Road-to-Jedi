@@ -1,0 +1,13 @@
+.InfoCell {
+    font-size: 13px;
+    font-weight: 400;
+    display: flex;
+    padding-bottom: 5px;
+}
+.InfoCell_name {
+    color: var(--description_color);
+    width: 30%;
+}
+.InfoCell_children {
+    color: var(--link);
+}
