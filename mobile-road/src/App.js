@@ -299,8 +299,9 @@ const App = () => {
 		// 	window.history.pushState({ ...history[history.length - 1] }, history[history.length - 1].panel);
 		// 	return false;
 		// }
+    e.preventDefault();
     goBack();
-  }, [goBack, historyPanels]);
+  }, [goBack]);
   useEffect(() => {
     AppInit();
     bridge.send('VKWebAppInit', {});
