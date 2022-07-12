@@ -192,7 +192,7 @@ const App = () => {
       setTimeout(() => {backTimeout = false;}, 500)
       
     }else{
-      window.history.replaceState({ ...history[history.length - 1] }, history[history.length - 1].panel );
+      window.history.pushState({ ...history[history.length - 1] }, history[history.length - 1].panel );
     }
   }, [historyPanels, setHistoryPanels, setActiveScene, setPopout, setHash])
 
@@ -296,7 +296,7 @@ const App = () => {
   const handlePopstate = useCallback((e) => {
     if(e.state === null) {
 			let history = [...historyPanels];
-			window.history.replaceState({ ...history[history.length - 1] }, history[history.length - 1].panel);
+			window.history.pushState({ ...history[history.length - 1] }, history[history.length - 1].panel);
 			return false;
 		}
     goBack();
