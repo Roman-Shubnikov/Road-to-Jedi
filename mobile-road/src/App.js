@@ -294,11 +294,11 @@ const App = () => {
     }
   }, [account, default_scheme, setScheme])
   const handlePopstate = useCallback((e) => {
-    if(e.state === null) {
-			let history = [...historyPanels];
-			window.history.pushState({ ...history[history.length - 1] }, history[history.length - 1].panel);
-			return false;
-		}
+    // if(e.state === null) {
+		// 	let history = [...historyPanels];
+		// 	window.history.pushState({ ...history[history.length - 1] }, history[history.length - 1].panel);
+		// 	return false;
+		// }
     goBack();
   }, [goBack, historyPanels]);
   useEffect(() => {

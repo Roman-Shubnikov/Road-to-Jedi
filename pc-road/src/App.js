@@ -144,7 +144,7 @@ const App = () => {
 		setTimeout(() => {backTimeout = false;}, 500)
 		
 		}else{
-		window.history.replaceState({ ...history[history.length - 1] }, history[history.length - 1].panel );
+			window.history.pushState({ ...history[history.length - 1] }, history[history.length - 1].panel );
 		}
 	}, [historyPanels, setHistoryPanels, setActiveScene, setPopout, setHash])
 
@@ -205,13 +205,15 @@ const App = () => {
 	}, [account, default_scheme, setScheme])
 
 	const handlePopstate = useCallback((e) => {
-		if(e.state === null) {
-				let history = [...historyPanels];
-				window.history.replaceState({ ...history[history.length - 1] }, history[history.length - 1].panel);
-				return false;
-			}
+		// Важно пофиксить этот баг история пишется некорректно возможно ошибка в goBack()
+		// if(e.state === null) { 
+				// let history = [...historyPanels];
+				// window.history.replaceState({ ...history[history.length - 1] }, history[history.length - 1].panel);
+				// return false;
+			// }
+		e.preventDefault();
 		goBack();
-	}, [goBack, historyPanels]);
+	}, [goBack]);
 	useEffect(() => {
 		AppInit();
 		bridge.send('VKWebAppInit', {});
