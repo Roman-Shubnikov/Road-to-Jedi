@@ -1,7 +1,4 @@
 import React from 'react';
-import {
-    Subhead
-} from '@vkontakte/vkui';
 import './infoCell.css';
 
 export const InfoCell = ({children, name}) => {

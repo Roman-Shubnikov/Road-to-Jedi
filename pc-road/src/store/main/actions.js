@@ -16,6 +16,7 @@ export const accountActions = {
     setRecomendations: (payload) => ({ type: accountActionTypes.SET_RECOMENDATIONS, payload }),
     setOtherProfile: (payload) => ({ type: accountActionTypes.SET_OTHER_PROFILE, payload }),
     setPublicStatus: (payload) => ({ type: accountActionTypes.SET_PUBLIC_STATUS, payload }),
+    setAds: (payload) => ({ type: accountActionTypes.SET_ADS, payload }),
     
 }
 

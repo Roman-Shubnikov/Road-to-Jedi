@@ -10,11 +10,11 @@ import {
 } from "./ActionTypes";
 
 const initalStateAccount = {
-    account: {},
+    account: null,
     banInfo: null,
     schemeSettings: {
-        scheme: "bright_light",
-        default_scheme: "bright_light",
+        scheme: "vkcom_light",
+        default_scheme: "vkcom_light",
     },
     
     activeStory: 'loading',
@@ -22,12 +22,12 @@ const initalStateAccount = {
     other_profile: {},
     recomendations: null,
     myQuestions: null,
-
+    ads: 0,
 }
 const initalStateViews = {
     account: {},
-    scheme: "bright_light",
-    default_scheme: "bright_light",
+    scheme: "vkcom_light",
+    default_scheme: "vkcom_light",
     activeStory: viewsStructure.Profile.navName,
     activePanel: viewsStructure.Profile.panels.homepanel,
     historyPanels: [{view: viewsStructure.Profile.navName, 
@@ -130,6 +130,8 @@ export const accountReducer = (state = initalStateAccount, action) => {
             return { ...state, myQuestions: action.payload }
         case accountActionTypes.SET_PUBLIC_STATUS:
             return { ...state, account: {...state.account, publicStatus: action.payload}}
+        case accountActionTypes.SET_ADS:
+            return { ...state, ads: action.payload }
         default: 
             return state
 

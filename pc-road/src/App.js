@@ -18,15 +18,11 @@ import {
   ViewHeight,
   ModalRoot,
   SimpleCell,
-  Avatar,
   ModalCard,
-  FixedLayout,
-  Div,
   Spacing,
   Button,
   CellButton,
   Separator,
-
   } from '@vkontakte/vkui';
 import '@vkontakte/vkui/dist/vkui.css';
 import "@vkontakte/vkui/dist/unstable.css";
@@ -47,12 +43,20 @@ import {
 } from './views'
 
 import {
+	Icon24LogoVkOutline,
+	Icon24MessagesOutline,
+	Icon24DonateOutline,
+	Icon24MarketOutline,
+	Icon24QuestionOutline,
+	Icon24ShareOutline,
+	Icon28ListBulletSquareOutline,
+	Icon28StatisticsOutline,
+	Icon28SettingsOutline,
 
 } from '@vkontakte/icons';
 import { isEmptyObject } from 'jquery';
-import { setActiveModalCreator, goOtherProfileCreator, NicknameMenager } from './Utils';
+import { setActiveModalCreator, goOtherProfileCreator } from './Utils';
 import { useApi, useNavigation } from './hooks';
-import { ProfileTags } from './components/ProfileTags';
 
 
 var DESKTOP_SIZE = 1000;
@@ -117,7 +121,6 @@ const App = () => {
 	const setScheme = useCallback((payload) => dispatch(accountActions.setScheme(payload)), [dispatch])
 	const [ignoreOtherProfile, setIgnoreOtherProfile] = useState(false);
 	const need_epic = useSelector((state) => state.views.need_epic)
-	const permissions = account?.permissions;
 	const comment_special = useSelector((state) => state.tickets.comment)
 
 
@@ -214,6 +217,14 @@ const App = () => {
 		e.preventDefault();
 		goBack();
 	}, [goBack]);
+
+	const clickTab = (tab) => {
+		return {
+            onClick: () => {setHash('');goPanel(tab, viewsStructure[tab].panels.homepanel)},
+            selected: activeStory === tab,
+        }
+	}
+
 	useEffect(() => {
 		AppInit();
 		bridge.send('VKWebAppInit', {});
@@ -277,8 +288,6 @@ const App = () => {
 		setSnackbar={setSnackbar}
 		onClick={modalClose} />
 
-
-
 		<ShowQR
 		id='qr'
 		onClick={modalClose} />
@@ -298,12 +307,30 @@ const App = () => {
 			<ConfigProvider 
 			scheme={scheme}
 			platform={VKCOM}>
+				
 				<AppRoot>
-					<div style={{minWidth: '100vw', display: 'fixed'}}>
-						<Group>
-							<SimpleCell></SimpleCell>
-						</Group>
+					<div style={{minWidth: '100vw', position: 'fixed', top: 0, zIndex: 4}}>
+						{/* <Group>
+							<div style={{display: 'flex', alignItems: 'center'}}>
+								<TabbarItem
+								text='Вопросы'
+								{...clickTab('Questions')}>
+									<Icon28ListBulletSquareOutline width={24} height={24} />
+								</TabbarItem>
+								<TabbarItem
+								text='Статистика'
+								{...clickTab('Top')}>
+									<Icon28StatisticsOutline width={24} height={24} />
+								</TabbarItem>
+								<TabbarItem
+								text='Управление'
+								{...clickTab('Moderation')}>
+									<Icon28SettingsOutline width={24} height={24} />
+								</TabbarItem>
+							</div>
+						</Group> */}
 					</div>
+					<div style={{marginBottom: 70}}></div>
 				
 					<SplitLayout
 				style={{ justifyContent: "center" }}
@@ -312,70 +339,61 @@ const App = () => {
 				
 				{need_epic && (<SplitCol fixed width="230px" maxWidth="230px">
 						<Panel id='menu_epic'>
-						<>
-						{isEmptyObject(account) || <Group>
-							<SimpleCell
-							disabled={activeStory === "profile"}
-							style={activeStory === "profile" ? {
-								backgroundColor: "var(--button_secondary_background)",
-								borderRadius: 8
-							} : {}}
-							onClick={() => {setHash('');goPanel(viewsStructure.Profile.navName, viewsStructure.Profile.panels.homepanel)}}
-							description={"#" + account['id']}
-							before={<Avatar size={50} src={account['avatar']['url']} />}>
-								<div style={{ display: "flex" }}>
-									<NicknameMenager 
-									nickname={account.nickname}
-									agent_id={account.id}
-									perms={permissions}
-									need_num={false} />
-									<ProfileTags
-										flash={account.flash}
-										donut={account.donut}
-										verified={account.verified} />
-								</div>
-							</SimpleCell>
-							
-						</Group>}
-						{!isEmptyObject(account) && <Group>
+						{!isEmptyObject(account) && <>
+						<Group>
 							<div style={{ 
 								display: "flex", 
 								flexDirection: "column",
 								padding: 7 }}>
-								<img className='profile_avatar' src={account?.avatar?.url} />
+								<img className='profile_avatar' src={account?.avatar?.url} alt='avatar' />
 								<Spacing />
-								<Button size='l'
+								<Button size='m'
 								mode='secondary'
 								stretched>
 									Настройки
 								</Button>
-								<Spacing />
-								<CellButton>
-									Профиль ВКонтакте
-								</CellButton>
-								<Spacing>
-									<Separator />
-								</Spacing>
-								<SimpleCell>
-									Чат агентов
-								</SimpleCell>
-								<SimpleCell>
-									Чат донов
-								</SimpleCell>
-								<Spacing>
-									<Separator />
-								</Spacing>
-								<SimpleCell>
-									Магазин
-								</SimpleCell>
-								<SimpleCell>
-									Помощь
-								</SimpleCell>
-
 							</div>
-							
-						</Group>}
-						</>
+							<Spacing />
+							<CellButton
+							multiline
+							before={<Icon24LogoVkOutline />}>
+								Профиль VK
+							</CellButton>
+							<Spacing>
+								<Separator />
+							</Spacing>
+							<SimpleCell
+							className='gray'
+							before={<Icon24MessagesOutline />}>
+								Чат агентов
+							</SimpleCell>
+							<SimpleCell
+							className='gray'
+							before={<Icon24DonateOutline />}>
+								Чат донов
+							</SimpleCell>
+							<Spacing>
+								<Separator />
+							</Spacing>
+							<SimpleCell
+							className='gray'
+							before={<Icon24MarketOutline />}>
+								Магазин
+							</SimpleCell>
+							<SimpleCell
+							className='gray'
+							before={<Icon24QuestionOutline />}>
+								Помощь
+							</SimpleCell>
+						</Group>
+						<Group>
+							<CellButton
+							multiline
+							before={<Icon24ShareOutline />}>
+								Поделиться профилем
+							</CellButton>
+						</Group>
+						</>}
 						</Panel>
 					</SplitCol>)}
 

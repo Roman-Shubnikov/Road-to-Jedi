@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect } from "react";
+import { useCallback, useRef, useEffect, useState } from "react";
 import { API_URL } from "../config";
 import { useNavigation } from "./useNavigation";
 
@@ -12,6 +12,9 @@ class ValidationError extends Error {
 export const useApi = () => {
     const { goDisconnect, setAbortSnack } = useNavigation();
     const mountedRef = useRef(false)
+    const [textError, setTextError] = useState(null);
+    const [error, setError] = useState(null);
+
 
     useEffect(() => {
         mountedRef.current = true
@@ -19,6 +22,19 @@ export const useApi = () => {
             mountedRef.current = false
         }
     }, [])
+    useEffect(() => {
+        if(!textError) return;
+        setAbortSnack(textError);
+        setTextError(null);
+
+    }, [setAbortSnack, textError])
+
+    useEffect(() => {
+        if(!error) return;
+        goDisconnect(error);
+        setError(null);
+
+    }, [goDisconnect, error])
 
     const fetchApi = useCallback(async (method, data, http_method='post') => {
         let get_params = window.location.search.replace('?', '');
@@ -31,18 +47,17 @@ export const useApi = () => {
             })
             res = await res.json();
             if(!res.result) {
-                setAbortSnack('Произошла ошибка: ' + res.error.message)
-                // if(res.error.code === 3) 
+                setTextError('Произошла ошибка: ' + res.error.message);
                 throw new ValidationError(res.error.messag, res);
             }
             return res.response;
         } catch(e) {
             if(e instanceof ValidationError) throw e;
-            goDisconnect(e);
+            setError(e);
             return null;
         }
         
-    }, [goDisconnect, setAbortSnack])
+    }, [])
 
     const fetchApiFormData = useCallback(async (method, data, http_method='post') => {
         let get_params = window.location.search.replace('?', '');
@@ -63,11 +78,11 @@ export const useApi = () => {
             return res.response;
         } catch(e) {
             if(e instanceof TypeError) throw e;
-            goDisconnect(e);
+            setError(e);
             return null;
         }
         
-    }, [goDisconnect])
+    }, [])
     return {
         mountedRef,
         fetchApi,

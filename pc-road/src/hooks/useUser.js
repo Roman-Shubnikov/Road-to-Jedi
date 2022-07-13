@@ -7,11 +7,9 @@ import { useApi } from "./useApi";
 export const useUser = () => {
     const dispatch = useDispatch();
     const { fetchApi } = useApi();
-    const { userToken, account, profile_id } = useSelector((state) => state.account)
-    const setUserToken = useCallback((token) => dispatch(accountActions.setUserToken(token)), [dispatch]);
+    const { account, ads } = useSelector((state) => state.account)
     const setAccount = useCallback((account) => dispatch(accountActions.setAccount(account)), [dispatch]);
-    const setProfileId = useCallback((id) => dispatch(accountActions.setProfile(id)), [dispatch]);
-
+    const setAds = useCallback((ads_count) => dispatch(accountActions.setAds(ads_count)), [dispatch]);
 
     const getUser = useCallback(async () => {
         let account = await fetchApi('account', {}, 'get');
@@ -19,12 +17,10 @@ export const useUser = () => {
     }, [setAccount, fetchApi])
 
     return {
-        profile_id,
+        ads,
         account,
         setAccount,
-        setUserToken,
-        setProfileId,
-        userToken,
         getUser,
+        setAds,
     }
 }

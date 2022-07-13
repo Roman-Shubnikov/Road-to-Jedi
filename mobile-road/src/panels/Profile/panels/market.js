@@ -76,6 +76,8 @@ const avatars = [
     "19.png",
     "20.png",
     "21.png",
+    "22.png",
+    "23.png",
 ]
 const donutAvatars = [
   "1000.png",

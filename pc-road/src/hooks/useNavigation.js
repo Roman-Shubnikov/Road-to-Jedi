@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { viewsActions } from "../store/main";
+import { accountActions, ticketActions, viewsActions } from "../store/main";
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { sendHit } from "../metrika";
 import { alertCreator, errorAlertCreator } from "../Utils";
@@ -10,11 +10,14 @@ import {
   Icon28CheckCircleFill,
   Icon28CancelCircleFillRed,
 } from '@vkontakte/icons';
+import { isEmptyObject } from "jquery";
 const queryString = require('query-string');
 
 
 export const useNavigation = () => {
     const dispatch = useDispatch();
+    const { account, ads } = useSelector((state) => state.account);
+    const setAds = useCallback((ads_count) => dispatch(accountActions.setAds(ads_count)), [dispatch]);
     const { activeStory, historyPanels, snackbar, activePanel, popout } = useSelector((state) => state.views)
     const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
     const setActiveScene = useCallback((story, panel) => dispatch(viewsActions.setActiveScene(story, panel)), [dispatch]);
@@ -27,10 +30,11 @@ export const useNavigation = () => {
       bridge.send("VKWebAppSetLocation", { "location": hash });
       window.location.hash = "#"+hash;
     }
-    const setBigLoader = (state=true) => {
+    const setBigLoader = useCallback((state=true) => {
       if(state) return setPopout(<ScreenSpinner />);
       setPopout(null);
-    }
+    }, [setPopout])
+    
     const getSimpleSnack = useCallback((text, icon) => {
       setSnackbar(
         <Snackbar
@@ -102,6 +106,18 @@ export const useNavigation = () => {
         dispatch(viewsActions.setGlobalError(e))
         goPanel(viewsStructure.Disconnect.navName, viewsStructure.Disconnect.panels.homepanel, true);
     }, [dispatch, goPanel])
+
+
+    const goTiket = useCallback((id, need_ads=true) => {
+      setBigLoader();
+      dispatch(ticketActions.setTicketId(id))
+      goPanel(activeStory, 'ticket', true);
+      if(need_ads && ads !== 0 && ads % 2 === 0 && !isEmptyObject(account) && !account.donut){
+        bridge.send("VKWebAppShowNativeAds", {ad_format: "reward"})
+      }
+      setAds(ads + 1);
+      setBigLoader(false);
+    }, [dispatch, goPanel, account, activeStory, ads, setAds, setBigLoader])
     return {
       setAbortSnack,
       setSuccessfulSnack,
@@ -115,6 +131,7 @@ export const useNavigation = () => {
       showAlert,
       showErrorAlert,
       setActiveStory,
+      goTiket,
       activePanel,
       snackbar,
       activeStory,

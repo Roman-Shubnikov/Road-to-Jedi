@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { 
     Panel,
     Group,
@@ -6,14 +6,17 @@ import {
     Title,
     Subhead,
     Separator,
+    PanelSpinner,
     } from '@vkontakte/vkui';
-import { useSelector } from 'react-redux';
 import { getHumanyTime, NicknameMenager } from '../../../Utils';
-import { ProfileTags } from '../../../components/ProfileTags';
 import { useUser } from '../../../hooks';
-import { InfoCell } from '../../../components/InfoCell';
-import InfoArrows from '../../../components/InfoArrows';
+import { 
+    InfoCell,
+    InfoArrows,
+    ProfileTags,
+} from '../../../components';
 import { PERMISSIONS } from '../../../config';
+import { Answers } from '../units';
 
 
 export const Home = props => {
@@ -21,14 +24,14 @@ export const Home = props => {
     return (
         <Panel id={props.id}>
             <Group>
+                {account ? <>
                 <Div style={{paddingBottom: 0}}>
                     <Title level="2" style={{ marginBottom: 5 }}>
                         <div style={{ display: "flex" }}>
                             <NicknameMenager 
                             nickname={account.nickname}
                             agent_id={account.id}
-                            perms={account.permissions}
-                            need_num={false} />
+                            perms={account.permissions} />
                             <ProfileTags
                             size='m'
                                 flash={account.flash}
@@ -49,15 +52,17 @@ export const Home = props => {
                         {'#'+account.id}
                     </InfoCell>
                 </Div>
-                <Separator />
+                <Separator className='sep-wide' />
                 <InfoArrows
                 special={account.permissions >= PERMISSIONS.special}
                 good_answers={account.good_answers}
                 bad_answers={account.bad_answers}
                 total_answers={account.total_answers}
                 />
-
+            </> : <PanelSpinner />}
             </Group>
+
+            <Answers />
 
         </Panel>
     )

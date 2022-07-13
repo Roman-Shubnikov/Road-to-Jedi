@@ -6,6 +6,7 @@ export const accountActionTypes = {
     SET_RECOMENDATIONS: 'ACCOUNT.SET_RECOMENDATIONS',
     SET_MYQUESTIONS: 'ACCOUNT.SET_MYQUESTIONS',
     SET_PUBLIC_STATUS: 'ACCOUNT.SET_PUBLIC_STATUS',
+    SET_ADS: 'ACCOUNT.SET_ADS',
 
 }
 export const viewsActionTypes = {
