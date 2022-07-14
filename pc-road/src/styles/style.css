@@ -60,6 +60,12 @@ a{
     padding-right: 0px;
     /* padding-left: 0px; */
 }
+.navigation_tab .vkuiTabsItem--vkcom {
+    padding: 0;
+}
+.navigation_tab .vkuiTabsItem__in {
+    padding: 0;
+}
 
 .no_tabbbar .vkuiFixedLayout--bottom {
     padding-bottom: var(--safe-area-inset-bottom);
@@ -81,9 +87,11 @@ a{
     width: 200px;
     height: 200px;
 }
-.gray {
+.gray,
+.gray .vkuiSimpleCell {
     color: var(--gray_dark);
 }
+
 .gray .vkuiIcon {
     color: var(--gray);
 }

@@ -25,7 +25,7 @@ import Icon20CancelCircleFillRed          from '@vkontakte/icons/dist/20/cancel_
 import Icon20ArticleOutline               from '@vkontakte/icons/dist/20/article_outline';
 import Icon20UserOutline                  from '@vkontakte/icons/dist/20/user_outline';
 import Icon20ServicesOutline              from '@vkontakte/icons/dist/20/services_outline';
-import { API_URL } from '../../../../config';
+import { API_URL, LINK_APP } from '../../../../config';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewsActions } from '../../../../store/main';
 import { enumerate } from '../../../../Utils';
@@ -113,7 +113,7 @@ export default props => {
                 <MiniInfoCell
                   mode='base'
                   before={<Icon20ServicesOutline />}>
-                  <Link href={'https://vk.com/jedi_road_app#agent_id=' + result.aid}
+                  <Link href={LINK_APP+'#agent_id=' + result.aid}
                     target="_blank" rel="noopener noreferrer">Профиль в приложении</Link>
                 </MiniInfoCell>
                 <Div style={{ display: 'flex' }}>

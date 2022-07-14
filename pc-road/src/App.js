@@ -23,6 +23,8 @@ import {
   Button,
   CellButton,
   Separator,
+  Tabs,
+  TabsItem,
   } from '@vkontakte/vkui';
 import '@vkontakte/vkui/dist/vkui.css';
 import "@vkontakte/vkui/dist/unstable.css";
@@ -40,6 +42,7 @@ import {accountActions, reportsActions, ticketActions, viewsActions} from './sto
 import {
   Disconnect,
   Profile,
+  Questions,
 } from './views'
 
 import {
@@ -55,7 +58,7 @@ import {
 
 } from '@vkontakte/icons';
 import { isEmptyObject } from 'jquery';
-import { setActiveModalCreator, goOtherProfileCreator } from './Utils';
+import { setActiveModalCreator, goOtherProfileCreator, arrEquals } from './Utils';
 import { useApi, useNavigation } from './hooks';
 
 
@@ -95,7 +98,6 @@ function calculateAdaptivity(windowWidth, windowHeight) {
     viewHeight: viewHeight,
   };
 }
-var adsCounter = 0;
 var backTimeout = false;
 const App = () => {
 	const [activeModal, setModal] = useState(null);
@@ -109,6 +111,7 @@ const App = () => {
 		setHash,
 		hash,
 		setBigLoader,
+		goTiket,
 	} = useNavigation();
 	const { fetchApi } = useApi();
 	const { account, schemeSettings, other_profile: OtherProfileData, } = useSelector((state) => state.account)
@@ -160,17 +163,6 @@ const App = () => {
 		goPanel(activeStory, "report", true);
 	}
 
-	const goTiket = useCallback((id, need_ads=true) => {
-		setBigLoader();
-		dispatch(ticketActions.setTicketId(id))
-		goPanel(activeStory, 'ticket', true);
-		if(need_ads && adsCounter !== 0 && adsCounter % 2 === 0 && !isEmptyObject(account) && !account.donut){
-		bridge.send("VKWebAppShowNativeAds", {ad_format:"reward"})
-		}
-		adsCounter++
-		setPopout(null);
-	}, [dispatch, goPanel, setPopout, account, activeStory, setBigLoader])
-
 	const fetchAccount = useCallback(() => {
 		fetchApi("account.get")
 		.then(data => {
@@ -220,9 +212,19 @@ const App = () => {
 
 	const clickTab = (tab) => {
 		return {
+			className: 'gray navigation_tab',
             onClick: () => {setHash('');goPanel(tab, viewsStructure[tab].panels.homepanel)},
             selected: activeStory === tab,
         }
+	}
+	const activeLeftBlock = () => {
+		let viewsNeedLeftBlock = [
+			[viewsStructure.Profile.navName, viewsStructure.Profile.panels.homepanel],
+
+		];
+		console.log(viewsNeedLeftBlock.find(v => arrEquals(v, [activeStory, activePanel])), 'dasasdads')
+		if(viewsNeedLeftBlock.find(v => v === [activeStory, activePanel])) return true;
+		return false;
 	}
 
 	useEffect(() => {
@@ -310,25 +312,38 @@ const App = () => {
 				
 				<AppRoot>
 					<div style={{minWidth: '100vw', position: 'fixed', top: 0, zIndex: 4}}>
-						{/* <Group>
-							<div style={{display: 'flex', alignItems: 'center'}}>
-								<TabbarItem
-								text='Вопросы'
+						<Group>
+							<Tabs>
+								<TabsItem
+								
 								{...clickTab('Questions')}>
-									<Icon28ListBulletSquareOutline width={24} height={24} />
-								</TabbarItem>
-								<TabbarItem
-								text='Статистика'
+									<SimpleCell
+									disabled
+									before={<Icon28ListBulletSquareOutline width={24} height={24} />}>
+										Вопросы
+									</SimpleCell>
+								</TabsItem>
+								<TabsItem
+								
 								{...clickTab('Top')}>
-									<Icon28StatisticsOutline width={24} height={24} />
-								</TabbarItem>
-								<TabbarItem
-								text='Управление'
+									<SimpleCell
+									disabled
+									before={<Icon28StatisticsOutline width={24} height={24} />}>
+										Статистика
+									</SimpleCell>
+								</TabsItem>
+								<TabsItem
+								
 								{...clickTab('Moderation')}>
-									<Icon28SettingsOutline width={24} height={24} />
-								</TabbarItem>
-							</div>
-						</Group> */}
+									<SimpleCell
+									disabled
+									before={<Icon28SettingsOutline width={24} height={24} />}>
+										Управление
+									</SimpleCell>
+								</TabsItem>
+
+							</Tabs>
+						</Group>
 					</div>
 					<div style={{marginBottom: 70}}></div>
 				
@@ -337,7 +352,7 @@ const App = () => {
 				popout={popout}
 				modal={modals}>
 				
-				{need_epic && (<SplitCol fixed width="230px" maxWidth="230px">
+				{activeLeftBlock() && (<SplitCol fixed width="230px" maxWidth="230px">
 						<Panel id='menu_epic'>
 						{!isEmptyObject(account) && <>
 						<Group>
@@ -399,8 +414,8 @@ const App = () => {
 
 					<SplitCol
 					animate={false}
-					spaced
-					width={754}
+					spaced={activeLeftBlock()}
+					width={activeLeftBlock() ? 754 : 754+230}
 					maxWidth={754}
 					>
 					<SkeletonTheme color={['bright_light', 'vkcom_light'].indexOf(scheme) !== -1 ? undefined : '#232323'} 
@@ -408,6 +423,7 @@ const App = () => {
 					<Epic activeStory={activeStory}>
 
 							<Profile id={viewsStructure.Profile.navName} />
+							<Questions id={viewsStructure.Questions.navName} />
 							<Disconnect
 							id="disconnect"
 							AppInit={AppInit} />

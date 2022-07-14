@@ -106,7 +106,7 @@ export const viewsStructure = {
     navName: 'Questions',
     name: 'Вопросы',
     panels: {
-      homepanel: 'questions',
+      homepanel: 'home',
     }
   },
   Advice: {

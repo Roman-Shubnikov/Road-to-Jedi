@@ -31,7 +31,7 @@ import {
 
 } from '@vkontakte/icons'
 
-import { API_URL } from '../../../../config';
+import { API_URL, LINK_APP } from '../../../../config';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewsActions } from '../../../../store/main';
 
@@ -168,7 +168,7 @@ export default props => {
                   <MiniInfoCell
                     mode='base'
                     before={<Icon20ServicesOutline />}>
-                    <Link href={'https://vk.com/jedi_road_app#agent_id=' + result.aid}
+                    <Link href={LINK_APP+'#agent_id=' + result.aid}
                       target="_blank" rel="noopener noreferrer">1 Профиль в приложении</Link>
                   </MiniInfoCell>
                   {result.vk_id ? <MiniInfoCell
@@ -181,7 +181,7 @@ export default props => {
                   <MiniInfoCell
                     mode='base'
                     before={<Icon20ServicesOutline />}>
-                    <Link href={'https://vk.com/jedi_road_app#agent_id=' + result.id_reporting}
+                    <Link href={LINK_APP+'#agent_id=' + result.id_reporting}
                       target="_blank" rel="noopener noreferrer">2 Профиль в приложении</Link>
                   </MiniInfoCell>
                   <MiniInfoCell
