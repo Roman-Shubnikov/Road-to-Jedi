@@ -30,19 +30,7 @@ require 'vkapi.php';
 
 // set_exception_handler('exceptionerror');
 
-require 'api/api/users.php';
-require 'api/api/account.php';
-require 'api/api/tickets.php';
-require 'api/api/notifications.php';
-require 'api/api/promocodes.php';
-require 'api/api/reports.php';
-require 'api/api/folowers.php';
-require 'api/api/recommendations.php';
-require 'api/api/settings.php';
-require 'api/api/levels.php';
-require 'api/api/shop.php';
-require 'api/api/faq.php';
-require 'api/api/testsInspector.php';
+
 
 session_id($_GET['vk_user_id']);
 session_start();
@@ -961,6 +949,7 @@ $params = [
 ];
 $user_id = (int) $_GET['vk_user_id'];
 $method = $_GET['method'];
+$version = $_GET['v'] ?? '1.0';
 
 $data = file_get_contents('php://input');
 $data = json_decode($data, true);
@@ -986,21 +975,8 @@ $s3 = new \Aws\S3\S3Client([
    ],
 ]);
 
+require "api/api{$version}/loader.php";
 
-$Connect = new DB();
-$users = new Users($user_id, $Connect);
-$settings = new Settings($Connect, $users);
-$notifications = new Notifications($users, $Connect);
-$sysnotifications = new SystemNotifications($Connect);
-$account = new Account($users, $Connect, $sysnotifications);
-$tickets = new Tickets($users, $Connect, $sysnotifications);
-$promocodes = new Promocodes($users, $Connect, $sysnotifications);
-$reports = new Reports($users, $Connect, $account);
-$followers = new Followers($users, $Connect);
-$recommended = new Recomendations($users, $Connect, $followers);
-$levels = new Levels($users, $Connect);
-$faq = new Faq($Connect,$users);
-$testsInspector = new TestsInspector($users, $Connect);
 
 $perms_need = CONFIG::PERMISSIONS['agent'];
 if(isset($params[$method]['perms'])) {
