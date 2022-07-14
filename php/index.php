@@ -949,7 +949,7 @@ $params = [
 ];
 $user_id = (int) $_GET['vk_user_id'];
 $method = $_GET['method'];
-$version = $_GET['v'] ?? '1.0';
+$version = $_GET['api_v'] ?? '1.0';
 
 $data = file_get_contents('php://input');
 $data = json_decode($data, true);
