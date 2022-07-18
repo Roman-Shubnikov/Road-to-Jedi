@@ -60,7 +60,7 @@ export const enumerate = (num, dec) => {
     return num === 1 ? dec[0] : num > 1 && num < 5 ? dec[1] : dec[2];
 }
 export const recog_number = (num) => {
-    let out = ""
+    let out;
     if (num > 999999) {
         out = Math.floor(num / 1000000 * 10) / 10 + "M"
     } else if (num > 999) {
@@ -95,10 +95,4 @@ export const NicknameMenager = ({perms, nickname, agent_id, need_num=true}) => {
         return 'Агент Поддержки #' + agent_id;
     }
     return 'Агент Поддержки';
-}
-
-export const arrEquals = (arr1, arr2) => {
-    return !!(arr1.length === arr2.length && arr2.every(function(element, index) {
-    return element === arr2[index];
-}))
 }

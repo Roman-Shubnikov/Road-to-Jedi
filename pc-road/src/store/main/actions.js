@@ -61,3 +61,5 @@ export const reportsActions = {
     setTypeReport: (payload) => ({type: reportsActionTypes.SET_TYPE_REPORT, payload}),
     setResourceReport: (payload) => ({type: reportsActionTypes.SET_RESOURCE_REPORT, payload}),
 }
+
+export const ticketSelector = state => state.tickets;

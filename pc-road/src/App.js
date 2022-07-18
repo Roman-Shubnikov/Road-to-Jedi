@@ -58,23 +58,23 @@ import {
 
 } from '@vkontakte/icons';
 import { isEmptyObject } from 'jquery';
-import { setActiveModalCreator, goOtherProfileCreator, arrEquals } from './Utils';
+import { setActiveModalCreator, goOtherProfileCreator } from './Utils';
 import { useApi, useNavigation } from './hooks';
+import {socket, SocketContext} from "./context/soket";
 
 
-var DESKTOP_SIZE = 1000;
-var TABLET_SIZE = 900;
-var SMALL_TABLET_SIZE = 768;
-var MOBILE_SIZE = 320;
-var MOBILE_LANDSCAPE_HEIGHT = 414;
-var MEDIUM_HEIGHT = 720;
+const DESKTOP_SIZE = 1000;
+const TABLET_SIZE = 900;
+const SMALL_TABLET_SIZE = 768;
+const MOBILE_SIZE = 320;
+const MOBILE_LANDSCAPE_HEIGHT = 414;
+const MEDIUM_HEIGHT = 720;
 
 
 function calculateAdaptivity(windowWidth, windowHeight) {
-  var viewWidth = ViewWidth.SMALL_MOBILE;
-  var viewHeight = ViewHeight.SMALL;
+	let viewWidth,viewHeight;
 
-  if (windowWidth >= DESKTOP_SIZE) {
+	if (windowWidth >= DESKTOP_SIZE) {
     viewWidth = ViewWidth.DESKTOP;
   } else if (windowWidth >= TABLET_SIZE) {
     viewWidth = ViewWidth.TABLET;
@@ -98,7 +98,9 @@ function calculateAdaptivity(windowWidth, windowHeight) {
     viewHeight: viewHeight,
   };
 }
-var backTimeout = false;
+
+let backTimeout = false;
+
 const App = () => {
 	const [activeModal, setModal] = useState(null);
 	const [modalHistory, setModalHistory] = useState(null);
@@ -117,42 +119,37 @@ const App = () => {
 	const { account, schemeSettings, other_profile: OtherProfileData, } = useSelector((state) => state.account)
 	const { scheme, default_scheme } = schemeSettings;
 	const { activeStory, historyPanels, snackbar, activePanel, popout } = useSelector((state) => state.views)
-	const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
-	const setActiveScene = useCallback((story, panel) => dispatch(viewsActions.setActiveScene(story, panel)), [dispatch]);
-	const setHistoryPanels = useCallback((history) => dispatch(viewsActions.setHistory(history)), [dispatch]);
-	const setBanObject = useCallback((payload) => dispatch(accountActions.setBanObject(payload)), [dispatch])
-	const setScheme = useCallback((payload) => dispatch(accountActions.setScheme(payload)), [dispatch])
 	const [ignoreOtherProfile, setIgnoreOtherProfile] = useState(false);
 	const need_epic = useSelector((state) => state.views.need_epic)
 	const comment_special = useSelector((state) => state.tickets.comment)
 
 
-	const goBack = useCallback(() => {
+	const goBack = useCallback(async () => {
 		let history = [...historyPanels]
 		if(!backTimeout) {
 		backTimeout = true;
 		if (history.length <= 1) {
-			bridge.send("VKWebAppClose", {"status": "success"});
+			await bridge.send("VKWebAppClose", {"status": "success"});
 		} else {
 			if(history[history.length] >= 2) {
-			bridge.send('VKWebAppDisableSwipeBack');
+			 	await bridge.send('VKWebAppDisableSwipeBack');
 			}
 			setHash('');
 			history.pop()
 			let {view, panel} = history[history.length - 1];
-			setActiveScene(view, panel)
+			dispatch(viewsActions.setActiveScene(view, panel))
 			setPopout(<ScreenSpinner />)
 			setTimeout(() => {
 				setPopout(null)
 			}, 500)
 		}
-		setHistoryPanels(history)
+		dispatch(viewsActions.setHistory(history))
 		setTimeout(() => {backTimeout = false;}, 500)
 		
 		}else{
 			window.history.pushState({ ...history[history.length - 1] }, history[history.length - 1].panel );
 		}
-	}, [historyPanels, setHistoryPanels, setActiveScene, setPopout, setHash])
+	}, [historyPanels, setPopout, setHash, dispatch])
 
 	const setActiveModal = (activeModal) => {
 		setActiveModalCreator(setModal, setModalHistory, modalHistory, activeModal)
@@ -169,19 +166,19 @@ const App = () => {
 			setBigLoader(false);
 			dispatch(accountActions.setAccount(data))
 		})
-		.catch(error => {});
+		.catch(() => {});
 		// eslint-disable-next-line 
-	}, [account, activeStory, default_scheme, dispatch, setActiveStory])
+	}, [account, activeStory, default_scheme, dispatch])
 
 	const AppInit = useCallback(() => {
-		setBanObject(null);
+		dispatch(accountActions.setBanObject(null))
 		fetchAccount()
 		if( activeStory === 'disconnect') {
 		let {view, panel} = historyPanels[historyPanels.length - 2];
 		goPanel(view, panel, true, true)
 		}
 		
-	}, [historyPanels, fetchAccount, setBanObject, activeStory, goPanel])
+	}, [historyPanels, fetchAccount, activeStory, goPanel, dispatch])
 
 	const bridgecallback = useCallback(({ detail: { type, data } }) => {
 		if (type === 'VKWebAppViewHide') {
@@ -191,13 +188,13 @@ const App = () => {
 		AppInit();
 		}
 		if (type === 'VKWebAppUpdateConfig') {
-		setScheme({ ...schemeSettings, default_scheme: data.scheme })
+			dispatch(accountActions.setScheme({ ...schemeSettings, default_scheme: data.scheme }))
 		
 		}
-	}, [AppInit, setScheme, schemeSettings])
+	}, [AppInit, dispatch, schemeSettings])
 	useEffect(() => {
-		setScheme({ scheme: default_scheme })
-	}, [account, default_scheme, setScheme])
+		dispatch(accountActions.setScheme({ scheme: default_scheme }))
+	}, [account, default_scheme, dispatch])
 
 	const handlePopstate = useCallback((e) => {
 		// Важно пофиксить этот баг история пишется некорректно возможно ошибка в goBack()
@@ -217,19 +214,19 @@ const App = () => {
             selected: activeStory === tab,
         }
 	}
-	const activeLeftBlock = () => {
+	const activeLeftBlock = useCallback(() => {
 		let viewsNeedLeftBlock = [
-			[viewsStructure.Profile.navName, viewsStructure.Profile.panels.homepanel],
+			viewsStructure.Profile.navName + viewsStructure.Profile.panels.homepanel,
 
 		];
-		console.log(viewsNeedLeftBlock.find(v => arrEquals(v, [activeStory, activePanel])), 'dasasdads')
-		if(viewsNeedLeftBlock.find(v => v === [activeStory, activePanel])) return true;
-		return false;
-	}
+		return !!viewsNeedLeftBlock.find(v => v === activeStory + activePanel);
+
+	}, [activeStory, activePanel])
 
 	useEffect(() => {
 		AppInit();
-		bridge.send('VKWebAppInit', {});
+		bridge.send('VKWebAppInit', {})
+			.then(() => {});
 		// eslint-disable-next-line
 	}, [])
 	useEffect(() => {
@@ -240,7 +237,7 @@ const App = () => {
 	}, [handlePopstate])
 	useEffect(() => {
 		if(!isEmptyObject(account)){
-			if (hash.promo !== undefined && activePanel !== 'promocodes') {
+			if (hash?.promo && activePanel !== 'promocodes') {
 			goPanel(viewsStructure.Profile.navName, 'promocodes', true)
 			}else if(hash.ticket_id !== undefined && activePanel !== 'ticket') {
 			dispatch(ticketActions.setTicketId(hash.ticket_id))
@@ -255,63 +252,75 @@ const App = () => {
 			}else if ("help" in hash && activePanel !== 'faqMain') {
 			goPanel(viewsStructure.Profile.navName, 'faqMain', true);
 			}else if (activeStory === 'loading'){
-			setActiveScene(viewsStructure.Questions.navName, viewsStructure.Questions.panels.homepanel)
+				dispatch(viewsActions.setActiveScene(viewsStructure.Questions.navName, viewsStructure.Questions.panels.homepanel))
 			}
 		}
 		
-	}, [setActiveScene, account, dispatch, showErrorAlert, activeStory, activePanel, goTiket, goPanel, hash, OtherProfileData, ignoreOtherProfile])
+	}, [account, dispatch, showErrorAlert, activeStory, activePanel, goTiket, goPanel, hash, OtherProfileData, ignoreOtherProfile])
 	useEffect(() => {
 		bridge.subscribe(bridgecallback);
 		
 		return () => bridge.unsubscribe(bridgecallback);
 	}, [account, bridgecallback])
-	
+
+	useEffect(() => {
+		socket.on("connect_error", (err) => {
+			console.log(err.message);
+		});
+		socket.on('ERROR', (err) => {
+			console.log('ERROR: ', err);
+		})
+		return () => {
+			socket.off('connect_error');
+			socket.off('ERROR');
+		}
+	})
 
 	const modalClose = () => setActiveModal(null);
 	const modals = (
 		<ModalRoot
 		onClose={modalClose}
 		activeModal={activeModal}>
-		<ModalComment
-			id='comment'
-			comment={comment_special}
+			<ModalComment
+				id='comment'
+				comment={comment_special}
+				onClose={modalClose}
+				reporting={setReport} />
+
+			<ModalBan
+				id='ban_user'
+				onClose={modalClose}
+				callbacks={{ setPopout, showErrorAlert, setActiveModal, showAlert }}
+			/>
+
+			<ModalShare
+			id="share"
+			setActiveModal={setActiveModal}
+			setSnackbar={setSnackbar}
+			onClick={modalClose} />
+
+			<ShowQR
+			id='qr'
+			onClick={modalClose} />
+			<InvalidQR
+			id='invalid_qr'
+			onClick={modalClose} />
+
+			<ModalCard
 			onClose={modalClose}
-			reporting={setReport} />
-
-		<ModalBan
-			id='ban_user'
-			onClose={modalClose}
-			callbacks={{ setPopout, showErrorAlert, setActiveModal, showAlert }}
-		/>
-		
-		<ModalShare
-		id="share"
-		setActiveModal={setActiveModal}
-		setSnackbar={setSnackbar}
-		onClick={modalClose} />
-
-		<ShowQR
-		id='qr'
-		onClick={modalClose} />
-		<InvalidQR
-		id='invalid_qr'
-		onClick={modalClose} />
-
-		<ModalCard
-		onClose={modalClose}
-		id='test'>
-			Вью {activeStory}
-		</ModalCard>
+			id='test'>
+				Вью {activeStory}
+			</ModalCard>
 		</ModalRoot>
 	)
 	return(
-		<>
+		<SocketContext.Provider value={socket}>
 			<ConfigProvider 
 			scheme={scheme}
 			platform={VKCOM}>
 				
 				<AppRoot>
-					<div style={{minWidth: '100vw', position: 'fixed', top: 0, zIndex: 4}}>
+					{need_epic && <><div style={{minWidth: '100vw', position: 'fixed', top: 0, zIndex: 4}}>
 						<Group>
 							<Tabs>
 								<TabsItem
@@ -345,7 +354,7 @@ const App = () => {
 							</Tabs>
 						</Group>
 					</div>
-					<div style={{marginBottom: 70}}></div>
+					<div style={{marginBottom: 70}}/></>}
 				
 					<SplitLayout
 				style={{ justifyContent: "center" }}
@@ -416,7 +425,7 @@ const App = () => {
 					animate={false}
 					spaced={activeLeftBlock()}
 					width={activeLeftBlock() ? 754 : 754+230}
-					maxWidth={754}
+					maxWidth={activeLeftBlock() ? 754 : 754+230}
 					>
 					<SkeletonTheme color={['bright_light', 'vkcom_light'].indexOf(scheme) !== -1 ? undefined : '#232323'} 
 					highlightColor={['bright_light', 'vkcom_light'].indexOf(scheme) !== -1 ? undefined : '#6B6B6B'}>
@@ -435,7 +444,7 @@ const App = () => {
 					</SplitLayout>
 				</AppRoot>
 				</ConfigProvider>
-			</>
+			</SocketContext.Provider>
 )
 
 }
