@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@vkontakte/icons": "^1.166.1",
+    "@vkontakte/icons": "^1.178.0",
     "@vkontakte/vk-bridge": "^2.6.1",
     "@vkontakte/vkui": "^4.31.0",
     "jquery": "^3.6.0",
