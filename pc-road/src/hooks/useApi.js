@@ -48,7 +48,7 @@ export const useApi = () => {
             res = await res.json();
             if(!res.result) {
                 setTextError('Произошла ошибка: ' + res.error.message);
-                throw new ValidationError(res.error.messag, res);
+                throw new ValidationError(res.error.message, res);
             }
             return res.response;
         } catch(e) {

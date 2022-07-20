@@ -1,6 +1,6 @@
-const {sendError} = require("../functions");
+import {sendError} from "../functions.js";
 
-const {RateLimiterMemory} = require('rate-limiter-flexible');
+import {RateLimiterMemory} from 'rate-limiter-flexible';
 
 const opts = {
     points: 100,
@@ -8,13 +8,13 @@ const opts = {
 };
 const rateLimiter = new RateLimiterMemory(opts);
 
-module.exports = async (socket, next) => {
+export default async (socket, next) => {
     socket.limiter = async (points) => {
         try {
             await rateLimiter.consume(socket.id, points);
             return true;
         } catch {
-            sendError(socket, 'RATE_LIMIT', 'Вы привысили лимит');
+            sendError(socket, 1);
             return false;
         }
     }

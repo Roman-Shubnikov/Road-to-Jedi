@@ -38,6 +38,7 @@ export const topUsersActions = {
 }
 export const ticketActions = {
     setTickets: (payload) => ({ type: tiketsActionTypes.SET_TICKETS, payload }),
+    setMyTickets: (payload) => ({ type: tiketsActionTypes.SET_MY_TICKETS, payload }),
     setTicket: (payload) => ({ type: tiketsActionTypes.SET_TICKET, payload: payload }),
     setComment: (payload) => ({ type: tiketsActionTypes.SET_COMMENT, payload }),
     setOffset: (payload) => ({ type: tiketsActionTypes.SET_OFFSET, payload }),

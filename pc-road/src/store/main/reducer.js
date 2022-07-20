@@ -41,7 +41,7 @@ const initalStateViews = {
 const initalStateTickets = {
     comment: '',
     tickets: null,
-    ticketsCurrent: null,
+    myTickets: null,
     ticketInfo: {},
     offset: 0,
     current_id: 0,
@@ -91,12 +91,12 @@ const initalStateModeration = {
 }
 const initalStateTopUsers = {
     topAgents: {
-        'all': null,
-        'rating': null,
-        'donut': null,
-        'verif': null,
-        'flash': null,
-        'ghosts': null,
+        all: null,
+        rating: null,
+        donut: null,
+        verif: null,
+        flash: null,
+        ghosts: null,
     },
     mode: false
 
@@ -166,7 +166,9 @@ export const ticketsReducer = (state = initalStateTickets, action) => {
         case tiketsActionTypes.SET_COMMENT:
             return { ...state, comment: action.payload }
         case tiketsActionTypes.SET_TICKETS:
-            return { ...state, tickets: action.payload.tickets, ticketsCurrent: action.payload.ticketsCurrent}
+            return { ...state, tickets: action.payload }
+        case tiketsActionTypes.SET_MY_TICKETS:
+            return { ...state, myTickets: action.payload }
         case tiketsActionTypes.SET_TICKET:
             return { ...state, ticketInfo: action.payload }
         case tiketsActionTypes.SET_OFFSET:

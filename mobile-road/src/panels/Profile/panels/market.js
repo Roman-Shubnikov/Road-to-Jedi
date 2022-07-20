@@ -98,6 +98,7 @@ const specialAvatars = [
   "2007.png",
   "2008.png",
   "2009.png",
+  "2010.png",
 ]
 const zenAvatars = [
   "3001.png",
@@ -110,6 +111,7 @@ const zenAvatars = [
   "3008.png",
   "3009.png",
   "3010.png",
+  "3011.png",
 ]
 const blueBackground = {
     backgroundColor: 'var(--accent)'

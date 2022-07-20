@@ -1,22 +1,32 @@
-const express = require('express');
+import express from 'express';
+import http from 'http';
+import { Server } from "socket.io";
+import { instrument } from "@socket.io/admin-ui";
+import regMiddleware from './socketMethods/middlewares/index.js';
+
+import tickets from './socketMethods/tickets.js';
+
+
+
 const app = express();
-const http = require('http');
 const server = http.createServer(app);
-const { Server } = require("socket.io");
 const io = new Server(server, {cors: {
-    origin: "https://user413636725-kkigl2pv.wormhole.vk-apps.com",
+        origin: "*",
         methods: ["GET", "POST"],
-        allowedHeaders: ["my-custom-header"],
         credentials: true
     }});
+// instrument(io, {
+//     auth: {
+//         type: "basic",
+//         username: "roman_dev",
+//         password: "$2b$10$074P5pO7J5oFp5Q3GuC4LuTApAy8ymsnD7Jvbr9xA3VDSrMBrHSsO"
+//     }
+// });
 
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
-const tickets = require('./socketMethods/tickets');
-
-app.use(express.json()) // for parsing application/json
-app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
-
-require('./socketMethods/middlewares')(io);
+regMiddleware(io);
 io.on('connection', (socket) => {
     console.log('a user connected');
     tickets(io, socket);

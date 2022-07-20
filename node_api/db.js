@@ -1,8 +1,8 @@
-const mysql = require('mysql');
-const { pool } = require('./config');
+import mysql from 'mysql';
+import { pool } from './config.js';
 
 
-module.exports.db_query = async (query, placeholders) => {
+export const db_query = async (query, placeholders) => {
     let query_formatted = mysql.format(query, placeholders)
     try {
         let resp = new Promise((resolve) => {

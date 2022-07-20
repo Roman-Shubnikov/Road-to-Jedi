@@ -1,6 +1,8 @@
-const limiter = require('./limiter');
+import limiter from './limiter.js';
+import auth from './auth.js';
 
-module.exports = (io) => {
+
+export default (io) => {
     io.use(limiter);
-    return io;
+    io.use(auth);
 }

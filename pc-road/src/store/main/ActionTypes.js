@@ -21,6 +21,7 @@ export const viewsActionTypes = {
 }
 export const tiketsActionTypes = {
     SET_TICKETS: 'TICKETS.SET_TICKETS',
+    SET_MY_TICKETS: 'TICKETS.SET_MY_TICKETS',
     SET_TICKET: 'TICKETS.SET_TICKET',
     SET_COMMENT: 'TICKETS.SET_COMMENT',
     SET_OFFSET: 'TICKETS.SET_OFFSET',
