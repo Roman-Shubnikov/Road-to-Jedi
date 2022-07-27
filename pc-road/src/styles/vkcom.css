@@ -2,10 +2,11 @@ body[scheme="vkcom_light"] {
     --gray: #AEB7C2;
     --gray_dark: #626D7A;
     --blue_dark: #2A5885;
+    --secondary_background: #FAFBFC;
 }
 body[scheme="vkcom_dark"] {
     --gray: #939393;
     --gray_dark: #b2b2b2;
     --blue_dark: #71aaeb;
-
+    --secondary_background: #292929;
 }

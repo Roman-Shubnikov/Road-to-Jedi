@@ -1,0 +1,27 @@
+.navigationTab :global(.vkuiGroup__inner) {
+    padding: 0;
+    height: 54px;
+    background-color: var(--secondary_background);
+    display: flex;
+    align-items:center;
+}
+.navigationButton {
+    height: 100%;
+}
+.navigationButtons {
+    margin-left: 10px;
+    margin-top: auto;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+}
+.profileButton {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 5px;
+}
+.profileButtonChevron {
+    margin-left: 5px;
+    color: var(--description_color);
+}

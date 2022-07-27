@@ -47,7 +47,7 @@ import {
   Icon24Comment,
  } from '@vkontakte/icons';
 
-import Message from './message'
+import {Message} from './Message'
 import { useDispatch, useSelector } from 'react-redux';
 import { ticketActions } from '../store/main';
 import { getHumanyTime, getRandomInRange, LinkHandler, NicknameMenager } from '../Utils';

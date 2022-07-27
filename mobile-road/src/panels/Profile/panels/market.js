@@ -80,12 +80,15 @@ const avatars = [
     "23.png",
 ]
 const donutAvatars = [
-  "1000.png",
-  "1001.png",
-  "1002.png",
-  "1003.png",
-  "1004.png",
-  "1005.png",
+    "1000.png",
+    "1001.png",
+    "1002.png",
+    "1003.png",
+    "1004.png",
+    "1005.png",
+    "1005.png",
+    "1006.png",
+    "1007.png",
 ]
 const specialAvatars = [
   "2000.png",

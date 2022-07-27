@@ -18,7 +18,7 @@ import {
 
 } from '@vkontakte/icons';
 export const API_URL = "https://xelene.ru/road/php/index.php?";
-export const SOCKET_URL = 'wss://334b-95-27-192-198.eu.ngrok.io/'
+export const SOCKET_URL = 'wss://6f9d-95-27-199-59.eu.ngrok.io/'
 export const AVATARS_URL = "https://xelene.ru/road/php/images/avatars/";
 export const LINKS_VK = { 
     donut_article: "https://vk.com/@jedi_road-unikalnyi-kontent-vk-donut",
@@ -188,4 +188,11 @@ export const STATUSES_ACHIEVEMENTS = {
   progress: 'progress',
 
 }
-
+export const TICKET_STATUS_TEXTS = {
+    0: ['На рассмотрении', '#EFBC4E'],
+    1: ['Рассматривается вами', '#EFBC4E'],
+    2: ['Есть ответ', '#EFBC4E'],
+    3: ['Ожидает исправления', '#EFBC4E'],
+    4: ['Ожидает ответа', '#EFBC4E'],
+    5: ['Закрыт (архив)', '#EFBC4E'],
+}

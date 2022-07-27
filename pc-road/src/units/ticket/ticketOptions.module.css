@@ -1,0 +1,29 @@
+.ticketOption {
+    max-height: 32px;
+    min-height: 32px;
+    border-radius: 0;
+    margin: 3px 0;
+
+}
+
+.input :global(.vkuiWriteBar__textarea) {
+    max-height: 66px;
+}
+.input {
+    border-radius: 4px 4px 0 0;
+}
+.fixedLayout {
+    border-radius: 4px 4px 0 0;
+}
+.fixedLayout::after {
+    content: "";
+    left: 0;
+    top: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+    padding-bottom: 5px;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 var(--thin-border) var(--input_border);
+}
