@@ -210,7 +210,7 @@ const App = () => {
     dispatch(ticketActions.setTicketId(id))
     goPanel(activeStory, 'ticket', true);
     if(need_ads && adsCounter !== 0 && adsCounter % 2 === 0 && !isEmptyObject(account) && !account.donut){
-      bridge.send("VKWebAppShowNativeAds", {ad_format:"reward"})
+      bridge.send("VKWebAppShowNativeAds", {ad_format: 'interstitial'})
     }
     adsCounter++
     setPopout(null);

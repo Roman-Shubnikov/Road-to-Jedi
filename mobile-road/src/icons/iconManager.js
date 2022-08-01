@@ -14,6 +14,7 @@ export const IconManager = props => {
     const Classes = iconClass(['vkuiIcon', `vkuiIcon--${size}`, `Icon--w-${width}`, `Icon--h-${height}`, className])
     return(
         <div
+        ref={props.getRootRef}
         style={styles}
         className={Classes}>
             <svg 
