@@ -2,23 +2,41 @@ import React from 'react';
 import { Link } from "@vkontakte/vkui";
 import { PERMISSIONS } from '../config';
 
+const timeDropHMS = (date: any) => {
+    date.setHours(0);
+    date.setMinutes(0);
+    date.setSeconds(0, 0);
+}
+
 export const getHumanyTime = (unixtime: number) => {
-    let date, time, year, month, day, hours, minutes, datetime, diffDate, daysGone, stringDate;
+    let date, time, year, month, day, hours, minutes, datetime;
     if (unixtime !== null) {
         unixtime = unixtime * 1e3;
-        let dateObject = new Date(unixtime);
+        let dateObject = new Date(unixtime),
+            today = new Date(),
+            yesterday = new Date();
+        yesterday.setDate(today.getDate() -1);
+
         month = monthsConvert(dateObject.getMonth())
         year = dateObject.getFullYear()
         day = dateObject.getDate()
-        diffDate = Math.floor((unixtime - dateObject.getTime())/1000);
-        daysGone = Math.floor(diffDate/3600*24);
-        stringDate = convertDayOffset(daysGone);
-
-        date = stringDate ? stringDate : day + " " + month + " " + year;
         hours = normalizeTime(dateObject.getHours())
         minutes = normalizeTime(dateObject.getMinutes())
+
+        timeDropHMS(today);
+        timeDropHMS(yesterday);
+        timeDropHMS(dateObject);
+
+        if (today.getTime() === dateObject.getTime()) {
+            date = 'Сегодня'
+        } else if (yesterday.getTime() === dateObject.getTime()) {
+            date = 'Вчера'
+        } else {
+            date = day + " " + month + " " + year;
+        }
+
         time = hours + ":" + minutes;
-        datetime = date + " " + time
+        datetime = date + " " + time;
     }
     return ({ date, time, year, month, day, hours, minutes, datetime })
 }
@@ -32,18 +50,6 @@ export const timeConvertVal = (val: number, num: string) => {
         time = val * 24 * 60 * 60;
     }
     return time
-}
-export const convertDayOffset = (offset: number): string | boolean => {
-    switch (offset) {
-        case 0:
-            return 'Сегодня';
-        case 1:
-            return 'Вчера';
-        case -1:
-            return 'Завтра';
-        default:
-            return false;
-    }
 }
 
 export const normalizeTime = (time: number) => {

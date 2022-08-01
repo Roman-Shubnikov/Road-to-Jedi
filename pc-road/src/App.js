@@ -97,6 +97,7 @@ const App = () => {
     const {
         goPanel,
         setSnackbar,
+        setAbortSnack,
         setPopout,
         showAlert,
         showErrorAlert,
@@ -265,6 +266,7 @@ const App = () => {
             console.log(err.message);
         });
         socket.on('ERROR', (err) => {
+            setAbortSnack(err.reason);
             console.log('ERROR: ', err);
         })
         return () => {

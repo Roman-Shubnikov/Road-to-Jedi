@@ -91,17 +91,16 @@ const TicketsList = (props: ITicketsList) => {
             {!!tickets?.length && tickets.map(v => {
                 let user = users.find(user => user.id === v.author_id);
                 if(user === undefined) return null;
-                return (<>
+                return (<React.Fragment key={v.id}>
                     <TicketPreview
                         author={user}
-                        key={v.id}
                         created_at={v.created_at}
                         status={v.status}
                         id={v.id}>
                         {v.title}
                     </TicketPreview>
                     <Separator />
-                    </>)
+                    </React.Fragment>)
             })}
         </List>
     )

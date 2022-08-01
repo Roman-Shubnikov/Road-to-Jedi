@@ -1,8 +1,10 @@
-import {arrToString} from "./functions";
+import {arrToString, genError} from "./functions";
 import {dbQuery} from "../db";
-import {MAX_DB_ELEMENTS, PERMISSIONS, TICKET_STATUSES} from "../config";
-import {IcountElements} from "../types/db";
+import {ERRORS, MAX_DB_ELEMENTS, MAX_MESSAGE_NO_MARK_PER_TICKET, PERMISSIONS, TICKET_STATUSES, TIMES} from "../config";
+import {IcountElements, OkPacket} from "../types/db";
 import {getTime} from "../functions";
+import {sendError} from "../socketMethods/functions";
+import {IUser} from "./user";
 
 type ticketIdsCol = { id: number };
 type ticket = ticketIdsCol & {
@@ -37,8 +39,11 @@ type IPaginationMessages = {
     messages: IMessage[],
 }
 
-
 export default class Tickets {
+    private user: IUser;
+    constructor(user) {
+        this.user = user;
+    }
     async getByIds(idsRaw: number[]): Promise<ticket[]> {
         const strArr = arrToString(idsRaw);
         if(!strArr) return [];
@@ -80,15 +85,9 @@ export default class Tickets {
         const ids = ticketsIds.map(v => v.id);
         return await this.getByIds(ids);
     }
-    async getMessagesByTicketId(ticketId: number, offset: number): Promise<IPaginationMessages> {
-        const cond = `
-        WHERE ticket_id=?
-        ORDER BY created_at DESC`
-        const count = (await dbQuery<IcountElements>(`
-        SELECT COUNT(*) as count
-        FROM messages_new
-        ${cond}`, [ticketId]))?.[0]?.count ?? 0;
-        if(!count) return {count, messages: Array<IMessage>()}
+    async getMessagesByIds(idsRaw: number[]): Promise<IMessage[]> {
+        const strArr = arrToString(idsRaw);
+        if(!strArr) return [];
         const messages = await dbQuery<IMessage[]>(`
         SELECT id,
         ticket_id,
@@ -99,20 +98,75 @@ export default class Tickets {
         commented_at,
         text,
         can_fix_to,
+        mark_author_id,
         edited_at,
         created_at
         FROM messages_new
+        WHERE id IN (${strArr})
+        ORDER BY FIELD(id, ${strArr})
+        LIMIT ${MAX_DB_ELEMENTS}`)
+        return messages;
+    }
+    async getMessagesByTicketId(ticketId: number, offset: number): Promise<IPaginationMessages> {
+        const cond = `
+        WHERE ticket_id=?
+        ORDER BY created_at DESC`
+        const count = (await dbQuery<IcountElements>(`
+        SELECT COUNT(*) as count
+        FROM messages_new
+        ${cond}`, [ticketId]))?.[0]?.count ?? 0;
+        if(!count) return {count, messages: Array<IMessage>()}
+        const messagesIdsRaw = await dbQuery<IMessage[]>(`
+        SELECT
+        id
+        FROM messages_new
         ${cond}
-        LIMIT ${offset}, ${MAX_DB_ELEMENTS}`, [ticketId])
+        LIMIT ${offset}, ${MAX_DB_ELEMENTS}`, [ticketId]);
+        const messagesIds = messagesIdsRaw.map(v => v.id);
+        const messages = await this.getMessagesByIds(messagesIds);
         return {count, messages}
     }
-    async sendMessage(authorId: number, ticketId: number, text: string) {
+    async sendMessage(ticketId: number, text: string) {
         const time = getTime();
-        const resp = await dbQuery(`
+        const [ticketInfo] = await this.getByIds([ticketId]);
+        if(!ticketInfo) throw genError(11);
+        let authorId = this.user.id;
+        if(this.user.permissions < PERMISSIONS.special) {
+            const userMessagesNoMark = await dbQuery<IMessage[]>(`SELECT id
+            FROM messages_new
+            WHERE ticket_id=? AND author_id=? AND mark=?`,
+                [ticketInfo.id, ticketInfo.author_id, -1])
+            if(userMessagesNoMark.length > MAX_MESSAGE_NO_MARK_PER_TICKET) {
+                throw genError(1);
+            }
+        } else {
+            authorId = ticketInfo.author_id;
+        }
+
+        dbQuery<OkPacket>(`
         INSERT INTO messages_new
         (author_id, ticket_id, text, created_at)
-        VALUES (?,?,?,?)`, [authorId, ticketId, text, time]);
-        return resp;
+        VALUES (?,?,?,?)`, [authorId, ticketId, text, time])
+            .then(async data => {
+                console.log(data)
+                if(!data.insertId) throw genError(0);
+                const [message] = await this.getMessagesByIds([data.insertId])
+                return message;
+            })
+    }
+    async markMessage(authorId: number, id: number, mark: number) {
+        const time = getTime();
+        let canFixTo = 0;
+        let markAuthor = authorId;
+        if(mark === -1) {
+            canFixTo = time + TIMES.day;
+            markAuthor = 0;
+        }
+        const resp = await dbQuery(`
+        UPDATE messages_new
+        SET mark=?, can_fix_to=?, mark_author_id=?, marked_at=?
+        WHERE id=?`, [mark, canFixTo, markAuthor, time, id])
+        return true;
     }
     async reserve(aid: number, ticketId: number): Promise<boolean> {
 

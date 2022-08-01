@@ -22,16 +22,34 @@ type AgentInfo = ShortUserInfo & {
 }
 
 export interface IUser {
-    getSelf: VoidFunction,
-    getByVkIds: (vkIds) => Promise<InfoT[]>,
+    info: InfoT;
+    id: number;
+    vkId: number;
+    permissions: number;
+    getSelf: VoidFunction;
+    getByVkIds: (vkIds) => Promise<InfoT[]>;
     getByIds: (ids) => Promise<ShortUserInfo[]>;
-    getByAgentsIds: (ids) => Promise<AgentInfo[]>,
+    getByAgentsIds: (ids) => Promise<AgentInfo[]>;
+    checkPermission: (permission) => Promise<boolean>;
 
 }
 
 export class User implements IUser {
+    info: InfoT;
+    id: number;
+    vkId: number;
+    permissions: number;
+
     constructor(vkId) {
         this.vkId = vkId;
+    }
+
+    async checkPermission(permission: number, aid=0): Promise<boolean> {
+        if(aid === 0) {
+            return permission <= this.permissions;
+        } else {
+            return false;
+        }
     }
 
     async getSelf() {
@@ -45,12 +63,11 @@ export class User implements IUser {
     async getByVkIds(vkIds): Promise<InfoT[]> {
         const strArr = arrToString(vkIds);
         if (!strArr) return [];
-        const users = await dbQuery(`
+        return await dbQuery<InfoT[]>(`
         SELECT id, vk_user_id, registered, last_activity, permissions
         FROM users
         WHERE vk_user_id IN (${strArr})
-        LIMIT ${MAX_DB_ELEMENTS}`)
-        return users;
+        LIMIT ${MAX_DB_ELEMENTS}`);
     }
 
     async getByAgentsIds(ids: any[]): Promise<AgentInfo[]> {
@@ -77,7 +94,7 @@ export class User implements IUser {
         WHERE u.id IN (${uIds.toString()})
         LIMIT ${MAX_DB_ELEMENTS}`);
         agentsInfo.forEach(v => {
-            let name = '';
+            let name: string;
             switch (v.permissions) {
                 case PERMISSIONS.admin:
                     name = 'Администратор'
@@ -131,9 +148,4 @@ export class User implements IUser {
         })
         return outArr;
     }
-
-    info: InfoT;
-    id: number;
-    vkId: number;
-    permissions: number;
 }

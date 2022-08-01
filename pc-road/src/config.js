@@ -18,7 +18,7 @@ import {
 
 } from '@vkontakte/icons';
 export const API_URL = "https://xelene.ru/road/php/index.php?";
-export const SOCKET_URL = 'wss://6f9d-95-27-199-59.eu.ngrok.io/'
+export const SOCKET_URL = 'wss://c73c-95-27-199-59.eu.ngrok.io/'
 export const AVATARS_URL = "https://xelene.ru/road/php/images/avatars/";
 export const LINKS_VK = { 
     donut_article: "https://vk.com/@jedi_road-unikalnyi-kontent-vk-donut",

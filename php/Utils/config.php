@@ -18,7 +18,7 @@ class CONFIG {
 	const PRODUCTS_AVATAR_PATH = 'https://xelene.ru/road/php/images/products';
 	const USER_IMAGES_PATH = 'https://xelene.ru/roadjedi/';
 	const SUBSCRIBTIONS_AVATAR_PATH = 'https://xelene.ru/road/php/images/subscriptions';
-	const AVATARS_COUNT = 23;
+	const AVATARS_COUNT = 26;
 	const AVATARS_SEGMENTS = [
 		'default' => [0, 999],
 		'donut' => [1000, 1999],

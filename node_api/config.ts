@@ -14,10 +14,16 @@ export const AVATAR_URL = 'https://xelene.ru/road/php/images/avatars';
 
 export const MAX_DB_ELEMENTS = 100;
 export const MAX_MESSAGE_LENGTH = 4040;
+export const MAX_MESSAGE_NO_MARK_PER_TICKET = 2;
 export const ERRORS = {
+    0: 'Неизветсная ошибка',
     1: 'Вы привысили лимит',
     2: 'Невалидные данные',
     3: 'Неверная длина поля',
+    11: 'Тикет не найден',
+    12: 'Вы не можете оценивать ответ, оценённый другим спец. агентом',
+    403: 'Доступ запрещён',
+    404: 'Информация не найдена',
 }
 export const PERMISSIONS = {
     agent: 1,
@@ -32,3 +38,10 @@ export const TICKET_STATUSES = {
     WAIT_ANSWER: 4,
     CLOSED: 5,
 }
+export const TIMES = {
+    minute: 60,
+    hour: 60*60,
+    day: 60*60*24,
+    month: 60*60*24*30,
+}
+export const NAME_TICKET_ROOM = 'ticket_';

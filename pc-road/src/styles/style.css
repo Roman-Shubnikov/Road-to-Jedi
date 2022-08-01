@@ -82,6 +82,12 @@ a{
     width: 200px;
     height: 200px;
 }
+.good_answer {
+    color: var(--good_answer);
+}
+.bad_answer {
+    color: var(--bad_answer);
+}
 .gray,
 .gray .vkuiSimpleCell {
     color: var(--gray_dark);
@@ -92,4 +98,29 @@ a{
 }
 .sep-wide .vkuiSeparator__in {
     margin: 0 -7px;
+}
+.message {
+    overflow: hidden;
+}
+.message-enter {
+    opacity: 0.5;
+    max-height: 0;
+    transform: scaleY(0);
+}
+.message-enter-active {
+    opacity: 1;
+    max-height: 500px;
+    transition: all 200ms ease-in;
+}
+
+.message-exit {
+    opacity: 1;
+    max-height: 500px;
+    transform: scaleY(1);
+}
+
+.message-exit-active {
+    opacity: 0.5;
+    max-height: 0;
+    transition: all 500ms ease-in;
 }

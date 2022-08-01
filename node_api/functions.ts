@@ -9,9 +9,9 @@ export const getKeyByValue = (obj, value) => {
 export const getTime = (): number => {
     return Math.floor(new Date().getTime() / 1000);
 }
+export const isBoolean = val => 'boolean' === typeof val;
 
 export type fetchVkT = object[] | object;
-
 
 export const fetchVK = async <T = fetchVkT>(method, json, token = API_VK_TOKEN): Promise<[boolean, T]> => {
     type VKResponse = {

@@ -1,6 +1,6 @@
 import * as Buffer from "buffer";
 import {Server, Socket} from "socket.io";
-import User from "../data/user";
+import {IUser} from "../data/user";
 
 export interface ServerToClientEvents {
     [event: string]: (object) => void;
@@ -17,9 +17,9 @@ export interface InterServerEvents {
 export interface SocketData {
     name: string;
     age: number;
-    user: User,
+    user: IUser,
 }
 export type defaultSoket = Socket<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData> & {
-    user?: User,
+    user?: IUser,
     customLimiter?: (number) => Promise<boolean>
 };

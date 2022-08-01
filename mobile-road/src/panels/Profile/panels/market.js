@@ -78,6 +78,9 @@ const avatars = [
     "21.png",
     "22.png",
     "23.png",
+    "24.png",
+    "25.png",
+    "26.png",
 ]
 const donutAvatars = [
     "1000.png",
@@ -91,17 +94,21 @@ const donutAvatars = [
     "1007.png",
 ]
 const specialAvatars = [
-  "2000.png",
-  "2001.png",
-  "2002.png",
-  "2003.png",
-  "2004.png",
-  "2005.png",
-  "2006.png",
-  "2007.png",
-  "2008.png",
-  "2009.png",
-  "2010.png",
+    "2000.png",
+    "2001.png",
+    "2002.png",
+    "2003.png",
+    "2004.png",
+    "2005.png",
+    "2006.png",
+    "2007.png",
+    "2008.png",
+    "2009.png",
+    "2010.png",
+    "2010.png",
+    "2010.png",
+    "2011.png",
+    "2012.png",
 ]
 const zenAvatars = [
   "3001.png",

@@ -1,4 +1,4 @@
-import React, {MouseEventHandler, ReactElement, ReactNode} from 'react';
+import React, {memo, MouseEventHandler, ReactElement, ReactNode} from 'react';
 import {Dropdown} from "@vkontakte/vkui/unstable";
 import styles from './ticketOptions.module.css'
 import {Div, Separator, SimpleCell} from "@vkontakte/vkui";
@@ -36,12 +36,24 @@ const OptionElement = (props: IOptionElement) => {
 
 
 interface ITicketOptions {
+    onClickProfile: VoidFunction,
+    onClickRemove: VoidFunction,
+    onClickMark: (mark:number) => void,
+    onClickWriteComment: VoidFunction,
+    onClickCopyText: VoidFunction,
     children: ReactElement,
+    adminButtons: boolean,
 }
 
-export const TicketOptions = (props: ITicketOptions) => {
+export const TicketOptions = memo((props: ITicketOptions) => {
     const {
+        onClickProfile,
+        onClickRemove,
+        onClickMark,
+        onClickWriteComment,
+        onClickCopyText,
         children,
+        adminButtons = false,
     } = props;
     return(
         <Dropdown
@@ -49,29 +61,41 @@ export const TicketOptions = (props: ITicketOptions) => {
             <Div style={{padding: '5px 0'}}>
                 <OptionElement
                 before={<Icon20UserOutline />}
-                onClick={() => {}}>
+                onClick={onClickProfile}>
                     Профиль агента
                 </OptionElement>
-                <Separator />
                 <OptionElement
                     before={<Icon20DeleteOutlineAndroid />}
-                    onClick={() => {}}>
+                    onClick={onClickRemove}>
+                    Удалить сообщение
+                </OptionElement>
+                <Separator />
+                {adminButtons && <>
+                <OptionElement
+                    before={<Icon20DeleteOutlineAndroid />}
+                    onClick={() => onClickMark(-1)}>
                     Удалить оценку
                 </OptionElement>
                 <OptionElement
                     before={<Icon20CheckCircleOutline />}
-                    onClick={() => {}}>
+                    onClick={() => onClickMark(1)}>
                     Одобрить
                 </OptionElement>
                 <OptionElement
+                    before={<Icon20CheckCircleOutline />}
+                    onClick={() => onClickMark(0)}>
+                    Оценить отрицательно
+                </OptionElement>
+                <OptionElement
                     before={<Icon20CommentOutline />}
-                    onClick={() => {}}>
+                    onClick={onClickWriteComment}>
                     Написать комментарий
                 </OptionElement>
                 <Separator />
+                </>}
                 <OptionElement
                     before={<Icon20CopyOutline />}
-                    onClick={() => {}}>
+                    onClick={onClickCopyText}>
                     Скопировать текст
                 </OptionElement>
                 <OptionElement
@@ -84,4 +108,4 @@ export const TicketOptions = (props: ITicketOptions) => {
             {children}
         </Dropdown>
     )
-}
+})
