@@ -18,7 +18,7 @@ class CONFIG {
 	const PRODUCTS_AVATAR_PATH = 'https://xelene.ru/road/php/images/products';
 	const USER_IMAGES_PATH = 'https://xelene.ru/roadjedi/';
 	const SUBSCRIBTIONS_AVATAR_PATH = 'https://xelene.ru/road/php/images/subscriptions';
-	const AVATARS_COUNT = 26;
+	const AVATARS_COUNT = 10;
 	const AVATARS_SEGMENTS = [
 		'default' => [0, 999],
 		'donut' => [1000, 1999],
@@ -26,7 +26,7 @@ class CONFIG {
 		'zen' => [3000, 3999],
 	];
 	const MIN_GOOD_ANSWERS_FOR_NOW_ZEN = 500;
-	const DONUT_AVATARS_COUNT = 12;
+	const DONUT_AVATARS_COUNT = 10;
 	const DONUT_CHAT_LINK = 'https://vk.me/join/AJQ1d5Q6DBpt1ZcGVjAcVeOY';
 	const LINK_APP = 'https://vk.com/vkagentsapp';
 	
