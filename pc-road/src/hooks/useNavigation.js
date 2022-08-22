@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { accountActions, ticketActions, viewsActions } from "../store/main";
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
@@ -24,7 +24,7 @@ export const useNavigation = () => {
     const setPopout = useCallback((popout) => dispatch(viewsActions.setPopout(popout)), [dispatch]);
     const setHistoryPanels = useCallback((history) => dispatch(viewsActions.setHistory(history)), [dispatch]);
     const setSnackbar = useCallback((payload) => dispatch(viewsActions.setSnackbar(payload)), [dispatch])
-    const hash = useMemo(() => queryString.parse(window.location.hash), []);
+    const hash = queryString.parse(window.location.hash);
 
     const setHash = (hash) => {
       bridge.send("VKWebAppSetLocation", { "location": hash });

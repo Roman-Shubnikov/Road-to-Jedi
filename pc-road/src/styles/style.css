@@ -102,6 +102,9 @@ a{
 .message {
     overflow: hidden;
 }
+.message .vkuiRichCell__text {
+    white-space: pre-wrap;
+}
 .message-enter {
     opacity: 0.5;
     max-height: 0;

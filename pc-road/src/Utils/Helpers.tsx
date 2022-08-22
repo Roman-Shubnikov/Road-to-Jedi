@@ -8,36 +8,40 @@ const timeDropHMS = (date: any) => {
     date.setSeconds(0, 0);
 }
 
-export const getHumanyTime = (unixtime: number) => {
-    let date, time, year, month, day, hours, minutes, datetime;
-    if (unixtime !== null) {
-        unixtime = unixtime * 1e3;
-        let dateObject = new Date(unixtime),
-            today = new Date(),
-            yesterday = new Date();
-        yesterday.setDate(today.getDate() -1);
+export const getTime = (): number => {
+    return Math.floor(new Date().getTime() / 1000);
+}
 
-        month = monthsConvert(dateObject.getMonth())
-        year = dateObject.getFullYear()
-        day = dateObject.getDate()
-        hours = normalizeTime(dateObject.getHours())
-        minutes = normalizeTime(dateObject.getMinutes())
+export const getHumanyTime = (unixtime: number, needStringFormat=false) => {
+    unixtime = unixtime * 1e3;
+    let dateObject = new Date(unixtime),
+        today = new Date(),
+        yesterday = new Date();
+    yesterday.setDate(today.getDate() -1);
 
-        timeDropHMS(today);
-        timeDropHMS(yesterday);
-        timeDropHMS(dateObject);
+    let month = monthsConvert(dateObject.getMonth())
+    let year = dateObject.getFullYear()
+    let day = dateObject.getDate()
+    let hours = normalizeTime(dateObject.getHours())
+    let minutes = normalizeTime(dateObject.getMinutes())
 
+    timeDropHMS(today);
+    timeDropHMS(yesterday);
+    timeDropHMS(dateObject);
+    let date = '';
+    if(needStringFormat) {
         if (today.getTime() === dateObject.getTime()) {
             date = 'Сегодня'
         } else if (yesterday.getTime() === dateObject.getTime()) {
             date = 'Вчера'
-        } else {
-            date = day + " " + month + " " + year;
         }
-
-        time = hours + ":" + minutes;
-        datetime = date + " " + time;
     }
+    if(!date) {
+        date = day + " " + month + " " + year;
+    }
+
+    let time = hours + ":" + minutes;
+    let datetime = date + " " + time;
     return ({ date, time, year, month, day, hours, minutes, datetime })
 }
 export const timeConvertVal = (val: number, num: string) => {

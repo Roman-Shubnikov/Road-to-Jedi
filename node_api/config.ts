@@ -14,6 +14,7 @@ export const AVATAR_URL = 'https://xelene.ru/road/php/images/avatars';
 
 export const MAX_DB_ELEMENTS = 100;
 export const MAX_MESSAGE_LENGTH = 4040;
+export const TIME_TO_EDIT_MESSAGE = 60*3;
 export const MAX_MESSAGE_NO_MARK_PER_TICKET = 2;
 export const ERRORS = {
     0: 'Неизветсная ошибка',
@@ -22,12 +23,21 @@ export const ERRORS = {
     3: 'Неверная длина поля',
     11: 'Тикет не найден',
     12: 'Вы не можете оценивать ответ, оценённый другим спец. агентом',
+    13: 'Сообщение уже имеет оценку',
+    14: 'Этот тикет закрыт',
+    15: 'Вначале оцените все сообщения в этом тикете',
+    16: 'Вы не можете редактировать сообщение, если оно уже оценено',
+    17: 'Время редактирования уже прошло',
+    18: 'Поясните причину пользователю',
+    19: 'Сообщение уже имеет коментарий другого спец. агента',
+    20: 'Давайте, вначале, дождёмся ответа собеседника',
+    21: 'Вы должны уместить мысли в одно сообщение или отредактируйте старое',
     403: 'Доступ запрещён',
     404: 'Информация не найдена',
 }
 export const PERMISSIONS = {
-    agent: 1,
-    special: 2,
+    agent: 0,
+    special: 1,
     admin: 20,
 }
 export const TICKET_STATUSES = {
@@ -45,3 +55,8 @@ export const TIMES = {
     month: 60*60*24*30,
 }
 export const NAME_TICKET_ROOM = 'ticket_';
+
+export const MONEY_GOOD_MARK = 10;
+export const MONEY_BAD_MARK = 30;
+export const DONUTS_GOOD_MARK = 10;
+export const DONUT_TICKET_COEFFICIENT = 3;

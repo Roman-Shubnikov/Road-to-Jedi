@@ -7,6 +7,9 @@ import {vkUser} from "../types/user";
 type InfoT = {
     id?: number,
     permissions?: number,
+    age: number,
+    mark_day: number,
+    flash: number,
 }
 type ShortUserInfo = {
     permissions: number,
@@ -87,6 +90,9 @@ export class User implements IUser {
         u.vk_user_id,
         u.permissions,
         a.name,
+        u.age,
+        u.mark_day,
+        u.flash,
         u.registered,
         u.last_activity
         FROM users as u
@@ -106,16 +112,17 @@ export class User implements IUser {
                 default:
                     name = 'Агент Поддержки';
             }
+            const privatePermission = v.permissions <= this.permissions;
             outArr.push(
                 {
-                    permissions: v.permissions,
+                    permissions: privatePermission ? v.permissions : 0,
                     id: v.id,
-                    vk_user_id: v.vk_user_id,
+                    vk_user_id: privatePermission ? v.vk_user_id : 1,
                     first_name: name,
                     last_name: '#' + v.id,
                     avatar: AVATAR_URL + '/' + v.name,
-                    registered: v.registered,
-                    last_activity: v.last_activity,
+                    registered: privatePermission ? v.registered : 0,
+                    last_activity: privatePermission ? v.last_activity : 0,
                 }
             )
         })

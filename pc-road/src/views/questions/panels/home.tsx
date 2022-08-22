@@ -14,6 +14,7 @@ import {
     Icon24CalendarOutline, Icon56ErrorOutline,
 
 } from '@vkontakte/icons';
+import {TICKET_STATUS_TEXTS} from "../../../config";
 const TICKETS_PER_PAGE = 100;
 
 type IHome = {
@@ -38,6 +39,10 @@ export const Home = (props: IHome) => {
         socket.on('TICKETS_MY_REVIEW', (tickets) => {
             dispatch(ticketActions.setMyTickets(tickets))
             console.log(tickets, 'ada')
+        })
+        socket.on('TICKETS_UPDATED', () => {
+            socket.emit('TICKETS_GET', {offset: (currentPage-1)*TICKETS_PER_PAGE});
+            socket.emit('TICKETS_MY_REVIEW');
         })
         socket.emit('TICKETS_GET', {offset: (currentPage-1)*TICKETS_PER_PAGE});
 	    socket.emit('TICKETS_MY_REVIEW');
@@ -88,7 +93,7 @@ const TicketsList = (props: ITicketsList) => {
             <Placeholder>
                 Здесь пока пусто
             </Placeholder>}
-            {!!tickets?.length && tickets.map(v => {
+            {!!tickets?.length && tickets.map((v, i) => {
                 let user = users.find(user => user.id === v.author_id);
                 if(user === undefined) return null;
                 return (<React.Fragment key={v.id}>
@@ -99,13 +104,12 @@ const TicketsList = (props: ITicketsList) => {
                         id={v.id}>
                         {v.title}
                     </TicketPreview>
-                    <Separator />
+                    {tickets.length > i+1 && <Separator />}
                     </React.Fragment>)
             })}
         </List>
     )
 }
-
 type ShortUserInfo = {
     permissions: number,
     id: number,
@@ -116,7 +120,7 @@ type ShortUserInfo = {
 type ITicketPreview = {
     id: number,
     children: string,
-    status: number,
+    status: 0|1|2|3|4|5,
     author: ShortUserInfo,
     created_at: number,
 }
@@ -145,6 +149,7 @@ const TicketPreview = (props: ITicketPreview) => {
             goPanel('Questions', 'ticket', true);
             }}
             before={getIconTicketByStatus(status)}
+            description={TICKET_STATUS_TEXTS[status][0]}
             after={
                 <SimpleCell
                     disabled

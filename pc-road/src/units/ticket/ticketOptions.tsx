@@ -9,16 +9,16 @@ import {
     Icon20CopyOutline,
     Icon20DeleteOutlineAndroid,
     Icon20ReportOutline,
-    Icon20UserOutline
+    Icon20UserOutline,
+    Icon20WriteOutline,
 } from "@vkontakte/icons";
-
 interface IOptionElement {
     children: string,
     before: ReactNode,
     onClick: MouseEventHandler<HTMLElement>,
 }
 
-const OptionElement = (props: IOptionElement) => {
+export const OptionElement = (props: IOptionElement) => {
     const {
         onClick,
         before,
@@ -37,26 +37,29 @@ const OptionElement = (props: IOptionElement) => {
 
 interface ITicketOptions {
     onClickProfile: VoidFunction,
-    onClickRemove: VoidFunction,
+    onClickEdit: VoidFunction,
     onClickMark: (mark:number) => void,
     onClickWriteComment: VoidFunction,
     onClickCopyText: VoidFunction,
     children: ReactElement,
     adminButtons: boolean,
+    canEdit: boolean,
 }
 
 export const TicketOptions = memo((props: ITicketOptions) => {
     const {
         onClickProfile,
-        onClickRemove,
+        onClickEdit,
         onClickMark,
         onClickWriteComment,
         onClickCopyText,
         children,
         adminButtons = false,
+        canEdit,
     } = props;
     return(
         <Dropdown
+            placement='left-start'
         content={
             <Div style={{padding: '5px 0'}}>
                 <OptionElement
@@ -64,11 +67,11 @@ export const TicketOptions = memo((props: ITicketOptions) => {
                 onClick={onClickProfile}>
                     Профиль агента
                 </OptionElement>
-                <OptionElement
-                    before={<Icon20DeleteOutlineAndroid />}
-                    onClick={onClickRemove}>
-                    Удалить сообщение
-                </OptionElement>
+                {canEdit && <OptionElement
+                    before={<Icon20WriteOutline />}
+                    onClick={onClickEdit}>
+                    Редактировать сообщение
+                </OptionElement>}
                 <Separator />
                 {adminButtons && <>
                 <OptionElement

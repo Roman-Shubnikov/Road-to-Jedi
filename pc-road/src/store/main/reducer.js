@@ -30,13 +30,12 @@ const initalStateViews = {
     default_scheme: "vkcom_light",
     activeStory: viewsStructure.Profile.navName,
     activePanel: viewsStructure.Profile.panels.homepanel,
-    historyPanels: [{view: viewsStructure.Profile.navName, 
-        panel: viewsStructure.Profile.panels.homepanel}],
+    historyPanels: [],
     snackbar: null,
     need_epic: true,
     popout: null,
     globalError: null,
-    historyPanelsView: ['home'],
+    historyPanelsView: [],
 }
 const initalStateTickets = {
     comment: '',

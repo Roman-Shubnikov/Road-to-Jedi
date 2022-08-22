@@ -6,11 +6,16 @@
 
 }
 
-.input :global(.vkuiWriteBar__textarea) {
-    max-height: 66px;
-}
+/*.input :global(.vkuiWriteBar__textarea) {*/
+/*    max-height: 66px;*/
+/*}*/
 .input {
     border-radius: 4px 4px 0 0;
+}
+.messagesBox {
+    max-height: 495px;
+    min-height: 495px;
+    overflow-y: auto;
 }
 .fixedLayout {
     border-radius: 4px 4px 0 0;

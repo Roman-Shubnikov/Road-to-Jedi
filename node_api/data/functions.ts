@@ -8,6 +8,6 @@ export const toNumericArray = (arr: any): number[] => {
     numericArray = numericArray.filter(v => !isNaN(v));
     return numericArray;
 }
-export const genError = (code) => {
+export const genError = (code: number) => {
     return new Error(ERRORS[code]);
 }

@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react'; // React
+import React, {useCallback, useEffect, useRef, useState} from 'react'; // React
 import {useDispatch, useSelector} from "react-redux";
 import bridge from '@vkontakte/vk-bridge';
 import {SkeletonTheme} from "react-loading-skeleton";
@@ -112,7 +112,9 @@ const App = () => {
     const {activeStory, historyPanels, snackbar, activePanel, popout} = useSelector((state) => state.views)
     const [ignoreOtherProfile, setIgnoreOtherProfile] = useState(false);
     const need_epic = useSelector((state) => state.views.need_epic)
-    const comment_special = useSelector((state) => state.tickets.comment)
+    const comment_special = useSelector((state) => state.tickets.comment);
+
+    const popoutTimeout = useRef(null);
 
 
     const goBack = useCallback(async () => {
@@ -186,6 +188,11 @@ const App = () => {
 
         }
     }, [AppInit, dispatch, schemeSettings])
+
+
+    useEffect(() => {
+        goPanel(viewsStructure.Profile.navName, viewsStructure.Profile.panels.homepanel, true);
+    }, [])
     useEffect(() => {
         dispatch(accountActions.setScheme({scheme: default_scheme}))
     }, [account, default_scheme, dispatch])
@@ -234,11 +241,12 @@ const App = () => {
         }
     }, [handlePopstate])
     useEffect(() => {
-        if (!isEmptyObject(account)) {
+        console.log(hash, activePanel)
+        if (!isEmptyObject(account) && historyPanels.length > 0) {
             if (hash?.promo && activePanel !== 'promocodes') {
                 goPanel(viewsStructure.Profile.navName, 'promocodes', true)
-            } else if (hash.ticket_id !== undefined && activePanel !== 'ticket') {
-                dispatch(ticketActions.setTicketId(hash.ticket_id))
+            } else if (hash.ticket !== undefined && activePanel !== 'ticket') {
+                dispatch(ticketActions.setTicketId(hash.ticket))
                 goPanel(viewsStructure.Questions.navName, 'ticket', true);
             } else if (hash.agent_id !== undefined) {
                 if (activePanel !== 'other_profile' && !ignoreOtherProfile) {
@@ -260,14 +268,23 @@ const App = () => {
 
         return () => bridge.unsubscribe(bridgecallback);
     }, [account, bridgecallback])
-
+    useEffect(() => {
+        popoutTimeout.current = setTimeout(() => {
+            setBigLoader(false);
+        }, 10000);
+        return () => {
+            clearTimeout(popoutTimeout.current)
+        }
+    }, [popout, setBigLoader])
     useEffect(() => {
         socket.on("connect_error", (err) => {
             console.log(err.message);
+            setBigLoader(false);
         });
         socket.on('ERROR', (err) => {
             setAbortSnack(err.reason);
             console.log('ERROR: ', err);
+            setBigLoader(false);
         })
         return () => {
             socket.off('connect_error');

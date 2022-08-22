@@ -67,7 +67,7 @@ export const HISTORY_IMAGES = {
 export const blueBackground = {
   backgroundColor: 'var(--accent)'
 };
-export const LINK_APP = "https://vk.com/vkagentsapp";
+export const LINK_APP = "https://vk.com/trainingapp";
 export const CONVERSATION_LINK = "https://vk.me/join/zyWQzsgQ9iw6V2YAfbwiGtuO883rnYhXwAY=";
 export const SPEC_COURCE_LINKS = {
   cource: "https://vk.com/@sartj-course",

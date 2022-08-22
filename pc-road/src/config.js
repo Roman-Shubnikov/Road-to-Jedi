@@ -18,7 +18,7 @@ import {
 
 } from '@vkontakte/icons';
 export const API_URL = "https://xelene.ru/road/php/index.php?";
-export const SOCKET_URL = 'wss://c73c-95-27-199-59.eu.ngrok.io/'
+export const SOCKET_URL = 'wss://3db0-95-27-199-59.eu.ngrok.io/'
 export const AVATARS_URL = "https://xelene.ru/road/php/images/avatars/";
 export const LINKS_VK = { 
     donut_article: "https://vk.com/@jedi_road-unikalnyi-kontent-vk-donut",
@@ -68,7 +68,7 @@ export const HISTORY_IMAGES = {
 export const blueBackground = {
   backgroundColor: 'var(--accent)'
 };
-export const LINK_APP = "https://vk.com/vkagentsapp";
+export const LINK_APP = "https://vk.com/trainingapp";
 export const CONVERSATION_LINK = "https://vk.me/join/zyWQzsgQ9iw6V2YAfbwiGtuO883rnYhXwAY=";
 export const SPEC_COURCE_LINKS = {
   cource: "https://vk.com/@sartj-course",
@@ -77,11 +77,11 @@ export const SPEC_COURCE_LINKS = {
   messages_help: 'https://vk.com/gim201542328',
 
 };
+export const TIME_TO_EDIT_MESSAGE = 60*3;
 export const SPECIAL_NORM = 50;
 export const GENERATOR_NORM = 200;
 export const PUBLIC_STATUS_LIMIT = 70;
 export const PERMISSIONS = {
-    user: -1,
     agent: 0,
     special: 1,
     admin: 20,
@@ -195,4 +195,12 @@ export const TICKET_STATUS_TEXTS = {
     3: ['Ожидает исправления', '#EFBC4E'],
     4: ['Ожидает ответа', '#EFBC4E'],
     5: ['Закрыт (архив)', '#EFBC4E'],
+}
+export const TICKET_STATUSES = {
+    CREATED: 0,
+    RESERVED: 1,
+    ANSWERED: 2,
+    WAIT_EDIT: 3,
+    WAIT_ANSWER: 4,
+    CLOSED: 5,
 }
