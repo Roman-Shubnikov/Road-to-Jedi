@@ -37,5 +37,6 @@ export const useSearch = (callback) => {
     return {
         setSearch,
         search,
+        typing,
     }
 }

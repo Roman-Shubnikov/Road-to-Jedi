@@ -28,7 +28,7 @@ class CONFIG {
 	const MIN_GOOD_ANSWERS_FOR_NOW_ZEN = 500;
 	const DONUT_AVATARS_COUNT = 10;
 	const DONUT_CHAT_LINK = 'https://vk.me/join/AJQ1d5Q6DBpt1ZcGVjAcVeOY';
-	const LINK_APP = 'https://vk.com/vkagentsapp';
+	const LINK_APP = 'https://vk.com/trainingapp';
 	
 	const MAX_TICKETS_TITLE_LEN = 80;
 	const MAX_TICKETS_TEXT_LEN = 4040;

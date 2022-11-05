@@ -6,3 +6,4 @@ mobile-road/node_modules/
 node_modules
 php/vendor
 testphp/vendor
+*/.idea
