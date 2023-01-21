@@ -3,7 +3,7 @@
 ini_set( 'date.timezone', 'UTC' ); // Время по гринвичу
 
 class CONFIG {
-	const DB_HOST = '89.223.126.48';
+	const DB_HOST = '92.255.109.65';
 	const DB_NAME = 'roadjedi';
 	const DB_USER = 'jedi';
 	const DB_PASS = 'Road019283roman22';

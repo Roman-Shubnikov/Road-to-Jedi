@@ -7,7 +7,7 @@
     "start": "cross-env PORT=10888 HTTPS=true react-scripts start",
     "tunnel": "vk-tunnel --insecure=1 --http-protocol=https --ws-protocol=wss --host=localhost --port=10888",
     "start-vk": "npm start && npm run tunnel",
-    "build": "set \"GENERATE_SOURCEMAP=false\" && react-scripts build",
+    "build": "set \"GENERATE_SOURCEMAP=false\" && react-scripts --openssl-legacy-provider build",
     "predeploy": "npm run build",
     "deploy": "vk-miniapps-deploy"
   },

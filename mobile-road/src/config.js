@@ -18,6 +18,7 @@ import {
 
 } from '@vkontakte/icons';
 export const API_URL = "https://xelene.ru/road/php/index.php?";
+export const LINK_APP = 'https://vk.com/trainingapp';
 export const AVATARS_URL = "https://xelene.ru/road/php/images/avatars/";
 export const LINKS_VK = { 
     donut_article: "https://vk.com/@jedi_road-unikalnyi-kontent-vk-donut",
@@ -40,15 +41,15 @@ export const MESSAGE_NO_VK = (
     );
 export const POST_TEXTS = {
         prometay: {
-          text: "Раздаю отличные ответы в [https://vk.com/vkagentsapp|VK Агенты] по максимуму — это я от усердия теперь горю или мне наконец-то дали значок Прометея в Профиле RtJ? 🎉\n\n#RoadtoJedi #Прометей",
+          text: `Раздаю отличные ответы в [${LINK_APP}|VK Агенты] по максимуму — это я от усердия теперь горю или мне наконец-то дали значок Прометея в Профиле RtJ? 🎉\n\n#RoadtoJedi #Прометей`,
           image: "photo605436158_457240007"
         },
         verif: {
-          text: "Доказал, что достоин, — верифицировал Профиль [https://vk.com/vkagentsapp|VK Агенты].\n\nА у вас уже есть такая галочка?\n\n#RoadtoJedi #Верификация",
+          text: `Доказал, что достоин, — верифицировал Профиль [${LINK_APP}|VK Агенты].\n\nА у вас уже есть такая галочка?\n\n#RoadtoJedi #Верификация`,
           image: "photo605436158_457240006"
         },
         donut: {
-          text: "Поддерживаю любимое сообщество и приложение [https://vk.com/vkagentsapp|VK Агенты].\n\nПриятно чувствовать себя агентом и выделяться среди остальных ;)\n\n#RoadtoJedi #VKDonut",
+          text: `Поддерживаю любимое сообщество и приложение [${LINK_APP}|VK Агенты].\n\nПриятно чувствовать себя агентом и выделяться среди остальных ;)\n\n#RoadtoJedi #VKDonut`,
           image: "photo605436158_457240005"
         }
       
@@ -67,8 +68,7 @@ export const HISTORY_IMAGES = {
 export const blueBackground = {
   backgroundColor: 'var(--accent)'
 };
-export const LINK_APP = "https://vk.com/trainingapp";
-export const CONVERSATION_LINK = "https://vk.me/join/zyWQzsgQ9iw6V2YAfbwiGtuO883rnYhXwAY=";
+export const CONVERSATION_LINK = "https://vk.me/join/eEvxpRk0UBwLO0iy02xy0bJaMCevCEZu_rU=";
 export const SPEC_COURCE_LINKS = {
   cource: "https://vk.com/@sartj-course",
   conversation: 'https://vk.me/join/yzDBN6UvFS72yXvKBNqUkXZMilz/6NJ/Arg=',
