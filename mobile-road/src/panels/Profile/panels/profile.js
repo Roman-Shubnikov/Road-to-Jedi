@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { 
     Panel,
     PanelHeader,
@@ -10,7 +10,6 @@ import {
     SimpleCell,
     PullToRefresh,
     usePlatform,
-    VKCOM,
     FormItem,
     FormLayout,
     Button,
@@ -22,6 +21,11 @@ import {
     Title,
     Text,
     Gradient,
+    Alert,
+    Switch,
+    Caption,
+    Platform,
+
 
     } from '@vkontakte/vkui';
 
@@ -54,6 +58,7 @@ export default props => {
     const { goDisconnect } = props.navigation;
     const [fetching, setFetching] = useState(false);
     const [editingStatus, setEdititingStatus] = useState(false);
+    const [notify, setNotify] = useState(account ? account.settings.notify : false)
     const [originalStatus, setOriginalStatus] = useState('');
     const [publicStatus, setPublicStatus] = useState('');
     const permissions = account.permissions;
@@ -92,11 +97,83 @@ export default props => {
         }
       }
 
+    const notifyMenager = (value) => {
+    fetch(API_URL + "method=settings.set&" + window.location.search.replace('?', ''),
+        {
+        method: 'post',
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+        body: JSON.stringify({
+            'setting': 'notify',
+            'value': Number(value),
+        })
+        })
+        .then(res => res.json())
+        .then(data => {
+        if (data.result) {
+            setNotify(value)
+            setPopout(null)
+        } else {
+            showErrorAlert(data.error.message)
+        }
+        })
+        .catch(goDisconnect)
+    }
+    const changeNotifStatus = (notif) => {
+    notif = notif.currentTarget.checked;
+    setPopout(<ScreenSpinner />)
+    if (notif) {
+        setPopout(<Alert
+        actionsLayout='horizontal'
+        actions={[{
+            title: 'Разрешить',
+            autoclose: true,
+            mode: 'default',
+            action: () => {
+            bridge.send("VKWebAppAllowMessagesFromGroup", { "group_id": 188280516 })
+                .then(data => {
+                setNotify(true)
+                notifyMenager(true)
+                setTimeout(() => {
+                    props.reloadProfile()
+                }, 1000)
+
+                })
+                .catch(() => { notifyMenager(false) })
+            },
+        }, {
+            title: 'Нет, спасибо',
+            autoclose: true,
+            mode: 'cancel',
+            action: () => { notifyMenager(false) },
+
+        },]}
+        onClose={() => setPopout(null)}
+        header="Внимание!"
+        text="Включая уведомления, Вы соглашаетесь что они могут приходить вам неограниченное кол-во раз, 
+            в неогранниченный промежуток времени (по возможности и в соответствии с вашими действиями в приложении), но для этого нам нужен доступ к ним. 
+            Если вы не согласны с данным условием, то не включайте их.
+            Вы всегда можете их отключить. 
+            Хотите получать уведомления?"
+        />)
+    } else {
+        bridge.send("VKWebAppDenyNotifications")
+        .then(data => {
+            notifyMenager(false)
+            setTimeout(() => {
+            props.reloadProfile()
+            }, 1000)
+        }).catch(() => {
+            notifyMenager(true)
+        })
+
+    }
+    }
+
     return (
         <Panel id={props.id}>
             {!isEmptyObject(account) ? <>
                 <PanelHeader
-                separator={platform===VKCOM}
+                separator={platform===Platform.VKCOM}
                     left={<><PanelHeaderButton onClick={() => {
                         setActiveModal("share");
                     }}>
@@ -109,7 +186,7 @@ export default props => {
                             <Icon28Notifications />
                         </PanelHeaderButton></>}>Профиль</PanelHeader>
                 <PullToRefresh onRefresh={() => { setFetching(true); props.reloadProfile(); setTimeout(() => { setFetching(false) }, 1000) }} isFetching={fetching}>
-                {platform!==VKCOM &&
+                {platform!==Platform.VKCOM &&
                 <Group>
                     <Gradient
                             style={{
@@ -191,7 +268,7 @@ export default props => {
                         </Div>
                         <Spacing />
                     </Group>}
-                    {platform===VKCOM && <Group>
+                    {platform===Platform.VKCOM && <Group>
                         <Div>
                             <InfoArrows 
                             special={moderator_permission}
@@ -238,8 +315,26 @@ export default props => {
                         </MiniInfoCell>
                         }
                     </Group>}
+                    
+                    <Group>
+                        <SimpleCell
+                        before={<Icon28Notifications />}
+                        disabled
+                        after={
+                            <Switch
+                            checked={notify}
+                            onChange={(e) => changeNotifStatus(e)} />
+                        }>Получать уведомления</SimpleCell>
+                        <Div>
+                            <Caption style={{color: '#818C99'}}>
+                                Уведомления позволят получать последние события от Команды специальных агентов по модерации ваших ответов
+                            </Caption>
+                            
+                        </Div>
+                    </Group>
 
                     <Group>
+                        
                         <SimpleCell
                             expandable
                             href={CONVERSATION_LINK}

@@ -1,8 +1,8 @@
 import React from 'react';
 import {
-    Subhead
+    Subhead,
+    unstable_RichTooltip as RichTooltip
 } from '@vkontakte/vkui';
-import { RichTooltip } from "@vkontakte/vkui/dist/unstable";
 import './profileTags.css';
 import {
     Icon16Fire,
@@ -12,7 +12,8 @@ import {
 import { Verified } from '../../icons';
 
 const TooltipContent = ({children}) => {
-    return <Subhead weight="2" style={{padding: '8px 12px', color: 'var(--text_primary)'}}>
+    return <Subhead weight="2" style={{padding: '8px 12px', color: 'var(--text_primary)', 
+    background: 'var(--vkui--color_background_content)', borderRadius: 8}}>
             {children}
         </Subhead>
 }

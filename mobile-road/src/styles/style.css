@@ -1,6 +1,5 @@
 @import './space_gray.css';
 @import './bright_light.css';
-@import './vkcom.css';
 @import './menutiles.css';
 @import './fonts/fonts-connect.css';
 @import './animations.css';
@@ -573,4 +572,8 @@ a{
 }
 .placeholders_short-bottom .vkuiPlaceholder__in {
     padding-bottom: 10px;
+}
+
+.vkuiRichTooltip__arrow {
+    color: var(--vkui--color_background_content);
 }

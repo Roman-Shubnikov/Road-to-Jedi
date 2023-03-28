@@ -1,9 +1,12 @@
-import * as eruda from 'eruda';
-import * as erudaCode from 'eruda-code';
-import * as erudaDom from 'eruda-dom';
+import eruda from 'eruda'
+import erudaCode from 'eruda-code'
+import erudaDom from 'eruda-dom'
 
-eruda.init();
-eruda.add(erudaCode);
-eruda.add(erudaDom);
+const erudaModule = () => {
+  eruda.init()
+  eruda.add(erudaCode)
+  eruda.add(erudaDom)
+  return eruda
+}
 
-export default eruda
+export default erudaModule

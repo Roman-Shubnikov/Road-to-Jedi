@@ -2,13 +2,14 @@ import 'core-js/es/map';
 import 'core-js/es/set';
 import React from 'react';
 import { Provider } from "react-redux";
-import ReactDOM from 'react-dom';
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing/esm/browser/index.js";
 import App from './App.js';
 import mVKMiniAppsScrollHelper from '@vkontakte/mvk-mini-apps-scroll-helper';
-import {platform, IOS} from '@vkontakte/vkui';
+import {platform, Platform} from '@vkontakte/vkui';
+import { createRoot } from 'react-dom/client';
 import {store} from "./store"
+import erudaModule from './eruda';
 
 // if(process.env.NODE_ENV === 'production') {
   Sentry.init({
@@ -19,18 +20,21 @@ import {store} from "./store"
   });
 // }
 
-const root = document.getElementById('root');
-if(platform() === IOS) {
+if(platform() === Platform.IOS) {
     mVKMiniAppsScrollHelper(root); 
 }
-if (process.env.NODE_ENV === "development") {
-  import("./eruda").then(({ default: eruda }) => {}); //runtime download
-}
+
 const ReduxApp = () => (
   <Provider store={store}>
     <App />
   </Provider>
 )
-ReactDOM.render(<ReduxApp/>, root);
 
+const container = document.getElementById('root')
+const root = createRoot(container)
+root.render(<ReduxApp />)
+
+if (process.env.NODE_ENV === 'development') {
+  erudaModule()
+}
 

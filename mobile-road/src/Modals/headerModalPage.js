@@ -2,8 +2,7 @@ import React from 'react'; // React
 
 import { 
     usePlatform,
-    IOS,
-    ANDROID,
+    Platform,
     PanelHeaderButton,
     ModalPageHeader,
     Header,
@@ -17,8 +16,8 @@ export default props => {
     const platform = usePlatform();
     return(
         <ModalPageHeader
-            right={platform === IOS && <Header onClick={props.onClick}><Icon24Dismiss /></Header>}
-            left={platform === ANDROID && <PanelHeaderButton onClick={props.onClick}><Icon24Dismiss /></PanelHeaderButton>}
+            right={platform === Platform.IOS && <Header onClick={props.onClick}><Icon24Dismiss /></Header>}
+            left={platform === Platform.ANDROID && <PanelHeaderButton onClick={props.onClick}><Icon24Dismiss /></PanelHeaderButton>}
           >
             {props.children}
         </ModalPageHeader>

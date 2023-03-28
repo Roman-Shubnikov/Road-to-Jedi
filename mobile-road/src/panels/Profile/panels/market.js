@@ -27,7 +27,6 @@ import {
     Placeholder,
     PanelSpinner,
     usePlatform,
-    IOS,
     Switch,
     SegmentedControl,
     ScreenSpinner,

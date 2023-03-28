@@ -1,4 +1,4 @@
-body[scheme="bright_light"] {
+body[class*="light"] {
     --background_page_my: #fff;
     --button_send:  #398ce2;
     --button_send_color: #fff;

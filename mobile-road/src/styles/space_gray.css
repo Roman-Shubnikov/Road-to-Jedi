@@ -1,4 +1,4 @@
-body[scheme="space_gray"] {
+body[class*="dark"] {
     --background_page_my: #19191b;
     --text_message_send: #454648;
     --text_message_to: #2c2d2f;

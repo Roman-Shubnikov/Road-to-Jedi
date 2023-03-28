@@ -12,17 +12,14 @@ import {
   ConfigProvider,
   AdaptivityProvider,
   AppRoot,
-  VKCOM,
   ViewWidth,
   SplitLayout,
   SplitCol,
   Panel,
   PanelHeader,
   Group,
-  Platform,
   ViewHeight,
-  usePlatform,
-  useAdaptivity,
+  useAdaptivityConditionalRender,
   Alert,
   Badge,
   ModalRoot,
@@ -30,6 +27,8 @@ import {
   Avatar,
   Button,
   ModalCard,
+  usePlatform,
+  Platform,
 
   } from '@vkontakte/vkui';
 import '@vkontakte/vkui/dist/vkui.css';
@@ -151,6 +150,7 @@ const App = () => {
     setHash,
     hash
    } = useNavigation();
+  const { viewWidth } = useAdaptivityConditionalRender();
   const { account, schemeSettings, other_profile: OtherProfileData, } = useSelector((state) => state.account)
   const { scheme, default_scheme } = schemeSettings;
   const { activeStory, historyPanels, snackbar, activePanel, popout } = useSelector((state) => state.views)
@@ -167,6 +167,8 @@ const App = () => {
   const moderator_permission = permissions >= PERMISSIONS.special;
   const agent_permission = permissions >= PERMISSIONS.agent;
   const comment_special = useSelector((state) => state.tickets.comment)
+
+  const platform = usePlatform()
 
 
   const goBack = useCallback(() => {
@@ -341,25 +343,7 @@ const App = () => {
     return () => bridge.unsubscribe(bridgecallback);
   }, [account, bridgecallback])
   
-  const platformwithPlat = usePlatform();
-  const platform = useRef();
-  const viewWidth = useAdaptivity().viewWidth;
-  const isDesktop = useRef();
-  const hasHeader = useRef()
   
-  useEffect(() => {
-    if (IS_MOBILE) {
-      platform.current = platformwithPlat;
-    } else {
-      platform.current = Platform.VKCOM;
-    }
-  }, [platformwithPlat])
-
-  
-  useEffect(() => {
-    hasHeader.current = platform.current !== VKCOM;
-    isDesktop.current = viewWidth >= ViewWidth.SMALL_TABLET;
-  }, [viewWidth, platform])
 
   const popouts_and_modals = {showAlert, showErrorAlert, setActiveModal, setPopout}
   const navigation = {goPanel, goBack, goDisconnect};
@@ -466,11 +450,12 @@ const App = () => {
       </ModalCard>
     </ModalRoot>
   )
+
+  const isVKCOM = platform === Platform.VKCOM
   return(
     <>
         <ConfigProvider 
         scheme={scheme}
-              platform={platform.current}
               > 
 
               <AppRoot>
@@ -479,9 +464,12 @@ const App = () => {
               popout={popout}
               modal={modals}>
 
-              {isDesktop.current && need_epic && (<SplitCol fixed width="280px" maxWidth="280px">
+              {isVKCOM && need_epic && (
+              <SplitCol 
+              // className={viewWidth.tabletPlus.className}
+              fixed width="280px" maxWidth="280px">
                     <Panel id='menu_epic'>
-                  {hasHeader.current && <PanelHeader/>}
+                  {!isVKCOM && <PanelHeader/>}
                       <>
                       {isEmptyObject(account) || <Group>
                         <SimpleCell
@@ -543,17 +531,18 @@ const App = () => {
                   </SplitCol>)}
 
                   <SplitCol
-                animate={!isDesktop.current}
-                spaced={isDesktop.current}
-                width={isDesktop.current ? '600px' : '100%'}
-                maxWidth={isDesktop.current ? '650px' : '100%'}
-                  >
+                  animate={!isVKCOM}
+                  // stretchedOnMobile
+                  autoSpaced
+                  width='100%'
+                  maxWidth='650px'
+                    >
                 <SkeletonTheme color={['bright_light', 'vkcom_light'].indexOf(scheme) !== -1 ? undefined : '#232323'} 
                 highlightColor={['bright_light', 'vkcom_light'].indexOf(scheme) !== -1 ? undefined : '#6B6B6B'}>
                 <Epic activeStory={activeStory}
-                className={!(need_epic && !isDesktop.current) ? 'no_tabbbar' : undefined}
+                className={!(need_epic && !isVKCOM) ? 'no_tabbbar' : undefined}
                       tabbar={
-                        need_epic && !isDesktop.current &&
+                        need_epic && !isVKCOM &&
                         <Tabbar>
                           <TabbarItem
                             onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Questions.panels.homepanel)}} 
@@ -657,7 +646,7 @@ const App = () => {
 }
 
 export default () => (
-  <AdaptivityProvider viewWidth={ calculateAdaptivity( document.documentElement.clientWidth, document.documentElement.clientHeight).viewWidth}>
+  <AdaptivityProvider>
     <App />
   </AdaptivityProvider>
 );

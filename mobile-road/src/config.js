@@ -35,7 +35,7 @@ export const MESSAGE_NO_VK = (
     <Div>
         <FormStatus 
         mode="default">
-            Сервис не относится на прямую к социальной сети ВКонтакте.
+            Сервис не относится напрямую к социальной сети ВКонтакте.
         </FormStatus>
     </Div>
     );

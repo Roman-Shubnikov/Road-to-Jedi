@@ -278,7 +278,7 @@ class Users {
 		if ( isset( $data['notifications_count'] ) ) {
 			$res['notif_count'] = (int) $data['notifications_count'];
 		}
-		if((!array_key_exists('vk_id', $res) && $is_public) || $this->vk_id) $res['vk_id'] = (int)$data['vk_user_id'];
+		if(!array_key_exists('vk_id', $res) && $is_public) $res['vk_id'] = (int)$data['vk_user_id'];
 		if ($this->info['permissions'] >= CONFIG::PERMISSIONS['admin']) { 
 			$res['coff_active'] = $data['coff_active'] / 10;
 			$res['age'] = (int)$data['age'];

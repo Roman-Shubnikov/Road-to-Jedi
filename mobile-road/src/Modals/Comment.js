@@ -1,11 +1,6 @@
 import React from 'react';
 import { 
     ModalPage,
-    ModalPageHeader,
-    PanelHeaderButton,
-    Header,
-    IOS,
-    ANDROID,
     CellButton,
     Group,
     Text,
@@ -28,21 +23,18 @@ import {
 } from '@vkontakte/icons';
 import { getHumanyTime } from '../Utils';
 import { AVATARS_URL } from '../config';
+import ModalHeader from './headerModalPage';
 
 export default props => {
-  const platform = usePlatform();
   const Comment = props.comment.objComment;
   return (
     <ModalPage 
         id={props.id}
         onClose={props.onClose}
         header={
-          <ModalPageHeader
-          right={platform === IOS && <Header onClick={props.onClose}><Icon24Dismiss /></Header>}
-          left={platform === ANDROID && <PanelHeaderButton onClick={props.onClose}><Icon24Dismiss /></PanelHeaderButton>}
-          >
+          <ModalHeader>
             Комментарий
-          </ModalPageHeader>
+          </ModalHeader>
         }
         >
           <Group>
