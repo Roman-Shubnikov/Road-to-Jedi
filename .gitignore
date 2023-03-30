@@ -7,3 +7,5 @@ node_modules
 php/vendor
 testphp/vendor
 */.idea
+/nest-api
+
