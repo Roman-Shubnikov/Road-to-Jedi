@@ -71,12 +71,12 @@ class Users {
 
 	public function getById( int $id ) {
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers, users.permissions, users.generator, users.publicStatus, users.coff_active,
-				users.bad_answers, users.avatar_id, avatars.name as avatar_name, users.flash, users.verified, users.donut, users.diamond, users.nickname, users.mark_day,
+				users.bad_answers, users.avatarId, files.path as avatar_path, users.flash, users.verified, users.donut, users.diamond, users.nickname, users.mark_day,
 				users.money, users.age, users.scheme, users.vk_user_id, users.donuts,
 				users.lvl, users.exp
 				FROM users
-				LEFT JOIN avatars
-				ON users.avatar_id = avatars.id
+				LEFT JOIN files
+				ON users.avatarId = files.id
 				WHERE users.id=?";
 		$res = $this->Connect->db_get( $sql, [$id] );
 
@@ -113,11 +113,11 @@ class Users {
 		$result = [];
 
 		$sql = "SELECT users.id, users.vk_user_id,users.last_activity, users.registered, users.good_answers, users.permissions, users.generator,
-						users.bad_answers, users.total_answers, users.avatar_id, users.money,users.age, users.scheme, users.publicStatus,users.coff_active,
-						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname, users.donuts,
+						users.bad_answers, users.total_answers, users.avatarId, users.money,users.age, users.scheme, users.publicStatus,users.coff_active,
+						files.path as avatar_path, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname, users.donuts,
 						users.lvl, users.exp
 				FROM users
-				LEFT JOIN avatars ON users.avatar_id=avatars.id
+				LEFT JOIN files ON users.avatarId=files.path
 				WHERE users.id IN ( $s_ids ) AND users.vk_user_id NOT IN (SELECT vk_user_id FROM banned where time_end>?) $order";
 		$res = $this->Connect->db_get( $sql, [time()] );
 
@@ -151,11 +151,11 @@ class Users {
 		$staff = $staff ? CONFIG::PERMISSIONS['special'] : 0;
 
 		$sql = "SELECT users.id, users.last_activity, users.vk_user_id, users.registered, users.good_answers, users.permissions, users.generator, users.mark_day,
-						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.age, users.scheme, users.publicStatus, users.coff_active,
-						avatars.name as avatar_name, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname, users.donuts,
+						users.bad_answers, users.total_answers, users.avatarId, users.money, users.age, users.scheme, users.publicStatus, users.coff_active,
+						files.path as avatar_path, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname, users.donuts,
 						users.lvl, users.exp
 				FROM users
-				LEFT JOIN avatars ON users.avatar_id=avatars.id
+				LEFT JOIN files ON users.avatarId=files.path
 				WHERE users.vk_user_id NOT IN (SELECT vk_user_id FROM banned where time_end>?) 
 				AND users.permissions=?
 				AND users.last_activity > ? $order LIMIT $count";
@@ -184,12 +184,12 @@ class Users {
 		$user_id = $this->vk_id;
 		$this->Connect->query("UPDATE users SET last_activity=? WHERE vk_user_id=?", [$time,$user_id]);
 		$sql = "SELECT users.id, users.last_activity, users.registered, users.good_answers,users.age,users.vk_user_id,users.permissions, users.mark_day,
-						users.bad_answers, users.total_answers, users.avatar_id, users.money, users.scheme, users.publicStatus,users.coff_active,
-						users.generator, users.flash, users.verified, users.donut, users.nickname, users.diamond, avatars.name as avatar_name, users.donuts,
+						users.bad_answers, users.total_answers, users.avatarId, users.money, users.scheme, users.publicStatus,users.coff_active,
+						users.generator, users.flash, users.verified, users.donut, users.nickname, users.diamond, files.path as avatar_path, users.donuts,
 						users.lvl, users.exp
 				FROM users
-				LEFT JOIN avatars
-				ON users.avatar_id = avatars.id
+				LEFT JOIN files
+				ON users.avatarId = files.id
 				WHERE users.vk_user_id=?";
 		$res = $this->Connect->db_get( $sql, [$user_id] )[0];
 		$ban = $this->checkBanned($user_id);
@@ -202,7 +202,7 @@ class Users {
 
 	private function _register() {
 		$time = time();
-		$res = $this->Connect->query("INSERT IGNORE INTO users (vk_user_id,registered,last_activity,nickname,avatar_id) VALUES (?,?,?,?,?)", [$this->vk_id,$time,$time,NULL,rand( 1, CONFIG::AVATARS_COUNT )]);
+		$res = $this->Connect->query("INSERT IGNORE INTO users (vk_user_id,registered,last_activity) VALUES (?,?,?)", [$this->vk_id,$time,$time]);
 		return $res;
 	}
 	private function _formatType( array $data ) {
@@ -232,8 +232,8 @@ class Users {
 					'last_seen' => (int) $data['last_activity']
 				],
 				'avatar' => [
-					'id' => (int) $data['avatar_id'],
-					'url' => CONFIG::AVATAR_PATH . '/' . $data['avatar_name']
+					'id' => (int) $data['avatarId'],
+					'url' => $data['avatar_path'] ? CONFIG::S3_FILES_PATH . '/' . $data['avatar_path'] : CONFIG::AVATAR_PATH . '/default.png',
 				],
 				'good_answers' => (int) $data['good_answers'],
 				'bad_answers' => (int) $data['bad_answers'],

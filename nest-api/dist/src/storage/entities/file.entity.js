@@ -19,7 +19,7 @@ __decorate([
     __metadata("design:type", Number)
 ], FileEntity.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => entities_1.UserEntity, (user) => user.id, { cascade: true }),
+    (0, typeorm_1.ManyToOne)(() => entities_1.UserEntity, (user) => user.files, { cascade: true }),
     __metadata("design:type", entities_1.UserEntity)
 ], FileEntity.prototype, "owner", void 0);
 __decorate([

@@ -99,7 +99,7 @@ export default props => {
                   onClick={() => goTiket(result.id)}
                   expandable
                   before={<Icon28RecentOutline className={(colorHandler(result.count_unmark)[1] === 3) ? 'blink2' : ''} width={34} height={34} style={colorHandler(result.count_unmark)[0]} />}
-                  description={result.count_unmark + " " + enumerate(result.count_unmark, [' неоценённый ответ', ' неоценённых ответа', ' неоценённых ответов'])}>
+                  subtitle={result.count_unmark + " " + enumerate(result.count_unmark, [' неоценённый ответ', ' неоценённых ответа', ' неоценённых ответов'])}>
                   Вопрос #{result.id}
                 </SimpleCell>
               </React.Fragment>

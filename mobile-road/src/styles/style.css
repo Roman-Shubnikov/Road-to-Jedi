@@ -250,7 +250,6 @@ a{
 .top_moderator_name {
     display: flex;
     color: var(--top_moderator_name);
-    position: absolute;
 }
 
 .top_moderator_name_icon {
@@ -302,10 +301,6 @@ a{
     position: relative;
     margin-left: 2px;
     margin-top: 2px;
-}
-
-.top_moderator_desc {
-    margin-top: 25px;
 }
 
 .minititle {

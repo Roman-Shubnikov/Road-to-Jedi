@@ -1,4 +1,5 @@
 import { FileEntity } from 'src/storage/entities/file.entity';
+import { PurchasedColorEntity, PurchasedIconEntity } from 'src/market/entities';
 export declare class UserEntity {
     id: number;
     vk_user_id: number;
@@ -22,6 +23,8 @@ export declare class UserEntity {
     diamond: number;
     publicStatus: string;
     files: FileEntity[];
+    purchased_icons: PurchasedIconEntity[];
+    purchased_colors: PurchasedColorEntity[];
     coff_active: number;
     exp: number;
     lvl: number;

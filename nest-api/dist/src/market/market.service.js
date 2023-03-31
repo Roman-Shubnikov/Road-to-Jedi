@@ -50,7 +50,7 @@ let MarketService = class MarketService {
         const size = 400;
         const avatar = new Jimp(size, size, backgroundColor);
         const icon_path = this.configService.get('S3_PATH_TO_AVATAR_ICONS') + '/' + icon_name;
-        const iconWithJimp = await Jimp.read('https://' + this.storageService.bucket + '.' + this.configService.get('S3_HOST') + '/' + icon_path);
+        const iconWithJimp = await Jimp.read(this.storageService.bucketPath + '/' + icon_path);
         iconWithJimp.color([{ apply: plugin_color_1.ColorActionName.LIGHTEN, params: [size / 2] }]);
         avatar.composite(iconWithJimp, (size - iconWithJimp.getWidth()) / 2, (size - iconWithJimp.getHeight()) / 2);
         const newBuffer = await avatar.getBufferAsync(Jimp.MIME_PNG);
@@ -77,7 +77,6 @@ let MarketService = class MarketService {
         return this.purchasedIconRepository.save({ user, icon_name, purchased_at: (0, utils_1.getTime)() });
     }
     async buyColor(user, color) {
-        console.log(enums_2.ColorsAllEnum.includes(color), color);
         if (!enums_2.ColorsAllEnum.includes(color))
             throw new common_1.NotFoundException('Цвет не найден в каталоге');
         if (await this.purchasedColorRepository.findOneBy({ color, user: { id: user.id } }))
@@ -85,6 +84,17 @@ let MarketService = class MarketService {
         const cost = +this.configService.get('MARKET_COST_COLOR');
         await this.manageUserMoney(user, products_enum_1.ProductsEnum.COLOR, money_operations_enum_1.MoneyOperationsEnum['-'], cost);
         return this.purchasedColorRepository.save({ user, color, purchased_at: (0, utils_1.getTime)() });
+    }
+    async getMyIcons(user) {
+        return {
+            url_to_icons: this.storageService.bucketPath + '/' + this.configService.get('S3_PATH_TO_AVATAR_ICONS'),
+            items: await this.purchasedIconRepository.find({ where: { user: { id: user.id } } })
+        };
+    }
+    async getMyColors(user) {
+        return {
+            items: await this.purchasedColorRepository.find({ where: { user: { id: user.id } } })
+        };
     }
     async marketLogger(user, product, operation, cost) {
         return await this.marketLogRepository.save({

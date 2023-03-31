@@ -19,6 +19,13 @@ export declare class MarketService {
     installAvatar(user: UserEntity, hash: string): Promise<UserEntity>;
     buyIcon(user: UserEntity, icon_name: string): Promise<PurchasedIconEntity>;
     buyColor(user: UserEntity, color: string): Promise<PurchasedColorEntity>;
+    getMyIcons(user: UserEntity): Promise<{
+        url_to_icons: string;
+        items: PurchasedIconEntity[];
+    }>;
+    getMyColors(user: UserEntity): Promise<{
+        items: PurchasedColorEntity[];
+    }>;
     marketLogger(user: UserEntity, product: ProductsEnum, operation: MoneyOperationsEnum, cost: number): Promise<MarketLogEntity>;
     manageUserMoney(user: UserEntity, productType: ProductsEnum, operation: MoneyOperationsEnum, cost: number): Promise<UserEntity>;
 }

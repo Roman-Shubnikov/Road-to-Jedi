@@ -29,6 +29,7 @@ import {
   ModalCard,
   usePlatform,
   Platform,
+  RichCell,
 
   } from '@vkontakte/vkui';
 import '@vkontakte/vkui/dist/vkui.css';
@@ -472,14 +473,14 @@ const App = () => {
                   {!isVKCOM && <PanelHeader/>}
                       <>
                       {isEmptyObject(account) || <Group>
-                        <SimpleCell
+                        <RichCell
                         disabled={activeStory === "profile"}
                         style={activeStory === "profile" ? {
                             backgroundColor: "var(--button_secondary_background)",
                             borderRadius: 8
                         } : {}}
                         onClick={() => {setHash('');goPanel(viewsStructure.Profile.navName, viewsStructure.Profile.panels.homepanel)}}
-                          description={"#" + account['id']}
+                          caption={"#" + account['id']}
                           before={<Avatar size={50} src={account['avatar']['url']} />}>
                             <div style={{ display: "flex" }}>
                                   <NicknameMenager 
@@ -492,7 +493,7 @@ const App = () => {
                                     donut={account.donut}
                                     verified={account.verified} />
                               </div>
-                          </SimpleCell>
+                          </RichCell>
                           
                       </Group>}
                       <Group>

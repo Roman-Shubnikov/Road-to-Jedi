@@ -110,18 +110,18 @@ export default props => {
   const getCurrDescriptionAgent = (result) => {
     if(inArray(activeTab, ['verif', 'donut', 'flash', 'rating', 'all']) !== -1){
       return((result.permissions >= PERMISSIONS.special) ? 
-        <div className="top_moderator_desc">
+        <div>
           {result.good_answers + " " + enumerate(result.good_answers, Forms.marked_answers)}
         </div>
         :
-        <div className="top_moderator_desc">
+        <div>
             {result.good_answers + " " + enumerate(result.good_answers, Forms.good_answers) + ", " 
             + result.bad_answers + " " + enumerate(result.bad_answers, Forms.bad_answers)}
         </div>)
     }
     if(inArray(activeTab, ['ghosts']) !== -1){
       return(
-        <div className="top_moderator_desc">
+        <div>
           {result.levels.exp + " " + enumerate(result.levels.exp, Forms.ghosts)}
         </div>
       )
@@ -167,7 +167,7 @@ export default props => {
       </List>
     </PanelHeaderContext>
     {((!IS_MOBILE && mode) || !mode) ? <Group>
-        <Tabs>
+        <Tabs mode='accent'>
           <HorizontalScroll getScrollToLeft={(i) => i - 50} getScrollToRight={(i) => i + 50}>
             <TabsItem
               onClick={() => setActiveTab('all')}

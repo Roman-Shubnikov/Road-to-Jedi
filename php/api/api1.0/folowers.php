@@ -26,10 +26,10 @@ class Followers {
         $countNewFollowers = $this->Connect->db_get("SELECT COUNT(*) FROM subscribes WHERE to_id=? and time>=?", [$agent_id, time() - 43200]);
         $countFollowers = $countFollowers ? $countFollowers[0]['COUNT(*)'] : 0;
         $countNewFollowers = $countNewFollowers ? $countNewFollowers[0]['COUNT(*)'] : 0; 
-        $Followers = $this->Connect->db_get("SELECT s.from_id, users.nickname, s.time, avatars.name as avatar_name
+        $Followers = $this->Connect->db_get("SELECT s.from_id, users.nickname, s.time, files.path as avatar_path
         FROM subscribes as s
         LEFT JOIN users ON s.from_id=users.id
-        LEFT JOIN avatars ON users.avatar_id=avatars.id
+        LEFT JOIN files ON users.avatarId=files.id
         WHERE s.to_id=? 
         $rand
         LIMIT $offset,$count", [$agent_id]);

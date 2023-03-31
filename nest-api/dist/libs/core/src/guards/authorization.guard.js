@@ -62,11 +62,9 @@ let AuthorizationGuard = class AuthorizationGuard {
         if (sign !== signHash) {
             throw new common_1.UnauthorizedException('Не совпадает подпись');
         }
-        if (Date.now() - Number.parseInt(data['vk_ts']) * 1000 >
-            TOKEN_LIFETIME) {
-            throw new common_1.UnauthorizedException('Токен просрочен');
-        }
-        let user = await this.usersRepository.findOneBy({ vk_user_id });
+        let user = await this.usersRepository.findOne({
+            where: { vk_user_id }
+        });
         let currentTime = (0, utils_1.getTime)();
         if (!user) {
             throw new common_1.UnauthorizedException('Чтобы пользоваться этим разделом, вначале станьте агентом');

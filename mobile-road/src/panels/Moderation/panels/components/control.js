@@ -7,6 +7,7 @@ import {
     SimpleCell,
     PanelSpinner,
     Counter,
+    Placeholder,
 
  } from '@vkontakte/vkui';
 
@@ -21,10 +22,10 @@ import {
     Icon28PenStackOutline,
 
 } from '@vkontakte/icons';
-import BG_spec from '../../../../images/bg_spec_force.png'
 import { API_URL, SPEC_COURCE_LINKS } from '../../../../config';
 import { useState } from 'react';
 import { useEffect } from 'react';
+import { Icon64ServicesSearch } from '../../assets';
 
 
 export default props => {
@@ -45,29 +46,20 @@ export default props => {
     return (
         <>
         <Group>
-            <Banner
-                mode="image"
-                header="Курс молодого бойца"
-                subheader="Почитайте статью о том, как работать
-                            с данным интерфейсом"
-                background={
-                <div
-                    style={{
-                    backgroundColor: "#7F24BF",
-                    backgroundImage: 'url(' + BG_spec + ')',
-                    backgroundPosition: "right center",
-                    backgroundSize: '120%',
-                    backgroundRepeat: "no-repeat",
-                    }}
-                />
-                }
-                actions={<Button 
-                style={{backgroundColor: '#fff', color: '#222'}}
-                href={SPEC_COURCE_LINKS.cource} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                mode="neutral">Читать</Button>}
-            />
+            <Placeholder
+            header='Курс молодого бойца'
+            action={
+            <Button
+            size='m'
+            rel="noopener noreferrer" 
+            href={SPEC_COURCE_LINKS.cource} 
+            target="_blank" 
+            >
+                Читать статью
+            </Button>}
+            icon={<Icon64ServicesSearch />}>
+                Почитайте статью о том, как работать с данным интерфейсом
+            </Placeholder>
         </Group>
         <Group>
             {sysInfo ? <>

@@ -5,14 +5,14 @@ import { viewsActions } from "../store/main";
 import * as Sentry from "@sentry/react";
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { sendHit } from "../metrika";
-import { alertCreator, errorAlertCreator, goOtherProfileCreator } from "../Utils";
+import { alertCreator, errorAlertCreator, goOtherProfileCreator, setActiveModalCreator } from "../Utils";
 
 const queryString = require('query-string');
 
 
 export const useNavigation = () => {
     const dispatch = useDispatch();
-    const { activeStory, historyPanels, snackbar, activePanel } = useSelector((state) => state.views)
+    const { activeStory, historyPanels, snackbar, activePanel, modalHistory } = useSelector((state) => state.views)
     const { other_profile: OtherProfileData, } = useSelector((state) => state.account)
     const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
     const setActiveScene = useCallback((story, panel) => dispatch(viewsActions.setActiveScene(story, panel)), [dispatch]);
@@ -88,6 +88,13 @@ export const useNavigation = () => {
         goOtherProfileCreator(goPanel, activeStory, showErrorAlert, OtherProfileData, dispatch, id)
         
       }, [dispatch, goPanel, OtherProfileData, activeStory, showErrorAlert])
+
+    const setActiveModal = (activeModal) => {
+      setActiveModalCreator(
+        dispatch(viewsActions.setModal(payload)), 
+        dispatch(viewsActions.setModalHistory(payload)), 
+        modalHistory, activeModal)
+    }
     return {
         setHash,
         goPanel,
@@ -98,6 +105,7 @@ export const useNavigation = () => {
         showAlert,
         showErrorAlert,
         setActiveStory,
+        setActiveModal,
         activePanel,
         snackbar,
         hash,

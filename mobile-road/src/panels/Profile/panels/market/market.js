@@ -1,36 +1,34 @@
-import React, { useEffect, useRef, useState } from 'react';
-import bridge from '@vkontakte/vk-bridge'; // VK Brige
+import React, { useState } from 'react';
 
 import { 
-    Panel,
-    PanelHeader,
-    Input,
-    Avatar,
-    Button,
-    Header,
-    Div,
-    Snackbar,
-    PanelHeaderBack,
-    Text,
-    SimpleCell,
-    Alert,
-    FormLayout,
-    Group,
-    HorizontalScroll,
-    HorizontalCell,
-    FormItem,
-    Headline,
-    TabbarItem,
-    IconButton,
-    Tappable,
-    List,
-    Placeholder,
-    PanelSpinner,
-    usePlatform,
-    Switch,
-    SegmentedControl,
-    ScreenSpinner,
-    } from '@vkontakte/vkui';
+  Panel,
+  PanelHeader,
+  Input,
+  Avatar,
+  Button,
+  Header,
+  Div,
+  Snackbar,
+  PanelHeaderBack,
+  Text,
+  SimpleCell,
+  Alert,
+  FormLayout,
+  Group,
+  HorizontalScroll,
+  HorizontalCell,
+  FormItem,
+  Headline,
+  TabbarItem,
+  IconButton,
+  Tappable,
+  usePlatform,
+  Switch,
+  Tabs,
+  TabsItem,
+  ScreenSpinner,
+  Platform,
+} from '@vkontakte/vkui';
 
 
 import {
@@ -47,11 +45,12 @@ import {
   Icon28SparkleOutline,
 } from '@vkontakte/icons';
 import { useSelector } from 'react-redux';
-import { API_URL, AVATARS_URL, LINKS_VK, PERMISSIONS } from '../../../config';
-import { enumerate } from '../../../Utils';
-import { isEmptyObject } from 'jquery';
-import { sendGoal } from '../../../metrika';
-import { useNavigation } from '../../../hooks';
+import { API_URL, AVATARS_URL, LINKS_VK, PERMISSIONS } from '../../../../config';
+import { sendGoal } from '../../../../metrika';
+import { useNavigation } from '../../../../hooks';
+
+import { RealMoneyStore } from './realmoney-store';
+import { AvatarGenerator } from './generate-avatar';
 
 const avatars = [
     "1.png",
@@ -108,10 +107,14 @@ const blueBackground = {
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
 
-export default props => {
+export const MarketPage = props => {
   const [activeTab, setActivetab] = useState('market');
   const platform = usePlatform();
   const labels = [
+    {
+      label: 'Аватарка',
+      value: 'avatar', 
+    },
     {
       label: 'Товары', 
       value: 'market', 
@@ -122,13 +125,16 @@ export default props => {
     },
     {
       label: 'Ценности', 
-      value: 'treasures', 
+      value: 'real-money-store', 
     }
   ]
   const getCurrPanel = () => {
-    if(activeTab === 'market') return <Market navigation={props.navigation} callbacks={props.callbacks} reloadProfile={props.reloadProfile} />
-    if(activeTab === 'invoices') return <Invoices navigation={props.navigation} callbacks={props.callbacks} reloadProfile={props.reloadProfile} setActivetab={setActivetab} />
-    if(activeTab === 'treasures') return <Treasures navigation={props.navigation} callbacks={props.callbacks} reloadProfile={props.reloadProfile} />
+    switch(activeTab) {
+      case 'avatar': return <AvatarGenerator prices={[]} /> 
+      case 'market': return <Market reloadProfile={props.reloadProfile} />
+      case 'invoices': return <Invoices reloadProfile={props.reloadProfile} setActivetab={setActivetab} />
+      case 'real-money-store': return <RealMoneyStore reloadProfile={props.reloadProfile} />
+    }
   }
   return(
     <Panel id={props.id}>
@@ -140,98 +146,33 @@ export default props => {
         Магазин
       </PanelHeader>
       <Group>
-        <Div style={{paddingBottom:  0, paddingTop: 0}}>
-        <HorizontalScroll getScrollToLeft={(i) => i - 50} getScrollToRight={(i) => i + 50}>
-          <SegmentedControl 
-          value={activeTab}
-          onChange={e => {
-            setActivetab(e);
-            if(e === 'treasures') {
-              sendGoal('marketMoneyClick');
-            }
-          }}
-          options={platform !== IOS ? labels : labels.slice(0,2)}
-          />
-        </HorizontalScroll>
-        </Div>
-        
+        <Tabs mode='accent'>
+          <HorizontalScroll>
+            {(platform !== Platform.IOS ? labels : labels.slice(0,2)).map((label) => 
+            <TabsItem
+              key={label.value}
+              onClick={() => {
+                setActivetab(label.value)
+                if(label.value === 'real-money-store') {
+                  sendGoal('marketMoneyClick');
+                }
+              }}
+              selected={activeTab === label.value}
+            >
+              {label.label}
+            </TabsItem>)}
+          </HorizontalScroll>
+        </Tabs>        
       </Group>
       {getCurrPanel()}
     </Panel>
   )
 }
-const Treasures = props => {
-  const [products, setProducts] = useState(null);
-  const { setSnackbar } = props.callbacks;
-  const { goDisconnect } = props.navigation;
-  const fetched = useRef(false);
-  const getCost = (price, discount, enum_list) => {
-    let total_price = price - discount;
-    let price_show;
-    if(discount !== 0 && discount !== undefined) {
-      price_show = <span>Стоимость: <span style={{textDecoration: 'line-through'}}>{price}</span> {total_price} {enumerate(total_price, enum_list)}</span>
-    }else{
-      price_show = "Стоимость: " + price + " " + enumerate(total_price, enum_list);
-    }
-    return price_show
-  }
-  useEffect(() => {
-    const getProducts = () => {
-      fetch(API_URL + `method=shop.getProducts&` + window.location.search.replace('?', ''))
-        .then(data => data.json())
-        .then(data => {
-          if (data.result) {
-            setProducts(data.response)
-            fetched.current = true
-          } else {
-            setSnackbar(
-              <Snackbar
-                layout="vertical"
-                onClose={() => setSnackbar(null)}
-                before={<Icon20CancelCircleFillRed width={24} height={24} />}
-              >
-                {data.error.message}
-              </Snackbar>);
-          }
-        })
-        .catch(goDisconnect)
-    }
-    if(!fetched.current){
-      getProducts()
-    }
-    
-  }, [setSnackbar, goDisconnect])
-  return(
-    <>
-    <Group>
-      <List>
-        {products ? !isEmptyObject(products) ? 
-        products.map((res, i) => 
-        <SimpleCell
-        key={i}
-        onClick={() => {
-          bridge.send('VKWebAppShowOrderBox', {type: 'item', item: res.item_name})
-          .then(data => {if(data.success) {props.reloadProfile()}})
-        }}
-        before={<Avatar mode="image" src={res.photo_url} shadow={false} style={{backgroundColor: 'var(--background_page_my)'}} />}
-        description={
-          getCost(res.price, res.discount, ['голос', 'голоса', 'голосов'])
-        }>
-          {res.title}
-        </SimpleCell>
-        )
-        : 
-        <Placeholder>
-          Все товары, кажется, разобрали. Сейчас их нет в наличии. Скоро появятся.
-        </Placeholder> : <PanelSpinner/>}
-      </List>
-    </Group></>
-  )
-}
+
 const Invoices = props => {
   const account = useSelector((state) => state.account.account);
   const platform = usePlatform();
-  const { goPanel, setActiveModal } = props.callbacks;
+  const { goPanel, setActiveModal } = useNavigation();
   const { activeStory } = useSelector((state) => state.views)
   
   const genereCardId= (nickname) => {
@@ -260,15 +201,15 @@ const Invoices = props => {
       }>
         <Headline>{account.balance}</Headline>
       </SimpleCell>
-      {platform === IOS && <Div>
+      {platform === Platform.IOS && <Div>
         <Text style={{color: 'var(--subtext)'}}>Платежи на данной платформе недоступны.</Text>
       </Div>}
       <Div 
       className='vkuiTabbar--l-vertical' 
       style={{display: 'flex', justifyContent: 'space-around'}}>
-        {platform !== IOS && 
-        <Tappable onClick={() => props.setActivetab('treasures')} style={{padding: 8}}>
-          <TabbarItem selected={platform !== IOS}
+        {platform !== Platform.IOS && 
+        <Tappable onClick={() => props.setActivetab('real-money-store')} style={{padding: 8}}>
+          <TabbarItem selected={platform !== Platform.IOS}
           text='Пополнить'>
             <Icon28MoneyRequestOutline />
           </TabbarItem>

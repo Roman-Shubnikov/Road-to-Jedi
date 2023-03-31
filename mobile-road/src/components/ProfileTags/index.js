@@ -7,9 +7,9 @@ import './profileTags.css';
 import {
     Icon16Fire,
     Icon16StarCircleFillYellow,
+    Icon16Verified,
   
   } from '@vkontakte/icons'
-import { Verified } from '../../icons';
 
 const TooltipContent = ({children}) => {
     return <Subhead weight="2" style={{padding: '8px 12px', color: 'var(--text_primary)', 
@@ -46,7 +46,7 @@ export const ProfileTags = ({ verified, flash, donut, size='s' }) => {
                     <TooltipContent>
                         Профиль Агента подтвержден
                     </TooltipContent>
-                }><Verified size={16} style={{color: 'var(--verification_color)'}} />
+                }><Icon16Verified style={{color: 'var(--verification_color)'}} />
                 </RichTooltip>}
             </div>
         </div>
@@ -78,7 +78,7 @@ export const ProfileTags = ({ verified, flash, donut, size='s' }) => {
                     <TooltipContent>
                         Профиль Агента подтвержден
                     </TooltipContent>
-                }><Verified size={16} style={{color: 'var(--verification_color)'}} />
+                }><Icon16Verified style={{color: 'var(--verification_color)'}} />
                 </RichTooltip>}
             </div>
         </div>

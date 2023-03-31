@@ -13,6 +13,7 @@ exports.UserEntity = void 0;
 const typeorm_1 = require("typeorm");
 const enums_1 = require("../../../libs/core/src/enums");
 const file_entity_1 = require("../../storage/entities/file.entity");
+const entities_1 = require("../../market/entities");
 let UserEntity = class UserEntity {
 };
 __decorate([
@@ -101,8 +102,19 @@ __decorate([
 ], UserEntity.prototype, "publicStatus", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => file_entity_1.FileEntity, (file) => file.owner),
+    (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", Array)
 ], UserEntity.prototype, "files", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => entities_1.PurchasedIconEntity, (icons) => icons.user),
+    (0, typeorm_1.JoinColumn)(),
+    __metadata("design:type", Array)
+], UserEntity.prototype, "purchased_icons", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => entities_1.PurchasedColorEntity, (colors) => colors.user),
+    (0, typeorm_1.JoinColumn)(),
+    __metadata("design:type", Array)
+], UserEntity.prototype, "purchased_colors", void 0);
 __decorate([
     (0, typeorm_1.Column)({ default: 0 }),
     __metadata("design:type", Number)

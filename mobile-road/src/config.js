@@ -18,6 +18,7 @@ import {
 
 } from '@vkontakte/icons';
 export const API_URL = "https://xelene.ru/road/php/index.php?";
+export const VK_API_VERSION = "5.103";
 export const LINK_APP = 'https://vk.com/trainingapp';
 export const AVATARS_URL = "https://xelene.ru/road/php/images/avatars/";
 export const LINKS_VK = { 

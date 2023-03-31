@@ -27,6 +27,7 @@ let StorageService = StorageService_1 = class StorageService {
         this.configService = configService;
         this.filesRepository = filesRepository;
         this.bucket = this.configService.get('S3_STORAGE_BUCKET');
+        this.bucketPath = 'https://' + this.bucket + '.' + this.configService.get('S3_HOST');
         this.host = 'https://' + this.configService.get('S3_HOST');
         this.logger = new common_1.Logger(StorageService_1.name);
         this.s3 = new client_s3_1.S3Client({
@@ -61,12 +62,17 @@ let StorageService = StorageService_1 = class StorageService {
             if (count > +this.configService.get('S3_FILE_LIMIT_PER_USER')) {
                 const oldNotSavedFile = await this.filesRepository.findOne({
                     where: {
-                        saved: false, owner: user
+                        saved: false,
+                        owner: {
+                            id: user.id
+                        }
                     },
                     order: {
                         created_at: "ASC",
                     }
                 });
+                if (!oldNotSavedFile)
+                    throw new common_1.ForbiddenException('Лимит загрузки файлов исчерпан');
                 await this.filesRepository.remove(oldNotSavedFile);
             }
             await this.s3.send(new client_s3_1.PutObjectCommand(inputData));

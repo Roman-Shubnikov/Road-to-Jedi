@@ -38,15 +38,14 @@ import {
   Icon28CommentOutline,
   Icon28DoneOutline,
   Icon28CancelOutline,
-  Icon28CheckCircleOutline,
   Icon28DeleteOutline,
   Icon28WriteOutline,
   Icon28CommentDisableOutline,
   Icon28DoorArrowLeftOutline,
   Icon28DoorArrowRightOutline,
-  Icon24Comment,
+  Icon24MessageOutline,
+  Icon28CheckShieldOutline,
  } from '@vkontakte/icons';
-
 import Message from './message'
 import { useDispatch, useSelector } from 'react-redux';
 import { ticketActions } from '../store/main';
@@ -244,8 +243,10 @@ export default props => {
                 : null}
               {(special && !approved) ?
                 <ActionSheetItem autoclose 
-                before={<Icon28CheckCircleOutline />}
-                onClick={() => markMessage(0, id, "approve")}>
+                multiline
+                before={<Icon28CheckShieldOutline />}
+                onClick={() => markMessage(0, id, "approve")}
+                subtitle='Выберите наилучший ответ и одобрите его, он отобразится пользователю'>
                   Одобрить
                   </ActionSheetItem>
                 : null}
@@ -627,7 +628,7 @@ export default props => {
                         </File> */}
                         <Button size='m'
                         mode='secondary'
-                        before={<Icon24Comment />}
+                        before={<Icon24MessageOutline />}
                         onClick={() => {
                           getPresetMessage();
                         }}>

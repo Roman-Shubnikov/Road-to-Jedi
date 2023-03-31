@@ -4,8 +4,8 @@ import {
   PanelHeader,
   HorizontalScroll,
   Group,
-  SegmentedControl,
-  Div,
+  TabsItem,
+  Tabs,
   } from '@vkontakte/vkui';
 // import Icon28SyncOutline from '@vkontakte/icons/dist/28/sync_outline';
 import Control from './components/control';
@@ -42,30 +42,37 @@ export default props => {
     { 
       label: <Icon24Square4Outline />,
       value: 'control',
+      title: 'Главная'
     },
     { 
       label: <Icon24CommentOutline />,
       value: 'answers',
+      title: 'Ответы'
     },
     { 
       label: <Icon24ArticleOutline />,
       value: 'db_questions',
+      title: 'Вопросы'
     },
     { 
       label: <Icon24UsersOutline />,
       value: 'comments',
+      title: 'Генератор'
     },
     { 
       label: <Icon24Cards2Outline />,
       value: 'generator',
+      title: 'Комментарии'
     },
     { 
       label: <Icon24ReportOutline />,
       value: 'reports',
+      title: 'Жалобы'
     },
     { 
       label: <Icon24DoneOutline />,
       value: 'verification',
+      title: 'Верификация'
     }
   ]
   const getActualPage = (activeTab) => {
@@ -103,14 +110,17 @@ export default props => {
         {viewsStructure.Moderation.name}
       </PanelHeader>
       <Group>
-        <Div style={{paddingBottom: 0, paddingTop: 0}}>
+        <Tabs mode='accent'>
           <HorizontalScroll>
-            <SegmentedControl 
-            value={activeTab}
-            onChange={e => setActivetab(e)}
-            options={admin_permission ? labels : labels.slice(0,2)}/>
+            {(admin_permission ? labels : labels.slice(0,2)).map((label) => 
+            <TabsItem
+              onClick={() => setActivetab(label.value)}
+              selected={activeTab === label.value}
+            >
+              {label.title}
+            </TabsItem>)}
           </HorizontalScroll>
-        </Div>
+        </Tabs>
       </Group>
 
       {getActualPage(activeTab)}

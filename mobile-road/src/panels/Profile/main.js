@@ -7,7 +7,7 @@ import {
 import '@vkontakte/vkui/dist/vkui.css';
 // Импортируем панели
 import Prof           from './panels/profile';
-import Market         from './panels/market';
+import { MarketPage }         from './panels/market/';
 import MYQuest        from './panels/AllQuestions';
 import Settings       from './panels/settings';
 import Info           from './panels/info'
@@ -76,7 +76,7 @@ export const Profile = props => {
       reloadProfile={props.reloadProfile}
       callbacks={callbacks}
       />
-      <Market id="market"
+      <MarketPage id="market"
         navigation={props.navigation}
         reloadProfile={props.reloadProfile}
         callbacks={callbacks} />

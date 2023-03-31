@@ -25,6 +25,9 @@ export const viewsActions = {
     setActiveScene: (story, panel) => {
         let payload = {story, panel};
         return { type: viewsActionTypes.SET_ACTIVE_SCENE, payload}},
+
+    setModal: (payload) => ({ type: viewsActionTypes.SET_MODAL, payload}),
+    setModalHistory: (payload) => ({ type: viewsActionTypes.SET_MODAL_HISTORY, payload}),
     setHistory: (payload) => ({ type: viewsActionTypes.SET_HISTORY, payload}),
     setNeedEpic: (payload) => ({ type: viewsActionTypes.SET_NEED_EPIC, payload}),
     setSnackbar: (payload) => ({ type: viewsActionTypes.SET_SNACKBAR, payload}),

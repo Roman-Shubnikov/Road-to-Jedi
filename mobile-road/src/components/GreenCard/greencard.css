@@ -1,7 +1,7 @@
-.green-card {
+.green-card .vkuiBanner__in {
     background: rgba(75, 179, 75, 0.2);
 }
-.green-card>.vkuiCaption,
-.green-card>.vkuiFormStatus__header {
+.green-card .vkuiBanner__subheader,
+.green-card .vkuiBanner__header {
     color: #4BB34B;
 }

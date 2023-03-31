@@ -20,9 +20,11 @@ const entities_1 = require("../users/entities");
 const dto_1 = require("./dto");
 const market_service_1 = require("./market.service");
 const enums_1 = require("./enums");
+const config_1 = require("@nestjs/config");
 let MarketController = class MarketController {
-    constructor(marketService) {
+    constructor(marketService, configService) {
         this.marketService = marketService;
+        this.configService = configService;
     }
     async createCustomAvatar(user, body) {
         return this.marketService.createCustomAvatar(user, body.color, body.icon_name);
@@ -35,7 +37,7 @@ let MarketController = class MarketController {
         return true;
     }
     async getAvalibleColors() {
-        return enums_1.ColorsAllEnum;
+        return enums_1.ColorsAllEnum.map(v => ({ color: v }));
     }
     async getAvalibleIcons() {
         return this.marketService.getAvalibleIcons();
@@ -43,6 +45,21 @@ let MarketController = class MarketController {
     async buyIcon(user, iconName) {
         await this.marketService.buyIcon(user, iconName);
         return true;
+    }
+    async getMyIcons(user) {
+        return await this.marketService.getMyIcons(user);
+    }
+    async getMyColors(user) {
+        return await this.marketService.getMyColors(user);
+    }
+    async getPrices() {
+        const data = {
+            nickname: +this.configService.get('MARKET_COST_INSTALL_NEW_NICKNAME'),
+            new_avatar: +this.configService.get('MARKET_COST_INSTALL_NEW_AVATAR'),
+            new_color: +this.configService.get('MARKET_COST_COLOR'),
+            new_icon: +this.configService.get('MARKET_COST_ICON'),
+        };
+        return data;
     }
 };
 __decorate([
@@ -88,18 +105,42 @@ __decorate([
 ], MarketController.prototype, "getAvalibleIcons", null);
 __decorate([
     (0, common_1.Post)('buyIcon/:iconName'),
-    (0, swagger_1.ApiOperation)({ summary: 'Получить доступные к покупке иконки' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Купить иконку' }),
     __param(0, (0, decorators_1.User)()),
     __param(1, (0, common_1.Param)('iconName')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [entities_1.UserEntity, String]),
     __metadata("design:returntype", Promise)
 ], MarketController.prototype, "buyIcon", null);
+__decorate([
+    (0, common_1.Get)('getMyIcons'),
+    (0, swagger_1.ApiOperation)({ summary: 'Получить купленные иконки' }),
+    __param(0, (0, decorators_1.User)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [entities_1.UserEntity]),
+    __metadata("design:returntype", Promise)
+], MarketController.prototype, "getMyIcons", null);
+__decorate([
+    (0, common_1.Get)('getMyColors'),
+    (0, swagger_1.ApiOperation)({ summary: 'Получить купленные цвета' }),
+    __param(0, (0, decorators_1.User)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [entities_1.UserEntity]),
+    __metadata("design:returntype", Promise)
+], MarketController.prototype, "getMyColors", null);
+__decorate([
+    (0, common_1.Get)('getPrices'),
+    (0, swagger_1.ApiOperation)({ summary: 'Получить актуальные цены на товары' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], MarketController.prototype, "getPrices", null);
 MarketController = __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiTags)('Маркет'),
     (0, common_1.Controller)('market'),
-    __metadata("design:paramtypes", [market_service_1.MarketService])
+    __metadata("design:paramtypes", [market_service_1.MarketService,
+        config_1.ConfigService])
 ], MarketController);
 exports.MarketController = MarketController;
 //# sourceMappingURL=market.controller.js.map

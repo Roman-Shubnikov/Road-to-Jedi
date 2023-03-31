@@ -19,7 +19,7 @@ __decorate([
     __metadata("design:type", Number)
 ], PurchasedColorEntity.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => entities_1.UserEntity, (user) => user.id, { cascade: true }),
+    (0, typeorm_1.ManyToOne)(() => entities_1.UserEntity, (user) => user.purchased_colors, { cascade: true }),
     __metadata("design:type", entities_1.UserEntity)
 ], PurchasedColorEntity.prototype, "user", void 0);
 __decorate([

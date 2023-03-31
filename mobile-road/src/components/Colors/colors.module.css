@@ -1,0 +1,10 @@
+.color {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    
+}
+.color__tap_zone {
+    padding: 2px;
+    border-radius: 6px;
+}

@@ -15,6 +15,7 @@ class CONFIG {
 	
 	const ATTACHMENTS_PATH = '/root/jedifiles/photos';
 	const AVATAR_PATH = 'https://xelene.ru/road/php/images/avatars';
+	const S3_FILES_PATH = 'https://244a64f4-roadjedi.s3.timeweb.com';
 	const PRODUCTS_AVATAR_PATH = 'https://xelene.ru/road/php/images/products';
 	const USER_IMAGES_PATH = 'https://xelene.ru/roadjedi/';
 	const SUBSCRIBTIONS_AVATAR_PATH = 'https://xelene.ru/road/php/images/subscriptions';

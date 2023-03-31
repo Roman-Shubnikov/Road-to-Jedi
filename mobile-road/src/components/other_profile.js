@@ -142,7 +142,7 @@ export default props => {
                             </>
 
                         }
-                        description={online.is_online ? "online" : getHumanyTime(online.last_seen).date + " в " + getHumanyTime(online.last_seen).time}
+                        subtitle={online.is_online ? "online" : getHumanyTime(online.last_seen).date + " в " + getHumanyTime(online.last_seen).time}
                         before={<Avatar size={70} src={avatar.url} />}
                     >
                         <div style={{ display: 'flex' }}>

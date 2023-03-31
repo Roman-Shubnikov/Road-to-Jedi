@@ -10,6 +10,7 @@ export declare class StorageService {
     private readonly filesRepository;
     private readonly s3;
     readonly bucket: string;
+    readonly bucketPath: string;
     readonly host: string;
     private readonly logger;
     constructor(configService: ConfigService, filesRepository: Repository<FileEntity>);

@@ -123,13 +123,11 @@ class Tickets
 	{
 		if ($mark < 0 || $mark > 1) return false;
 
-		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.mark, messages.time, messages.text, messages.comment,
-					   users.avatar_id, users.nickname, users.money, avatars.name as avatar_name, messages.approved
+		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.mark, messages.time, 
+				messages.text, messages.comment, users.nickname, users.money, messages.approved
 			    FROM messages 
 				LEFT JOIN users
 				ON messages.author_id > 0 AND messages.author_id = users.id
-				LEFT JOIN avatars
-				ON users.avatar_id = avatars.id
 				WHERE messages.id=?";
 		$res = $this->Connect->db_get($sql, [$message_id])[0];
 
@@ -288,16 +286,16 @@ class Tickets
 					messages.mark, 
 					messages.time, 
 					messages.text,
-					users.avatar_id, 
+					users.avatarId, 
 					users.nickname, 
-					avatars.name as avatar_name, 
+					files.path as avatar_path, 
 					messages.approved,
 					messages.chance_posit,
 					messages.comment, 
 					messages.comment_author_id, 
 					messages.edit_time,
 					specials.nickname as comment_author_nickname,
-					avatars_special.name as comment_author_avatar,
+					files_special.path as comment_author_avatar_path,
 					messages.comment_time,
 					mark_authors.id as mark_author_id,
 					mark_authors.nickname as mark_author_nickname
@@ -306,10 +304,10 @@ class Tickets
 				ON messages.author_id > 0 AND messages.author_id = users.id
 				LEFT JOIN users as specials
 				ON messages.comment_author_id = specials.id
-				LEFT JOIN avatars
-				ON users.avatar_id = avatars.id
-				LEFT JOIN avatars as avatars_special
-				ON specials.avatar_id = avatars_special.id
+				LEFT JOIN files
+				ON users.avatarId = files.id
+				LEFT JOIN files as files_special
+				ON specials.avatarId = files.id
 				LEFT JOIN users as mark_authors
 				ON messages.approve_author_id = mark_authors.vk_user_id
 				WHERE messages.ticket_id=? $cond
@@ -327,8 +325,8 @@ class Tickets
 					'id' => (int) $message['author_id'],
 					'nickname' => $message['nickname'],
 					'avatar' => [
-						'id' => (int) $message['avatar_id'],
-						'url' => $message['avatar_name'] ? CONFIG::AVATAR_PATH . '/' . $message['avatar_name'] : CONFIG::AVATAR_PATH . '/10007.png',
+						'id' => (int) $message['avatarId'],
+						'url' => $message['avatar_path'] ? CONFIG::S3_FILES_PATH . '/' . $message['avatar_path'] : CONFIG::AVATAR_PATH . '/default.png',
 					],
 					'is_moderator' => true,
 					'is_special' => (bool) $this->user->info['permissions'] >= CONFIG::PERMISSIONS['special'],
@@ -350,12 +348,10 @@ class Tickets
 	{
 
 		$sql = "SELECT messages.id, messages.ticket_id, messages.author_id, messages.mark, messages.time, messages.text,
-					   users.avatar_id, users.nickname, avatars.name as avatar_name, messages.approved
+				 users.nickname, messages.approved
 			    FROM messages 
 				LEFT JOIN users
 				ON messages.author_id > 0 AND messages.author_id = users.id
-				LEFT JOIN avatars
-				ON users.avatar_id = avatars.id
 				WHERE messages.id=$message_id";
 		$res = $this->Connect->db_get($sql)[0];
 
@@ -379,7 +375,7 @@ class Tickets
 			'object' => $ticket['id']
 		];
 
-		$avatar = CONFIG::AVATAR_PATH . '/' . $this->user->info['avatar_name'];
+		$avatar = CONFIG::AVATAR_PATH . '/' . 'defaylt.png';
 		$this->SYSNOTIF->send($auid, $notification, $object, $avatar);
 
 		$ticket_id = $ticket['id'];
@@ -407,9 +403,6 @@ class Tickets
 		$res = $this->Connect->db_get($sql, [$message_id])[0];
 
 		$author_id = $res['author_id'];
-
-		$avatar_id = $this->Connect->db_get("SELECT avatar_id from users WHERE id=?", [$author_id])[0]['avatar_id'];
-		$avatar_name = $this->Connect->db_get("SELECT name from avatars WHERE id=?", [$avatar_id])[0]['name'];
 
 		if (empty($res)) {
 			Show::error(404);
@@ -440,7 +433,7 @@ class Tickets
 		}
 		$text = Utils::replaceSymbols($text);
 
-		$this->SYSNOTIF->send($res['author_id'], $notification, $object, CONFIG::AVATAR_PATH . '/' . $avatar_name);
+		$this->SYSNOTIF->send($res['author_id'], $notification, $object, CONFIG::AVATAR_PATH . '/default.png');
 		return $this->Connect->query("UPDATE messages SET comment=?, comment_author_id=?, comment_time=? WHERE id=?", [$text, $auid, $comment_time, $message_id])[0];
 	}
 
@@ -719,7 +712,7 @@ class Tickets
 				$comment_data += [
 					'author_id' => (int) $data['comment_author_id'],
 					'nickname' => $data['comment_author_nickname'],
-					'avatar' => $data['comment_author_avatar'],
+					'avatar' => $data['comment_author_avatar_path'],
 				];
 				
 			}

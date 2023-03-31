@@ -12,7 +12,7 @@ async function bootstrap() {
     var _a;
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     const config = app.get(config_1.ConfigService);
-    const PORT = +((_a = config.get('PORT')) !== null && _a !== void 0 ? _a : 3000);
+    const PORT = +((_a = config.get('WEB_SERVICE_PORT')) !== null && _a !== void 0 ? _a : 3000);
     const NODE_ENV = config.get('NODE_ENV');
     const SWAGGER_THEME = config.get('SWAGGER_THEME');
     app.setGlobalPrefix('api');

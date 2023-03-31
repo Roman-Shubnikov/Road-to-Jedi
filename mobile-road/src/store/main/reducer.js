@@ -36,6 +36,8 @@ const initalStateViews = {
     popout: null,
     globalError: null,
     historyPanelsView: ['questions'],
+    modal: null,
+    modalHistory: null,
 }
 const initalStateTickets = {
     comment: '',
@@ -151,6 +153,10 @@ export const viewsReducer = (state = initalStateViews, action) => {
             return {...state, snackbar: action.payload}
         case viewsActionTypes.SET_GLOBAL_ERROR:
             return {...state, globalError: action.payload}
+        case viewsActionTypes.SET_MODAL:
+            return {...state, modal: action.payload}
+        case viewsActionTypes.SET_MODAL_HISTORY:
+            return {...state, modalHistory: action.payload}
         case viewsActionTypes.SET_POPOUT:
             return {...state, popout: action.payload}
         default: 

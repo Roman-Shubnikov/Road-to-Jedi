@@ -23,16 +23,16 @@ export default props => {
         disabled={disabled ? disabled : !onClick}
         key={key || id}
         onClick={!disabled ? onClick : undefined}
-        description={
+        subtitle={
           description ? description :
-          <div className="top_moderator_desc">
+          <div>
             {good_answers + " " + enumerate(good_answers, Forms.good_answers) + ", " 
             + bad_answers + " " + enumerate(bad_answers, Forms.bad_answers)}
           </div>
         }
             before={<Avatar shadow={false} src={avatar.url} alt='ava' style={{position: 'relative'}}>
               {position && <Counter style={{boxShadow: '0 2px 4px rgb(0 0 0 / 12%)',
-                position: 'absolute', right: -1, bottom: 0, backgroundColor: 'var(--white)', color: 'black'}}>{position}</Counter>}
+                position: 'absolute', right: -2, bottom: -2, backgroundColor: 'var(--vkui--color_text_primary)', color: 'black'}}>{position}</Counter>}
               </Avatar> }
           >
         <div className="top_moderator_name" style={{color: (donut && change_color_donut) ? "var(--top_moderator_name_donut)" : "var(--top_moderator_name)"}}>
