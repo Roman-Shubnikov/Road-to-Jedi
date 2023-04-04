@@ -15,6 +15,7 @@ export declare class MarketController {
     getAvalibleIcons(): Promise<string[]>;
     buyIcon(user: UserEntity, iconName: string): Promise<boolean>;
     getMyIcons(user: UserEntity): Promise<{
+        url_to_png: string;
         url_to_icons: string;
         items: import("./entities").PurchasedIconEntity[];
     }>;

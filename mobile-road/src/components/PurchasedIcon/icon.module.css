@@ -2,9 +2,7 @@
     width: 28px;
     height: 28px;
     border-radius: 6px;
+    padding: 6px;
+    color: var(--vkui--color_icon_accent);
     
-}
-.icon__tap_zone {
-    padding: 2px;
-    border-radius: 6px;
 }

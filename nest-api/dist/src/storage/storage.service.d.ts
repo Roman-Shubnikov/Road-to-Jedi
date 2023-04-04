@@ -10,8 +10,8 @@ export declare class StorageService {
     private readonly filesRepository;
     private readonly s3;
     readonly bucket: string;
-    readonly bucketPath: string;
     readonly host: string;
+    readonly bucketPath: string;
     private readonly logger;
     constructor(configService: ConfigService, filesRepository: Repository<FileEntity>);
     getFolder(path: string): Promise<ListObjectsCommandOutput>;

@@ -20,6 +20,7 @@ export declare class MarketService {
     buyIcon(user: UserEntity, icon_name: string): Promise<PurchasedIconEntity>;
     buyColor(user: UserEntity, color: string): Promise<PurchasedColorEntity>;
     getMyIcons(user: UserEntity): Promise<{
+        url_to_png: string;
         url_to_icons: string;
         items: PurchasedIconEntity[];
     }>;

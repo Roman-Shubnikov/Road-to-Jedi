@@ -38,7 +38,7 @@ let MarketService = class MarketService {
         this.purchasedColorRepository = purchasedColorRepository;
     }
     async getAvalibleIcons() {
-        const icons = await this.storageService.getFolder(this.configService.get('S3_PATH_TO_AVATAR_ICONS'));
+        const icons = await this.storageService.getFolder(this.configService.get('S3_PATH_TO_AVATAR_ICONS_PNG'));
         const icons_names = icons.Contents.map(icon => icon.Key.split('/').at(-1));
         return icons_names;
     }
@@ -47,9 +47,9 @@ let MarketService = class MarketService {
             throw new common_1.ForbiddenException('Указанная иконка не приобретена');
         if (!await this.purchasedIconRepository.findOneBy({ user: { id: user.id }, icon_name }))
             throw new common_1.ForbiddenException('Указанный цвет не приобретён');
-        const size = 400;
+        const size = 600;
         const avatar = new Jimp(size, size, backgroundColor);
-        const icon_path = this.configService.get('S3_PATH_TO_AVATAR_ICONS') + '/' + icon_name;
+        const icon_path = this.configService.get('S3_PATH_TO_AVATAR_ICONS_PNG') + '/' + icon_name;
         const iconWithJimp = await Jimp.read(this.storageService.bucketPath + '/' + icon_path);
         iconWithJimp.color([{ apply: plugin_color_1.ColorActionName.LIGHTEN, params: [size / 2] }]);
         avatar.composite(iconWithJimp, (size - iconWithJimp.getWidth()) / 2, (size - iconWithJimp.getHeight()) / 2);
@@ -58,7 +58,9 @@ let MarketService = class MarketService {
             algorithm: 'md5',
         })}.png`;
         const path = this.configService.get('S3_PATH_TO_AVATARS') + '/' + filename;
-        return this.storageService.upload(user, path, newBuffer, enums_1.ImageTypesEnum.PNG);
+        const savedFile = await this.storageService.upload(user, path, newBuffer, enums_1.ImageTypesEnum.PNG);
+        savedFile.bucket_path = this.storageService.bucketPath;
+        return savedFile;
     }
     async installAvatar(user, hash) {
         const fileInfo = await this.storageService.save(user, hash);
@@ -87,6 +89,7 @@ let MarketService = class MarketService {
     }
     async getMyIcons(user) {
         return {
+            url_to_png: this.storageService.bucketPath + '/' + this.configService.get('S3_PATH_TO_AVATAR_ICONS_PNG'),
             url_to_icons: this.storageService.bucketPath + '/' + this.configService.get('S3_PATH_TO_AVATAR_ICONS'),
             items: await this.purchasedIconRepository.find({ where: { user: { id: user.id } } })
         };

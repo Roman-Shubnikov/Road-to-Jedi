@@ -27,8 +27,8 @@ let StorageService = StorageService_1 = class StorageService {
         this.configService = configService;
         this.filesRepository = filesRepository;
         this.bucket = this.configService.get('S3_STORAGE_BUCKET');
-        this.bucketPath = 'https://' + this.bucket + '.' + this.configService.get('S3_HOST');
         this.host = 'https://' + this.configService.get('S3_HOST');
+        this.bucketPath = this.host + '/' + this.bucket;
         this.logger = new common_1.Logger(StorageService_1.name);
         this.s3 = new client_s3_1.S3Client({
             endpoint: this.host,

@@ -1,14 +1,28 @@
 import { Tappable } from '@vkontakte/vkui';
-import React from 'react';
+import React, { useEffect, useRef, ReactNode } from 'react';
 import style from './icon.module.css';
 
 
 export const PurchasedIcon = ({icon_url}: {icon_url: string}) => {
+    const svgRef = useRef<null | HTMLDivElement>(null);
+    useEffect(() => {
+        fetch(icon_url)
+        .then(r => r.text())
+        .then(text => {
+            var parser = new DOMParser();
+            var xmlDoc = parser.parseFromString(text, "text/xml");
+            var svg = xmlDoc.getElementsByTagName('svg')[0];
+            svg.setAttribute('color', 'var(--vkui--color_icon_accent)');
+            if(svgRef.current){
+                svgRef.current.appendChild(svg)
+            }
+            
+        })
+    }, [])
     return (
         <Tappable>
-            <div className={style.icon__tap_zone}>
-                <img className={style.icon} src={icon_url} alt='icon'/>
-            </div>
+            <div className={style.icon} ref={svgRef}></div>
         </Tappable>
+        
     )
 }

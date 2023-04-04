@@ -5,6 +5,7 @@ export * from './getAvalibleColors';
 export * from './getMyColors';
 export * from './getMyIcons';
 export * from './getPrices';
+export * from './createCustomAvatar';
 
 export const apiMarket = `${API_NEW_URL}/market`;
 
