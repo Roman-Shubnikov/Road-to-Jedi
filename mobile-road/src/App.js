@@ -30,6 +30,7 @@ import {
   usePlatform,
   Platform,
   RichCell,
+  classNames,
 
   } from '@vkontakte/vkui';
 import '@vkontakte/vkui/dist/vkui.css';
@@ -475,10 +476,7 @@ const App = () => {
                       {isEmptyObject(account) || <Group>
                         <RichCell
                         disabled={activeStory === "profile"}
-                        style={activeStory === "profile" ? {
-                            backgroundColor: "var(--button_secondary_background)",
-                            borderRadius: 8
-                        } : {}}
+                        className={classNames({'vkuiTappable--active-background': activeStory === "Profile"})}
                         onClick={() => {setHash('');goPanel(viewsStructure.Profile.navName, viewsStructure.Profile.panels.homepanel)}}
                           caption={"#" + account['id']}
                           before={<Avatar size={50} src={account['avatar']['url']} />}>

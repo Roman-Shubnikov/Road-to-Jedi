@@ -181,7 +181,7 @@ class Tickets
 			'object' => $ticket['id']
 		];
 
-		$avatar = CONFIG::AVATAR_PATH . '/' . $res['avatar_name'];
+		$avatar = CONFIG::AVATAR_PATH . '/default.png';
 		$this->SYSNOTIF->send($auid, $notification, $object, $avatar);
 
 		return $result;
@@ -375,7 +375,7 @@ class Tickets
 			'object' => $ticket['id']
 		];
 
-		$avatar = CONFIG::AVATAR_PATH . '/' . 'defaylt.png';
+		$avatar = CONFIG::AVATAR_PATH . '/default.png';
 		$this->SYSNOTIF->send($auid, $notification, $object, $avatar);
 
 		$ticket_id = $ticket['id'];

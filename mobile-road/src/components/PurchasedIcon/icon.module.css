@@ -1,0 +1,10 @@
+.icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    
+}
+.icon__tap_zone {
+    padding: 2px;
+    border-radius: 6px;
+}

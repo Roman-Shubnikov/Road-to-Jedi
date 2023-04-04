@@ -11,7 +11,7 @@ export default props => {
         badge={props.badge}
         disabled={props.activeStory === props.story}
         style={props.activeStory === props.story ? {
-            backgroundColor: "var(--button_secondary_background)",
+            backgroundColor: "var(--vkui--color_transparent--active)",
             borderRadius: 8
         } : {}}
         data-story={props.story}
