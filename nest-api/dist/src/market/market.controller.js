@@ -61,6 +61,14 @@ let MarketController = class MarketController {
         };
         return data;
     }
+    async setNickname(user, body) {
+        await this.marketService.setNickname(user, body.nickname);
+        return true;
+    }
+    async deleteNickname(user) {
+        await this.marketService.setNickname(user, null);
+        return true;
+    }
 };
 __decorate([
     (0, common_1.Post)('createCustomAvatar'),
@@ -86,7 +94,7 @@ __decorate([
     __param(0, (0, decorators_1.User)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [entities_1.UserEntity, Object]),
+    __metadata("design:paramtypes", [entities_1.UserEntity, dto_1.BuyColorDto]),
     __metadata("design:returntype", Promise)
 ], MarketController.prototype, "buyColor", null);
 __decorate([
@@ -135,6 +143,23 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], MarketController.prototype, "getPrices", null);
+__decorate([
+    (0, common_1.Put)('nickname'),
+    (0, swagger_1.ApiOperation)({ summary: 'Установить ник' }),
+    __param(0, (0, decorators_1.User)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [entities_1.UserEntity, dto_1.SetNicknameDto]),
+    __metadata("design:returntype", Promise)
+], MarketController.prototype, "setNickname", null);
+__decorate([
+    (0, common_1.Delete)('nickname'),
+    (0, swagger_1.ApiOperation)({ summary: 'Удалить ник' }),
+    __param(0, (0, decorators_1.User)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [entities_1.UserEntity]),
+    __metadata("design:returntype", Promise)
+], MarketController.prototype, "deleteNickname", null);
 MarketController = __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiTags)('Маркет'),

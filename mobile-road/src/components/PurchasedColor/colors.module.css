@@ -11,3 +11,7 @@
     border-radius: 6px;
     border-radius: 6px;
 }
+
+.selected {
+    background-color: var(--vkui--color_transparent--active);
+}

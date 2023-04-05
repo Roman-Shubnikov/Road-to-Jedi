@@ -1,5 +1,5 @@
 import { UserEntity } from 'src/users/entities';
-import { CreateCustomAvatarDto } from './dto';
+import { BuyColorDto, CreateCustomAvatarDto, SetNicknameDto } from './dto';
 import { MarketService } from './market.service';
 import { ConfigService } from '@nestjs/config';
 export declare class MarketController {
@@ -8,7 +8,7 @@ export declare class MarketController {
     constructor(marketService: MarketService, configService: ConfigService);
     createCustomAvatar(user: UserEntity, body: CreateCustomAvatarDto): Promise<import("../storage/entities").FileEntity>;
     installAvatar(user: UserEntity, hash: string): Promise<UserEntity>;
-    buyColor(user: UserEntity, body: any): Promise<boolean>;
+    buyColor(user: UserEntity, body: BuyColorDto): Promise<boolean>;
     getAvalibleColors(): Promise<{
         color: string;
     }[]>;
@@ -28,4 +28,6 @@ export declare class MarketController {
         new_color: number;
         new_icon: number;
     }>;
+    setNickname(user: UserEntity, body: SetNicknameDto): Promise<boolean>;
+    deleteNickname(user: UserEntity): Promise<boolean>;
 }

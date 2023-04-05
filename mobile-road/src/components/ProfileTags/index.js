@@ -83,4 +83,5 @@ export const ProfileTags = ({ verified, flash, donut, size='s' }) => {
             </div>
         </div>
     )
+    return <div></div>
 }

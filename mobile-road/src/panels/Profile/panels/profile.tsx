@@ -15,7 +15,6 @@ import {
     Button,
     ScreenSpinner,
     Textarea,
-    MiniInfoCell,
     Div,
     Spacing,
     Title,
@@ -25,6 +24,8 @@ import {
     Switch,
     Caption,
     Platform,
+    calcInitialsAvatarColor,
+    classNames,
 
 
     } from '@vkontakte/vkui';
@@ -38,23 +39,35 @@ import {
     Icon28MessagesOutline,
     Icon28LifebuoyOutline,
     Icon28DonateOutline,
-    Icon20ArticleOutline,
-
 } from '@vkontakte/icons';
+
 import { isEmptyObject } from 'jquery';
 import { useDispatch, useSelector } from 'react-redux';
-import { API_URL, CONVERSATION_LINK, MESSAGE_NO_VK, PERMISSIONS, PUBLIC_STATUS_LIMIT } from '../../../config';
-import InfoArrows from '../../../components/InfoArrows';
+import { API_URL, COMMUNITY_ID, CONVERSATION_LINK, MESSAGE_NO_VK, PERMISSIONS, PUBLIC_STATUS_LIMIT } from '../../../config';
 import { accountActions } from '../../../store/main';
 import { sendGoal } from '../../../metrika';
 import { ProfileTags } from '../../../components/ProfileTags';
 import { NicknameMenager } from '../../../Utils';
-export default props => {
+import style from './profile.module.css';
+import { InfoChipsStatistic, SimpleSeparator } from '../../../components';
+import { StoreObject } from '../../../store';
+
+const gradientStyles = {
+    1: style['Avatar--gradient-red'],
+    2: style['Avatar--gradient-orange'],
+    3: style['Avatar--gradient-yellow'],
+    4: style['Avatar--gradient-green'],
+    5: style['Avatar--gradient-blue'],
+    6: style['Avatar--gradient-l-blue'],
+    7: style['Avatar--gradient-violet'],
+  };
+
+export default (props: { navigation: any, callbacks: any, reloadProfile: any, id: string }) => {
     const dispatch = useDispatch();
     const platform = usePlatform();
-    const account = useSelector((state) => state.account.account)
+    const account = useSelector((state: StoreObject) => state.account.account)
     const { setActiveModal, goPanel, showErrorAlert, setPopout } = props.callbacks;
-    const { activeStory } = useSelector((state) => state.views)
+    const { activeStory } = useSelector((state: StoreObject) => state.views)
     const { goDisconnect } = props.navigation;
     const [fetching, setFetching] = useState(false);
     const [editingStatus, setEdititingStatus] = useState(false);
@@ -97,7 +110,7 @@ export default props => {
         }
       }
 
-    const notifyMenager = (value) => {
+    const notifyMenager = (value: boolean) => {
     fetch(API_URL + "method=settings.set&" + window.location.search.replace('?', ''),
         {
         method: 'post',
@@ -118,18 +131,19 @@ export default props => {
         })
         .catch(goDisconnect)
     }
-    const changeNotifStatus = (notif) => {
-    notif = notif.currentTarget.checked;
+    const changeNotifStatus = (notif: React.ChangeEvent<HTMLInputElement>) => {
+    let status = notif.currentTarget.checked;
     setPopout(<ScreenSpinner />)
-    if (notif) {
+    if (status) {
         setPopout(<Alert
+        
         actionsLayout='horizontal'
         actions={[{
             title: 'Разрешить',
-            autoclose: true,
+            autoClose: true,
             mode: 'default',
             action: () => {
-            bridge.send("VKWebAppAllowMessagesFromGroup", { "group_id": 188280516 })
+            bridge.send("VKWebAppAllowMessagesFromGroup", { "group_id": COMMUNITY_ID })
                 .then(data => {
                 setNotify(true)
                 notifyMenager(true)
@@ -142,7 +156,7 @@ export default props => {
             },
         }, {
             title: 'Нет, спасибо',
-            autoclose: true,
+            autoClose: true,
             mode: 'cancel',
             action: () => { notifyMenager(false) },
 
@@ -171,7 +185,7 @@ export default props => {
             {!isEmptyObject(account) ? <>
                 <PanelHeader
                 separator={platform===Platform.VKCOM}
-                    left={<><PanelHeaderButton onClick={() => {
+                    before={<><PanelHeaderButton onClick={() => {
                         setActiveModal("share");
                     }}>
                         <Icon28UserCardOutline />
@@ -183,136 +197,69 @@ export default props => {
                             <Icon28Notifications />
                         </PanelHeaderButton></>}>Профиль</PanelHeader>
                 <PullToRefresh onRefresh={() => { setFetching(true); props.reloadProfile(); setTimeout(() => { setFetching(false) }, 1000) }} isFetching={fetching}>
-                {platform!==Platform.VKCOM &&
-                <Group>
-                    <Gradient
-                            style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            textAlign: "center",
-                            padding: 8,
-                            }}
-                        >
-                            <Avatar size={95} src={account['avatar']['url']} alt='ava' />
-                            <Title
-                            style={{ marginBottom: 4, marginTop: 10 }}
-                            level="2"
-                            weight="2"
-                            >
-                            <NicknameMenager 
+                    <Group className={classNames(gradientStyles[calcInitialsAvatarColor(account.id)], style.backgroundProfile)}>
+                        <div style={{height: 357}}></div>
+                        <Div className={style.head_root}>
+                            <div className={style.avatar}>
+                                <Avatar withBorder={false} size={95} src={account['avatar']['url']} alt='ava' />
+                            </div>
+                            
+                            <div
+                            className={style.agentName}>
+                                <NicknameMenager 
                                 need_num={false}
                                 nickname={account.nickname}
                                 agent_id={account.id}
                                 perms={permissions} />
-                            </Title>
-                            <Text style={{ marginBottom: 24, color: "var(--text_secondary)", display: "flex" }}>
-                                #{account.id}
                                 <ProfileTags
                                 size='m'
                                 flash={account.flash}
                                 donut={account.donut}
                                 verified={account.verified} />
-                            </Text>
-                            <Spacing separator style={{width: '90%'}} />
+                            </div>
                             {editingStatus ? 
-                        <FormLayout>
-                            <FormItem bottom={publicStatus.trim().length + '/' + PUBLIC_STATUS_LIMIT}>
-                                <Textarea 
-                                placeholder="Введите статус тут..."
-                                maxLength={PUBLIC_STATUS_LIMIT}
-                                value={publicStatus}
-                                onChange={e => {setPublicStatus(e.currentTarget.value)}}
-                                />
-                            </FormItem>
-                            <FormItem>
-                                <div style={{display: 'flex'}}>
-                                    <Button
-                                    style={{marginRight: 5}}
-                                    onClick={() => {setEdititingStatus(false);setPublicStatus(originalStatus)}}
-                                    mode='secondary'
-                                    size='s'>
-                                        Отменить
-                                    </Button>
-                                    <Button
-                                    onClick={() => statusMenager()}
-                                    mode='primary'
-                                    size='s'>
-                                        Сохранить
-                                    </Button>
-                                </div>
-                            </FormItem>
-                        </FormLayout>
-                        : 
-                        <Text
-                        onClick={() => {
-                            statusMenager();
-                        }} 
-                        style={{ marginTop: 16, marginBottom: 8, color: "var(--text_secondary)", display: "flex", wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>
+                            <FormLayout>
+                                <FormItem bottom={publicStatus.trim().length + '/' + PUBLIC_STATUS_LIMIT}>
+                                    <Textarea 
+                                    placeholder="Введите статус тут..."
+                                    maxLength={PUBLIC_STATUS_LIMIT}
+                                    value={publicStatus}
+                                    onChange={e => {setPublicStatus(e.currentTarget.value)}}
+                                    />
+                                </FormItem>
+                                <FormItem>
+                                    <div style={{display: 'flex'}}>
+                                        <Button
+                                        style={{marginRight: 5}}
+                                        onClick={() => {setEdititingStatus(false);setPublicStatus(originalStatus)}}
+                                        mode='secondary'
+                                        size='s'>
+                                            Отменить
+                                        </Button>
+                                        <Button
+                                        onClick={() => statusMenager()}
+                                        mode='primary'
+                                        size='s'>
+                                            Сохранить
+                                        </Button>
+                                    </div>
+                                </FormItem>
+                            </FormLayout>
+                            : 
+                            <Text
+                            onClick={statusMenager}
+                            className={style.publicStatus}>
                                 {account.publicStatus || "Играю в любимую игру"}
-                        </Text>
+                            </Text>
                         }
-                            
-                        </Gradient>
-                        <Spacing size={20} />
-                        <Div style={{paddingBottom: 0, paddingTop: 0}}>
-                            <InfoArrows 
-                            special={moderator_permission}
-                            good_answers={account['good_answers']}
-                            bad_answers={account['bad_answers']}
-                            total_answers={total_answers} />
+                        <InfoChipsStatistic
+                            className={style.statistic}
+                            good={account['good_answers']+''}
+                            bad={account['bad_answers']+''}
+                            total={total_answers+''} />
                         </Div>
-                        <Spacing />
-                    </Group>}
-                    {platform===Platform.VKCOM && <Group>
-                        <Div>
-                            <InfoArrows 
-                            special={moderator_permission}
-                            good_answers={account['good_answers']}
-                            bad_answers={account['bad_answers']}
-                            total_answers={total_answers} />
-                        </Div>
-                        {editingStatus ? 
-                        <FormLayout>
-                            <FormItem bottom={publicStatus.trim().length + '/' + PUBLIC_STATUS_LIMIT}>
-                                <Textarea 
-                                placeholder="Введите статус тут..."
-                                maxLength={PUBLIC_STATUS_LIMIT}
-                                value={publicStatus}
-                                onChange={e => {setPublicStatus(e.currentTarget.value)}}
-                                />
-                            </FormItem>
-                            <FormItem>
-                                <div style={{display: 'flex'}}>
-                                    <Button
-                                    style={{marginRight: 5}}
-                                    onClick={() => {setEdititingStatus(false);setPublicStatus(originalStatus)}}
-                                    mode='secondary'
-                                    size='s'>
-                                        Отменить
-                                    </Button>
-                                    <Button
-                                    onClick={() => statusMenager()}
-                                    mode='primary'
-                                    size='s'>
-                                        Сохранить
-                                    </Button>
-                                </div>
-                            </FormItem>
-                        </FormLayout>
-                        : 
-                        <MiniInfoCell
-                        before={<Icon20ArticleOutline/>}
-                        textWrap='full'
-                        onClick={() => {
-                            statusMenager();
-                        }}>
-                            {account.publicStatus || "Играю в любимую игру"}
-                        </MiniInfoCell>
-                        }
-                    </Group>}
-                    
+                    </Group>
+                        
                     <Group>
                         <SimpleCell
                         before={<Icon28Notifications />}
@@ -346,7 +293,8 @@ export default props => {
                         before={<Icon28DonateOutline />}>
                             Эксклюзивный чат
                         </SimpleCell>}
-                        <Spacing separator />
+                        <SimpleSeparator />
+                        
                         {agent_permission && (moderator_permission || <SimpleCell
                             expandable
                             onClick={() => {

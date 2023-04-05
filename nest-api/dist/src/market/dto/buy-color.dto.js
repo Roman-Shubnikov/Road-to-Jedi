@@ -9,17 +9,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateCustomAvatarDto = void 0;
+exports.BuyColorDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 const enums_1 = require("../enums");
-class CreateCustomAvatarDto {
+class BuyColorDto {
 }
 __decorate([
     (0, swagger_1.ApiProperty)(),
     (0, class_validator_1.IsHexColor)(),
     (0, class_validator_1.IsIn)(enums_1.ColorsAllEnum),
     __metadata("design:type", String)
-], CreateCustomAvatarDto.prototype, "color", void 0);
-exports.CreateCustomAvatarDto = CreateCustomAvatarDto;
+], BuyColorDto.prototype, "color", void 0);
+exports.BuyColorDto = BuyColorDto;
 //# sourceMappingURL=buy-color.dto.js.map

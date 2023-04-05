@@ -6,3 +6,6 @@
     color: var(--vkui--color_icon_accent);
     
 }
+.selected {
+    background-color: var(--vkui--color_transparent--active);
+}

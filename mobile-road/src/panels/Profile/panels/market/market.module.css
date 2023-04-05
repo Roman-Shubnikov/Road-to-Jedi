@@ -1,8 +1,13 @@
 .avatar {
-    width: 100%;
-    height: 610px;
+    width: 60%;
     border-radius: 12px;
+}
+.avatar_container {
+    display: flex;
+    justify-content: center;
+
 }
 .container_items {
     display: flex;
+    gap: 13px;
 }

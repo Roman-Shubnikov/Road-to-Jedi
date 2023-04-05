@@ -1,0 +1,10 @@
+.root {
+    display: flex;
+    align-items: center;
+    color: var(--description_color);
+    gap: 7px;
+    padding: 4px;
+}
+.text {
+    font-size: 14px;
+}

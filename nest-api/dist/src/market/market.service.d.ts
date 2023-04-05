@@ -28,5 +28,6 @@ export declare class MarketService {
         items: PurchasedColorEntity[];
     }>;
     marketLogger(user: UserEntity, product: ProductsEnum, operation: MoneyOperationsEnum, cost: number): Promise<MarketLogEntity>;
+    setNickname(user: UserEntity, nickname: string | null): Promise<UserEntity>;
     manageUserMoney(user: UserEntity, productType: ProductsEnum, operation: MoneyOperationsEnum, cost: number): Promise<UserEntity>;
 }

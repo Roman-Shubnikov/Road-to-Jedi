@@ -35,6 +35,7 @@ AppModule = __decorate([
                 database: process.env.DB_DATABASE,
                 synchronize: true,
                 autoLoadEntities: true,
+                logging: true
             }),
             schedule_1.ScheduleModule.forRoot(),
             typeorm_1.TypeOrmModule.forFeature([entities_1.UserEntity]),

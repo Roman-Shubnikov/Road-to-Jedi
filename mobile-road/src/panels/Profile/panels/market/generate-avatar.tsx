@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Div, FixedLayout, SegmentedControl, Group, PanelSpinner } from '@vkontakte/vkui';
-import { createCustomAvatar, getMyColors, getMyIcons } from '../../../../backend';
+import { Button, Div, FixedLayout, SegmentedControl, Group, PanelSpinner, Placeholder } from '@vkontakte/vkui';
 import { PurchasedColor } from '../../../../components/PurchasedColor';
 import { PurchasedIcon } from '../../../../components/PurchasedIcon';
 import { useSelector } from 'react-redux';
 import style from './market.module.css';
-
+import { 
+    Icon56LogoClipsOutline, 
+    Icon56LikeLockOutline,
+ } from '@vkontakte/icons';
+import { createCustomAvatar, getMyColors, getMyIcons, installAvatar } from '../../../../backend/market';
+import { useNavigation } from '../../../../hooks';
 
 enum AvatarGeneratorSections {
     ICONS,
@@ -23,7 +27,7 @@ type IconsData = {
         purchased_at: number,
     }[] }
 type profileData = {account: { account: {avatar: { url: string }}}}
-type avatarData = { bucket_path: string, path: string }
+type avatarData = { bucket_path: string, path: string, hash: string }
 
 export const AvatarGenerator = ({prices}: {prices: any}) => {
     const account = useSelector((state: profileData) => state.account.account)
@@ -33,9 +37,13 @@ export const AvatarGenerator = ({prices}: {prices: any}) => {
 
     const [fetching, setFetching] = useState<boolean>(false);
 
-    const [customColor, setCustomColor] = useState(null);
-    const [customIconName, setCustomIconName] = useState(null);
+    const [customColor, setCustomColor] = useState<null | string>(null);
+    const [customIconName, setCustomIconName] = useState<null | string>(null);
     const [generatedAvatar, setGeneratedAvatar] = useState<null | avatarData>(null);
+    const [noItems, setNoItems] = useState<null | boolean>()
+    const [installInProgress, setInstallInProgress] = useState<boolean>(false);
+
+    const { setInfoSnackbar } = useNavigation();
 
     useEffect(() => {
         const fetchInfo = async () => {
@@ -46,6 +54,8 @@ export const AvatarGenerator = ({prices}: {prices: any}) => {
             if (icons.items.length && colors.items.length) {
                 setCustomColor(colors.items[0].color);
                 setCustomIconName(icons.items[0].icon_name);
+            } else {
+                setNoItems(true);
             }
             
         }
@@ -63,9 +73,20 @@ export const AvatarGenerator = ({prices}: {prices: any}) => {
         })
         .finally(() => setFetching(false));
     }
+    const installAvatarClick = () => {
+        if (!generatedAvatar?.hash) return
+        setInstallInProgress(true)
+        installAvatar(generatedAvatar.hash)
+        .then(() => setInfoSnackbar('Аватарка успешно установлена'))
+        .finally(() => setInstallInProgress(false));
+    }
+
+    useEffect(() => {
+        generateAvatar()
+        console.log('avatar gen',)
+    }, [customColor, customIconName])
 
     const getSection = () => {
-        console.log('AvatarGenerator', activeSection)
         switch(activeSection) {
             case AvatarGeneratorSections.ICONS:
                 return (
@@ -73,6 +94,8 @@ export const AvatarGenerator = ({prices}: {prices: any}) => {
                         {myIcons ? 
                         myIcons.items.map((icon) => 
                             <PurchasedIcon key={icon.id}
+                            selected={icon.icon_name === customIconName}
+                            onClick={() => setCustomIconName(icon.icon_name)}
                             icon_url={myIcons.url_to_icons + '/' + icon.icon_name.split('.')[0] + '.svg'} />) 
                             : 
                             <PanelSpinner />}
@@ -84,23 +107,42 @@ export const AvatarGenerator = ({prices}: {prices: any}) => {
                 <Div className={style.container_items}>
                     {myColors ? 
                     myColors.items.map((color) => 
-                        <PurchasedColor key={color.color} 
-                        color={color.color} />) 
+                        <PurchasedColor key={color.color}
+                        selected={color.color === customColor}
+                        color={color.color}
+                        onClick={() => setCustomColor(color.color)} />) 
                         : 
                         <PanelSpinner />}
                 </Div>
                 )
         }
     } 
+    const getError = () => {
+        if (noItems) return (
+            <Placeholder icon={<Icon56LikeLockOutline />} header='Ошибка'>
+                Нужно купить хотя бы одну иконку и один цвет в разделе товары
+            </Placeholder>
+        )
+        if (customColor === null) return (
+            <Placeholder
+            icon={<Icon56LogoClipsOutline />}
+            header='Подождите'>
+                Пока редактор загружается...
+            </Placeholder>
+        )
+        
+        return false;
+    }
 
     return(
         <>
         <Group>
             {fetching && <PanelSpinner height={610} size='large' />}
-            {!fetching && <Div>
+            {!fetching && <Div className={style.avatar_container}>
                 <img className={style.avatar} src={generatedAvatar ? generatedAvatar.bucket_path + '/' + generatedAvatar.path : account.avatar.url } />
             </Div>}
-            
+            {getError() ? getError() :
+            <>
             <Div>
                 <SegmentedControl
                 onChange={(value) => setActiveSection(value as AvatarGeneratorSections)}
@@ -119,13 +161,17 @@ export const AvatarGenerator = ({prices}: {prices: any}) => {
                 />
             </Div>
             {getSection()}
-            <div style={{marginBottom: 60}}></div>
+            </>}
+            
+            <div style={{marginBottom: 30}}></div>
         </Group>
         
         <FixedLayout vertical='bottom' filled>
             <Div>
                 <Button stretched size='m'
-                onClick={generateAvatar}>
+                disabled={!!getError() || fetching || !generatedAvatar?.hash}
+                loading={installInProgress}
+                onClick={installAvatarClick}>
                     Обновить аватар за 250 баллов
                 </Button>
             </Div>

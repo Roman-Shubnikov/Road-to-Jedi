@@ -1,9 +1,9 @@
-import { Tappable } from '@vkontakte/vkui';
-import React, { useEffect, useRef, ReactNode } from 'react';
+import { Tappable, classNames } from '@vkontakte/vkui';
+import React, { useEffect, useRef } from 'react';
 import style from './icon.module.css';
 
 
-export const PurchasedIcon = ({icon_url}: {icon_url: string}) => {
+export const PurchasedIcon = ({ icon_url, onClick, selected }: {icon_url: string, onClick: VoidFunction, selected: boolean}) => {
     const svgRef = useRef<null | HTMLDivElement>(null);
     useEffect(() => {
         fetch(icon_url)
@@ -20,7 +20,7 @@ export const PurchasedIcon = ({icon_url}: {icon_url: string}) => {
         })
     }, [])
     return (
-        <Tappable>
+        <Tappable onClick={onClick} className={classNames(selected && style.selected)}>
             <div className={style.icon} ref={svgRef}></div>
         </Tappable>
         

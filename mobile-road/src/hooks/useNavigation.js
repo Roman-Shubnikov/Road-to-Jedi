@@ -6,9 +6,10 @@ import * as Sentry from "@sentry/react";
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { sendHit } from "../metrika";
 import { alertCreator, errorAlertCreator, goOtherProfileCreator, setActiveModalCreator } from "../Utils";
+import { Avatar } from '@vkontakte/vkui';
+import { Icon16InfoCircle } from '@vkontakte/icons';
 
 const queryString = require('query-string');
-
 
 export const useNavigation = () => {
     const dispatch = useDispatch();
@@ -89,6 +90,13 @@ export const useNavigation = () => {
         
       }, [dispatch, goPanel, OtherProfileData, activeStory, showErrorAlert])
 
+    const setInfoSnackbar = useCallback((text) => {
+      setSnackbar(<Avatar size={24} style={{ background: 'var(--vkui--color_background_accent)' }}>
+      <Icon16InfoCircle fill="#fff" width={14} height={14} />
+    </Avatar>, text
+    )
+    }, [setSnackbar])
+
     const setActiveModal = (activeModal) => {
       setActiveModalCreator(
         dispatch(viewsActions.setModal(payload)), 
@@ -96,6 +104,7 @@ export const useNavigation = () => {
         modalHistory, activeModal)
     }
     return {
+        setInfoSnackbar,
         setHash,
         goPanel,
         goDisconnect,

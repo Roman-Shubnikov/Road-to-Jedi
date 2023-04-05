@@ -1,3 +1,3 @@
-export declare class CreateCustomAvatarDto {
+export declare class BuyColorDto {
     color: string;
 }

@@ -1,0 +1,90 @@
+.head_root {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 8px;
+    background-color: var(--vkui--color_background_content);
+    border-radius: 16px;
+    position: absolute;
+    bottom: -1px;
+    width: 100%;
+    box-sizing: border-box;
+    padding-bottom: 28px;
+}
+.publicStatus {
+    color: var(--description_color);
+    margin-top: 10px;
+    word-break: break-word;
+    white-space: pre-wrap;
+    max-width: 300px;
+}
+.agentName {
+    display: flex;
+    font-weight: 600;
+    font-size: 21px;
+    margin-top: 16px;
+}
+.backgroundProfile :global(.vkuiGroup__inner) {
+    padding: 0 !important;
+    border-radius: 16px !important;
+    position: relative;
+}
+.avatar {
+    position: relative;
+    width: 100px;
+    height: 50px;
+}
+.avatar :global(.vkuiAvatar) {
+    background: var(--vkui--color_background_content) !important;
+    position: absolute;
+    top: -50px;
+}
+.avatar :global(.vkuiImageBase__img) {
+    border: 4px solid var(--vkui--color_background_content);
+}
+.statistic {
+    margin-top: 12px;
+}
+
+
+.Avatar--gradient-red :global(.vkuiGroup__inner) {
+    background-color: #e52e40!important;
+    background-image: linear-gradient(135deg, #ff7583, #e52e40) !important;
+}
+
+.Avatar--gradient-pink :global(.vkuiGroup__inner) {
+    background-color: #e62e6b!important;
+    background-image: linear-gradient(135deg, #ff8880, #e62e6b)!important;
+}
+
+.Avatar--gradient-orange :global(.vkuiGroup__inner) {
+    background-color: #e66b2e!important;
+    background-image: linear-gradient(135deg, #ffbf80, #e66b2e)!important;
+}
+
+.Avatar--gradient-yellow :global(.vkuiGroup__inner) {
+    background-color: #e7a902!important;
+    background-image: linear-gradient(135deg, #ffd54f, #e7a902)!important;
+}
+
+.Avatar--gradient-green :global(.vkuiGroup__inner) {
+    background-color: #6cd97e!important;
+    background-image: linear-gradient(135deg, #6cd97e, #12b212)!important;
+}
+
+.Avatar--gradient-l-blue :global(.vkuiGroup__inner) {
+    background-color: #2bb4d6!important;
+    background-image: linear-gradient(135deg, #7df1fa, #2bb4d6)!important;
+}
+
+.Avatar--gradient-blue :global(.vkuiGroup__inner) {
+    background-color: #3f8ae0!important;
+    background-image: linear-gradient(135deg, #6cf, #3f8ae0)!important;
+}
+
+.Avatar--gradient-violet :global(.vkuiGroup__inner) {
+    background-color: #8f3fe0!important;
+    background-image: linear-gradient(135deg, #d3a6ff, #8f3fe0)!important;
+}

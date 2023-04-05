@@ -66,7 +66,7 @@ let MarketService = class MarketService {
         const fileInfo = await this.storageService.save(user, hash);
         const cost = +this.configService.get('MARKET_COST_INSTALL_NEW_AVATAR');
         await this.manageUserMoney(user, products_enum_1.ProductsEnum.AVATAR, money_operations_enum_1.MoneyOperationsEnum['-'], cost);
-        return this.usersRepository.save(Object.assign(Object.assign({}, user), { avatar: fileInfo }));
+        return this.usersRepository.save({ id: user.id, avatar: fileInfo });
     }
     async buyIcon(user, icon_name) {
         const allIcons = await this.getAvalibleIcons();
@@ -75,7 +75,7 @@ let MarketService = class MarketService {
         if (await this.purchasedIconRepository.findOneBy({ user: { id: user.id }, icon_name }))
             throw new common_1.BadRequestException('Иконка уже куплена');
         const cost = +this.configService.get('MARKET_COST_ICON');
-        await this.manageUserMoney(user, products_enum_1.ProductsEnum.ICON, money_operations_enum_1.MoneyOperationsEnum['-'], cost);
+        console.log(await this.manageUserMoney(user, products_enum_1.ProductsEnum.ICON, money_operations_enum_1.MoneyOperationsEnum['-'], cost));
         return this.purchasedIconRepository.save({ user, icon_name, purchased_at: (0, utils_1.getTime)() });
     }
     async buyColor(user, color) {
@@ -108,18 +108,30 @@ let MarketService = class MarketService {
             operation_at: (0, utils_1.getTime)(),
         });
     }
+    async setNickname(user, nickname) {
+        if (nickname) {
+            const users_nick = await this.usersRepository.findBy({ nickname });
+            if (users_nick.length)
+                throw new common_1.ForbiddenException('Ник уже занят');
+            const cost = this.configService.get('MARKET_COST_INSTALL_NEW_NICKNAME');
+            await this.manageUserMoney(user, products_enum_1.ProductsEnum.NICKNAME, money_operations_enum_1.MoneyOperationsEnum['-'], cost);
+        }
+        return this.usersRepository.save({ id: user.id, nickname });
+    }
     async manageUserMoney(user, productType, operation, cost) {
         let money = user.money;
         if (operation === money_operations_enum_1.MoneyOperationsEnum['+']) {
             money += cost;
         }
         else if (operation === money_operations_enum_1.MoneyOperationsEnum['-']) {
-            if (money < cost)
-                throw new common_1.PreconditionFailedException('Недостаточно средств');
-            money -= cost;
+            if (user.permissions < enums_1.RoleEnum.SPECIAL) {
+                if (money < cost)
+                    throw new common_1.PreconditionFailedException('Недостаточно средств');
+                money -= cost;
+            }
         }
         await this.marketLogger(user, productType, operation, cost);
-        return this.usersRepository.save(Object.assign(Object.assign({}, user), { money }));
+        return this.usersRepository.save({ id: user.id, money });
     }
 };
 MarketService = __decorate([

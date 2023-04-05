@@ -15,4 +15,6 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./create-custom-avatar.dto"), exports);
+__exportStar(require("./buy-color.dto"), exports);
+__exportStar(require("./set-nickname"), exports);
 //# sourceMappingURL=index.js.map
