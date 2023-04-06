@@ -16,6 +16,7 @@ import {
 
 import { LINK_APP } from '../config';
 import { useSelector } from 'react-redux';
+import { useNavigation } from '../hooks';
 function qr(agent_id, sheme) {
     let hex = "foregroundColor"
     if (sheme === "bright_light" || sheme === "vkcom_light") {
@@ -35,49 +36,52 @@ function qr(agent_id, sheme) {
   }
 
 export const ShowQR = ({id, onClick}) => {
-    const { account, schemeSettings } = useSelector((state) => state.account)
-    const { scheme } = schemeSettings;
-    return(
-        <ModalPage
-        id={id}
-        onClose={onClick}
-        dynamicContentHeight
-        header={
-            <ModalHeader
-            onClick={onClick}
-            >QR-код профиля</ModalHeader>
-        }
-      >
-        {<div className="qr" dangerouslySetInnerHTML={{ __html: qr(account.id, scheme) }} />}
-        <br />
-        <div className="qr" >Отсканируйте камерой ВКонтакте!</div>
-        <br />
-      </ModalPage>
-    )
+  const { account, schemeSettings } = useSelector((state) => state.account)
+  const { scheme } = schemeSettings;
+  const { closeModal } = useNavigation();
+  return(
+      <ModalPage
+      id={id}
+      onClose={closeModal}
+      dynamicContentHeight
+      header={
+          <ModalHeader
+          onClick={onClick}
+          >QR-код профиля</ModalHeader>
+      }
+    >
+      {<div className="qr" dangerouslySetInnerHTML={{ __html: qr(account.id, scheme) }} />}
+      <br />
+      <div className="qr" >Отсканируйте камерой ВКонтакте!</div>
+      <br />
+    </ModalPage>
+  )
 }
 
 export const InvalidQR = ({id, onClick}) => {
-    return(
-        <ModalCard
-        id={id}
-        onClose={onClick}
-        icon={<Icon56ErrorOutline />}
-        header="Промокод недействительный"
-        caption={
-          <span>
-            Увы, активировать промокод не получится, так как он использовался ранее или его никогда не существовало.
-                </span>}
-        actions={
-          <Button mode='secondary' stretched size='l' onClick={onClick}>Понятно</Button>
-        } />
-    )
+  const { closeModal } = useNavigation();
+  return(
+      <ModalCard
+      id={id}
+      onClose={closeModal}
+      icon={<Icon56ErrorOutline />}
+      header="Промокод недействительный"
+      caption={
+        <span>
+          Увы, активировать промокод не получится, так как он использовался ранее или его никогда не существовало.
+              </span>}
+      actions={
+        <Button mode='secondary' stretched size='l' onClick={onClick}>Понятно</Button>
+      } />
+  )
 }
 
 export const ValidQR = ({id, onClick, moneyPromo}) => {
+  const { closeModal } = useNavigation();
   return(
     <ModalCard
     id={id}
-    onClose={onClick}
+    onClose={closeModal}
     icon={<Icon56CheckCircleOutline />}
     header="Вы активировали промокод!"
     caption={

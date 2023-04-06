@@ -140,7 +140,7 @@ export const MarketPage = props => {
     <Panel id={props.id}>
       <PanelHeader
       separator={!platformname}
-        left={
+      before={
           <><PanelHeaderBack onClick={() => window.history.back()} /> </>
         }>
         Магазин

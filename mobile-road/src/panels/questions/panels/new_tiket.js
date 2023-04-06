@@ -18,13 +18,13 @@ import {
     } from '@vkontakte/vkui';
 import { useSelector } from 'react-redux';
 import { GreenCard } from '../../../components/GreenCard';
+import { useNavigation } from '../../../hooks';
 
 export default props => {
-    const { goDisconnect } = props.navigation;
     const [title, setTitle] = useState('');
     const [text, setText] = useState('');
     const { account } = useSelector((state) => state.account)
-    const { setPopout, showErrorAlert, showAlert } = props.callbacks;
+    const { setPopout, showErrorAlert, showAlert, goDisconnect } = useNavigation(); 
     const [noty, setNoty] = useState(() => (account.settings.generator_noty));
     const saveSettings = (setting, value) => {
         setPopout(<ScreenSpinner />)
@@ -91,7 +91,7 @@ export default props => {
     return(
         <Panel id={props.id}>
             <PanelHeader
-                left={<PanelHeaderBack onClick={() => window.history.back()} />}>
+                before={<PanelHeaderBack onClick={() => window.history.back()} />}>
                 Новый вопрос
                 </PanelHeader>
             <Group>

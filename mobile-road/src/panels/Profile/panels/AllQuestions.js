@@ -92,7 +92,7 @@ export default props => {
         <Panel id={props.id}>
             <PanelHeader
                 separator={!platformname}
-                left={<PanelHeaderBack onClick={() => window.history.back()} />}
+                before={<PanelHeaderBack onClick={() => window.history.back()} />}
             >
                 Мои ответы
                 </PanelHeader>

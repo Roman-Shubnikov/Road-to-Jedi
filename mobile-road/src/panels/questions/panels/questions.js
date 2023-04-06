@@ -39,13 +39,14 @@ import {
 } from '@vkontakte/icons';
 import BannerAvatarPC from '../../../images/question_banner_pc.png';
 import BannerAvatarMobile from '../../../images/question_banner_mobile.png';
+import { useNavigation } from '../../../hooks';
 
 
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
 var loadingContent = false;
 
-export default props => {
+export default ({ goTiket, id }) => {
     const dispatch = useDispatch();
     const { activeStory } = useSelector((state) => state.views)
     const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
@@ -56,8 +57,7 @@ export default props => {
     const permissions = account.permissions;
     const agent_permission = permissions >= PERMISSIONS.agent;
     const special_permissions = permissions >= PERMISSIONS.special
-
-    const {setPopout, showErrorAlert, goTiket, goPanel} = props.callbacks;
+    const { showErrorAlert, setPopout, goPanel } = useNavigation();
     const getQuestions = useCallback((need_offset = false) => {
         if (!need_offset) {
             dispatch(ticketActions.setOffset(20))
@@ -114,7 +114,7 @@ export default props => {
             .then(res => res.json())
             .then(data => {
                 if (data.result) {
-                    goTiket(data.response.id)
+                    goTicket(data.response.id)
                 } else {
                     showErrorAlert(data.error.message)
                 }
@@ -147,9 +147,9 @@ export default props => {
 
 
     return(
-        <Panel id={props.id}>
+        <Panel id={id}>
             <PanelHeader
-                left={<>
+                before={<>
                     {(tickets && tickets.length > 0 && agent_permission) ?
                         <PanelHeaderButton aria-label='Случайный вопрос' onClick={() => getRandomTiket()}>
                             <Icon28SwitchOutline />

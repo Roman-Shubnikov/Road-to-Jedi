@@ -12,6 +12,9 @@ export type StoreObject = {
     views: {
         activeStory: string,
     },
+    tickets: {
+        comment: {}
+    }
     account: { 
         account: {
             id: number,
@@ -32,7 +35,7 @@ export type StoreObject = {
                 url: string,
             },
             nickname: string,
-
+            marked: number,
         }
     },
 

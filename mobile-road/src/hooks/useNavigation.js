@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { viewsStructure } from "../config";
-import { viewsActions } from "../store/main";
+import { viewsActions, reportsActions } from "../store/main";
 import * as Sentry from "@sentry/react";
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { sendHit } from "../metrika";
@@ -13,7 +13,7 @@ const queryString = require('query-string');
 
 export const useNavigation = () => {
     const dispatch = useDispatch();
-    const { activeStory, historyPanels, snackbar, activePanel, modalHistory } = useSelector((state) => state.views)
+    const { activeStory, historyPanels, snackbar, activePanel, modalHistory, modal: Modal } = useSelector((state) => state.views)
     const { other_profile: OtherProfileData, } = useSelector((state) => state.account)
     const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
     const setActiveScene = useCallback((story, panel) => dispatch(viewsActions.setActiveScene(story, panel)), [dispatch]);
@@ -97,26 +97,40 @@ export const useNavigation = () => {
     )
     }, [setSnackbar])
 
-    const setActiveModal = (activeModal) => {
+    const setReport = useCallback((name, id) => {
+      dispatch(reportsActions.setTypeReport(name))
+      dispatch(reportsActions.setResourceReport(id))
+      goPanel(activeStory, "report", true);
+    }, [goPanel, dispatch, activeStory])
+
+    const setActiveModal = useCallback((activeModal) => {
       setActiveModalCreator(
-        dispatch(viewsActions.setModal(payload)), 
-        dispatch(viewsActions.setModalHistory(payload)), 
+        (p) => dispatch(viewsActions.setModal(p)), 
+        (p) => dispatch(viewsActions.setModalHistory(p)), 
         modalHistory, activeModal)
-    }
+    }, [dispatch, modalHistory])
+
+    const closeModal = useCallback(() => {
+      setActiveModal(null);
+    }, [setActiveModal])
+
     return {
-        setInfoSnackbar,
-        setHash,
-        goPanel,
-        goDisconnect,
-        setSnackbar,
-        goOtherProfile,
-        setPopout,
-        showAlert,
-        showErrorAlert,
-        setActiveStory,
-        setActiveModal,
-        activePanel,
-        snackbar,
-        hash,
+      closeModal,
+      setInfoSnackbar,
+      setHash,
+      goPanel,
+      goDisconnect,
+      setSnackbar,
+      goOtherProfile,
+      setPopout,
+      showAlert,
+      showErrorAlert,
+      setActiveStory,
+      setActiveModal,
+      setReport,
+      activePanel,
+      snackbar,
+      hash,
+      Modal,
     }
 }

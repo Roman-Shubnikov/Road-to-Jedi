@@ -102,7 +102,7 @@ export default props => {
   return (
     <Panel id={props.id}>
       <PanelHeader
-        left={<>
+        before={<>
           <PanelHeaderBack onClick={() => window.history.back()}></PanelHeaderBack>
         </>}>
         Верификация

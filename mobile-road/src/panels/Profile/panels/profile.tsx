@@ -49,18 +49,10 @@ import { sendGoal } from '../../../metrika';
 import { ProfileTags } from '../../../components/ProfileTags';
 import { NicknameMenager } from '../../../Utils';
 import style from './profile.module.css';
-import { InfoChipsStatistic, SimpleSeparator } from '../../../components';
+import { InfoChipsStatistic, ProfileCard, SimpleSeparator } from '../../../components';
 import { StoreObject } from '../../../store';
 
-const gradientStyles = {
-    1: style['Avatar--gradient-red'],
-    2: style['Avatar--gradient-orange'],
-    3: style['Avatar--gradient-yellow'],
-    4: style['Avatar--gradient-green'],
-    5: style['Avatar--gradient-blue'],
-    6: style['Avatar--gradient-l-blue'],
-    7: style['Avatar--gradient-violet'],
-  };
+
 
 export default (props: { navigation: any, callbacks: any, reloadProfile: any, id: string }) => {
     const dispatch = useDispatch();
@@ -70,7 +62,6 @@ export default (props: { navigation: any, callbacks: any, reloadProfile: any, id
     const { activeStory } = useSelector((state: StoreObject) => state.views)
     const { goDisconnect } = props.navigation;
     const [fetching, setFetching] = useState(false);
-    const [editingStatus, setEdititingStatus] = useState(false);
     const [notify, setNotify] = useState(account ? account.settings.notify : false)
     const [originalStatus, setOriginalStatus] = useState('');
     const [publicStatus, setPublicStatus] = useState('');
@@ -81,33 +72,33 @@ export default (props: { navigation: any, callbacks: any, reloadProfile: any, id
     
 
     const statusMenager = () => {
-        if(!editingStatus){
-          setEdititingStatus(true);
-            setOriginalStatus(account.publicStatus||'');
-            setPublicStatus(account.publicStatus||'');
-        } else{
-          setPopout(<ScreenSpinner/>);
-          setEdititingStatus(false)
+        // if(!editingStatus){
+        //   setEdititingStatus(true);
+        //     setOriginalStatus(account.publicStatus||'');
+        //     setPublicStatus(account.publicStatus||'');
+        // } else{
+        //   setPopout(<ScreenSpinner/>);
+        //   setEdititingStatus(false)
           
-          fetch(API_URL + 'method=account.changeStatus&' + window.location.search.replace('?', ''), {
-            method: 'post',
-            headers: { "Content-type": "application/json; charset=UTF-8" },
-            body: JSON.stringify({
-                'status': publicStatus.trim(),
-            })
-        })
-          .then(res => res.json())
-          .then(data => {
-              if (data.result) {
-                dispatch(accountActions.setPublicStatus(publicStatus))
-                setPopout(null)
-              } else {
-                  showErrorAlert(data.error.message)
-              }
-          })
-          .catch(goDisconnect)
+        //   fetch(API_URL + 'method=account.changeStatus&' + window.location.search.replace('?', ''), {
+        //     method: 'post',
+        //     headers: { "Content-type": "application/json; charset=UTF-8" },
+        //     body: JSON.stringify({
+        //         'status': publicStatus.trim(),
+        //     })
+        // })
+        //   .then(res => res.json())
+        //   .then(data => {
+        //       if (data.result) {
+        //         dispatch(accountActions.setPublicStatus(publicStatus))
+        //         setPopout(null)
+        //       } else {
+        //           showErrorAlert(data.error.message)
+        //       }
+        //   })
+        //   .catch(goDisconnect)
     
-        }
+        // }
       }
 
     const notifyMenager = (value: boolean) => {
@@ -185,9 +176,9 @@ export default (props: { navigation: any, callbacks: any, reloadProfile: any, id
             {!isEmptyObject(account) ? <>
                 <PanelHeader
                 separator={platform===Platform.VKCOM}
-                    before={<><PanelHeaderButton onClick={() => {
-                        setActiveModal("share");
-                    }}>
+                before={<><PanelHeaderButton onClick={() => {
+                    setActiveModal("share");
+                }}>
                         <Icon28UserCardOutline />
                     </PanelHeaderButton>
                         <PanelHeaderButton label={account.notif_count ? <Counter size="s" mode="prominent">{account.notif_count}</Counter> : null}
@@ -197,7 +188,21 @@ export default (props: { navigation: any, callbacks: any, reloadProfile: any, id
                             <Icon28Notifications />
                         </PanelHeaderButton></>}>Профиль</PanelHeader>
                 <PullToRefresh onRefresh={() => { setFetching(true); props.reloadProfile(); setTimeout(() => { setFetching(false) }, 1000) }} isFetching={fetching}>
-                    <Group className={classNames(gradientStyles[calcInitialsAvatarColor(account.id)], style.backgroundProfile)}>
+                    <ProfileCard
+                    avatarUrl={account.avatar.url}
+                    profileId={account.id}
+                    nickname={account.nickname}
+                    permissions={permissions}
+                    flash={account.flash}
+                    donut={account.donut}
+                    verified={account.verified}
+                    good={account.good_answers+''}
+                    bad={account.bad_answers+''}
+                    total={total_answers+''}
+                    publicStatus={account.publicStatus || "Играю в любимую игру"}
+                    onClickStatus={() => {}} />
+
+                    {/* <Group className={classNames(gradientStyles[calcInitialsAvatarColor(account.id)], style.backgroundProfile)}>
                         <div style={{height: 357}}></div>
                         <Div className={style.head_root}>
                             <div className={style.avatar}>
@@ -258,7 +263,7 @@ export default (props: { navigation: any, callbacks: any, reloadProfile: any, id
                             bad={account['bad_answers']+''}
                             total={total_answers+''} />
                         </Div>
-                    </Group>
+                    </Group> */}
                         
                     <Group>
                         <SimpleCell

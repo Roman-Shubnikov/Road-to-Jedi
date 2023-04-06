@@ -17,6 +17,7 @@ import {
 import { API_URL } from '../config';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewsActions } from '../store/main';
+import { useNavigation } from '../hooks';
 
 const reasons = [
     "Оскорбление",
@@ -35,7 +36,7 @@ export default props => {
     const {source: sourceReport, type_rep: nameReport} = useSelector(state => state.Reports)
     
     const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
-    const { setPopout, showErrorAlert } = props.callbacks;
+    const { setPopout, showErrorAlert } = useNavigation(); 
     const sendReport = () => {
         setPopout(<ScreenSpinner />)
         fetch(API_URL + "method=reports.send&" + window.location.search.replace('?', ''),
@@ -92,7 +93,7 @@ export default props => {
     return (
         <Panel id={props.id}>
         <PanelHeader 
-            left={
+            before={
                 <PanelHeaderBack onClick={() => window.history.back()}></PanelHeaderBack>
             }>
                 Жалоба

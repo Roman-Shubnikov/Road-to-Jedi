@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'; // React
+import React, { useCallback, useEffect, useState } from 'react'; // React
 import {useDispatch, useSelector} from "react-redux";
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { SkeletonTheme } from "react-loading-skeleton";
 // import music from './music/Soloriver.mp3';
-import { API_URL, PERMISSIONS, viewsStructure, SPECIAL_NORM, IS_MOBILE } from "./config";
+import { API_URL, PERMISSIONS, viewsStructure, IS_MOBILE } from "./config";
 import { 
   ScreenSpinner,
   Tabbar,
@@ -12,21 +12,15 @@ import {
   ConfigProvider,
   AdaptivityProvider,
   AppRoot,
-  ViewWidth,
   SplitLayout,
   SplitCol,
   Panel,
   PanelHeader,
   Group,
-  ViewHeight,
   useAdaptivityConditionalRender,
   Alert,
   Badge,
-  ModalRoot,
-  SimpleCell,
   Avatar,
-  Button,
-  ModalCard,
   usePlatform,
   Platform,
   RichCell,
@@ -36,25 +30,6 @@ import {
 import '@vkontakte/vkui/dist/vkui.css';
 import "@vkontakte/vkui/dist/unstable.css";
 import './styles/style.css';
-import ModalComment         from './Modals/Comment';
-import ModalPrometay        from './Modals/Prometay';
-import ModalDonut           from './Modals/Donut';
-import ModalBan             from './Modals/Ban';
-import ModalVerif           from './Modals/Verif'
-import { 
-  ModalShare, 
-  ModalShare2 
-}                           from "./Modals/Share";
-import ModalFantoms         from './Modals/Fantoms';
-import { 
-  ModalTransfers, 
-  ModalTransferCard, 
-  ModalTransferCardNotify } from './Modals/Transfers';
-import { 
-  ShowQR, 
-  InvalidQR, 
-  ValidQR 
-}                           from './Modals/QR';
 
 import {accountActions, reportsActions, ticketActions, viewsActions} from './store/main'
 // Импортируем панели
@@ -73,55 +48,14 @@ import {
   Icon28ListBulletSquareOutline,
   Icon28Profile,
   Icon28StatisticsOutline,
-  Icon56MessageReadOutline,
 
 } from '@vkontakte/icons';
 import EpicItemPC from './components/EpicItem';
 import { isEmptyObject } from 'jquery';
-import { setActiveModalCreator, goOtherProfileCreator, enumerate, NicknameMenager } from './Utils';
+import { goOtherProfileCreator, NicknameMenager } from './Utils';
 import { useNavigation } from './hooks';
 import { ProfileTags } from './components/ProfileTags';
-
-
-// const parsedHash = queryString.parse(window.location.search.replace('?', ''));
-
-
-var DESKTOP_SIZE = 1000;
-var TABLET_SIZE = 900;
-var SMALL_TABLET_SIZE = 768;
-var MOBILE_SIZE = 320;
-var MOBILE_LANDSCAPE_HEIGHT = 414;
-var MEDIUM_HEIGHT = 720;
-
-
-function calculateAdaptivity(windowWidth, windowHeight) {
-  var viewWidth = ViewWidth.SMALL_MOBILE;
-  var viewHeight = ViewHeight.SMALL;
-
-  if (windowWidth >= DESKTOP_SIZE) {
-    viewWidth = ViewWidth.DESKTOP;
-  } else if (windowWidth >= TABLET_SIZE) {
-    viewWidth = ViewWidth.TABLET;
-  } else if (windowWidth >= SMALL_TABLET_SIZE) {
-    viewWidth = ViewWidth.SMALL_TABLET;
-  } else if (windowWidth >= MOBILE_SIZE) {
-    viewWidth = ViewWidth.MOBILE;
-  } else {
-    viewWidth = ViewWidth.SMALL_MOBILE;
-  }
-
-  if (windowHeight >= MEDIUM_HEIGHT) {
-    viewHeight = ViewHeight.MEDIUM;
-  } else if (windowHeight > MOBILE_LANDSCAPE_HEIGHT) {
-    viewHeight = ViewHeight.SMALL;
-  } else {
-    viewHeight = ViewHeight.EXTRA_SMALL;
-  }
-  return {
-    viewWidth: viewWidth,
-    viewHeight: viewHeight,
-  };
-}
+import { Modals } from './Modals/index';
 
 const scheme_params = {
   bright_light: { "status_bar_style": "dark", "action_bar_color": "#FFFFFF", 'navigation_bar_color': "#FFFFFF" },
@@ -130,8 +64,6 @@ const scheme_params = {
 var adsCounter = 0;
 var backTimeout = false;
 const App = () => {
-  const [activeModal, setModal] = useState(null);
-  const [modalHistory, setModalHistory] = useState(null);
   const [Transfers, setTransfers] = useState(null);
   const [Transfer, setTransfer] = useState(
     {
@@ -152,7 +84,6 @@ const App = () => {
     setHash,
     hash
    } = useNavigation();
-  const { viewWidth } = useAdaptivityConditionalRender();
   const { account, schemeSettings, other_profile: OtherProfileData, } = useSelector((state) => state.account)
   const { scheme, default_scheme } = schemeSettings;
   const { activeStory, historyPanels, snackbar, activePanel, popout } = useSelector((state) => state.views)
@@ -163,13 +94,10 @@ const App = () => {
   const setScheme = useCallback((payload) => dispatch(accountActions.setScheme(payload)), [dispatch])
   const [ignoreOtherProfile, setIgnoreOtherProfile] = useState(false);
   const [isMyMark, setIsMyMark] = useState(false);
-  const [sharing_type, setSharingType] = useState('prometay');
   const need_epic = useSelector((state) => state.views.need_epic)
   const permissions = account.permissions;
   const moderator_permission = permissions >= PERMISSIONS.special;
   const agent_permission = permissions >= PERMISSIONS.agent;
-  const comment_special = useSelector((state) => state.tickets.comment)
-
   const platform = usePlatform()
 
 
@@ -200,9 +128,6 @@ const App = () => {
     }
   }, [historyPanels, setHistoryPanels, setActiveScene, setPopout, setHash])
 
-  const setActiveModal = (activeModal) => {
-    setActiveModalCreator(setModal, setModalHistory, modalHistory, activeModal)
-  }
   const setReport = (name, id) => {
     dispatch(reportsActions.setTypeReport(name))
     dispatch(reportsActions.setResourceReport(id))
@@ -347,111 +272,9 @@ const App = () => {
   
   
 
-  const popouts_and_modals = {showAlert, showErrorAlert, setActiveModal, setPopout}
+  const popouts_and_modals = {showAlert, showErrorAlert, setPopout}
   const navigation = {goPanel, goBack, goDisconnect};
   const base_functions = { goTiket, setReport, goOtherProfile, setSnackbar, setMoneyPromo, setTransfer }
-  const modalClose = () => setActiveModal(null);
-  const modals = (
-    <ModalRoot
-    onClose={modalClose}
-    activeModal={activeModal}>
-      <ModalComment
-        id='comment'
-        comment={comment_special}
-        onClose={modalClose}
-        reporting={setReport} />
-      <ModalPrometay
-        id='prom'
-        onClose={() => {setActiveModal(null);setIsMyMark(false)}}
-        action={modalClose}
-        action2={isMyMark ? () => { setSharingType('prometay'); setActiveModal('share2') } : undefined} />
-
-      <ModalDonut
-        id='donut'
-        onClose={() => {setActiveModal(null);setIsMyMark(false)}}
-        action={modalClose}
-        action2={isMyMark ? () => { setSharingType('donut'); setActiveModal('share2') } : undefined} />
-
-      <ModalVerif
-        id='verif'
-        onClose={() => {setActiveModal(null);setIsMyMark(false)}}
-        action={modalClose}
-        action2={isMyMark ? () => { setSharingType('verif'); setActiveModal('share2') } : undefined} />
-
-      <ModalBan
-        id='ban_user'
-        onClose={modalClose}
-        callbacks={{ setPopout, showErrorAlert, setActiveModal, showAlert }}
-      />
-      
-      <ModalShare
-      id="share"
-      setActiveModal={setActiveModal}
-      setSnackbar={setSnackbar}
-      onClick={modalClose} />
-
-      <ModalShare2
-      id="share2"
-      sharing_type={sharing_type}
-      onClick={modalClose} />
-
-      <ModalFantoms 
-      id="fantoms"
-      setActiveModal={setActiveModal}
-      goPanel={goPanel}
-      onClick={modalClose}
-      />
-
-      <ModalTransfers 
-      id='transfer_send'
-      onClick={modalClose}
-      setActiveModal={setActiveModal}
-      reloadProfile={fetchAccount}
-      setPopout={setPopout}
-      goDisconnect={goDisconnect}
-      showErrorAlert={showErrorAlert}
-      setTransfers={setTransfers}
-      />
-      <ModalTransferCard 
-      id='transfer_card'
-      onClick={modalClose}
-      Transfers={Transfers}
-      setTransfers={setTransfers}
-      setActiveModal={setActiveModal}
-      />
-      <ModalTransferCardNotify
-      id='transfer_info'
-      onClick={modalClose}
-      Transfer={Transfer} />
-
-      <ShowQR
-      id='qr'
-      onClick={modalClose} />
-      <InvalidQR
-      id='invalid_qr'
-      onClick={modalClose} />
-      <ValidQR
-      id='valid_qr'
-      moneyPromo={moneyPromo}
-      onClick={modalClose} />
-
-      <ModalCard
-        id='answers'
-        onClose={modalClose}
-        icon={<Icon56MessageReadOutline width={56} height={56} />}
-        header={'Вы оценили ' + account['marked'] + " " + enumerate(account['marked'], ['ответ', 'ответа', 'ответов'])}
-        subheader={(SPECIAL_NORM - account['marked'] < 0) ? "Порог достигнут, но это не повод расслабляться." : "Для преодоления порога необходимо оценить ещё " +
-          (SPECIAL_NORM - account['marked']) +
-          " " + enumerate(account['marked'], ['ответ', 'ответа', 'ответов']) + " за неделю"}
-        actions={<Button mode='primary' stretched size='l' onClick={modalClose}>Понятно</Button>}>
-      </ModalCard>
-      <ModalCard
-      onClose={modalClose}
-      id='test'>
-        Вью {activeStory}
-      </ModalCard>
-    </ModalRoot>
-  )
 
   const isVKCOM = platform === Platform.VKCOM
   return(
@@ -464,7 +287,15 @@ const App = () => {
                 <SplitLayout
               style={{ justifyContent: "center" }}
               popout={popout}
-              modal={modals}>
+              modal={
+              <Modals
+              moneyPromo={moneyPromo}
+              fetchAccount={fetchAccount}
+              Transfers={Transfers}
+              setTransfers={setTransfers}
+              Transfer={Transfer}
+              isMyMark={isMyMark}
+              setIsMyMark={setIsMyMark} />}>
 
               {isVKCOM && need_epic && (
               <SplitCol 

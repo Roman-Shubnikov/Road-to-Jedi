@@ -16,15 +16,16 @@ import { API_URL } from '../config';
 import { timeConvertVal } from '../Utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewsActions } from '../store/main';
+import { useNavigation } from '../hooks';
 
-export default props => {
+export const Ban = props => {
   const dispatch = useDispatch();
+  const { closeModal, setPopout, showErrorAlert, showAlert } = useNavigation();
   const setActiveStory = (story) => dispatch(viewsActions.setActiveStory(story))
   const [time_val, setTimeVal] = useState('');
   const [time_num, setTimeNum] = useState('sec');
   const [reason, setReason] = useState('');
   const OtherProfileData = useSelector((state) => (state.account.other_profile))
-  const { setPopout, showErrorAlert, setActiveModal, showAlert } = props.callbacks;
 
   const userBan = (user_id, text, time) => {
     setPopout(<ScreenSpinner />)
@@ -42,7 +43,7 @@ export default props => {
       .then(res => res.json())
       .then(data => {
         if (data.result) {
-          setActiveModal(null);
+          closeModal();
           showAlert('Успех', 'Пользователь забанен');
           setPopout(null);
         } else {
@@ -56,8 +57,8 @@ export default props => {
 
   return (
     <ModalCard
-      id='ban_user'
-      onClose={props.onClose}
+      id={props.id}
+      onClose={closeModal}
       icon={<Avatar src={OtherProfileData ? OtherProfileData['avatar']['url'] : null} size={72} />}
       header="Забанить пользователя"
       actions={

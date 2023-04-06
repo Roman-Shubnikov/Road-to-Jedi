@@ -19,6 +19,7 @@ import {
     SimpleCell,
     Button,
     Spacing,
+    PanelHeaderButton,
 } from '@vkontakte/vkui';
 
 
@@ -27,7 +28,6 @@ import {
     Icon56DurationOutline,
     Icon16CheckCircle,
     Icon24MoreVertical,
-    Icon28ArticleOutline,
     Icon28BlockOutline,
     Icon28CopyOutline,
     Icon28ReportOutline,
@@ -43,12 +43,13 @@ import {
 } from '@vkontakte/icons';
 
 import { useSelector } from 'react-redux';
-import { useState } from 'react';
 import { LINK_APP, PERMISSIONS } from '../config';
 import { isEmptyObject } from 'jquery';
 import { getHumanyTime, recog_number } from '../Utils';
 import InfoArrows from './InfoArrows';
 import { ProfileTags } from './ProfileTags';
+import { ProfileCard } from './ProfileCard';
+import { useNavigation } from '../hooks';
 const NOTI = [
     'Выключены',
     'Включены'
@@ -59,9 +60,8 @@ const blueBackground = {
 };
 
 export default props => {
-    const [snackbar, setSnackbar] = useState(null);
     const profRef = useRef(null);
-    const { setPopout, setActiveModal, setReport } = props.callbacks;
+    const { setPopout, setActiveModal, setReport, setSnackbar } = useNavigation();
     const { other_profile: OtherProfileData, account } = useSelector((state) => (state.account))
 
 
@@ -88,14 +88,14 @@ export default props => {
         setPopout(
             <ActionSheet onClose={() => setPopout(null)}
                 toggleRef={profRef.current}
-                iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
+                iosCloseItem={<ActionSheetItem autoClose mode="cancel">Отменить</ActionSheetItem>}>
                 {admin_permission ?
-                    <ActionSheetItem autoclose onClick={() => { setActiveModal('ban_user'); }}
+                    <ActionSheetItem autoClose onClick={() => { setActiveModal('ban_user'); }}
                         before={<Icon28BlockOutline />}>
                         Заблокировать
                     </ActionSheetItem>
                     : null}
-                <ActionSheetItem autoclose
+                <ActionSheetItem autoClose
                     before={<Icon28CopyOutline />}
                     onClick={() => {
                         bridge.send("VKWebAppCopyText", { text: LINK_APP + "#agent_id=" + id });
@@ -108,7 +108,7 @@ export default props => {
                     }}>
                     Скопировать ссылку
                 </ActionSheetItem>
-                <ActionSheetItem autoclose
+                <ActionSheetItem autoClose
                     before={<Icon28ReportOutline />}
                     mode='destructive'
                     onClick={() => {
@@ -122,7 +122,9 @@ export default props => {
     return (
         <Panel id={props.id}>
             <PanelHeader
-                left={<PanelHeaderBack onClick={() => window.history.back()} />}>
+            before={<><PanelHeaderBack onClick={() => window.history.back()} /><PanelHeaderButton onClick={() => {
+                infoMenu(agent_id);
+            }}><Icon24MoreVertical /></PanelHeaderButton></>}>
                 Профиль
             </PanelHeader>
 
@@ -165,6 +167,19 @@ export default props => {
                         />
                     </Div>}
                 </Group>
+                <ProfileCard
+                    avatarUrl={avatar.url}
+                    profileId={agent_id}
+                    nickname={nickname}
+                    permissions={OtherProfileData.permissions}
+                    flash={flash}
+                    donut={donut}
+                    verified={verif}
+                    good={good_answers+''}
+                    bad={bad_answers+''}
+                    total={total_answers+''}
+                    publicStatus={OtherProfileData.publicStatus || "Играю в любимую игру"}
+                    onClickStatus={() => {}} />
 
                 {
                     is_private ?
@@ -181,12 +196,6 @@ export default props => {
                          :
                         <>
                             <Group header={<Header>Общая информация</Header>}>
-                                <SimpleCell
-                                multiline
-                                disabled
-                                before={<Icon28ArticleOutline />}>
-                                    {OtherProfileData.publicStatus || "Играю в любимую игру"}
-                                </SimpleCell>
                                 <SimpleCell
                                 disabled
                                 before={<Icon28MentionOutline />}
@@ -268,7 +277,6 @@ export default props => {
                         {banned.time_end ? <p>До: {getHumanyTime(banned.time_end).datetime}<br /></p> : null}
                         {banned.reason ? "Причина: " + banned.reason : null}
                     </Placeholder> : <PanelSpinner />}
-            {snackbar}
         </Panel>
     )
 }

@@ -24,13 +24,15 @@ import {
 import { getHumanyTime } from '../Utils';
 import { AVATARS_URL } from '../config';
 import ModalHeader from './headerModalPage';
+import { useNavigation } from '../hooks';
 
-export default props => {
+export const CommentAgent = props => {
   const Comment = props.comment.objComment;
+  const { closeModal } = useNavigation();
   return (
     <ModalPage 
         id={props.id}
-        onClose={props.onClose}
+        onClose={closeModal}
         header={
           <ModalHeader>
             Комментарий

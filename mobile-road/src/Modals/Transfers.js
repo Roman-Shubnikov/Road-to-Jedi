@@ -14,12 +14,14 @@ import {
 
 } from '@vkontakte/icons';
 import { API_URL } from '../config';
+import { useNavigation } from '../hooks';
 
 
-export const ModalTransfers = ({id, onClick, setActiveModal, reloadProfile, setPopout, goDisconnect, showErrorAlert, setTransfers}) => {
+export const ModalTransfers = ({id, reloadProfile, setTransfers}) => {
   const [comment, setComment] = useState('');
   const [to_agent, setAgent] = useState('');
   const [count, setCount] = useState('');
+  const { closeModal, setActiveModal, setPopout, goDisconnect, showErrorAlert } = useNavigation();
     const sendMoney = () => {
         setPopout(<ScreenSpinner />)
         fetch(API_URL + 'method=transfers.send&' + window.location.search.replace('?', ''),
@@ -65,7 +67,7 @@ export const ModalTransfers = ({id, onClick, setActiveModal, reloadProfile, setP
     return(
         <ModalCard
         id={id}
-        onClose={onClick}
+        onClose={closeModal}
         icon={<Icon56MoneyTransferOutline />}
         header="Сделать перевод"
       >

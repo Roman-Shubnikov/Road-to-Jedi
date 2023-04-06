@@ -61,7 +61,6 @@ const blueBackground = {
 // Переделать это дерьмо
 export default props => {
   const dispatch = useDispatch();
-  const { setReport, setActiveModal } = props.callbacks;
   const { activeStory } = useSelector((state) => state.views)
   const setComment = useCallback((comment) => dispatch(ticketActions.setComment(comment)), [dispatch])
   const MessageRef = useRef(null);
@@ -73,7 +72,16 @@ export default props => {
   const [sendfield, setSendfield] = useState('');
   const [openAtachment, setOpenAtachment] = useState(false);
   // const [attachments, setAttachments] = useState([]);
-  const { goDisconnect, setPopout, showErrorAlert, showAlert, goOtherProfile, goPanel } = useNavigation();
+  const { 
+    setReport,
+    setActiveModal,
+    goDisconnect, 
+    setPopout, 
+    showErrorAlert, 
+    showAlert, 
+    goOtherProfile, 
+    goPanel,
+  } = useNavigation();
 
   const preTicketId = useSelector((state) => state.tickets.current_id)
   const TicketData = useSelector((state) => state.tickets.ticketInfo)
@@ -173,15 +181,15 @@ export default props => {
       const Admin = (approved, id, chance_posit, author_id, text, comment, avatar = null, mark = -1) => {
         let special = moderator_permission;
         let shotItems = {
-          cancel_item: <ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>,
-          copy_message: <ActionSheetItem autoclose onClick={() => {
+          cancel_item: <ActionSheetItem autoClose mode="cancel">Отменить</ActionSheetItem>,
+          copy_message: <ActionSheetItem autoClose onClick={() => {
             copyClipboard(text)
             setContinueSnack("Текст скопирован")
             }}
             before={<Icon28CopyOutline/>}>
               Скопировать текст
             </ActionSheetItem>,
-          edit_message: <ActionSheetItem autoclose 
+          edit_message: <ActionSheetItem autoClose 
               before={<Icon28WriteOutline />}
               onClick={() => {
                 setRedaction(true);
@@ -189,13 +197,13 @@ export default props => {
                 setSendfield(text)}}>
                 Редактировать
             </ActionSheetItem>,
-          report: <ActionSheetItem autoclose mode='destructive'
+          report: <ActionSheetItem autoClose mode='destructive'
           before={<Icon28ReportOutline />}
             onClick={() => setReport(3, id)}>
             Пожаловаться
             </ActionSheetItem>,
           delete_message: <ActionSheetItem 
-            autoclose 
+          autoClose 
             mode='destructive'
             before={<Icon28DeleteOutline />} 
             onClick={() => markMessage(0, id, "delete")}>
@@ -210,12 +218,12 @@ export default props => {
               {author_id > 0 ?
                 <ActionSheetItem 
                 before={<Icon28UserSquareOutline />}
-                autoclose onClick={() => { goOtherProfile(author_id); }}>
+                autoClose onClick={() => { goOtherProfile(author_id); }}>
                   Профиль
                   </ActionSheetItem>
                 : null}
               {special && mark === -1 ?
-                <ActionSheetItem autoclose onClick={() => markMessage(1, id, "mark")}
+                <ActionSheetItem autoClose onClick={() => markMessage(1, id, "mark")}
                 subtitle={<Text onClick={(e) => e.stopPropagation()} 
                 style={{whiteSpace: "pre-wrap"}}>
                   Вероятность положительной оценки: {chance_posit / 10}%{"\n"}
@@ -228,21 +236,21 @@ export default props => {
                   </ActionSheetItem>
                 : null}
               {special && mark === -1 && !(comment === null || comment === undefined) ?
-                <ActionSheetItem autoclose 
+                <ActionSheetItem autoClose 
                 before={<Icon28CancelOutline />}
                 onClick={() => markMessage(0, id, "mark")}>
                   Оценить отрицательно
                   </ActionSheetItem>
                 : null}
               {special && mark !== -1 ?
-                <ActionSheetItem autoclose
+                <ActionSheetItem autoClose
                 before={<Icon28DeleteOutline />} 
                 onClick={() => markMessage(0, id, "unmark")}>
                   Удалить оценку
                   </ActionSheetItem>
                 : null}
               {(special && !approved) ?
-                <ActionSheetItem autoclose 
+                <ActionSheetItem autoClose 
                 multiline
                 before={<Icon28CheckShieldOutline />}
                 onClick={() => markMessage(0, id, "approve")}
@@ -252,17 +260,17 @@ export default props => {
                 : null}
               
               {special ?
-                <>{comment === null && <ActionSheetItem autoclose 
+                <>{comment === null && <ActionSheetItem autoClose 
                   before={<Icon28CommentOutline/>}
                   onClick={() => {setAddComment(true); setMessageIdChanged(id)}}>
                   Добавить комментарий
                 </ActionSheetItem>}
-                {comment && <ActionSheetItem autoclose 
+                {comment && <ActionSheetItem autoClose 
                   before={<Icon28WriteOutline />}
                   onClick={() => { setSendfield(comment);setMessageIdChanged(id);setEditComment(true)}}>
                   Редактировать комментарий
                 </ActionSheetItem>}
-                {comment && <ActionSheetItem autoclose 
+                {comment && <ActionSheetItem autoClose 
                   before={<Icon28CommentDisableOutline />} 
                   onClick={() => QuickMenagerMessages(id, 'delete_comment')}>
                     Удалить комментарий
@@ -422,22 +430,22 @@ export default props => {
     setPopout(
       <ActionSheet onClose={() => setPopout(null)}
         toggleRef={MessageRef.current}
-        iosCloseItem={<ActionSheetItem autoclose mode="cancel">Отменить</ActionSheetItem>}>
+        iosCloseItem={<ActionSheetItem autoClose mode="cancel">Отменить</ActionSheetItem>}>
         {moderator_permission &&
             ((info['status'] === 0 || info['status'] === 1) ?
-              <ActionSheetItem autoclose 
+              <ActionSheetItem autoClose 
               before={<Icon28DoorArrowRightOutline />}
               onClick={() => openCloseTicket(false)}>
                 Закрыть вопрос
             </ActionSheetItem>
               :
-              <ActionSheetItem autoclose 
+              <ActionSheetItem autoClose 
               before={<Icon28DoorArrowLeftOutline />}
               onClick={() => openCloseTicket(true)}>
                 Открыть вопрос
             </ActionSheetItem>)
         }
-        <ActionSheetItem autoclose 
+        <ActionSheetItem autoClose 
         before={<Icon28CopyOutline />}
         onClick={() => {
           copyClipboard(LINK_APP + "#ticket_id=" + id)
@@ -535,7 +543,7 @@ export default props => {
   return(
     <Panel id={props.id}>
       <PanelHeader
-        left={<><PanelHeaderBack onClick={() => window.history.back()} />
+        before={<><PanelHeaderBack onClick={() => window.history.back()} />
         <PanelHeaderButton aria-label='Опции' onClick={() => copy(info.id)}><Icon28SlidersOutline/>
         </PanelHeaderButton></>}
       >
@@ -646,11 +654,13 @@ export default props => {
                 <Separator wide />
                 <WriteBar
                   before={<WriteBarIcon 
+                    aria-label='Написать'
                     onClick={() => setOpenAtachment(p => !p)}
                     mode="attach" />}
                   after={
                     <>
                       <WriteBarIcon mode={(redaction || edit_comment) ? 'done' : "send"}
+                        aria-label='Отредактировать'
                         disabled={!(sendfield.trim().length >= 5)}
                         onClick={() => { detectFunction() }}
                       />

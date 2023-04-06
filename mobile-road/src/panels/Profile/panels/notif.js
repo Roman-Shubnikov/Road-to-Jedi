@@ -146,7 +146,7 @@ export default props => {
     return (
         <Panel id={props.id}>
         <PanelHeader
-        left={<PanelHeaderBack onClick={() => window.history.back()} />}>
+        before={<PanelHeaderBack onClick={() => window.history.back()} />}>
         Уведомления
         </PanelHeader>
         <Group>
