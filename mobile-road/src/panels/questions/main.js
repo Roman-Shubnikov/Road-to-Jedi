@@ -6,12 +6,11 @@ import {
 
 import '@vkontakte/vkui/dist/vkui.css';
 // Импортируем панели
-import NewTicket      from './panels/new_tiket'
-import QuestionsMain      from './panels/questions'
-import Tiket          from '../../components/tiket';
-import OtherProfile   from '../../components/other_profile'
-import Reports        from '../../components/report';
-import AnswerAdded    from '../../components/AnswerAdded';
+import { NewTicketPanel, QuestionsPanel } from './panels';
+import { Ticket }          from '../../components/tiket';
+import { OtherProfile }   from '../../components/other_profile'
+import { ReportPanel }        from '../../components/report';
+import { FinalAnswerPanel }    from '../../components/AnswerAdded';
 //Импортируем модальные карточки
 import { useSelector } from 'react-redux';
 
@@ -26,14 +25,14 @@ export const Questions = props => {
       history={historyPanelsView}
       onSwipeBack={() => window.history.back()}
     >
-      <QuestionsMain id='questions'
-        goTiket={goTiket}/>
-      <NewTicket id='new_ticket'
+      <QuestionsPanel id='questions'
+        goTicket={goTiket}/>
+      <NewTicketPanel id='new_ticket'
       reloadProfile={props.reloadProfile} />
-      <Tiket id="ticket" />
+      <Ticket id="ticket" />
       <OtherProfile id="other_profile" />
-      <Reports id="report" />
-      <AnswerAdded id="answer_added" />
+      <ReportPanel id="report" />
+      <FinalAnswerPanel id="answer_added" />
     </View>
   )
 }

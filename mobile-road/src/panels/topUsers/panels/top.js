@@ -27,7 +27,7 @@ import {
   Icon56Users3Outline,
 
 } from '@vkontakte/icons'
-import UserTopC from '../../../components/userTop';
+import { UserInfo } from '../../../components/userTop';
 import { useDispatch, useSelector } from 'react-redux';
 import { topUsersActions } from '../../../store/main';
 import { API_URL, IS_MOBILE, PERMISSIONS } from '../../../config';
@@ -44,7 +44,7 @@ const Forms = {
 }
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
-export default props => {
+export const TopPanel = props => {
   const dispatch = useDispatch();
   const { topAgents, mode } = useSelector((state) => state.topUsers) 
   const { setPopout, showErrorAlert, goOtherProfile } = props.callbacks;
@@ -96,15 +96,15 @@ export default props => {
     let time_think = "\n\nДумаем, в ближайшее время тут кто-то появится."
     switch(activeTab){
       case 'verif':
-        return [<Icon36Done width={56} height={56} />, 'Топ верифицированных агентов пуст.'+time_think]
+        return [<Icon36Done key='pli_verified' width={56} height={56} />, 'Топ верифицированных агентов пуст.'+time_think]
       case 'donut':
-        return [<Icon56DonateOutline />, 'Топ агентов с отметкой VK Donut пуст.'+time_think]
+        return [<Icon56DonateOutline key='pli_donut' />, 'Топ агентов с отметкой VK Donut пуст.'+time_think]
       case 'flash':
-        return [<Icon56FireOutline />, 'Топ агентов с отметкой огня Прометея пуст.'+time_think]
+        return [<Icon56FireOutline key='pli_fire' />, 'Топ агентов с отметкой огня Прометея пуст.'+time_think]
       case 'all':
-        return [<Icon56Users3Outline />, 'Общий раздел пантеона пуст.'+time_think]
+        return [<Icon56Users3Outline key='pli_all' />, 'Общий раздел пантеона пуст.'+time_think]
       default:
-        return [<Icon56Users3Outline />, 'Этот раздел пантеона пуст.'+time_think]
+        return [<Icon56Users3Outline key='pli_users' />, 'Этот раздел пантеона пуст.'+time_think]
     }
   }
   const getCurrDescriptionAgent = (result) => {
@@ -217,7 +217,7 @@ export default props => {
         {topAgents[activeTab].slice(3).map((result, i) =>
           result.banned ? null :
           <React.Fragment key={result.id}>
-            <UserTopC {...result}
+            <UserInfo {...result}
             position={i + 4}
             description={
               getCurrDescriptionAgent(result)

@@ -25,7 +25,7 @@ import { useSelector } from 'react-redux';
 import { API_URL } from '../../../config';
 
 
-export default props => {
+export const SettingsPanel = props => {
   const { account } = useSelector((state) => state.account)
   const { goPanel } = props.callbacks;
   const { activeStory } = useSelector((state) => state.views)

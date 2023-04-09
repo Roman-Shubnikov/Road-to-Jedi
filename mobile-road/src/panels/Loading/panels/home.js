@@ -4,7 +4,7 @@ import {
     Panel,
     PanelHeader,
     } from '@vkontakte/vkui';
-export default props => {
+export const LoadingPanel = props => {
     return(
         <Panel id={props.id}>
             <PanelHeader>

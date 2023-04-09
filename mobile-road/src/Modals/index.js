@@ -55,7 +55,7 @@ export const Modals = ({
     setIsMyMark,
 
  }) => {
-    const { closeModal, setReport, Modal, setActiveModal, setSnackbar } = useNavigation();
+    const { closeModal, Modal, setActiveModal, setSnackbar } = useNavigation();
     const { account } = useSelector((state) => state.account)
     const [sharing_type, setSharingType] = useState('prometay');
     const comment_special = useSelector((state) => state.tickets.comment)
@@ -65,8 +65,7 @@ export const Modals = ({
         activeModal={Modal}>
             <CommentAgent
                 id='comment'
-                comment={comment_special}
-                reporting={setReport} />
+                comment={comment_special} />
             <AgentFlashing
                 id='prom'
                 onClose={() => {closeModal();setIsMyMark(false)}}

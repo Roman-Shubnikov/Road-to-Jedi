@@ -59,7 +59,7 @@ const blueBackground = {
 
 
 // Переделать это дерьмо
-export default props => {
+export const Ticket = props => {
   const dispatch = useDispatch();
   const { activeStory } = useSelector((state) => state.views)
   const setComment = useCallback((comment) => dispatch(ticketActions.setComment(comment)), [dispatch])

@@ -13,7 +13,7 @@ import { getHumanyTime } from '../../../Utils';
 import { useSelector } from 'react-redux';
 import { LINKS_VK } from '../../../config'
 
-export default props => {
+export const Ban = props => {
     const BanObject = useSelector((state) => state.account.banInfo)
     return (
         <Panel id={props.id}>

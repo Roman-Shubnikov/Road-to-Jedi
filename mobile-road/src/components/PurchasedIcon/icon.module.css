@@ -1,10 +1,15 @@
 .icon {
     width: 28px;
     height: 28px;
-    border-radius: 6px;
-    padding: 6px;
     color: var(--vkui--color_icon_accent);
     
+}
+.icon__tap_zone :global(.vkuiTappable) {
+    padding: 5px;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border-radius: 6px;
 }
 .selected {
     background-color: var(--vkui--color_transparent--active);

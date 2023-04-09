@@ -1,0 +1,16 @@
+.gallery_card_root {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 24px;
+    padding: 18px;
+    padding-bottom: 25px;
+    box-sizing: border-box;
+}
+.gallery_card_item_root {
+    width: 28px;
+    padding: 2px;
+}
+.selected_item {
+    background-color: var(--vkui--color_transparent--active);
+}

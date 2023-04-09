@@ -16,7 +16,7 @@ const Forms = {
   bad_answers: ['плохой ответ', 'плохих ответа', 'плохих ответов'],
 }
 
-export default props => {
+export const UserInfo = props => {
   const {disabled, description, nickname, good_answers, bad_answers, key, id, avatar, flash,donut,verified, onClick, change_color_donut, position, permissions} = props;
   return (
     <SimpleCell

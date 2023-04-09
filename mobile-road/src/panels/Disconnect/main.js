@@ -6,7 +6,7 @@ import {
 
 import '@vkontakte/vkui/dist/vkui.css';
 // Импортируем панели
-import Startov from './panels/home';
+import { DisconnectPanel } from './panels/home';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewsActions } from '../../store/main';
 
@@ -26,7 +26,7 @@ export const Disconnect = props => {
       history={historyPanelsView}
       onSwipeBack={() => window.history.back()}
     >
-      <Startov id='load' restart={props.AppInit} />
+      <DisconnectPanel id='load' restart={props.AppInit} />
     </View>
   )
 }

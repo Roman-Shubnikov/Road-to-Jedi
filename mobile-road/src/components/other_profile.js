@@ -5,7 +5,6 @@ import {
     Panel,
     PanelHeader,
     Group,
-    Div,
     Avatar,
     ActionSheet,
     ActionSheetItem,
@@ -15,14 +14,10 @@ import {
     Snackbar,
     Link,
     PanelSpinner,
-    IconButton,
     SimpleCell,
     Button,
-    Spacing,
     PanelHeaderButton,
 } from '@vkontakte/vkui';
-
-
 import {
     Icon28WalletOutline,
     Icon56DurationOutline,
@@ -46,8 +41,6 @@ import { useSelector } from 'react-redux';
 import { LINK_APP, PERMISSIONS } from '../config';
 import { isEmptyObject } from 'jquery';
 import { getHumanyTime, recog_number } from '../Utils';
-import InfoArrows from './InfoArrows';
-import { ProfileTags } from './ProfileTags';
 import { ProfileCard } from './ProfileCard';
 import { useNavigation } from '../hooks';
 const NOTI = [
@@ -59,13 +52,14 @@ const blueBackground = {
     backgroundColor: 'var(--accent)'
 };
 
-export default props => {
+export const OtherProfile = props => {
     const profRef = useRef(null);
     const { setPopout, setActiveModal, setReport, setSnackbar } = useNavigation();
     const { other_profile: OtherProfileData, account } = useSelector((state) => (state.account))
 
 
-    const { online, id: agent_id,
+    const {
+        id: agent_id,
         nickname,
         flash,
         verified: verif,
@@ -129,44 +123,6 @@ export default props => {
             </PanelHeader>
 
             {!isEmptyObject(OtherProfileData) && !banned ? <>
-                <Group>
-                    <Spacing size={10} />
-                    <SimpleCell
-                        disabled
-                        after={
-                            <>
-                                <IconButton
-                                    aria-label='Опции'
-                                    onClick={() => infoMenu(agent_id)}
-                                    getRootRef={profRef}>
-                                        <Icon24MoreVertical />
-                                </IconButton>
-                            </>
-
-                        }
-                        subtitle={online.is_online ? "online" : getHumanyTime(online.last_seen).date + " в " + getHumanyTime(online.last_seen).time}
-                        before={<Avatar size={70} src={avatar.url} />}
-                    >
-                        <div style={{ display: 'flex' }}>
-                            {nickname ? nickname : `Агент Поддержки #${agent_id}`}
-                            <ProfileTags
-                            size='m'
-                            verified={verif}
-                            flash={flash}
-                            donut={donut}
-                             />
-                        </div>
-                    </SimpleCell>
-                    <Spacing size={10} />
-                    {!is_private && <Div>
-                        <InfoArrows
-                        special={OtherProfileData.permissions >= PERMISSIONS.special}
-                        good_answers={good_answers}
-                        bad_answers={bad_answers}
-                        total_answers={total_answers}
-                        />
-                    </Div>}
-                </Group>
                 <ProfileCard
                     avatarUrl={avatar.url}
                     profileId={agent_id}

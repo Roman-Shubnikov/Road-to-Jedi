@@ -8,7 +8,7 @@ import {viewsActions} from '../../store/main'
 
 import '@vkontakte/vkui/dist/vkui.css';
 // Импортируем панели
-import Startov from './panels/home';
+import { LoadingPanel } from './panels/home';
 import { useDispatch } from 'react-redux';
 
 export const LoadingScreen = props => {
@@ -25,7 +25,7 @@ export const LoadingScreen = props => {
       id={props.id}
       activePanel={'load'}
       >
-        <Startov id='load' />
+        <LoadingPanel id='load' />
       </View>   
   )
 }

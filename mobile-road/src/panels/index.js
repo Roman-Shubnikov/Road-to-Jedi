@@ -1,5 +1,4 @@
 export { Questions } from './questions/main';
-export { Advice } from './Advice/main';
 export { Top } from './topUsers/main';
 export { Profile } from './Profile/main';
 export { Banned } from './Banned/main';

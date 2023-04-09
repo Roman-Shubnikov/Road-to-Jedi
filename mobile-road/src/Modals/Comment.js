@@ -4,7 +4,6 @@ import {
     CellButton,
     Group,
     Text,
-    usePlatform,
     MiniInfoCell,
     UsersStack
 
@@ -13,7 +12,6 @@ import {
 import { Anchorme } from 'react-anchorme'
 
 import {
-  Icon24Dismiss,
   Icon20UserOutline,
   Icon20ArticleOutline,
   Icon20RecentOutline,
@@ -28,7 +26,7 @@ import { useNavigation } from '../hooks';
 
 export const CommentAgent = props => {
   const Comment = props.comment.objComment;
-  const { closeModal } = useNavigation();
+  const { closeModal, setReport } = useNavigation();
   return (
     <ModalPage 
         id={props.id}
@@ -80,8 +78,8 @@ export const CommentAgent = props => {
               mode='danger'
               centered
               onClick={() => {
-                props.onClose()
-                props.reporting(1, props.comment.message_id)
+                closeModal()
+                setReport(1, props.comment.message_id)
               }}>Пожаловаться</CellButton>}
           </Group>
             

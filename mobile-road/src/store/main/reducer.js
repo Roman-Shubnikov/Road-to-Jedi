@@ -144,9 +144,10 @@ export const viewsReducer = (state = initalStateViews, action) => {
             return {...state, activePanel: action.payload}
         case viewsActionTypes.SET_ACTIVE_SCENE:
             return {...state, activePanel: action.payload.panel, activeStory: action.payload.story}
-        case viewsActionTypes.SET_HISTORY:
+        case viewsActionTypes.SET_HISTORY: {
             let viewHistory = action.payload.map((obj, i) => obj.panel)
             return {...state, historyPanels: action.payload, historyPanelsView: viewHistory}
+        }
         case viewsActionTypes.SET_NEED_EPIC:
             return {...state, need_epic: action.payload}
         case viewsActionTypes.SET_SNACKBAR:

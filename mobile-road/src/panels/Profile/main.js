@@ -6,30 +6,30 @@ import {
 
 import '@vkontakte/vkui/dist/vkui.css';
 // Импортируем панели
-import Prof           from './panels/profile';
-import { MarketPage }         from './panels/market/';
-import MYQuest        from './panels/AllQuestions';
-import Settings       from './panels/settings';
-import Info           from './panels/info'
-import Verfy          from './panels/verfy'
-import Promocodes     from './panels/promocode';
-import Tiket          from '../../components/tiket';
-import OtherProfile   from '../../components/other_profile'
-import Reports        from '../../components/report';
-import AnswerAdded    from '../../components/AnswerAdded';
-import Notify         from './panels/notif';
-
-import { useSelector } from 'react-redux';
-
-import { 
+import { Ticket }          from '../../components/tiket';
+import { OtherProfile }   from '../../components/other_profile'
+import { ReportPanel }        from '../../components/report';
+import { FinalAnswerPanel }    from '../../components/AnswerAdded';
+import {
   FaqMain,
   CreateQuestion as FaqCreateQuestion,
   CreateCategory as FaqCreateCategory,
   Question as FaqQuestion,
   QuestionsList as FaqQuestions,
 
-} from './panels/faq';
-import { Achievements } from './panels';
+  VerifyPanel,
+  PromocodesPanel,
+  NotifyPanel,
+  MyAnswersPanel,
+  InfoPanel,
+  Achievements,
+  MarketPanel,
+  ProfilePanel,
+  SettingsPanel,
+} from './panels';
+
+import { useSelector } from 'react-redux';
+
 
 export const Profile = props => {
   const { setReport, goTiket, goOtherProfile, setMoneyPromo, setSnackbar, setTransfer } = props.base_functions;
@@ -55,17 +55,17 @@ export const Profile = props => {
       onSwipeBack={() => window.history.back()}
     >
 
-      <Prof id="profile"
+      <ProfilePanel id="profile"
       marks_manage={props.marks_manage}
       navigation={props.navigation}
       reloadProfile={props.reloadProfile}
       callbacks={callbacks} />
 
-      <MYQuest id="qu"
+      <MyAnswersPanel id="qu"
       navigation={props.navigation}
         callbacks={callbacks} />
 
-      <Notify 
+      <NotifyPanel 
       id='notify'
       base_functions={props.base_functions}
       reloadProfile={props.reloadProfile}
@@ -76,39 +76,38 @@ export const Profile = props => {
       reloadProfile={props.reloadProfile}
       callbacks={callbacks}
       />
-      <MarketPage id="market"
+      <MarketPanel id="market"
         navigation={props.navigation}
         reloadProfile={props.reloadProfile}
         callbacks={callbacks} />
 
-      <Settings id="settings"
+      <SettingsPanel id="settings"
         callbacks={callbacks}
         navigation={props.navigation}
         reloadProfile={props.reloadProfile} />
 
-      <Info id='info' />
+      <InfoPanel id='info' />
 
-      <Verfy id='verf'
+      <VerifyPanel id='verf'
       navigation={props.navigation}
         callbacks={callbacks} />
 
-      <Promocodes id='promocodes'
+      <PromocodesPanel id='promocodes'
         navigation={props.navigation}
         reloadProfile={props.reloadProfile}
         callbacks={callbacks}
         setMoneyPromo={setMoneyPromo} />
 
-      <Tiket id="ticket"
+      <Ticket id="ticket"
       callbacks={callbacks} />
 
       <OtherProfile id="other_profile"
       callbacks={callbacks} />
 
-      <Reports id="report"
+      <ReportPanel id="report"
       callbacks={callbacks} />
 
-      <AnswerAdded id="answer_added" />
-
+      <FinalAnswerPanel id="answer_added" />
 
       <FaqMain id="faqMain"
       navigation={props.navigation}

@@ -22,7 +22,7 @@ import Icon28ScanViewfinderOutline  from '@vkontakte/icons/dist/28/scan_viewfind
 import { API_URL } from '../../../config';
 import { isEmptyObject } from 'jquery';
 
-const queryString = require('query-string');
+import queryString from 'query-string';
 
 
 const greenBackground = {
@@ -34,7 +34,7 @@ var promoInfo = {
   activate: 'activate',
 
 }
-export default props => {
+export const PromocodesPanel = props => {
   const [promocode, setPromocode] = useState('');
   const { setActiveModal, setSnackbar } = props.callbacks;
   const hash = queryString.parse(window.location.hash);

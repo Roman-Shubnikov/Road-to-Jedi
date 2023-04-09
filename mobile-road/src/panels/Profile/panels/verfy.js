@@ -33,7 +33,7 @@ import {
 const maxLength = 2000;
 const minLengthTitle = 5;
 const minLengthDesc = 10;
-export default props => {
+export const VerifyPanel = props => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState(-1);

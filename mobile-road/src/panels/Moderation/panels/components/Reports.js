@@ -62,7 +62,7 @@ const types = [
   'Ответ агента',
   'Вопрос от генератора',
 ]
-export default props => {
+export const Reports = props => {
   const dispatch = useDispatch();
   const [fetching, setFetching] = useState(false);
   const { setSnackbar, getInfo } = props.callbacks;

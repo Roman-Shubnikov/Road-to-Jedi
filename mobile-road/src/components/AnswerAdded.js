@@ -9,7 +9,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import Cat from './images/Cat.svg'
 
-export default props => {
+export const FinalAnswerPanel = props => {
     const TicketInfo = useSelector((state) => state.tickets.ticketInfo.info)
     return(
         <Panel id={props.id}>

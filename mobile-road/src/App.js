@@ -17,7 +17,6 @@ import {
   Panel,
   PanelHeader,
   Group,
-  useAdaptivityConditionalRender,
   Alert,
   Badge,
   Avatar,
@@ -50,7 +49,7 @@ import {
   Icon28StatisticsOutline,
 
 } from '@vkontakte/icons';
-import EpicItemPC from './components/EpicItem';
+import { EpicItem } from './components/EpicItem';
 import { isEmptyObject } from 'jquery';
 import { goOtherProfileCreator, NicknameMenager } from './Utils';
 import { useNavigation } from './hooks';
@@ -326,35 +325,35 @@ const App = () => {
                           
                       </Group>}
                       <Group>
-                        <EpicItemPC
+                        <EpicItem
                         icon={<Icon28ListBulletSquareOutline />}
                         story={viewsStructure.Questions.navName}
                         activeStory={activeStory}
                         onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Questions.panels.homepanel)}}>
                           {viewsStructure.Questions.name}
-                        </EpicItemPC>
-                        {/* <EpicItemPC
+                        </EpicItem>
+                        {/* <EpicItem
                         icon={<Icon28CompassOutline />}
                         story={viewsStructure.Advice.navName}
                         activeStory={activeStory}
                         onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Advice.panels.homepanel)}}>
                           {viewsStructure.Advice.name}
-                        </EpicItemPC> */}
-                        {agent_permission && <EpicItemPC
+                        </EpicItem> */}
+                        {agent_permission && <EpicItem
                         icon={<Icon28StatisticsOutline />}
                         story={viewsStructure.Top.navName}
                         activeStory={activeStory}
                         onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Top.panels.homepanel)}}>
                           {viewsStructure.Top.name}
-                        </EpicItemPC>}
+                        </EpicItem>}
                         {moderator_permission && 
-                        <EpicItemPC
+                        <EpicItem
                         icon={<Icon28SettingsOutline />}
                         story={viewsStructure.Moderation.navName}
                         activeStory={activeStory}
                         onClick={(e) => {setHash('');goPanel(e.currentTarget.dataset.story, viewsStructure.Moderation.panels.homepanel)}}>
                           {viewsStructure.Moderation.name}
-                        </EpicItemPC>}
+                        </EpicItem>}
                       </Group>
                       </>
                     </Panel>
@@ -475,7 +474,7 @@ const App = () => {
 
 }
 
-export default () => (
+export const AdaptiveApp = () => (
   <AdaptivityProvider>
     <App />
   </AdaptivityProvider>

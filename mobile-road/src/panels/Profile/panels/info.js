@@ -10,7 +10,7 @@ import {
 import { Icon16Like } from '@vkontakte/icons';
 import IconJedi from '../../../images/jedi.svg'
 
-export default props => {
+export const InfoPanel = props => {
     return (
         <Panel id={props.id}>
             <PanelHeader

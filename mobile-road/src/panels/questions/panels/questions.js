@@ -46,7 +46,7 @@ const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera 
 
 var loadingContent = false;
 
-export default ({ goTiket, id }) => {
+export const QuestionsPanel = ({ goTicket, id }) => {
     const dispatch = useDispatch();
     const { activeStory } = useSelector((state) => state.views)
     const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
@@ -193,7 +193,7 @@ export default ({ goTiket, id }) => {
                                 <Div style={{paddingTop: 0}}>
                                     <Tappable
                                     disabled={result['donut'] && !account['donut']}
-                                    onClick={() => { goTiket(result['id']) }}>
+                                    onClick={() => { goTicket(result['id']) }}>
                                         <Card mode='outline'
                                         style={{position: 'relative'}}
                                         >

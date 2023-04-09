@@ -28,7 +28,7 @@ import { useEffect } from 'react';
 import { Icon64ServicesSearch } from '../../assets';
 
 
-export default props => {
+export const Control = props => {
     const [sysInfo, setSysInfo] = useState(null);
     const getSysInfo = () => {
         fetch(API_URL + `method=special.getSysInfo&` + window.location.search.replace('?', ''))

@@ -13,7 +13,7 @@ export type StoreObject = {
         activeStory: string,
     },
     tickets: {
-        comment: {}
+        comment: object,
     }
     account: { 
         account: {

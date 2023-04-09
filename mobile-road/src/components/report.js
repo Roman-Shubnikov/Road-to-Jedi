@@ -29,7 +29,7 @@ const reasons = [
     "Издевательство",
     "Другое",
 ]
-export default props => {
+export const ReportPanel = props => {
     const dispatch = useDispatch();
     const [comment, setComment] = useState('');
     const [typeReport, setTyperep] = useState('');
@@ -68,7 +68,7 @@ export default props => {
                     showErrorAlert(data.error.message)
                 }
                 })
-                .catch(err => {
+                .catch(() => {
                     setActiveStory('disconnect')
                 })
         }

@@ -74,7 +74,7 @@ const moneyTypes = [
     'money_transfer_send',
     'money_transfer_give',
 ]
-export default props => {
+export const NotifyPanel = props => {
     const dispatch = useDispatch();
     const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch])
     const { showErrorAlert, goTiket, openMoneyTransfer } = props.callbacks;

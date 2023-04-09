@@ -6,7 +6,7 @@ import {
 
 import '@vkontakte/vkui/dist/vkui.css';
 // Импортируем панели
-import Startov from './panels/ban';
+import { Ban } from './panels/ban';
 
 
 export const Banned = props => {
@@ -15,7 +15,7 @@ export const Banned = props => {
       id={props.id}
       activePanel={'ban'}
     >
-      <Startov id='ban' />
+      <Ban id='ban' />
     </View>
   )
 }

@@ -4,8 +4,8 @@
     border-radius: 6px;
     
 }
-.color__tap_zone {
-    padding: 2px;
+.color__tap_zone :global(.vkuiTappable) {
+    padding: 5px;
     width: 28px;
     height: 28px;
     border-radius: 6px;

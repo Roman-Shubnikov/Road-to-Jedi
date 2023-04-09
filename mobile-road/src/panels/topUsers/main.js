@@ -3,12 +3,12 @@ import React from 'react'; // React
 
 import { 
   View
-  } from '@vkontakte/vkui';
+} from '@vkontakte/vkui';
 
 // Импортируем панели
-import TopMain from './panels/top';
-import OtherProfile from '../../components/other_profile';
-import Report from '../../components/report';
+import { TopPanel } from './panels/top';
+import { OtherProfile } from '../../components/other_profile';
+import { ReportPanel } from '../../components/report';
 import { useSelector } from 'react-redux';
 export const Top = props => {
   const { goPanel } = props.navigation;
@@ -23,14 +23,14 @@ export const Top = props => {
     history={historyPanelsView}
     onSwipeBack={() => window.history.back()}
     >
-      <TopMain id="top"
+      <TopPanel id="top"
       navigation={props.navigation}
       callbacks={callbacks} />
 
       <OtherProfile id="other_profile"
       callbacks={callbacks} />
 
-      <Report id="report" 
+      <ReportPanel id="report" 
       callbacks={callbacks} /> 
 
     </View>   

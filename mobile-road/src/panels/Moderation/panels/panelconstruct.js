@@ -8,15 +8,9 @@ import {
   Tabs,
   } from '@vkontakte/vkui';
 // import Icon28SyncOutline from '@vkontakte/icons/dist/28/sync_outline';
-import Control from './components/control';
-import Comments from './components/comments';
-import DBQuestions from './components/db_questions';
-import Generator from './components/generator'
-import Answers from './components/answers';
-import Verification from './components/verification';
-import Reports from './components/Reports';
+
 import { useDispatch, useSelector } from 'react-redux';
-import { PERMISSIONS, viewsStructure } from '../../../config';
+import { IS_MOBILE, PERMISSIONS, viewsStructure } from '../../../config';
 import { 
   Icon24Square4Outline,
   Icon24ReportOutline,
@@ -28,8 +22,19 @@ import {
  } from '@vkontakte/icons';
 import { moderationActions } from '../../../store/main';
 
-const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
-export default props => {
+import { 
+  Verification,
+  Reports,
+  Generator,
+  Questions, 
+  Control,
+  Comments,
+  Answers,
+
+} from './components'
+
+
+export const ModerationPanel = props => {
   const dispatch = useDispatch();
   const { activeTab } = useSelector((state) => state.moderation)
   const setActivetab = useCallback((tab) => dispatch(moderationActions.setActiveTab(tab)), [dispatch]);
@@ -81,7 +86,7 @@ export default props => {
       data = <Answers
       callbacks={callbacks} />
     } else if (activeTab === 'db_questions') {
-      data = <DBQuestions
+      data = <Questions
       callbacks={callbacks} />
     } else if (activeTab === 'comments') {
       data = <Comments
@@ -105,7 +110,7 @@ export default props => {
   return (
     <Panel id={props.id}>
       <PanelHeader
-        separator={!platformname}
+        separator={!IS_MOBILE}
       >
         {viewsStructure.Moderation.name}
       </PanelHeader>
@@ -114,6 +119,7 @@ export default props => {
           <HorizontalScroll>
             {(admin_permission ? labels : labels.slice(0,2)).map((label) => 
             <TabsItem
+              key={label.value}
               onClick={() => setActivetab(label.value)}
               selected={activeTab === label.value}
             >

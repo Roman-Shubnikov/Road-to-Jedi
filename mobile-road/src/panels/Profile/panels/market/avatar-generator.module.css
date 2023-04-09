@@ -10,4 +10,5 @@
 .container_items {
     display: flex;
     gap: 13px;
+    flex-wrap: wrap;
 }

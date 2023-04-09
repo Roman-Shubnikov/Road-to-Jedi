@@ -37,7 +37,7 @@ const blueBackground = {
 const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
 
-export default props => {
+export const Questions = props => {
   const dispatch = useDispatch();
   const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
   const { moderationData } = useSelector((state) => state.moderation)

@@ -22,13 +22,12 @@ import {
     Icon56ArchiveOutline,
     
 } from '@vkontakte/icons';
-import { API_URL } from '../../../config';
+import { API_URL, IS_MOBILE } from '../../../config';
 import { useDispatch, useSelector } from 'react-redux';
 import { accountActions } from '../../../store/main';
 import { getHumanyTime } from '../../../Utils';
 
-const platformname = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
-export default props => {
+export const MyAnswersPanel = props => {
     const { myQuestions } = useSelector((state) => state.account)
     const [activeTab, setActiveTab] = useState('positive');
     const [limit, setLimit] = useState(20);
@@ -91,7 +90,7 @@ export default props => {
     return (
         <Panel id={props.id}>
             <PanelHeader
-                separator={!platformname}
+                separator={!IS_MOBILE}
                 before={<PanelHeaderBack onClick={() => window.history.back()} />}
             >
                 Мои ответы

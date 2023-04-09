@@ -5,7 +5,7 @@ import {
     
 } from '@vkontakte/vkui';
 
-export default props => {
+export const EpicItem = props => {
     return(
     <Cell
         badge={props.badge}

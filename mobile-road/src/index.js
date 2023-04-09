@@ -4,7 +4,7 @@ import React from 'react';
 import { Provider } from "react-redux";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing/esm/browser/index.js";
-import App from './App.js';
+import { AdaptiveApp } from './App.js';
 import mVKMiniAppsScrollHelper from '@vkontakte/mvk-mini-apps-scroll-helper';
 import {platform, Platform} from '@vkontakte/vkui';
 import { createRoot } from 'react-dom/client';
@@ -26,7 +26,7 @@ if(platform() === Platform.IOS) {
 
 const ReduxApp = () => (
   <Provider store={store}>
-    <App />
+    <AdaptiveApp />
   </Provider>
 )
 

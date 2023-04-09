@@ -20,7 +20,7 @@ import { useSelector } from 'react-redux';
 import { GreenCard } from '../../../components/GreenCard';
 import { useNavigation } from '../../../hooks';
 
-export default props => {
+export const NewTicketPanel = props => {
     const [title, setTitle] = useState('');
     const [text, setText] = useState('');
     const { account } = useSelector((state) => state.account)
@@ -145,7 +145,7 @@ export default props => {
                             size="l"
                             level="secondary"
                             stretched
-                            disabled={!Boolean(text.length > 5) || !Boolean(title.length > 5)}
+                            disabled={!(text.length > 5) || !(title.length > 5)}
                             onClick={
                                 () => {
                                     sendNewTiket();

@@ -1,38 +1,41 @@
 {
-  "compilerOptions": {
-    "outDir": "build/dist",
-    "module": "commonjs",
-    "target": "es2022",
-    "lib": ["es2022", "dom"],
-    "sourceMap": true,
-    "allowJs": true,
-    "jsx": "react",
-    "moduleResolution": "node",
-    "rootDir": "src",
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "typeRoots" : ["node_modules/@types", "src/types"]
-  },
-  "exclude": [
-    "node_modules",
-    "build",
-    "scripts",
-    "acceptance-tests",
-    "webpack",
-    "jest",
-    "src/setupTests.ts"
-  ],
-  "types": [
-    "typePatches"
-  ],
-  "paths": {
-    "@/*": ["src/*"]
-  },
-  "baseUrl": "./",
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/Modals/index.js"]
+    "compilerOptions": {
+        "outDir": "build/dist",
+        "module": "commonjs",
+        "target": "es2022",
+        "lib": ["es2022", "dom"],
+        "sourceMap": true,
+        "allowJs": true,
+        "jsx": "react",
+        "moduleResolution": "node",
+        "rootDir": "src",
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "typeRoots": ["node_modules/@types", "src/types"]
+    },
+    "exclude": [
+        "node_modules",
+        "build",
+        "scripts",
+        "acceptance-tests",
+        "webpack",
+        "jest",
+        "src/setupTests.ts"
+    ],
+    "types": ["typePatches"],
+    "paths": {
+        "@/*": ["src/*"]
+    },
+    "baseUrl": "./",
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/Modals/index.js",
+        "src/panels/Profile/panels/market/Invoices.js"
+    ]
 }

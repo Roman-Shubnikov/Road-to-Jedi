@@ -1,34 +1,22 @@
 import React, { useState } from 'react';
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
-import { 
+import {
     Panel,
     PanelHeader,
     PanelHeaderButton,
     Group,
-    Avatar,
     Counter,
     SimpleCell,
     PullToRefresh,
     usePlatform,
-    FormItem,
-    FormLayout,
-    Button,
     ScreenSpinner,
-    Textarea,
     Div,
-    Spacing,
-    Title,
-    Text,
-    Gradient,
     Alert,
     Switch,
     Caption,
     Platform,
-    calcInitialsAvatarColor,
-    classNames,
 
-
-    } from '@vkontakte/vkui';
+} from '@vkontakte/vkui';
 
 import {
     Icon28UserCardOutline,
@@ -42,20 +30,15 @@ import {
 } from '@vkontakte/icons';
 
 import { isEmptyObject } from 'jquery';
-import { useDispatch, useSelector } from 'react-redux';
-import { API_URL, COMMUNITY_ID, CONVERSATION_LINK, MESSAGE_NO_VK, PERMISSIONS, PUBLIC_STATUS_LIMIT } from '../../../config';
-import { accountActions } from '../../../store/main';
+import { useSelector } from 'react-redux';
+import { API_URL, COMMUNITY_ID, CONVERSATION_LINK, MESSAGE_NO_VK, PERMISSIONS } from '../../../config';
 import { sendGoal } from '../../../metrika';
-import { ProfileTags } from '../../../components/ProfileTags';
-import { NicknameMenager } from '../../../Utils';
-import style from './profile.module.css';
-import { InfoChipsStatistic, ProfileCard, SimpleSeparator } from '../../../components';
+import { ProfileCard, SimpleSeparator } from '../../../components';
 import { StoreObject } from '../../../store';
 
 
 
-export default (props: { navigation: any, callbacks: any, reloadProfile: any, id: string }) => {
-    const dispatch = useDispatch();
+export const ProfilePanel = (props: { navigation: any, callbacks: any, reloadProfile: any, id: string }) => {
     const platform = usePlatform();
     const account = useSelector((state: StoreObject) => state.account.account)
     const { setActiveModal, goPanel, showErrorAlert, setPopout } = props.callbacks;
@@ -63,13 +46,11 @@ export default (props: { navigation: any, callbacks: any, reloadProfile: any, id
     const { goDisconnect } = props.navigation;
     const [fetching, setFetching] = useState(false);
     const [notify, setNotify] = useState(account ? account.settings.notify : false)
-    const [originalStatus, setOriginalStatus] = useState('');
-    const [publicStatus, setPublicStatus] = useState('');
     const permissions = account.permissions;
     const moderator_permission = permissions >= PERMISSIONS.special;
     const agent_permission = permissions === PERMISSIONS.agent;
     const total_answers = account['good_answers'] + account['bad_answers'];
-    
+
 
     const statusMenager = () => {
         // if(!editingStatus){
@@ -79,7 +60,7 @@ export default (props: { navigation: any, callbacks: any, reloadProfile: any, id
         // } else{
         //   setPopout(<ScreenSpinner/>);
         //   setEdititingStatus(false)
-          
+
         //   fetch(API_URL + 'method=account.changeStatus&' + window.location.search.replace('?', ''), {
         //     method: 'post',
         //     headers: { "Content-type": "application/json; charset=UTF-8" },
@@ -97,88 +78,88 @@ export default (props: { navigation: any, callbacks: any, reloadProfile: any, id
         //       }
         //   })
         //   .catch(goDisconnect)
-    
+
         // }
-      }
+    }
 
     const notifyMenager = (value: boolean) => {
-    fetch(API_URL + "method=settings.set&" + window.location.search.replace('?', ''),
-        {
-        method: 'post',
-        headers: { "Content-type": "application/json; charset=UTF-8" },
-        body: JSON.stringify({
-            'setting': 'notify',
-            'value': Number(value),
-        })
-        })
-        .then(res => res.json())
-        .then(data => {
-        if (data.result) {
-            setNotify(value)
-            setPopout(null)
-        } else {
-            showErrorAlert(data.error.message)
-        }
-        })
-        .catch(goDisconnect)
+        fetch(API_URL + "method=settings.set&" + window.location.search.replace('?', ''),
+            {
+                method: 'post',
+                headers: { "Content-type": "application/json; charset=UTF-8" },
+                body: JSON.stringify({
+                    'setting': 'notify',
+                    'value': Number(value),
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.result) {
+                    setNotify(value)
+                    setPopout(null)
+                } else {
+                    showErrorAlert(data.error.message)
+                }
+            })
+            .catch(goDisconnect)
     }
     const changeNotifStatus = (notif: React.ChangeEvent<HTMLInputElement>) => {
-    let status = notif.currentTarget.checked;
-    setPopout(<ScreenSpinner />)
-    if (status) {
-        setPopout(<Alert
-        
-        actionsLayout='horizontal'
-        actions={[{
-            title: 'Разрешить',
-            autoClose: true,
-            mode: 'default',
-            action: () => {
-            bridge.send("VKWebAppAllowMessagesFromGroup", { "group_id": COMMUNITY_ID })
-                .then(data => {
-                setNotify(true)
-                notifyMenager(true)
-                setTimeout(() => {
-                    props.reloadProfile()
-                }, 1000)
+        const status = notif.currentTarget.checked;
+        setPopout(<ScreenSpinner />)
+        if (status) {
+            setPopout(<Alert
 
-                })
-                .catch(() => { notifyMenager(false) })
-            },
-        }, {
-            title: 'Нет, спасибо',
-            autoClose: true,
-            mode: 'cancel',
-            action: () => { notifyMenager(false) },
+                actionsLayout='horizontal'
+                actions={[{
+                    title: 'Разрешить',
+                    autoClose: true,
+                    mode: 'default',
+                    action: () => {
+                        bridge.send("VKWebAppAllowMessagesFromGroup", { "group_id": COMMUNITY_ID })
+                            .then(data => {
+                                setNotify(true)
+                                notifyMenager(true)
+                                setTimeout(() => {
+                                    props.reloadProfile()
+                                }, 1000)
 
-        },]}
-        onClose={() => setPopout(null)}
-        header="Внимание!"
-        text="Сейчас нужно будет разрешить сообщения от группы.
+                            })
+                            .catch(() => { notifyMenager(false) })
+                    },
+                }, {
+                    title: 'Нет, спасибо',
+                    autoClose: true,
+                    mode: 'cancel',
+                    action: () => { notifyMenager(false) },
+
+                },]}
+                onClose={() => setPopout(null)}
+                header="Внимание!"
+                text="Сейчас нужно будет разрешить сообщения от группы.
             Хотите получать уведомления?"
-        />)
-    } else {
-        bridge.send("VKWebAppDenyNotifications")
-        .then(data => {
-            notifyMenager(false)
-            setTimeout(() => {
-            props.reloadProfile()
-            }, 1000)
-        }).catch(() => {
-            notifyMenager(true)
-        })
+            />)
+        } else {
+            bridge.send("VKWebAppDenyNotifications")
+                .then(data => {
+                    notifyMenager(false)
+                    setTimeout(() => {
+                        props.reloadProfile()
+                    }, 1000)
+                }).catch(() => {
+                    notifyMenager(true)
+                })
 
-    }
+        }
     }
 
     return (
         <Panel id={props.id}>
             {!isEmptyObject(account) ? <>
                 <PanelHeader
-                separator={platform===Platform.VKCOM}
-                before={<><PanelHeaderButton onClick={() => {
-                    setActiveModal("share");
-                }}>
+                    separator={platform === Platform.VKCOM}
+                    before={<><PanelHeaderButton onClick={() => {
+                        setActiveModal("share");
+                    }}>
                         <Icon28UserCardOutline />
                     </PanelHeaderButton>
                         <PanelHeaderButton label={account.notif_count ? <Counter size="s" mode="prominent">{account.notif_count}</Counter> : null}
@@ -189,18 +170,18 @@ export default (props: { navigation: any, callbacks: any, reloadProfile: any, id
                         </PanelHeaderButton></>}>Профиль</PanelHeader>
                 <PullToRefresh onRefresh={() => { setFetching(true); props.reloadProfile(); setTimeout(() => { setFetching(false) }, 1000) }} isFetching={fetching}>
                     <ProfileCard
-                    avatarUrl={account.avatar.url}
-                    profileId={account.id}
-                    nickname={account.nickname}
-                    permissions={permissions}
-                    flash={account.flash}
-                    donut={account.donut}
-                    verified={account.verified}
-                    good={account.good_answers+''}
-                    bad={account.bad_answers+''}
-                    total={total_answers+''}
-                    publicStatus={account.publicStatus || "Играю в любимую игру"}
-                    onClickStatus={() => {}} />
+                        avatarUrl={account.avatar.url}
+                        profileId={account.id}
+                        nickname={account.nickname}
+                        permissions={permissions}
+                        flash={account.flash}
+                        donut={account.donut}
+                        verified={account.verified}
+                        good={account.good_answers + ''}
+                        bad={account.bad_answers + ''}
+                        total={total_answers + ''}
+                        publicStatus={account.publicStatus || "Играю в любимую игру"}
+                        onClickStatus={() => { }} />
 
                     {/* <Group className={classNames(gradientStyles[calcInitialsAvatarColor(account.id)], style.backgroundProfile)}>
                         <div style={{height: 357}}></div>
@@ -264,26 +245,26 @@ export default (props: { navigation: any, callbacks: any, reloadProfile: any, id
                             total={total_answers+''} />
                         </Div>
                     </Group> */}
-                        
+
                     <Group>
                         <SimpleCell
-                        before={<Icon28Notifications />}
-                        disabled
-                        after={
-                            <Switch
-                            checked={notify}
-                            onChange={(e) => changeNotifStatus(e)} />
-                        }>Получать уведомления</SimpleCell>
+                            before={<Icon28Notifications />}
+                            disabled
+                            after={
+                                <Switch
+                                    checked={notify}
+                                    onChange={(e) => changeNotifStatus(e)} />
+                            }>Получать уведомления</SimpleCell>
                         <Div>
-                            <Caption style={{color: '#818C99'}}>
+                            <Caption style={{ color: '#818C99' }}>
                                 Уведомления позволят получать последние события от Команды специальных агентов по модерации ваших ответов
                             </Caption>
-                            
+
                         </Div>
                     </Group>
 
                     <Group>
-                        
+
                         <SimpleCell
                             expandable
                             href={CONVERSATION_LINK}
@@ -292,14 +273,14 @@ export default (props: { navigation: any, callbacks: any, reloadProfile: any, id
                             Чат
                         </SimpleCell>
                         {account.donut_chat_link && <SimpleCell
-                        expandable
-                        href={account.donut_chat_link}
-                        target="_blank" rel="noopener noreferrer"
-                        before={<Icon28DonateOutline />}>
+                            expandable
+                            href={account.donut_chat_link}
+                            target="_blank" rel="noopener noreferrer"
+                            before={<Icon28DonateOutline />}>
                             Эксклюзивный чат
                         </SimpleCell>}
                         <SimpleSeparator />
-                        
+
                         {agent_permission && (moderator_permission || <SimpleCell
                             expandable
                             onClick={() => {
@@ -315,30 +296,30 @@ export default (props: { navigation: any, callbacks: any, reloadProfile: any, id
                             Достижения
                         </SimpleCell> */}
                         <SimpleCell
-                        expandable
-                        onClick={() => {
-                            goPanel(activeStory, 'market', true);
-                            sendGoal('marketClick')
-                        }}
-                        before={<Icon28StorefrontOutline />}>
+                            expandable
+                            onClick={() => {
+                                goPanel(activeStory, 'market', true);
+                                sendGoal('marketClick')
+                            }}
+                            before={<Icon28StorefrontOutline />}>
                             Магазин
                         </SimpleCell>
 
                         <SimpleCell
-                        expandable
-                        onClick={() => {
-                            goPanel(activeStory, 'settings', true);
-                        }}
-                        before={<Icon28SettingsOutline />}>
+                            expandable
+                            onClick={() => {
+                                goPanel(activeStory, 'settings', true);
+                            }}
+                            before={<Icon28SettingsOutline />}>
                             Настройки
                         </SimpleCell>
 
                         <SimpleCell
-                        expandable
-                        before={<Icon28LifebuoyOutline />}
-                        onClick={() => {
-                            goPanel(activeStory, 'faqMain', true);
-                        }}>
+                            expandable
+                            before={<Icon28LifebuoyOutline />}
+                            onClick={() => {
+                                goPanel(activeStory, 'faqMain', true);
+                            }}>
                             Поддержка
                         </SimpleCell>
                         {!moderator_permission && MESSAGE_NO_VK}

@@ -25,7 +25,7 @@ import { enumerate } from '../../../../Utils';
 import { SPECIAL_NORM } from '../../../../config';
 import { GreenCard } from '../../../../components/GreenCard';
 
-export default props => {
+export const Answers = props => {
   
   const [fetching, setFetching] = useState(false);
   const {

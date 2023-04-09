@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux';
 import { Icon56GlobeCrossOutline } from '@vkontakte/icons';
 
 
-export default props => {
+export const DisconnectPanel = props => {
     const [buttonSpinner, setButtonSpinner] = useState(false);
     const { globalError } = useSelector((state) => state.views)
     return (

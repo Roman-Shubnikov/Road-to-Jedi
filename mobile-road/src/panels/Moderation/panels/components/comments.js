@@ -39,7 +39,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { viewsActions } from '../../../../store/main';
 import { enumerate, LinkHandler } from '../../../../Utils';
   
-export default props => {
+export const Comments = props => {
   const dispatch = useDispatch();
   const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
   const { moderationData } = useSelector((state) => state.moderation)

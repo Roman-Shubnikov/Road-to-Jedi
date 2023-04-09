@@ -33,7 +33,7 @@ import { enumerate } from '../../../../Utils';
 const blueBackground = {
     backgroundColor: 'var(--accent)'
   };
-export default props => {
+export const Verification = props => {
   const dispatch = useDispatch();
   const setActiveStory = useCallback((story) => dispatch(viewsActions.setActiveStory(story)), [dispatch]);
   const { moderationData } = useSelector((state) => state.moderation)
