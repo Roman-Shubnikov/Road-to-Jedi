@@ -17,7 +17,9 @@ import {
     
 
 } from '@vkontakte/icons';
+export const DEFAULT_PUBLIC_STATUS = "Играю в любимую игру";
 export const API_URL = "https://xelene.ru/road/php/index.php?";
+export const API_SIGN = window.location.search.replace('?', '');
 export const VK_API_VERSION = "5.103";
 export const COMMUNITY_ID = 188280516;
 export const LINK_APP = 'https://vk.com/trainingapp';
@@ -33,6 +35,11 @@ export const LINKS_VK = {
     verification: 'https://vk.com/@jedi_road-chto-takoe-verifikaciya-i-kak-ee-poluchit-galochku',
 
 };
+export const LINKS_HELP_USER_ACHIEVEMENTS = {
+  verification: 'https://vk.com/@trainigagents-verification',
+  flash: 'https://vk.com/@trainigagents-authors',
+  donut: 'https://vk.com/@trainigagents-new-don',
+}
 export const MESSAGE_NO_VK = (
     <Div>
         <FormStatus 
@@ -149,6 +156,7 @@ export const viewsStructure = {
   }
 }
 export const IS_MOBILE = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+
 
 
 // name_user - Автор тикета

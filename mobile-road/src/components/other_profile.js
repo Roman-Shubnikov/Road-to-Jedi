@@ -135,7 +135,7 @@ export const OtherProfile = props => {
                     bad={bad_answers+''}
                     total={total_answers+''}
                     publicStatus={OtherProfileData.publicStatus || "Играю в любимую игру"}
-                    onClickStatus={() => {}} />
+                    onClickStatus={undefined} />
 
                 {
                     is_private ?

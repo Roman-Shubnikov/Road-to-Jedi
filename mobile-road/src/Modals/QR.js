@@ -7,7 +7,7 @@ import {
 
 } from "@vkontakte/vkui";
 import vkQr from '@vkontakte/vk-qr';
-import ModalHeader from './headerModalPage';
+import { ModalHeader } from './headerModalPage';
 import { 
   Icon56ErrorOutline,
   Icon56CheckCircleOutline,

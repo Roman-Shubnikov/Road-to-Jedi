@@ -2,10 +2,9 @@ import React from 'react';
 import {
     Icon28RoubleCircleFillBlue,
     Icon28InfoOutline,
-    Icon28MoneyRequestOutline,
-    Icon28TicketOutline,
-    Icon28UserOutgoingOutline,
     Icon28DonateCircleFillYellow,
+    Icon16TicketOutline,
+    Icon16Add,
 } from '@vkontakte/icons';
 import {
     usePlatform,
@@ -15,13 +14,14 @@ import {
     Headline,
     Platform,
     Div,
-    Tappable,
-    TabbarItem,
     Text,
+    ButtonGroup,
+    Button,
 } from '@vkontakte/vkui';
 import { useSelector } from 'react-redux';
 import { LINKS_VK } from '../../../../config';
 import { useNavigation } from '../../../../hooks';
+
 
 export const Invoices = (props) => {
     const account = useSelector((state) => state.account.account);
@@ -48,13 +48,36 @@ export const Invoices = (props) => {
                     before={<Icon28RoubleCircleFillBlue />}
                     disabled
                     after={
-                        <IconButton
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            href={LINKS_VK.market_info_article}
-                        >
-                            <Icon28InfoOutline />
-                        </IconButton>
+                        // <IconButton
+                        //     target="_blank"
+                        //     rel="noopener noreferrer"
+                        //     href={LINKS_VK.market_info_article}
+                        // >
+                        //     <Icon28InfoOutline />
+                        // </IconButton>
+                        <ButtonGroup mode='vertical' stretched>
+                            <ButtonGroup stretched>
+                                {platform !== Platform.IOS && (<Button
+                                stretched
+                                appearance='positive'
+                                onClick={() =>
+                                    props.setActivetab('real-money-store')
+                                }
+                                ><Icon16Add /></Button>)}
+                                <Button
+                                stretched
+                                onClick={() => goPanel(activeStory, 'promocodes', true)}>
+                                    <Icon16TicketOutline />
+                                </Button>
+                            </ButtonGroup>
+                            
+                            <Button
+                            stretched
+                            mode='secondary'
+                            onClick={() => setActiveModal('transfer_send')}>
+                                Перевести
+                            </Button>
+                        </ButtonGroup>
                     }
                     multiline
                     subtitle={
@@ -74,50 +97,6 @@ export const Invoices = (props) => {
                 >
                     <Headline>{account.balance}</Headline>
                 </SimpleCell>
-                {platform === Platform.IOS && (
-                    <Div>
-                        <Text style={{ color: 'var(--subtext)' }}>
-                            Платежи на данной платформе недоступны.
-                        </Text>
-                    </Div>
-                )}
-                <Div
-                    className="vkuiTabbar--l-vertical"
-                    style={{ display: 'flex', justifyContent: 'space-around' }}
-                >
-                    {platform !== Platform.IOS && (
-                        <Tappable
-                            onClick={() =>
-                                props.setActivetab('real-money-store')
-                            }
-                            style={{ padding: 8 }}
-                        >
-                            <TabbarItem
-                                selected={platform !== Platform.IOS}
-                                text="Пополнить"
-                            >
-                                <Icon28MoneyRequestOutline />
-                            </TabbarItem>
-                        </Tappable>
-                    )}
-
-                    <Tappable
-                        style={{ padding: 8 }}
-                        onClick={() => goPanel(activeStory, 'promocodes', true)}
-                    >
-                        <TabbarItem selected text="Промокоды">
-                            <Icon28TicketOutline />
-                        </TabbarItem>
-                    </Tappable>
-                    <Tappable
-                        style={{ padding: 8 }}
-                        onClick={() => setActiveModal('transfer_send')}
-                    >
-                        <TabbarItem selected text="Перевести">
-                            <Icon28UserOutgoingOutline />
-                        </TabbarItem>
-                    </Tappable>
-                </Div>
             </Group>
             <Group>
                 <SimpleCell

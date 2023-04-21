@@ -24,6 +24,7 @@ import { useSelector } from 'react-redux';
 import { enumerate } from '../../../../Utils';
 import { SPECIAL_NORM } from '../../../../config';
 import { GreenCard } from '../../../../components/GreenCard';
+import { useNavigation } from '../../../../hooks';
 
 export const Answers = props => {
   
@@ -32,7 +33,9 @@ export const Answers = props => {
     account
   } = useSelector((state) => state.account);
   const { answers } = useSelector((state) => state.moderation.moderationData);
-  const { setActiveModal, getInfo, goTiket } = props.callbacks;
+  const { getInfo, goTiket } = props.callbacks;
+  const { setActiveModal } = useNavigation();
+
   const colorHandler = (num) => {
     let styles = {};
     let num_style = 1

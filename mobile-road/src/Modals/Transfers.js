@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; // React
+import React, { useState } from 'react';
 import { 
     ModalCard,
     Button,
@@ -8,6 +8,9 @@ import {
     ScreenSpinner,
     Avatar,
     FormLayoutGroup,
+    Caption,
+    Div,
+    Textarea,
 } from "@vkontakte/vkui";
 import { 
   Icon56MoneyTransferOutline,
@@ -69,9 +72,16 @@ export const ModalTransfers = ({id, reloadProfile, setTransfers}) => {
         id={id}
         onClose={closeModal}
         icon={<Icon56MoneyTransferOutline />}
-        header="Сделать перевод"
+        header="Перевод"
       >
           <FormLayout>
+            <Div>
+              <Caption
+              style={{ color: 'var(--description_color)', textAlign: 'center' }}>
+                Здесь вы можете отправить свои баллы коллегам на траты в сервисе на возможности
+              </Caption>
+            </Div>
+          
             <FormLayoutGroup
             mode='horizontal'>
               <FormItem
@@ -95,10 +105,10 @@ export const ModalTransfers = ({id, reloadProfile, setTransfers}) => {
             <FormItem
               status={validateInputs(comment)[0]}
               bottom={validateInputs(comment)[1]}>
-              <Input
+              <Textarea
                 maxLength="100"
                 name="money_transfer_comment"
-                onChange={(e) => {setComment(e.currentTarget.value);console.log(e.currentTarget.value)}}
+                onChange={(e) => {setComment(e.currentTarget.value);}}
                 placeholder="Комментарий"
                 value={comment}
               />

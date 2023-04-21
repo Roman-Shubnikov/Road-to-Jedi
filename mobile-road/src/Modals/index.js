@@ -25,6 +25,7 @@ import { useSelector } from 'react-redux';
 import { Icon56MessageReadOutline } from '@vkontakte/icons';
 import { SPECIAL_NORM } from '../config';
 import { enumerate } from '../Utils';
+import { EditStatus } from './EditStatus';
 
 // type ticketsData = {
 //     tickets: {
@@ -51,8 +52,6 @@ export const Modals = ({
     Transfers,
     setTransfers,
     Transfer,
-    isMyMark,
-    setIsMyMark,
 
  }) => {
     const { closeModal, Modal, setActiveModal, setSnackbar } = useNavigation();
@@ -63,30 +62,18 @@ export const Modals = ({
         <ModalRoot
         onClose={closeModal}
         activeModal={Modal}>
+            <EditStatus id='edit_status' />
             <CommentAgent
                 id='comment'
                 comment={comment_special} />
-            <AgentFlashing
-                id='prom'
-                onClose={() => {closeModal();setIsMyMark(false)}}
-                action={closeModal}
-                action2={isMyMark ? () => { setSharingType('prometay'); setActiveModal('share2') } : undefined} />
 
-            <Donut
-                id='donut'
-                onClose={() => {closeModal();setIsMyMark(false)}}
-                action={closeModal}
-                action2={isMyMark ? () => { setSharingType('donut'); setActiveModal('share2') } : undefined} />
+            <AgentFlashing id='flash_help' />
 
-            <Verification
-                id='verif'
-                onClose={() => {closeModal();setIsMyMark(false)}}
-                action={closeModal}
-                action2={isMyMark ? () => { setSharingType('verif'); setActiveModal('share2') } : undefined} />
+            <Donut id='donut_help' />
 
-            <Ban
-                id='ban_user'
-            />
+            <Verification id='verification_help' />
+
+            <Ban id='ban_user' />
             
             <ModalShare
             id="share"

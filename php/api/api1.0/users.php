@@ -117,7 +117,7 @@ class Users {
 						files.path as avatar_path, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname, users.donuts,
 						users.lvl, users.exp
 				FROM users
-				LEFT JOIN files ON users.avatarId=files.path
+				LEFT JOIN files ON users.avatarId=files.id
 				WHERE users.id IN ( $s_ids ) AND users.vk_user_id NOT IN (SELECT vk_user_id FROM banned where time_end>?) $order";
 		$res = $this->Connect->db_get( $sql, [time()] );
 
@@ -155,7 +155,8 @@ class Users {
 						files.path as avatar_path, users.money, users.flash, users.verified,users.donut, users.diamond, users.nickname, users.donuts,
 						users.lvl, users.exp
 				FROM users
-				LEFT JOIN files ON users.avatarId=files.path
+				LEFT JOIN files 
+				ON users.avatarId=files.id
 				WHERE users.vk_user_id NOT IN (SELECT vk_user_id FROM banned where time_end>?) 
 				AND users.permissions=?
 				AND users.last_activity > ? $order LIMIT $count";

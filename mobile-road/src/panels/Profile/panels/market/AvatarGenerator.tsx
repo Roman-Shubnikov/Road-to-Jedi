@@ -44,7 +44,7 @@ type IconsData = {
 type profileData = { account: { account: { avatar: { id: number, url: string } } } };
 type avatarData = { id: number, bucket_path: string; path: string; hash: string };
 
-export const AvatarGenerator = ({ reloadProfile }: { reloadProfile: any }) => {
+export const AvatarGenerator = ({ reloadProfile }: { reloadProfile: VoidFunction }) => {
     const account = useSelector((state: profileData) => state.account.account);
     const [myColors, setMyColors] = useState<null | ColorsData>(null);
     const [myIcons, setMyIcons] = useState<null | IconsData>(null);
@@ -178,7 +178,7 @@ export const AvatarGenerator = ({ reloadProfile }: { reloadProfile: any }) => {
     return (
         <>
             <Group>
-                {fetching && <PanelSpinner height={610} size="large" />}
+                {fetching && <PanelSpinner height={400} size="large" />}
                 {!fetching && (
                     <Div className={style.avatar_container}>
                         <img

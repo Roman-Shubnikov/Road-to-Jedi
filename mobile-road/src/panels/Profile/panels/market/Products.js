@@ -296,7 +296,7 @@ export const Products = (props) => {
                     }}
                 >
                     <GalleryItems>
-                        {avalibleIcons && chunkArray(avalibleIcons, 28).map((chunkIcons, i) => 
+                        {avalibleIcons && chunkArray(avalibleIcons, 27).map((chunkIcons, i) => 
                         <GalleryCard key={i}>
                             {chunkIcons.map((icon, i) => (
                                 <PurchasedIcon
@@ -386,7 +386,7 @@ const GalleryCard = ({children}) => {
 };
 
 const GalleryItems = ({children}) => {
-    return <Gallery bullets='light'>{children}</Gallery>;
+    return <Gallery showArrows bullets='light'>{children}</Gallery>;
 };
 
 const ShopCard = ({

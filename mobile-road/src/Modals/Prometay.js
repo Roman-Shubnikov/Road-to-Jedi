@@ -7,20 +7,24 @@ import {
   } from '@vkontakte/vkui';
 import { Icon56FireOutline } from '@vkontakte/icons';
 import { useNavigation } from '../hooks';
+import { LINKS_HELP_USER_ACHIEVEMENTS } from '../config';
 
-export const AgentFlashing = props => {
+export const AgentFlashing = ({ id }) => {
   const { closeModal } = useNavigation();
   return (
       <ModalCard
-          id={props.id}
+          id={id}
           onClose={closeModal}
-          icon={<Icon56FireOutline style={{color: "var(--prom_icon)"}} width={72} height={72} />}
-          subheader="Прометей — особенный значок, выдаваемый агентам за хорошее качество ответов."
-          actions={props.action2 ? [
-            <Button mode='secondary' key={1} stretched size='l' onClick={props.action2}>Рассказать</Button>,
-            <Button mode='primary' key={2} stretched size='l' onClick={props.action}>Понятно</Button>
-          ] : 
-            <Button mode='primary' stretched size='l' onClick={action}>Понятно</Button>
+          icon={<Icon56FireOutline style={{color: "var(--strong_blue)"}} />}
+          header='Профиль Прометея'
+          subheader="Агент Поддержки работает днем и ночью, тем самым получая положительные оценки от Команды Специальных агентов."
+          actions={
+            <Button stretched size='l'
+            rel="noopener noreferrer" 
+            href={LINKS_HELP_USER_ACHIEVEMENTS.flash} 
+            target="_blank" >
+              Узнать о уникальности
+            </Button>
           }
           
         />

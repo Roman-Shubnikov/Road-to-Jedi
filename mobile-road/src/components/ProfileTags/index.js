@@ -1,7 +1,6 @@
 import React from 'react';
 import {
-    Subhead,
-    unstable_RichTooltip as RichTooltip
+    Tappable
 } from '@vkontakte/vkui';
 import './profileTags.css';
 import {
@@ -10,44 +9,29 @@ import {
     Icon16Verified,
   
   } from '@vkontakte/icons'
-
-const TooltipContent = ({children}) => {
-    return <Subhead weight="2" style={{padding: '8px 12px', color: 'var(--text_primary)', 
-    background: 'var(--vkui--color_background_content)', borderRadius: 8}}>
-            {children}
-        </Subhead>
-}
+import { useNavigation } from '../../hooks';
 
 export const ProfileTags = ({ verified, flash, donut, size='s' }) => {
+    const { setActiveModal } = useNavigation();
     if(size === 's') return (
         <div className="profile-tags">
             <div className="profile-tags_icon">
                 {flash &&
-                <RichTooltip content={
-                    <TooltipContent>
-                        Ответы Агента вызывают повышенный интерес
-                    </TooltipContent>
-                }>
+                <Tappable onClick={() => setActiveModal('flash_help')}>
                     <Icon16Fire style={{color: 'var(--prom_icon)'}} width={12} height={12} />
-                </RichTooltip>}
+                </Tappable>}
             </div>
             <div className="profile-tags_icon">
                 {donut &&
-                <RichTooltip content={
-                    <TooltipContent>
-                        Агент поддержал проект
-                    </TooltipContent>
-                }><Icon16StarCircleFillYellow width={12} height={12} />
-                </RichTooltip>}
+                <Tappable onClick={() => setActiveModal('donut_help')}>
+                    <Icon16StarCircleFillYellow width={12} height={12} />
+                </Tappable>}
             </div>
             <div className="profile-tags_icon">
                 {verified && 
-                <RichTooltip content={
-                    <TooltipContent>
-                        Профиль Агента подтвержден
-                    </TooltipContent>
-                }><Icon16Verified style={{color: 'var(--verification_color)'}} />
-                </RichTooltip>}
+                <Tappable onClick={() => setActiveModal('verification_help')}>
+                    <Icon16Verified style={{color: 'var(--verification_color)'}} />
+                </Tappable>}
             </div>
         </div>
     )
@@ -55,31 +39,21 @@ export const ProfileTags = ({ verified, flash, donut, size='s' }) => {
         <div className="profile-tags">
             <div className="profile-tags_icon">
                 {flash &&
-                <RichTooltip content={
-                    <TooltipContent>
-                        Ответы Агента вызывают повышенный интерес
-                    </TooltipContent>
-                }>
+                <Tappable onClick={() => setActiveModal('flash_help')}>
                     <Icon16Fire style={{color: 'var(--prom_icon)'}} />
-                </RichTooltip>}
+                </Tappable>}
             </div>
             <div className="profile-tags_icon">
                 {donut &&
-                <RichTooltip content={
-                    <TooltipContent>
-                        Агент поддержал проект
-                    </TooltipContent>
-                }><Icon16StarCircleFillYellow />
-                </RichTooltip>}
+                <Tappable onClick={() => setActiveModal('donut_help')}>
+                    <Icon16StarCircleFillYellow />
+                </Tappable>}
             </div>
             <div className="profile-tags_icon">
                 {verified && 
-                <RichTooltip content={
-                    <TooltipContent>
-                        Профиль Агента подтвержден
-                    </TooltipContent>
-                }><Icon16Verified style={{color: 'var(--verification_color)'}} />
-                </RichTooltip>}
+                <Tappable onClick={() => setActiveModal('verification_help')}>
+                    <Icon16Verified style={{color: 'var(--verification_color)'}} />
+                </Tappable>}
             </div>
         </div>
     )

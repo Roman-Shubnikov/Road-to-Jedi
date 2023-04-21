@@ -1,30 +1,28 @@
 import React from 'react';
 import { 
-  Link,
     ModalCard,
     Button,
 
   } from '@vkontakte/vkui';
-import Icon36Done         from '@vkontakte/icons/dist/36/done';
+import { LINKS_HELP_USER_ACHIEVEMENTS } from '../config';
+import { Icon56CheckCircleOutline } from '@vkontakte/icons';
+import { useNavigation } from '../hooks';
 
-
-export const Verification = props => {
+export const Verification = ({ id }) => {
+  const { closeModal } = useNavigation();
     return (
         <ModalCard
-            id={props.id}
-            onClose={props.onClose}
-            icon={<Icon36Done style={{color: "var(--accent)"}} width={72} height={72} />}
-            subheader={<>Этот профиль был верифицирован.<br /><br />
-            <Link 
-              href='https://vk.com/@jedi_road-chto-takoe-verifikaciya-i-kak-ee-poluchit-galochku'
-              target="_blank"
-              rel="noopener noreferrer">Узнайте больше о новой верификации
-            </Link></>}
-            actions={props.action2 ? [
-              <Button mode='secondary' key={1} stretched size='l' onClick={props.action2}>Рассказать</Button>,
-              <Button mode='primary' key={2} stretched size='l' onClick={props.action}>Понятно</Button>
-            ] : 
-              <Button mode='primary' stretched size='l' onClick={props.action}>Понятно</Button>
+            id={id}
+            onClose={closeModal}
+            icon={<Icon56CheckCircleOutline style={{color: "var(--strong_blue)"}} />}
+            header='Верифицированный агент'
+            subheader='Агент Поддержки подтверил официальность своей карточки, теперь возле его номера отображается соответствующая метка.'
+            actions={<Button stretched size='l'
+                    rel="noopener noreferrer" 
+                    href={LINKS_HELP_USER_ACHIEVEMENTS.verification} 
+                    target="_blank" >
+                      Узнать о верификации
+                    </Button>
             }
             
           />

@@ -23,36 +23,44 @@ import {
     Icon28PenStackOutline,
     Icon28Notifications,
     Icon28StorefrontOutline,
-    Icon28SettingsOutline,
     Icon28MessagesOutline,
     Icon28LifebuoyOutline,
     Icon28DonateOutline,
+    Icon28CheckCircleOutline,
 } from '@vkontakte/icons';
 
 import { isEmptyObject } from 'jquery';
 import { useSelector } from 'react-redux';
-import { API_URL, COMMUNITY_ID, CONVERSATION_LINK, MESSAGE_NO_VK, PERMISSIONS } from '../../../config';
+import { API_URL, COMMUNITY_ID, CONVERSATION_LINK, DEFAULT_PUBLIC_STATUS, MESSAGE_NO_VK, PERMISSIONS } from '../../../config';
 import { sendGoal } from '../../../metrika';
 import { ProfileCard, SimpleSeparator } from '../../../components';
 import { StoreObject } from '../../../store';
+import { useNavigation } from '../../../hooks';
 
 
 
-export const ProfilePanel = (props: { navigation: any, callbacks: any, reloadProfile: any, id: string }) => {
+export const ProfilePanel = (props: { reloadProfile: VoidFunction, id: string }) => {
     const platform = usePlatform();
     const account = useSelector((state: StoreObject) => state.account.account)
-    const { setActiveModal, goPanel, showErrorAlert, setPopout } = props.callbacks;
     const { activeStory } = useSelector((state: StoreObject) => state.views)
-    const { goDisconnect } = props.navigation;
     const [fetching, setFetching] = useState(false);
     const [notify, setNotify] = useState(account ? account.settings.notify : false)
+
+    const { 
+        setActiveModal, 
+        goPanel, 
+        showErrorAlert, 
+        setPopout, 
+        goDisconnect,
+    } = useNavigation();
+
     const permissions = account.permissions;
     const moderator_permission = permissions >= PERMISSIONS.special;
     const agent_permission = permissions === PERMISSIONS.agent;
     const total_answers = account['good_answers'] + account['bad_answers'];
 
 
-    const statusMenager = () => {
+    // const statusMenager = () => {
         // if(!editingStatus){
         //   setEdititingStatus(true);
         //     setOriginalStatus(account.publicStatus||'');
@@ -61,26 +69,10 @@ export const ProfilePanel = (props: { navigation: any, callbacks: any, reloadPro
         //   setPopout(<ScreenSpinner/>);
         //   setEdititingStatus(false)
 
-        //   fetch(API_URL + 'method=account.changeStatus&' + window.location.search.replace('?', ''), {
-        //     method: 'post',
-        //     headers: { "Content-type": "application/json; charset=UTF-8" },
-        //     body: JSON.stringify({
-        //         'status': publicStatus.trim(),
-        //     })
-        // })
-        //   .then(res => res.json())
-        //   .then(data => {
-        //       if (data.result) {
-        //         dispatch(accountActions.setPublicStatus(publicStatus))
-        //         setPopout(null)
-        //       } else {
-        //           showErrorAlert(data.error.message)
-        //       }
-        //   })
-        //   .catch(goDisconnect)
+        
 
         // }
-    }
+    // }
 
     const notifyMenager = (value: boolean) => {
         fetch(API_URL + "method=settings.set&" + window.location.search.replace('?', ''),
@@ -116,7 +108,7 @@ export const ProfilePanel = (props: { navigation: any, callbacks: any, reloadPro
                     mode: 'default',
                     action: () => {
                         bridge.send("VKWebAppAllowMessagesFromGroup", { "group_id": COMMUNITY_ID })
-                            .then(data => {
+                            .then(() => {
                                 setNotify(true)
                                 notifyMenager(true)
                                 setTimeout(() => {
@@ -140,7 +132,7 @@ export const ProfilePanel = (props: { navigation: any, callbacks: any, reloadPro
             />)
         } else {
             bridge.send("VKWebAppDenyNotifications")
-                .then(data => {
+                .then(() => {
                     notifyMenager(false)
                     setTimeout(() => {
                         props.reloadProfile()
@@ -180,8 +172,8 @@ export const ProfilePanel = (props: { navigation: any, callbacks: any, reloadPro
                         good={account.good_answers + ''}
                         bad={account.bad_answers + ''}
                         total={total_answers + ''}
-                        publicStatus={account.publicStatus || "Играю в любимую игру"}
-                        onClickStatus={() => { }} />
+                        publicStatus={account.publicStatus || DEFAULT_PUBLIC_STATUS}
+                        onClickStatus={() => { setActiveModal('edit_status') }} />
 
                     {/* <Group className={classNames(gradientStyles[calcInitialsAvatarColor(account.id)], style.backgroundProfile)}>
                         <div style={{height: 357}}></div>
@@ -305,14 +297,12 @@ export const ProfilePanel = (props: { navigation: any, callbacks: any, reloadPro
                             Магазин
                         </SimpleCell>
 
-                        <SimpleCell
-                            expandable
-                            onClick={() => {
-                                goPanel(activeStory, 'settings', true);
-                            }}
-                            before={<Icon28SettingsOutline />}>
-                            Настройки
-                        </SimpleCell>
+                        {<SimpleCell
+                        indicator={account.verified ? 'Присвоена' : null}
+                        disabled={!!account.verified}
+                        expandable={!account.verified}
+                        onClick={!account.verified ? () => goPanel(activeStory, 'verf', true) : undefined}
+                        before={<Icon28CheckCircleOutline />}>Верификация</SimpleCell>}
 
                         <SimpleCell
                             expandable

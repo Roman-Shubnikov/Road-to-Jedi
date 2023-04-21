@@ -6,13 +6,13 @@ import {
 import { accountActions } from '../store/main';
 import { API_URL } from '../config';
 
-export const errorAlertCreator = (setPopout, error = null, action = null) => {
+export const errorAlertCreator = (setPopout, error = null, action = () => setPopout(null)) => {
     setPopout(
         <Alert
             actionsLayout="horizontal"
             actions={[{
                 title: 'Отмена',
-                autoclose: true,
+                autoClose: true,
                 mode: 'cancel',
                 action: action,
             }]}
@@ -58,8 +58,7 @@ export const goPanelCreator = (setHistory, setActivePanel, historyPanelsState, p
     setHistory(history);
     setActivePanel(panel)
 }
-export const goOtherProfileCreator = (goPanel, activeStory, showErrorAlert, OtherProfileData, dispatch, id) => {
-    // if (isEmptyObject(OtherProfileData) || OtherProfileData.id !== id) {
+export const goOtherProfileCreator = (goPanel, activeStory, showErrorAlert, dispatch, id) => {
         fetch(API_URL + "method=user.getById&" + window.location.search.replace('?', ''),
         {
             method: 'post',
@@ -77,9 +76,8 @@ export const goOtherProfileCreator = (goPanel, activeStory, showErrorAlert, Othe
                 showErrorAlert(data.error.message)
             }
         })
-        .catch(err => {
+        .catch(() => {
             goPanel('disconnect', 'load');
         })
         
-    // }
 }

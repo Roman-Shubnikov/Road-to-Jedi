@@ -1,10 +1,9 @@
 .gallery_card_root {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
     gap: 24px;
-    padding: 18px;
-    padding-bottom: 25px;
+    padding: 18px 50px;
+    padding-bottom: 30px;
     box-sizing: border-box;
 }
 .gallery_card_item_root {

@@ -8,7 +8,7 @@ import {
     
 
 } from "@vkontakte/vkui";
-import ModalHeader from './headerModalPage';
+import { ModalHeader } from './headerModalPage';
 import bridge from '@vkontakte/vk-bridge'; // VK Brige
 import { blueBackground, HISTORY_IMAGES, LINK_APP, POST_TEXTS } from "../config";
 import { 

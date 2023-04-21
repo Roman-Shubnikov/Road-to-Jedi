@@ -21,7 +21,7 @@ import {
 } from '@vkontakte/icons';
 import { getHumanyTime } from '../Utils';
 import { AVATARS_URL } from '../config';
-import ModalHeader from './headerModalPage';
+import { ModalHeader } from './headerModalPage';
 import { useNavigation } from '../hooks';
 
 export const CommentAgent = props => {

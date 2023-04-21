@@ -12,7 +12,7 @@ import {
 
 } from "@vkontakte/icons";
 
-export default props => {
+export const ModalHeader = props => {
     const platform = usePlatform();
     return(
         <ModalPageHeader

@@ -61,12 +61,12 @@ export const ModerationPanel = props => {
     },
     { 
       label: <Icon24UsersOutline />,
-      value: 'comments',
+      value: 'generator',
       title: 'Генератор'
     },
     { 
       label: <Icon24Cards2Outline />,
-      value: 'generator',
+      value: 'comments',
       title: 'Комментарии'
     },
     { 

@@ -3,10 +3,8 @@ import {
     classNames,
     Avatar,
     Div,
-    Button,
-    FormLayout,
-    Text,
     calcInitialsAvatarColor,
+    Tappable,
 
 
 } from '@vkontakte/vkui';
@@ -57,6 +55,7 @@ export const ProfileCard = ({
     onClickStatus,
 
 }: ProfileCardProps) => {
+    const enabledStatusClick = !!onClickStatus;
     return (
         <Group className={classNames(gradientStyles[calcInitialsAvatarColor(profileId)], style.backgroundProfile)}>
             <div style={{height: 357}}></div>
@@ -78,12 +77,14 @@ export const ProfileCard = ({
                     donut={donut}
                     verified={verified} />
                 </div>
-                
-                <Text
+                <Tappable
+                hasActive={enabledStatusClick}
+                hasHover={enabledStatusClick}
                 onClick={onClickStatus}
                 className={style.publicStatus}>
                     {publicStatus}
-                </Text>
+                </Tappable>
+            
             
             <InfoChipsStatistic
                 className={style.statistic}

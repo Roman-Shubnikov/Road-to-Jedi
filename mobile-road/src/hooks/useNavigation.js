@@ -130,7 +130,6 @@ export const useNavigation = () => {
                 goPanel,
                 activeStory,
                 showErrorAlert,
-                OtherProfileData,
                 dispatch,
                 id
             );
