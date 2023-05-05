@@ -9,7 +9,7 @@ let files = fs.readdirSync(testFolder);
 
 for (let f of fs.readdirSync(mainFolder)) {
   sharp(mainFolder + f)
-      .resize(300)
+  .resize(300)
   .png()
   .toFile(testFolder + f.split('.')[0] + '.png')
 }
@@ -29,8 +29,8 @@ const s3 = new S3Client({
 
 async function save(path, buffer) {
     // try {
-      await s3.send(new PutObjectCommand({Bucket: '244a64f4-roadjedi', Key: path, Body: buffer, ContentType: 'image/svg+xml'}))
-      // await s3.send(new PutObjectCommand({Bucket: '244a64f4-roadjedi', Key: path, Body: buffer, ContentType: 'image/png'}))
+      // await s3.send(new PutObjectCommand({Bucket: '244a64f4-roadjedi', Key: path, Body: buffer, ContentType: 'image/svg+xml'}))
+      await s3.send(new PutObjectCommand({Bucket: '244a64f4-roadjedi', Key: path, Body: buffer, ContentType: 'image/png'}))
 
       console.log(`saved ${path}`);
 
@@ -43,20 +43,20 @@ async function save(path, buffer) {
 
 // let testFiles = files.slice(0, 2);
 
-// for (let i of files) {
-//   console.log(i, fs.readFileSync(testFolder + i));
-//     save('/icons/28/png/' + i, fs.readFileSync(testFolder + i))
-// }
-for (let i of fs.readdirSync(mainFolder)) {
-  console.log(i, fs.readFileSync(mainFolder + i));
-    save('/icons/28/svg/' + i, fs.readFileSync(mainFolder + i))
+for (let i of files) {
+  console.log(i, fs.readFileSync(testFolder + i));
+    save('/icons/28/png/' + i, fs.readFileSync(testFolder + i))
 }
+// for (let i of fs.readdirSync(mainFolder)) {
+//   console.log(i, fs.readFileSync(mainFolder + i));
+//     save('/icons/28/svg/' + i, fs.readFileSync(mainFolder + i))
+// }
 // for(let i of fs.readdirSync(testFolder)) {
     
 //     console.log(i)
 //     let b = async () => {
 //       try {
-//         await s3.send(new DeleteObjectCommand({Bucket: '244a64f4-roadjedi', Key: '/icons/28/' + i}))
+//         await s3.send(new DeleteObjectCommand({Bucket: '244a64f4-roadjedi', Key: '/icons/28/png/' + i}))
 //         console.log('delete', i)
 //       } catch(error) {
 //         console.log('failed to delete')

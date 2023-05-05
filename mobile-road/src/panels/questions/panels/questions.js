@@ -178,7 +178,7 @@ export const QuestionsPanel = ({ goTicket, id }) => {
                             />
                         }
                         actions={
-                            <Button mode="overlay_primary" href="https://vk.com/@jedi_road-checking-responses" target="_blank" rel="noopener noreferrer" size="m">Читать</Button>
+                            <Button mode="overlay_primary" href="https://vk.com/@trainingagents-checking-responses" target="_blank" rel="noopener noreferrer" size="m">Читать</Button>
                         }
                     />
                 </Group>
