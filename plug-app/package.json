@@ -1,0 +1,63 @@
+{
+  "name": "plug-road",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env PORT=10888 HTTPS=true react-scripts --openssl-legacy-provider start",
+    "tunnel": "vk-tunnel --insecure=1 --http-protocol=https --ws-protocol=wss --host=localhost --port=10888",
+    "start-vk": "yarn start && yarn tunnel",
+    "build": "set \"GENERATE_SOURCEMAP=false\" && react-scripts --openssl-legacy-provider build",
+    "predeploy": "yarn build",
+    "deploy": "vk-miniapps-deploy"
+  },
+  "homepage": "./",
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "cross-env": "^7.0.3",
+    "react-hot-loader": "^4.13.0",
+    "react-scripts": "5.0.1",
+    "terser-brunch": "^4.0.0"
+  },
+  "dependencies": {
+    "@types/node": "^18.15.11",
+    "@types/react": "^18.0.31",
+    "@types/react-dom": "^18.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
+    "@typescript-eslint/parser": "^5.57.1",
+    "@vkontakte/icons": "^2.21.0",
+    "@vkontakte/mvk-mini-apps-scroll-helper": "^1.2.0",
+    "@vkontakte/vk-bridge": "^2.7.2",
+    "@vkontakte/vk-miniapps-deploy": "0.0.17",
+    "@vkontakte/vkui": "^5.3.1",
+    "babel-eslint": "^10.1.0",
+    "eruda": "^2.2.0",
+    "eruda-code": "^2.0.0",
+    "eruda-dom": "^2.0.0",
+    "eslint": "^8.38.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^1.7.0",
+    "lottie-react": "^2.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.0.3"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

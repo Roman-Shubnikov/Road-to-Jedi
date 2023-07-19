@@ -1,0 +1,10 @@
+{
+  "app_id": "7409818",
+  "endpoints": ["mobile", "mvk", "web"],
+  "NODE_TLS_REJECT_UNAUTHORIZED": 0,
+  "PROXY_HTTP_PROTO": "https",
+  "PROXY_WS_PROTO": "wss",
+  "PROXY_HOST": "localhost",
+  "PROXY_PORT": 10888,
+  "PROXY_TIMEOUT": 5000
+}
