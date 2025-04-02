@@ -22,7 +22,7 @@ import Icon28ScanViewfinderOutline  from '@vkontakte/icons/dist/28/scan_viewfind
 import { API_URL } from '../../../config';
 import { isEmptyObject } from 'jquery';
 
-import queryString from 'query-string';
+import queryString from 'querystring-es3';
 
 
 const greenBackground = {

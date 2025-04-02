@@ -53,6 +53,7 @@
     "eslint-plugin-react-hooks": "^1.7.0",
     "jquery": "^3.6.0",
     "prop-types": "^15.7.2",
+    "querystring-es3": "^0.2.1",
     "react": "^18.2.0",
     "react-anchorme": "^2.1.0",
     "react-animations": "^1.0.0",

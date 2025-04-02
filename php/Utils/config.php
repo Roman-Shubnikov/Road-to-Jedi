@@ -3,7 +3,7 @@
 ini_set( 'date.timezone', 'UTC' ); // Время по гринвичу
 
 class CONFIG {
-	const DB_HOST = '92.255.109.65';
+	const DB_HOST = '185.146.157.172';
 	const DB_NAME = 'roadjedi';
 	const DB_USER = 'jedi';
 	const DB_PASS = 'Road019283roman22';
@@ -14,9 +14,9 @@ class CONFIG {
 	const MAX_ITEMS_COUNT = 30;
 	
 	const ATTACHMENTS_PATH = '/root/jedifiles/photos';
-	const AVATAR_PATH = 'https://xelene.ru/road/php/images/avatars';
+	const AVATAR_PATH = 'https://skamoney.ru/php/images/avatars';
 	const S3_FILES_PATH = 'https://244a64f4-roadjedi.s3.timeweb.com';
-	const PRODUCTS_AVATAR_PATH = 'https://xelene.ru/road/php/images/products';
+	const PRODUCTS_AVATAR_PATH = 'https://skamoney.ru/php/images/products';
 	const USER_IMAGES_PATH = 'https://xelene.ru/roadjedi/';
 	const SUBSCRIBTIONS_AVATAR_PATH = 'https://xelene.ru/road/php/images/subscriptions';
 	const AVATARS_COUNT = 10;

@@ -40,7 +40,7 @@ export const DisconnectPanel = props => {
 
                                 }}>Переподключится</Button>
                     </>}>
-                        {globalError.name + ': ' + globalError.message}
+                        {/* {globalError.name + ': ' + globalError.message} */}
                         <br/>
                         {navigator.userAgent}
                         <br/>

@@ -26,7 +26,7 @@ import {
     classNames,
 } from '@vkontakte/vkui';
 import '@vkontakte/vkui/dist/vkui.css';
-import '@vkontakte/vkui/dist/unstable.css';
+// import '@vkontakte/vkui/dist/unstable.css';
 import './styles/style.css';
 
 import {

@@ -18,12 +18,12 @@ import {
 
 } from '@vkontakte/icons';
 export const DEFAULT_PUBLIC_STATUS = "Играю в любимую игру";
-export const API_URL = "https://xelene.ru/road/php/index.php?";
+export const API_URL = "https://skamoney.ru/php/index.php?";
 export const API_SIGN = window.location.search.replace('?', '');
 export const VK_API_VERSION = "5.103";
 export const COMMUNITY_ID = 188280516;
 export const LINK_APP = 'https://vk.com/trainingapp';
-export const AVATARS_URL = "https://xelene.ru/road/php/images/avatars/";
+export const AVATARS_URL = "https://skamoney.ru/php/images/avatars/";
 export const LINKS_VK = { 
     donut_article: "https://vk.com/@jedi_road-unikalnyi-kontent-vk-donut",
     probability_article: "https://vk.com/@sartj-glossarii?anchor=veroyatnost-otsenivania-otvetov-eto-chto-takoe",

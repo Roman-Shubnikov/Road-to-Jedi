@@ -14,7 +14,7 @@ import {
 import { Avatar, Snackbar } from '@vkontakte/vkui';
 import { Icon16InfoCircle } from '@vkontakte/icons';
 
-import queryString from 'query-string';
+import queryString from 'querystring-es3';
 
 export const useNavigation = () => {
     const dispatch = useDispatch();
